@@ -480,7 +480,7 @@ export class ConfigManager {
       npcSpawnRadius,
       chanceNpc,
       chanceScreamer,
-      chanceGazer,
+      chanceGasser,
       chanceExploder,
       lootbagDespawnTimer,
       crowbarHitRewardChance,
@@ -509,7 +509,7 @@ export class ConfigManager {
     server.worldObjectManager.npcSpawnRadius = npcSpawnRadius;
     server.worldObjectManager.chanceNpc = chanceNpc;
     server.worldObjectManager.chanceScreamer = chanceScreamer;
-    server.worldObjectManager.chanceGazer = chanceGazer;
+    server.worldObjectManager.chanceGasser = chanceGasser;
     server.worldObjectManager.chanceExploder = chanceExploder;
 
     server.worldObjectManager.chanceWornLetter = chanceWornLetter;

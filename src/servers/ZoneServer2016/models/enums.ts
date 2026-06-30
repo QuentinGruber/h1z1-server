@@ -418,7 +418,7 @@ export enum VehicleIds {
 export enum NpcIds {
   SURVIVOR = 0, // fake, just made for convinence
   ZOMBIE = 3,
-  GAZER = 4, // fake, not based on game data
+  GASSER = 4, // fake, not based on game data
   EXPLODER = 5, // fake, not based on game data
   PROTOTYPE_HUNTER_ZOMBIE = 100, // fake, not based on game data
   PROTOTYPE_SNIPER_ZOMBIE = 101, // fake, not based on game data

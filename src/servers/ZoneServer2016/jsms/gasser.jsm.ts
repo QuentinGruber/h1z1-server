@@ -61,13 +61,13 @@ function moveToward(
   npc.navAgent.requestMoveTarget(navTarget);
 }
 
-function listenToSounds(gazer: ZombieInstance, sounds: Sound[]): Sound | null {
+function listenToSounds(gasser: ZombieInstance, sounds: Sound[]): Sound | null {
   let nearest: Sound | null = null;
   let nearestDist = Infinity;
   for (const sound of sounds) {
-    const dist = getDistance2d(gazer.npc.state.position, sound.position);
+    const dist = getDistance2d(gasser.npc.state.position, sound.position);
     if (dist < sound.radius) {
-      gazer.agitation = Math.min(100, gazer.agitation + sound.agitation);
+      gasser.agitation = Math.min(100, gasser.agitation + sound.agitation);
       if (dist < nearestDist) {
         nearest = sound;
         nearestDist = dist;
@@ -77,23 +77,23 @@ function listenToSounds(gazer: ZombieInstance, sounds: Sound[]): Sound | null {
   return nearest;
 }
 
-function trySeePlayer(gazer: ZombieInstance): boolean {
+function trySeePlayer(gasser: ZombieInstance): boolean {
   const sz = 50;
-  const pos = gazer.npc.state.position;
+  const pos = gasser.npc.state.position;
   const cx = Math.floor(pos[0] / sz);
   const cz = Math.floor(pos[2] / sz);
   for (let dx = -1; dx <= 1; dx++) {
     for (let dz = -1; dz <= 1; dz++) {
-      const bucket = gazer.server.aiTargetSpatialMap.get(
+      const bucket = gasser.server.aiTargetSpatialMap.get(
         `${cx + dx},${cz + dz}`
       );
       if (!bucket) continue;
       for (const entry of bucket) {
-        if (entry.id === gazer.npc.characterId) continue;
-        if (!isHostile(gazer.npc.faction, entry.faction)) continue;
+        if (entry.id === gasser.npc.characterId) continue;
+        if (!isHostile(gasser.npc.faction, entry.faction)) continue;
         if (getDistance2d(pos, entry.position) < 10) {
-          gazer.targetCharacterId = entry.id;
-          gazer.event(ZombieEvents.SeePlayer);
+          gasser.targetCharacterId = entry.id;
+          gasser.event(ZombieEvents.SeePlayer);
           return true;
         }
       }
@@ -102,30 +102,30 @@ function trySeePlayer(gazer: ZombieInstance): boolean {
   return false;
 }
 
-function trySmellCorpse(gazer: ZombieInstance): boolean {
-  if (gazer.hunger < 60) return false;
-  for (const characterId in gazer.server._characters) {
-    const character = gazer.server._characters[characterId];
+function trySmellCorpse(gasser: ZombieInstance): boolean {
+  if (gasser.hunger < 60) return false;
+  for (const characterId in gasser.server._characters) {
+    const character = gasser.server._characters[characterId];
     if (character.isAlive) continue;
     if (
-      getDistance2d(gazer.npc.state.position, character.state.position) < 30
+      getDistance2d(gasser.npc.state.position, character.state.position) < 30
     ) {
-      gazer.corpseTargetId = characterId;
-      gazer.event(ZombieEvents.SmellCorpse);
+      gasser.corpseTargetId = characterId;
+      gasser.event(ZombieEvents.SmellCorpse);
       return true;
     }
   }
   return false;
 }
 
-function getChaseTarget(gazer: ZombieInstance): {
+function getChaseTarget(gasser: ZombieInstance): {
   position: Float32Array;
   isAlive: boolean;
   isVanished: boolean;
   isHidden: boolean;
 } | null {
-  if (!gazer.targetCharacterId) return null;
-  const player = gazer.server._characters[gazer.targetCharacterId];
+  if (!gasser.targetCharacterId) return null;
+  const player = gasser.server._characters[gasser.targetCharacterId];
   if (player)
     return {
       position: player.state.position,
@@ -133,7 +133,7 @@ function getChaseTarget(gazer: ZombieInstance): {
       isVanished: !!player.isVanished,
       isHidden: !!player.isHidden
     };
-  const npc = gazer.server._npcs[gazer.targetCharacterId];
+  const npc = gasser.server._npcs[gasser.targetCharacterId];
   if (npc)
     return {
       position: npc.state.position,
@@ -172,290 +172,291 @@ export function spawnGasCloudAt(
   cloud.onTrigger(server);
 }
 
-function spawnGasCloud(gazer: ZombieInstance): void {
+function spawnGasCloud(gasser: ZombieInstance): void {
   const targetCharacter =
-    gazer.server._characters[gazer.targetCharacterId ?? ""];
-  const targetNpc = gazer.server._npcs[gazer.targetCharacterId ?? ""];
+    gasser.server._characters[gasser.targetCharacterId ?? ""];
+  const targetNpc = gasser.server._npcs[gasser.targetCharacterId ?? ""];
   const targetPos =
     targetCharacter?.state.position ?? targetNpc?.state.position;
   if (!targetPos) return;
 
   spawnGasCloudAt(
-    gazer.server,
+    gasser.server,
     targetPos.slice() as Float32Array,
-    gazer.npc.characterId
+    gasser.npc.characterId
   );
 }
 
-function tickTimers(gazer: ZombieInstance, dt: number): void {
-  gazer.hunger = Math.min(100, gazer.hunger + dt * 2);
-  gazer.stateTimer += dt;
-  gazer.lastAttackTime += dt;
+function tickTimers(gasser: ZombieInstance, dt: number): void {
+  gasser.hunger = Math.min(100, gasser.hunger + dt * 2);
+  gasser.stateTimer += dt;
+  gasser.lastAttackTime += dt;
 }
 
-function enterWander(gazer: ZombieInstance): void {
-  gazer.stateTimer = 0;
-  gazer.agitation = AGITATION_INITIAL;
-  gazer.targetCharacterId = null;
-  gazer.npc.lookAtTarget = null;
-  gazer.wanderOrigin = gazer.npc.state.position.slice() as Float32Array;
-  const pt = pickPatrolPoint(gazer.server, gazer.wanderOrigin);
+function enterWander(gasser: ZombieInstance): void {
+  gasser.stateTimer = 0;
+  gasser.agitation = AGITATION_INITIAL;
+  gasser.targetCharacterId = null;
+  gasser.npc.lookAtTarget = null;
+  gasser.wanderOrigin = gasser.npc.state.position.slice() as Float32Array;
+  const pt = pickPatrolPoint(gasser.server, gasser.wanderOrigin);
   if (pt) {
-    gazer.targetPos = pt;
-    moveToward(gazer.npc, pt, gazer.server);
+    gasser.targetPos = pt;
+    moveToward(gasser.npc, pt, gasser.server);
   }
 }
 
-function enterFeed(gazer: ZombieInstance): void {
-  gazer.npc.stopMovement();
-  gazer.stateTimer = 0;
-  gazer.targetCharacterId = null;
-  gazer.npc.lookAtTarget = null;
-  gazer.isEatingCorpse = false;
+function enterFeed(gasser: ZombieInstance): void {
+  gasser.npc.stopMovement();
+  gasser.stateTimer = 0;
+  gasser.targetCharacterId = null;
+  gasser.npc.lookAtTarget = null;
+  gasser.isEatingCorpse = false;
 }
 
-function applyAgitation(gazer: ZombieInstance) {
-  const speed = BASE_SPEED + (gazer.agitation / 100) * (MAX_SPEED - BASE_SPEED);
-  gazer.npc.setSpeed(speed);
+function applyAgitation(gasser: ZombieInstance) {
+  const speed =
+    BASE_SPEED + (gasser.agitation / 100) * (MAX_SPEED - BASE_SPEED);
+  gasser.npc.setSpeed(speed);
 }
 
-function decayAgitation(gazer: ZombieInstance, dt: number) {
-  gazer.agitation = Math.max(0, gazer.agitation - AGITATION_DECAY_RATE * dt);
+function decayAgitation(gasser: ZombieInstance, dt: number) {
+  gasser.agitation = Math.max(0, gasser.agitation - AGITATION_DECAY_RATE * dt);
 }
 
-export function createGazer(npc: Npc, server: ZoneServer2016): ZombieInstance {
-  const gazer = new JSM(
+export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
+  const gasser = new JSM(
     {
       [ZombieTransitions.Wander]: (dt: number) => {
-        if (gazer.isCoveringEars) {
-          gazer.coverEarsTimer += dt;
-          if (gazer.coverEarsTimer >= 3) {
-            gazer.isCoveringEars = false;
-            gazer.npc.playAnimation(ZombieOneshotAnim.CoverEarsDone);
-            enterWander(gazer);
+        if (gasser.isCoveringEars) {
+          gasser.coverEarsTimer += dt;
+          if (gasser.coverEarsTimer >= 3) {
+            gasser.isCoveringEars = false;
+            gasser.npc.playAnimation(ZombieOneshotAnim.CoverEarsDone);
+            enterWander(gasser);
           }
           return;
         }
 
-        tickTimers(gazer, dt);
-        applyAgitation(gazer);
+        tickTimers(gasser, dt);
+        applyAgitation(gasser);
 
-        if (trySeePlayer(gazer)) return;
-        if (trySmellCorpse(gazer)) return;
+        if (trySeePlayer(gasser)) return;
+        if (trySmellCorpse(gasser)) return;
 
-        const nearestSound = listenToSounds(gazer, gazer.server.sounds);
+        const nearestSound = listenToSounds(gasser, gasser.server.sounds);
         if (nearestSound) {
-          gazer.lastNoisePos = nearestSound.position;
-          gazer.event(ZombieEvents.HearNoise);
+          gasser.lastNoisePos = nearestSound.position;
+          gasser.event(ZombieEvents.HearNoise);
           return;
         }
 
-        decayAgitation(gazer, dt);
+        decayAgitation(gasser, dt);
 
-        if (gazer.agitation === 0) {
-          gazer.event(ZombieEvents.IdleTimeout);
+        if (gasser.agitation === 0) {
+          gasser.event(ZombieEvents.IdleTimeout);
           return;
         }
 
         const arrived =
-          gazer.targetPos != null &&
-          getDistance2d(gazer.npc.state.position, gazer.targetPos) < 3;
+          gasser.targetPos != null &&
+          getDistance2d(gasser.npc.state.position, gasser.targetPos) < 3;
 
-        if (arrived || gazer.targetPos == null) {
-          const pt = pickPatrolPoint(gazer.server, gazer.wanderOrigin);
+        if (arrived || gasser.targetPos == null) {
+          const pt = pickPatrolPoint(gasser.server, gasser.wanderOrigin);
           if (pt) {
-            gazer.targetPos = pt;
-            moveToward(gazer.npc, pt, gazer.server);
+            gasser.targetPos = pt;
+            moveToward(gasser.npc, pt, gasser.server);
           }
         }
       },
 
       [ZombieTransitions.Idle]: (dt: number) => {
-        tickTimers(gazer, dt);
+        tickTimers(gasser, dt);
 
-        if (trySeePlayer(gazer)) return;
+        if (trySeePlayer(gasser)) return;
 
-        const nearestSound = listenToSounds(gazer, gazer.server.sounds);
+        const nearestSound = listenToSounds(gasser, gasser.server.sounds);
         if (nearestSound) {
-          gazer.lastNoisePos = nearestSound.position;
-          gazer.event(ZombieEvents.HearNoise);
+          gasser.lastNoisePos = nearestSound.position;
+          gasser.event(ZombieEvents.HearNoise);
           return;
         }
 
-        trySmellCorpse(gazer);
+        trySmellCorpse(gasser);
       },
 
       [ZombieTransitions.Investigate]: (dt: number) => {
-        tickTimers(gazer, dt);
-        applyAgitation(gazer);
+        tickTimers(gasser, dt);
+        applyAgitation(gasser);
 
-        if (trySeePlayer(gazer)) return;
-        if (trySmellCorpse(gazer)) return;
+        if (trySeePlayer(gasser)) return;
+        if (trySmellCorpse(gasser)) return;
 
-        if (gazer.stateTimer >= INVESTIGATE_TIMEOUT) {
-          gazer.event(ZombieEvents.NoiseTimeout);
+        if (gasser.stateTimer >= INVESTIGATE_TIMEOUT) {
+          gasser.event(ZombieEvents.NoiseTimeout);
           return;
         }
 
         if (
-          gazer.lastNoisePos != null &&
-          getDistance2d(gazer.npc.state.position, gazer.lastNoisePos) < 3
+          gasser.lastNoisePos != null &&
+          getDistance2d(gasser.npc.state.position, gasser.lastNoisePos) < 3
         ) {
-          gazer.event(ZombieEvents.NoiseTimeout);
+          gasser.event(ZombieEvents.NoiseTimeout);
           return;
         }
 
-        const nearestSound = listenToSounds(gazer, gazer.server.sounds);
+        const nearestSound = listenToSounds(gasser, gasser.server.sounds);
         if (nearestSound) {
-          gazer.lastNoisePos = nearestSound.position;
-          gazer.stateTimer = 0;
-          moveToward(gazer.npc, nearestSound.position, gazer.server);
+          gasser.lastNoisePos = nearestSound.position;
+          gasser.stateTimer = 0;
+          moveToward(gasser.npc, nearestSound.position, gasser.server);
         }
       },
 
       [ZombieTransitions.Chase]: (dt: number) => {
-        tickTimers(gazer, dt);
-        listenToSounds(gazer, gazer.server.sounds);
-        applyAgitation(gazer);
+        tickTimers(gasser, dt);
+        listenToSounds(gasser, gasser.server.sounds);
+        applyAgitation(gasser);
 
-        const chaseTarget = getChaseTarget(gazer);
+        const chaseTarget = getChaseTarget(gasser);
         if (
           !chaseTarget ||
           !chaseTarget.isAlive ||
           chaseTarget.isVanished ||
           chaseTarget.isHidden
         ) {
-          gazer.event(ZombieEvents.LostPlayer);
+          gasser.event(ZombieEvents.LostPlayer);
           return;
         }
 
-        gazer.npc.lookAtTarget = chaseTarget.position;
+        gasser.npc.lookAtTarget = chaseTarget.position;
         const chaseDist = getDistance2d(
-          gazer.npc.state.position,
+          gasser.npc.state.position,
           chaseTarget.position
         );
         if (chaseDist > 50) {
-          gazer.event(ZombieEvents.LostPlayer);
+          gasser.event(ZombieEvents.LostPlayer);
         } else if (chaseDist < 2) {
-          gazer.event(ZombieEvents.ReachPlayer);
+          gasser.event(ZombieEvents.ReachPlayer);
         } else {
-          if (trySmellCorpse(gazer)) return;
+          if (trySmellCorpse(gasser)) return;
           if (Math.random() < STUMBLE_CHANCE) {
-            gazer.event(ZombieEvents.StartStumble);
+            gasser.event(ZombieEvents.StartStumble);
             return;
           }
-          moveToward(gazer.npc, chaseTarget.position, gazer.server);
+          moveToward(gasser.npc, chaseTarget.position, gasser.server);
         }
       },
 
       [ZombieTransitions.Stumble]: (dt: number) => {
-        gazer.stateTimer += dt;
-        if (gazer.stateTimer >= 5) {
-          gazer.event(ZombieEvents.StumbleTimeout);
+        gasser.stateTimer += dt;
+        if (gasser.stateTimer >= 5) {
+          gasser.event(ZombieEvents.StumbleTimeout);
         }
       },
 
       [ZombieTransitions.Attack]: (dt: number) => {
-        tickTimers(gazer, dt);
-        listenToSounds(gazer, gazer.server.sounds);
-        applyAgitation(gazer);
+        tickTimers(gasser, dt);
+        listenToSounds(gasser, gasser.server.sounds);
+        applyAgitation(gasser);
 
-        const attackTarget = getChaseTarget(gazer);
+        const attackTarget = getChaseTarget(gasser);
         if (!attackTarget || !attackTarget.isAlive) {
-          if (gazer.hunger >= 30) {
-            gazer.event(ZombieEvents.PlayerKilled);
+          if (gasser.hunger >= 30) {
+            gasser.event(ZombieEvents.PlayerKilled);
           } else {
-            gazer.event(ZombieEvents.LostPlayer);
+            gasser.event(ZombieEvents.LostPlayer);
           }
           return;
         }
         if (attackTarget.isVanished || attackTarget.isHidden) {
-          gazer.event(ZombieEvents.LostPlayer);
+          gasser.event(ZombieEvents.LostPlayer);
           return;
         }
-        gazer.npc.lookAtTarget = attackTarget.position;
-        moveToward(gazer.npc, attackTarget.position, gazer.server);
+        gasser.npc.lookAtTarget = attackTarget.position;
+        moveToward(gasser.npc, attackTarget.position, gasser.server);
         const attackDist = getDistance(
-          gazer.npc.state.position,
+          gasser.npc.state.position,
           attackTarget.position
         );
         if (attackDist >= 2) {
-          gazer.event(ZombieEvents.PlayerBacked);
-        } else if (gazer.lastAttackTime > 2) {
-          gazer.event(ZombieEvents.StartAttacking);
+          gasser.event(ZombieEvents.PlayerBacked);
+        } else if (gasser.lastAttackTime > 2) {
+          gasser.event(ZombieEvents.StartAttacking);
         }
       },
 
       [ZombieTransitions.Attacking]: (dt: number) => {
-        gazer.hunger = Math.min(100, gazer.hunger + dt * 2);
-        gazer.stateTimer += dt * 2;
-        gazer.lastAttackTime += dt;
-        listenToSounds(gazer, gazer.server.sounds);
+        gasser.hunger = Math.min(100, gasser.hunger + dt * 2);
+        gasser.stateTimer += dt * 2;
+        gasser.lastAttackTime += dt;
+        listenToSounds(gasser, gasser.server.sounds);
 
-        const attackTarget = getChaseTarget(gazer);
+        const attackTarget = getChaseTarget(gasser);
         if (attackTarget) {
-          gazer.npc.lookAt(attackTarget.position);
+          gasser.npc.lookAt(attackTarget.position);
         }
 
-        if (gazer.stateTimer >= 2) {
+        if (gasser.stateTimer >= 2) {
           if (attackTarget) {
             const attackDist = getDistance(
-              gazer.npc.state.position,
+              gasser.npc.state.position,
               attackTarget.position
             );
             if (attackDist <= 2) {
-              spawnGasCloud(gazer);
+              spawnGasCloud(gasser);
             }
           }
-          gazer.event(ZombieEvents.DoneAttacking);
+          gasser.event(ZombieEvents.DoneAttacking);
         }
       },
 
       [ZombieTransitions.Feed]: (dt: number) => {
-        gazer.stateTimer += dt;
-        gazer.lastAttackTime += dt;
-        listenToSounds(gazer, gazer.server.sounds);
-        applyAgitation(gazer);
+        gasser.stateTimer += dt;
+        gasser.lastAttackTime += dt;
+        listenToSounds(gasser, gasser.server.sounds);
+        applyAgitation(gasser);
 
-        if (gazer.corpseTargetId) {
-          const corpse = gazer.server._characters[gazer.corpseTargetId];
+        if (gasser.corpseTargetId) {
+          const corpse = gasser.server._characters[gasser.corpseTargetId];
           if (!corpse || corpse.isAlive) {
-            gazer.corpseTargetId = null;
-            gazer.isEatingCorpse = false;
-            gazer.event(ZombieEvents.DoneFeeding);
+            gasser.corpseTargetId = null;
+            gasser.isEatingCorpse = false;
+            gasser.event(ZombieEvents.DoneFeeding);
             return;
           }
-          if (!gazer.isEatingCorpse) {
+          if (!gasser.isEatingCorpse) {
             const dist = getDistance2d(
-              gazer.npc.state.position,
+              gasser.npc.state.position,
               corpse.state.position
             );
             if (dist > 2) {
-              gazer.npc.lookAtTarget = corpse.state.position;
-              moveToward(gazer.npc, corpse.state.position, gazer.server);
+              gasser.npc.lookAtTarget = corpse.state.position;
+              moveToward(gasser.npc, corpse.state.position, gasser.server);
               return;
             }
-            gazer.npc.lookAtTarget = null;
-            gazer.npc.stopMovement();
+            gasser.npc.lookAtTarget = null;
+            gasser.npc.stopMovement();
           }
         }
 
-        if (!gazer.isEatingCorpse) {
+        if (!gasser.isEatingCorpse) {
           // wait for the nav agent to fully decelerate before starting the anim
-          const vel = gazer.npc.navAgent?.velocity();
+          const vel = gasser.npc.navAgent?.velocity();
           const speed = vel ? Math.sqrt(vel.x * vel.x + vel.z * vel.z) : 0;
           if (speed > 0.0) return;
-          gazer.npc.setAnimation(ZombieLoopingAnim.Eating);
-          gazer.isEatingCorpse = true;
-          gazer.stateTimer = 0;
+          gasser.npc.setAnimation(ZombieLoopingAnim.Eating);
+          gasser.isEatingCorpse = true;
+          gasser.stateTimer = 0;
         }
 
-        gazer.hunger = Math.max(0, gazer.hunger - dt * 15);
-        if (gazer.hunger === 0) {
-          gazer.npc.playAnimation(ZombieOneshotAnim.EatingDone);
-          gazer.corpseTargetId = null;
-          gazer.isEatingCorpse = false;
-          gazer.event(ZombieEvents.DoneFeeding);
+        gasser.hunger = Math.max(0, gasser.hunger - dt * 15);
+        if (gasser.hunger === 0) {
+          gasser.npc.playAnimation(ZombieOneshotAnim.EatingDone);
+          gasser.corpseTargetId = null;
+          gasser.isEatingCorpse = false;
+          gasser.event(ZombieEvents.DoneFeeding);
         }
       }
     },
@@ -465,10 +466,10 @@ export function createGazer(npc: Npc, server: ZoneServer2016): ZombieInstance {
         from: [ZombieTransitions.Wander, ZombieTransitions.Idle],
         to: ZombieTransitions.Investigate,
         EnterTransition: () => {
-          gazer.stateTimer = 0;
-          gazer.targetPos = gazer.lastNoisePos;
-          if (gazer.targetPos)
-            moveToward(gazer.npc, gazer.targetPos, gazer.server);
+          gasser.stateTimer = 0;
+          gasser.targetPos = gasser.lastNoisePos;
+          if (gasser.targetPos)
+            moveToward(gasser.npc, gasser.targetPos, gasser.server);
         }
       },
       {
@@ -490,20 +491,20 @@ export function createGazer(npc: Npc, server: ZoneServer2016): ZombieInstance {
           ZombieTransitions.Chase
         ],
         to: ZombieTransitions.Feed,
-        EnterTransition: () => enterFeed(gazer)
+        EnterTransition: () => enterFeed(gasser)
       },
       {
         eventId: ZombieEvents.NoiseTimeout,
         from: [ZombieTransitions.Investigate],
         to: ZombieTransitions.Wander,
-        EnterTransition: () => enterWander(gazer)
+        EnterTransition: () => enterWander(gasser)
       },
       {
         eventId: ZombieEvents.ReachPlayer,
         from: [ZombieTransitions.Chase],
         to: ZombieTransitions.Attack,
         EnterTransition: () => {
-          gazer.lastAttackTime = 2;
+          gasser.lastAttackTime = 2;
         }
       },
       {
@@ -511,14 +512,14 @@ export function createGazer(npc: Npc, server: ZoneServer2016): ZombieInstance {
         from: [ZombieTransitions.Chase],
         to: ZombieTransitions.Stumble,
         EnterTransition: () => {
-          gazer.npc.stopMovement();
-          gazer.stateTimer = 0;
+          gasser.npc.stopMovement();
+          gasser.stateTimer = 0;
           const anims = [
             ZombieOneshotAnim.StumbleA,
             ZombieOneshotAnim.StumbleB,
             ZombieOneshotAnim.StumbleC
           ];
-          gazer.npc.playAnimation(
+          gasser.npc.playAnimation(
             anims[Math.floor(Math.random() * anims.length)]
           );
         }
@@ -528,10 +529,10 @@ export function createGazer(npc: Npc, server: ZoneServer2016): ZombieInstance {
         from: [ZombieTransitions.Stumble],
         to: ZombieTransitions.Chase,
         EnterTransition: () => {
-          gazer.stateTimer = 0;
-          const chaseTarget = getChaseTarget(gazer);
+          gasser.stateTimer = 0;
+          const chaseTarget = getChaseTarget(gasser);
           if (chaseTarget) {
-            moveToward(gazer.npc, chaseTarget.position, gazer.server);
+            moveToward(gasser.npc, chaseTarget.position, gasser.server);
           }
         }
       },
@@ -540,9 +541,9 @@ export function createGazer(npc: Npc, server: ZoneServer2016): ZombieInstance {
         from: [ZombieTransitions.Attack],
         to: ZombieTransitions.Attacking,
         EnterTransition: () => {
-          gazer.npc.playAnimation(ZombieOneshotAnim.Spit);
-          gazer.stateTimer = 0;
-          gazer.lastAttackTime = 0;
+          gasser.npc.playAnimation(ZombieOneshotAnim.Spit);
+          gasser.stateTimer = 0;
+          gasser.lastAttackTime = 0;
         }
       },
       {
@@ -550,7 +551,7 @@ export function createGazer(npc: Npc, server: ZoneServer2016): ZombieInstance {
         from: [ZombieTransitions.Attacking],
         to: ZombieTransitions.Attack,
         EnterTransition: () => {
-          gazer.lastAttackTime = 2;
+          gasser.lastAttackTime = 2;
         }
       },
       {
@@ -561,7 +562,7 @@ export function createGazer(npc: Npc, server: ZoneServer2016): ZombieInstance {
           ZombieTransitions.Stumble
         ],
         to: ZombieTransitions.Wander,
-        EnterTransition: () => enterWander(gazer)
+        EnterTransition: () => enterWander(gasser)
       },
       {
         eventId: ZombieEvents.PlayerBacked,
@@ -573,22 +574,22 @@ export function createGazer(npc: Npc, server: ZoneServer2016): ZombieInstance {
         eventId: ZombieEvents.PlayerKilled,
         from: [ZombieTransitions.Attack],
         to: ZombieTransitions.Feed,
-        EnterTransition: () => enterFeed(gazer)
+        EnterTransition: () => enterFeed(gasser)
       },
       {
         eventId: ZombieEvents.DoneFeeding,
         from: [ZombieTransitions.Feed],
         to: ZombieTransitions.Wander,
-        EnterTransition: () => enterWander(gazer)
+        EnterTransition: () => enterWander(gasser)
       },
       {
         eventId: ZombieEvents.IdleTimeout,
         from: [ZombieTransitions.Wander],
         to: ZombieTransitions.Idle,
         EnterTransition: () => {
-          gazer.stateTimer = 0;
-          gazer.npc.stopMovement();
-          gazer.npc.setAnimation(ZombieLoopingAnim.Idle);
+          gasser.stateTimer = 0;
+          gasser.npc.stopMovement();
+          gasser.npc.setAnimation(ZombieLoopingAnim.Idle);
         }
       },
       {
@@ -596,41 +597,42 @@ export function createGazer(npc: Npc, server: ZoneServer2016): ZombieInstance {
         from: null,
         to: ZombieTransitions.Wander,
         EnterTransition: () => {
-          gazer.npc.stopMovement();
-          gazer.npc.playAnimation(ZombieOneshotAnim.CoverEars);
-          gazer.isCoveringEars = true;
-          gazer.coverEarsTimer = 0;
-          gazer.targetCharacterId = null;
-          gazer.npc.lookAtTarget = null;
-          gazer.wanderOrigin = gazer.npc.state.position.slice() as Float32Array;
+          gasser.npc.stopMovement();
+          gasser.npc.playAnimation(ZombieOneshotAnim.CoverEars);
+          gasser.isCoveringEars = true;
+          gasser.coverEarsTimer = 0;
+          gasser.targetCharacterId = null;
+          gasser.npc.lookAtTarget = null;
+          gasser.wanderOrigin =
+            gasser.npc.state.position.slice() as Float32Array;
         }
       }
     ],
     ZombieTransitions.Wander
   ) as unknown as ZombieInstance;
 
-  gazer.onTransition = (from: string, to: string, eventId: string) => {
-    debug(`[${gazer.id}] ${from} → ${to} (${eventId})`);
+  gasser.onTransition = (from: string, to: string, eventId: string) => {
+    debug(`[${gasser.id}] ${from} → ${to} (${eventId})`);
   };
-  gazer.id = npc.characterId;
-  gazer.npc = npc;
-  gazer.server = server;
-  gazer.hunger = 0;
-  gazer.agitation = AGITATION_INITIAL;
-  gazer.wanderOrigin = npc.state.position.slice() as Float32Array;
+  gasser.id = npc.characterId;
+  gasser.npc = npc;
+  gasser.server = server;
+  gasser.hunger = 0;
+  gasser.agitation = AGITATION_INITIAL;
+  gasser.wanderOrigin = npc.state.position.slice() as Float32Array;
   const initialPatrol = pickPatrolPoint(server, npc.state.position);
-  gazer.targetPos = initialPatrol;
+  gasser.targetPos = initialPatrol;
   if (initialPatrol) {
     moveToward(npc, initialPatrol, server);
   }
-  gazer.lastNoisePos = null;
-  gazer.targetCharacterId = null;
-  gazer.corpseTargetId = null;
-  gazer.isEatingCorpse = false;
-  gazer.stateTimer = 0;
-  gazer.lastAttackTime = 0;
-  gazer.isCoveringEars = false;
-  gazer.coverEarsTimer = 0;
+  gasser.lastNoisePos = null;
+  gasser.targetCharacterId = null;
+  gasser.corpseTargetId = null;
+  gasser.isEatingCorpse = false;
+  gasser.stateTimer = 0;
+  gasser.lastAttackTime = 0;
+  gasser.isCoveringEars = false;
+  gasser.coverEarsTimer = 0;
 
-  return gazer;
+  return gasser;
 }

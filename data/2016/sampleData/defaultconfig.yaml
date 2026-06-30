@@ -117,7 +117,7 @@ worldobjects:
   npcSpawnRadius: 2
   chanceNpc: 100 # To be reworked: 100 max
   chanceScreamer: 50 # To be reworked: 1000 max
-  chanceGazer: 50 # 1000 max (rolled only on normal walkers)
+  chanceGasser: 0 # DISABLED for now 1000 max (rolled only on normal walkers)
   chanceExploder: 50 # 1000 max (rolled only on normal walkers)
 
   chanceWornLetter: 1 # 100 max

@@ -89,7 +89,7 @@ import {
   SpawnedItemSnapshot
 } from "./lootspawnworker";
 import type { ItemFunction } from "types/zoneserver";
-import { Gazer } from "../entities/gazer";
+import { Gasser } from "../entities/gasser";
 const debug = require("debug")("ZoneServer");
 const apm = require("elastic-apm-node");
 
@@ -184,7 +184,7 @@ export class WorldObjectManager {
   npcSpawnRadius!: number;
   chanceNpc!: number;
   chanceScreamer!: number;
-  chanceGazer!: number;
+  chanceGasser!: number;
   chanceExploder!: number;
   chanceWornLetter!: number;
   waterSourceReplenishTimer!: number;
@@ -454,7 +454,7 @@ export class WorldObjectManager {
         this.npcSpawnRadius,
         this.chanceNpc,
         this.chanceScreamer,
-        this.chanceGazer,
+        this.chanceGasser,
         this.chanceExploder,
         this.npcSpawnCap
       );
@@ -653,8 +653,8 @@ export class WorldObjectManager {
               spawnerId
             );
             break;
-          case NpcIds.GAZER:
-            npc = new Gazer(
+          case NpcIds.GASSER:
+            npc = new Gasser(
               characterId,
               transientId,
               position,
@@ -1499,9 +1499,9 @@ export class WorldObjectManager {
               npcId = NpcIds.EXPLODER;
             } else if (
               Math.floor(Math.random() * 1000) + 1 <=
-              this.chanceGazer
+              this.chanceGasser
             ) {
-              npcId = NpcIds.GAZER;
+              npcId = NpcIds.GASSER;
             }
           }
           this.createNpc(

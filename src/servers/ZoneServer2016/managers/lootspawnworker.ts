@@ -94,7 +94,7 @@ type WorkerRequest =
         npcSpawnRadius: number;
         chanceNpc: number;
         chanceScreamer: number;
-        chanceGazer: number;
+        chanceGasser: number;
         chanceExploder: number;
         npcSpawnCap: number;
       };
@@ -201,7 +201,7 @@ export class LootSpawnWorker {
     npcSpawnRadius: number,
     chanceNpc: number,
     chanceScreamer: number,
-    chanceGazer: number,
+    chanceGasser: number,
     chanceExploder: number,
     npcSpawnCap: number
   ): Promise<NpcPlanEntry[]> {
@@ -213,7 +213,7 @@ export class LootSpawnWorker {
         npcSpawnRadius,
         chanceNpc,
         chanceScreamer,
-        chanceGazer,
+        chanceGasser,
         chanceExploder,
         npcSpawnCap
       }

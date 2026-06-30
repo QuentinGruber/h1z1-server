@@ -58,7 +58,7 @@ interface NpcPlanRequest {
     npcSpawnRadius: number;
     chanceNpc: number;
     chanceScreamer: number;
-    chanceGazer: number;
+    chanceGasser: number;
     chanceExploder: number;
     npcSpawnCap: number;
   };
@@ -486,7 +486,7 @@ function createNpcPlan(
   npcSpawnRadius: number,
   chanceNpc: number,
   chanceScreamer: number,
-  chanceGazer: number,
+  chanceGasser: number,
   chanceExploder: number,
   npcSpawnCap: number
 ): NpcPlanEntry[] {
@@ -543,8 +543,8 @@ function createNpcPlan(
         ) {
           if (Math.floor(Math.random() * 1000) + 1 <= chanceExploder) {
             npcId = NpcIds.EXPLODER;
-          } else if (Math.floor(Math.random() * 1000) + 1 <= chanceGazer) {
-            npcId = NpcIds.GAZER;
+          } else if (Math.floor(Math.random() * 1000) + 1 <= chanceGasser) {
+            npcId = NpcIds.GASSER;
           }
         }
 
@@ -623,7 +623,7 @@ parentPort?.on("message", (request: WorkerRequest) => {
         request.payload.npcSpawnRadius,
         request.payload.chanceNpc,
         request.payload.chanceScreamer,
-        request.payload.chanceGazer,
+        request.payload.chanceGasser,
         request.payload.chanceExploder,
         request.payload.npcSpawnCap
       );
