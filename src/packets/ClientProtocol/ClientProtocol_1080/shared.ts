@@ -1302,7 +1302,11 @@ export const lightWeightNpcSchema: PacketFields = [
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
   { name: "unknownDword3", type: "uint32", defaultValue: 0 },
   { name: "headActor", type: "string", defaultValue: "" },
-  { name: "unknownString3", type: "string", defaultValue: "" },
+  {
+    name: "eyeActor",
+    type: "string",
+    defaultValue: ""
+  },
   { name: "unknownString4", type: "string", defaultValue: "" },
   { name: "vehicleId", type: "uint32", defaultValue: 0 },
   { name: "projectileUniqueId", type: "uint32", defaultValue: 0 },
@@ -1371,26 +1375,9 @@ export const lightWeightNpcSchema: PacketFields = [
   },
   {
     name: "attachedObject",
-    type: "schema",
-    fields: [
-      {
-        name: "targetObjectId",
-        type: "uint64string",
-        defaultValue: "0x0"
-      }
-      /*{ name: "unknownFloatVector41", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
-            { name: "unknownFloatVector42", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            {
-                name: "unknownData1",
-                type: "schema",
-                fields: [
-                    { name: "unknownWord1", type: "uint16", defaultValue: 0 },
-                    //{ name: "unknownDword1", type: "uint32", defaultValue: 0 }, // this value is read only if (unknownWord1 & 0x4000) == true
-                ]
-            },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 },*/
-    ],
+    type: "custom",
+    parser: parseAttachedObject,
+    packer: packAttachedObject,
     defaultValue: {}
   },
   { name: "unknownDword9", type: "uint32", defaultValue: 0 },
@@ -3010,6 +2997,66 @@ export function pack2ByteLengthString(string: string) {
       packer: pack2ByteLengthString
     },
   */
+}
+
+const attachedObjectIdSchema: PacketFields = [
+  { name: "targetObjectId", type: "uint64string", defaultValue: "0x0" }
+];
+
+const attachedObjectDataSchema: PacketFields = [
+  {
+    name: "unknownFloatVector41",
+    type: "floatvector4",
+    defaultValue: [0, 0, 0, 1]
+  },
+  {
+    name: "unknownFloatVector42",
+    type: "floatvector4",
+    defaultValue: [0, 0, 0, 1]
+  },
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  {
+    name: "animationName",
+    type: "custom",
+    parser: pack2ByteLengthString,
+    packer: pack2ByteLengthString,
+    defaultValue: "Idle"
+  },
+  { name: "animationNameTerminator", type: "uint8", defaultValue: 0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+];
+
+function hasAttachedObject(targetObjectId: string): boolean {
+  return BigInt(targetObjectId || "0x0") > 0n;
+}
+
+export function packAttachedObject(value: any) {
+  value = value || {};
+  const targetObjectId = value.targetObjectId || "0x0";
+  const idBuffer = DataSchema.pack(attachedObjectIdSchema, {
+    targetObjectId
+  }).data;
+  if (!hasAttachedObject(targetObjectId)) {
+    return idBuffer;
+  }
+  const dataBuffer = DataSchema.pack(attachedObjectDataSchema, value).data;
+  return Buffer.concat([idBuffer, dataBuffer]);
+}
+
+export function parseAttachedObject(data: Buffer, offset: number) {
+  const id = DataSchema.parse(attachedObjectIdSchema, data, offset);
+  const result: any = id.result;
+  let length = id.length;
+  if (hasAttachedObject(result.targetObjectId)) {
+    const rest = DataSchema.parse(
+      attachedObjectDataSchema,
+      data,
+      offset + length
+    );
+    Object.assign(result, rest.result);
+    length += rest.length;
+  }
+  return { value: result, length };
 }
 
 export const storeBundleSchema: PacketFields = [

@@ -140,6 +140,14 @@ export class ExplosionManager {
 
   // ---- Private --------------------------------------------------------
 
+  private _registerSounds(chunk: PendingExplosion[]) {
+    for (let index = 0; index < chunk.length; index++) {
+      const e = chunk[index];
+      let position = e.entity.state.position;
+      this._server.pushSound({ position, radius: 300, agitation: 50 });
+    }
+  }
+
   private async _flush(): Promise<void> {
     this._scheduled = false;
     const batch = this._pending.splice(0);
@@ -151,6 +159,9 @@ export class ExplosionManager {
 
       // Visual effects — stays on main thread (just packet sends, cheap).
       this._sendEffects(chunk);
+
+      // TODO: idk if it's the right place
+      this._registerSounds(chunk);
 
       // Single combined grid scan: triggers chain reactions AND builds the
       // construction snapshot in one pass, deduplicating by explosion position
@@ -368,6 +379,24 @@ export class ExplosionManager {
             y: char.state.position[1],
             z: char.state.position[2]
           }));
+
+    // TODO: ask Jason if it's good
+    for (const npc of Object.values(server._npcs)) {
+      if (!npc.isAlive) continue;
+      const p = npc.state.position;
+      if (
+        p[0] < minX ||
+        p[0] > maxX ||
+        p[1] < minY ||
+        p[1] > maxY ||
+        p[2] < minZ ||
+        p[2] > maxZ
+      )
+        continue;
+      for (const { entity } of scannedKeys.values()) {
+        npc.OnExplosiveHit(server, entity);
+      }
+    }
 
     // ---- Vehicles --------------------------------------------------
     const vehicles = server.isPvE

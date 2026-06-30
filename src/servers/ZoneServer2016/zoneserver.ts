@@ -53,6 +53,7 @@ import {
   GameModes,
   ReplicationPropertyHash
 } from "./models/enums";
+import { Factions } from "./jsms/factions";
 import { WeatherManager } from "./managers/weathermanager";
 
 import {
@@ -72,6 +73,7 @@ import {
   RandomReward,
   RewardCrateDefinition,
   ScreenEffect,
+  Sound,
   StanceFlags,
   UseOption
 } from "../../types/zoneserver";
@@ -262,7 +264,7 @@ import { ProjectileEntity } from "./entities/projectileentity";
 import { ChallengeManager, ChallengeType } from "./managers/challengemanager";
 import { RandomEventsManager } from "./managers/randomeventsmanager";
 import { ExplosionManager } from "./managers/explosionmanager";
-import { AiManager } from "./managers/aimanager";
+import { AiManager } from "./managers/explosivemanager";
 import { AirdropManager } from "./managers/airdropmanager";
 //import { TaskManager } from "./managers/tasksmanager";
 
@@ -365,6 +367,18 @@ export class ZoneServer2016 extends EventEmitter {
   readonly _destroyableSpatialMap = new Map<string, Destroyable[]>();
   private static readonly _CHAR_GRID_SIZE = 300;
   static readonly _DESTROYABLE_GRID_SIZE = 50;
+
+  /** AI target map rebuilt every AI tick for spatial detection in JSMs. */
+  aiTargetSpatialMap = new Map<
+    string,
+    {
+      id: string;
+      position: Float32Array;
+      faction: Factions;
+    }[]
+  >();
+  private static readonly _AI_TARGET_GRID_SIZE = 50;
+  recastRoutine?: NodeJS.Timeout;
 
   private static _charGridRange(
     pos: Float32Array,
@@ -484,7 +498,7 @@ export class ZoneServer2016 extends EventEmitter {
   pluginManager: PluginManager;
   configManager: ConfigManager;
   playTimeManager: PlayTimeManager;
-  aiManager: AiManager;
+  explosiveManager: AiManager;
   airdropManager: AirdropManager;
 
   _ready: boolean = false;
@@ -540,6 +554,9 @@ export class ZoneServer2016 extends EventEmitter {
   inGameTimeManager: IngameTimeManager = new IngameTimeManager();
   commandHandler: CommandHandler;
   dynamicappearance: DynamicAppearance;
+  pathfindingRoutine?: NodeJS.Timeout;
+  aiTickRoutine?: NodeJS.Timeout;
+  private lastFsmTick: number = Date.now();
 
   /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   proximityItemsDistance!: number;
@@ -576,6 +593,11 @@ export class ZoneServer2016 extends EventEmitter {
   maxPacketLoss: number = 5;
   //tasksManager: TaskManager;
   //clientRoutineRate!: number;
+  aiEnabled!: boolean;
+  aiTickRate!: number;
+  pathfindingUpdateRate!: number;
+  infectionEnabled!: boolean;
+  sounds: Sound[] = [];
 
   constructor(
     serverPort: number,
@@ -609,7 +631,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.pluginManager = new PluginManager();
     this.commandHandler = new CommandHandler();
     this.playTimeManager = new PlayTimeManager();
-    this.aiManager = new AiManager(this);
+    this.explosiveManager = new AiManager(this);
     this.airdropManager = new AirdropManager(this);
     this.navManager = new NavManager();
     this.challengeManager = new ChallengeManager(this);
@@ -1081,7 +1103,10 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async stop() {
+    clearInterval(this.recastRoutine);
     clearInterval(this.challengePositionCheckInterval);
+    clearInterval(this.aiTickRoutine);
+    clearInterval(this.pathfindingRoutine);
     await this.worldObjectManager.stop();
     await this.explosionManager.stop();
     this.inGameTimeManager.stop();
@@ -2050,8 +2075,18 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private async setupServer() {
-    // TODO: Disabled for now
-    // await this.navManager.loadNav();
+    if (!process.env.DISABLE_AI && this.aiEnabled) {
+      await this.navManager.loadNav();
+      this.aiTickRoutine = setInterval(() => this.tickAi(), this.aiTickRate);
+      this.pathfindingRoutine = setInterval(
+        () => this.updatePathfindingPositions(),
+        this.pathfindingUpdateRate
+      );
+      this.recastRoutine = setInterval(
+        () => this.navManager.updt(),
+        this.navManager.updateFrequency * 1000
+      );
+    }
     this.weatherManager.init();
     this.playTimeManager.init(this);
     this.initModelsDataSource();
@@ -2299,22 +2334,22 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  startH1emuAi() {
+  startExplosiveManager() {
     setInterval(() => {
       try {
-        if (process.env.ENABLE_AI_TIME_LOGS) {
+        if (process.env.ENABLE_EXPLOSIVE_TIME_LOGS) {
           const start = performance.now();
-          this.aiManager.run();
+          this.explosiveManager.run();
           const end = performance.now();
           const duration = end - start;
           if (duration >= 1) {
             console.log(
-              `H1emu-ai took ${duration}ms with ${this.aiManager.getEntitiesTotalNumber()} entities`
+              `H1emu-ai took ${duration}ms with ${this.explosiveManager.getEntitiesTotalNumber()} entities`
             );
           }
-          console.log(this.aiManager.getEntitiesStats());
+          console.log(this.explosiveManager.getEntitiesStats());
         } else {
-          this.aiManager.run();
+          this.explosiveManager.run();
         }
       } catch (e) {
         console.error(e);
@@ -2386,9 +2421,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.rewardManager.start();
     }
     this.hookManager.checkHook("OnServerReady");
-    if (!process.env.DISABLE_AI) {
-      this.startH1emuAi();
-    }
+    this.startExplosiveManager();
     this.challengePositionCheckInterval = setInterval(
       () => this.checkPlayersPositionsChallenges(),
       30_000
@@ -2848,7 +2881,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (client.character) {
       client.isLoading = true; // stop anything from acting on character
-      this.aiManager.removeEntity(client.character);
+      this.explosiveManager.removeEntity(client.character);
       // "shift" time played prior to logging out
       client.character.metrics.startedSurvivingTP +=
         Date.now() - Number(client.character.lastLoginDate);
@@ -4470,7 +4503,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     // 5. Clean up registries
     for (const { id, entity } of entities) {
-      this.aiManager.removeEntity(entity);
+      this.explosiveManager.removeEntity(entity);
       delete dictionary[id];
       delete this._transientIds[this._characterIds[id]];
       delete this._characterIds[id];
@@ -4485,6 +4518,10 @@ export class ZoneServer2016 extends EventEmitter {
   ): boolean {
     const entity = dictionary[characterId];
     if (!entity) return false;
+    if (entity instanceof BaseLightweightCharacter && entity.navAgent) {
+      this.navManager.crowd.removeAgent(entity.navAgent);
+      entity.navAgent = undefined;
+    }
     this.sendDataToAllWithSpawnedEntity<CharacterRemovePlayer>(
       dictionary,
       characterId,
@@ -4515,7 +4552,7 @@ export class ZoneServer2016 extends EventEmitter {
         );
       }
     }
-    this.aiManager.removeEntity(entity);
+    this.explosiveManager.removeEntity(entity);
     delete dictionary[characterId];
     delete this._transientIds[this._characterIds[characterId]];
     delete this._characterIds[characterId];
@@ -4541,6 +4578,18 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData<AddLightweightNpc>(client, "AddLightweightNpc", {
       ...entity.pGetLightweight(),
       nameId
+    });
+    entity.effectTags.forEach((effectTag: number) => {
+      this.sendData<CharacterAddEffectTagCompositeEffect>(
+        client,
+        "Character.AddEffectTagCompositeEffect",
+        {
+          characterId: entity.characterId,
+          effectId: effectTag,
+          unknownDword1: effectTag,
+          unknownDword2: effectTag
+        }
+      );
     });
     this.sendReplicationData(client, entity);
   }
@@ -4870,6 +4919,12 @@ export class ZoneServer2016 extends EventEmitter {
         }
         if (object instanceof Npc) {
           object.updateEquipment(this);
+          if (object.currentAnimation) {
+            this.sendData(client, "Character.PlayAnimation", {
+              characterId: object.characterId,
+              animationName: object.currentAnimation
+            });
+          }
           return;
         }
       }
@@ -8779,6 +8834,83 @@ export class ZoneServer2016 extends EventEmitter {
     if (!weaponItem.weapon || weaponItem.weapon.ammoCount <= 0) {
       return;
     }
+    switch (weaponItem.weapon.itemDefinitionId) {
+      case WeaponDefinitionIds.WEAPON_AR15_2:
+      case WeaponDefinitionIds.WEAPON_PURGE:
+      case WeaponDefinitionIds.WEAPON_BLAZE:
+      case WeaponDefinitionIds.WEAPON_FROSTBITE:
+      case WeaponDefinitionIds.WEAPON_AR15:
+        this.pushSound({
+          position: client.character.state.position,
+          radius: 100,
+          agitation: 10
+        });
+        break;
+      case WeaponDefinitionIds.WEAPON_308:
+        this.pushSound({
+          position: client.character.state.position,
+          radius: 200,
+          agitation: 10
+        });
+        break;
+      case WeaponDefinitionIds.WEAPON_AK47:
+        this.pushSound({
+          position: client.character.state.position,
+          radius: 120,
+          agitation: 10
+        });
+        break;
+      case WeaponDefinitionIds.WEAPON_SHOTGUN:
+        this.pushSound({
+          position: client.character.state.position,
+          radius: 150,
+          agitation: 15
+        });
+        break;
+      case WeaponDefinitionIds.WEAPON_NAGAFENS_RAGE:
+        this.pushSound({
+          position: client.character.state.position,
+          radius: 160,
+          agitation: 15
+        });
+        break;
+      case WeaponDefinitionIds.WEAPON_1911:
+      case WeaponDefinitionIds.WEAPON_M9:
+        this.pushSound({
+          position: client.character.state.position,
+          radius: 75,
+          agitation: 8
+        });
+        break;
+      case WeaponDefinitionIds.WEAPON_R380:
+        this.pushSound({
+          position: client.character.state.position,
+          radius: 60,
+          agitation: 7
+        });
+        break;
+      case WeaponDefinitionIds.WEAPON_MAGNUM:
+        this.pushSound({
+          position: client.character.state.position,
+          radius: 90,
+          agitation: 10
+        });
+        break;
+      case WeaponDefinitionIds.WEAPON_REAPER:
+        this.pushSound({
+          position: client.character.state.position,
+          radius: 180,
+          agitation: 12
+        });
+        break;
+      default:
+        this.pushSound({
+          position: client.character.state.position,
+          radius: 10,
+          agitation: 10
+        });
+        break;
+    }
     this.challengeManager.registerChallengeProgression(
       client,
       ChallengeType.GLOBAL_DISARMAMENT,
@@ -9168,6 +9300,20 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   applyMovementModifier(client: Client, modifier: MovementModifiers) {
+    if (modifier === MovementModifiers.SCREAM) {
+      this.multiplyMovementModifier(client, MovementModifiers.SNARED);
+      if (client.character.timeouts["screamed"]) {
+        client.character.timeouts["screamed"]._onTimeout();
+        clearTimeout(client.character.timeouts["screamed"]);
+        delete client.character.timeouts["screamed"];
+      }
+      client.character.timeouts["screamed"] = setTimeout(() => {
+        if (!client.character.timeouts["screamed"]) return;
+        this.divideMovementModifier(client, MovementModifiers.SNARED);
+        delete client.character.timeouts["screamed"];
+      }, 6000);
+      return;
+    }
     this.multiplyMovementModifier(client, modifier);
     let hudIndicator: HudIndicator | undefined;
     switch (modifier) {
@@ -9706,6 +9852,44 @@ export class ZoneServer2016 extends EventEmitter {
     } finally {
       tx?.end();
       this._clientTicksRunning = false;
+    }
+  }
+
+  private _rebuildAiTargetMap(): void {
+    const sz = ZoneServer2016._AI_TARGET_GRID_SIZE;
+    this.aiTargetSpatialMap.clear();
+    for (const characterId in this._characters) {
+      const char = this._characters[characterId];
+      if (!char.isAlive || char.isVanished || char.isHidden || char.isSpectator)
+        continue;
+      const pos = char.state.position;
+      const key = `${Math.floor(pos[0] / sz)},${Math.floor(pos[2] / sz)}`;
+      let b = this.aiTargetSpatialMap.get(key);
+      if (!b) {
+        b = [];
+        this.aiTargetSpatialMap.set(key, b);
+      }
+      b.push({
+        id: characterId,
+        position: pos,
+        faction: Factions.HUMAN
+      });
+    }
+    for (const npcId in this._npcs) {
+      const npc = this._npcs[npcId];
+      if (!npc.isAlive) continue;
+      const pos = npc.state.position;
+      const key = `${Math.floor(pos[0] / sz)},${Math.floor(pos[2] / sz)}`;
+      let b = this.aiTargetSpatialMap.get(key);
+      if (!b) {
+        b = [];
+        this.aiTargetSpatialMap.set(key, b);
+      }
+      b.push({
+        id: npcId,
+        position: pos,
+        faction: npc.faction
+      });
     }
   }
 
@@ -10395,6 +10579,71 @@ export class ZoneServer2016 extends EventEmitter {
     });
 
     return isInPoi;
+  }
+
+  private tickNpcFsms(dt: number): void {
+    const safeDt = Math.min(dt, 1.0);
+    for (const k in this._npcs) {
+      const npc = this._npcs[k];
+      if (!npc.isAlive) continue;
+      if (npc.fsm) npc.fsm.tick(safeDt);
+    }
+  }
+
+  pushSound(sound: Sound): void {
+    if (process.env.DISABLE_AI || !this.aiEnabled) return;
+    this.sounds.push(sound);
+  }
+
+  private tickAi(): void {
+    const now = Date.now();
+    const dt = (now - this.lastFsmTick) / 1000;
+    this.lastFsmTick = now;
+    this._rebuildAiTargetMap();
+    this.tickNpcFsms(dt);
+    // reset sounds every AI tick
+    this.sounds = [];
+  }
+
+  updatePathfindingPositions(): void {
+    for (const k in this._npcs) {
+      const npc = this._npcs[k];
+      if (npc.navAgent) {
+        const navPos = npc.navAgent.interpolatedPosition;
+        const gamePos = NavManager.navToGame(navPos);
+        if (
+          gamePos[0] != npc.state.position[0] ||
+          gamePos[2] != npc.state.position[2]
+        ) {
+          npc.goTo(gamePos);
+        }
+      }
+    }
+
+    for (const k in this._characters) {
+      const character = this._characters[k];
+      if (!character.navAgent) {
+        character.navAgent = this.navManager.createPassiveAgent(
+          character.state.position
+        );
+      } else {
+        character.navAgent.teleport(
+          NavManager.gameToNav(character.state.position)
+        );
+      }
+    }
+
+    for (const k in this._vehicles) {
+      const vehicle = this._vehicles[k];
+      if (!vehicle.navAgent) {
+        vehicle.navAgent = this.navManager.createPassiveAgent(
+          vehicle.state.position,
+          2.0
+        );
+      } else {
+        vehicle.navAgent.teleport(NavManager.gameToNav(vehicle.state.position));
+      }
+    }
   }
 }
 

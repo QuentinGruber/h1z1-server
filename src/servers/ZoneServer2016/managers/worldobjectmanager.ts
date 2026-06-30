@@ -29,6 +29,7 @@ const Z1_crates = PluginManager.loadServerData("2016/zoneData/Z1_crates.json");
 const Z1_destroyables = PluginManager.loadServerData(
   "2016/zoneData/Z1_destroyables.json"
 );
+const Z1_POIs = PluginManager.loadServerData("2016/zoneData/Z1_POIs.json");
 const models = PluginManager.loadServerData("2016/dataSources/Models.json");
 // const bannedZombieModels = PluginManager.loadServerData("2016/sampleData/bannedZombiesModels.json");
 import {
@@ -45,6 +46,7 @@ import {
   Items,
   Effects,
   ModelIds,
+  NpcIds,
   DefaultSkinsConveys,
   DefaultSkinsBackpack,
   DefaultSkinsMotorHelmet,
@@ -70,7 +72,13 @@ import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 import { WaterSource } from "../entities/watersource";
 import { TreasureChest } from "../entities/treasurechest";
 import { Npc } from "../entities/npc";
-//import { EntityType } from "h1emu-ai";
+import { ZombieWalker } from "../entities/zombiewalker";
+import { ZombieScreamer } from "../entities/zombiescreamer";
+import { PrototypeZombie } from "../entities/prototypezombie";
+import { Exploder } from "../entities/exploder";
+import { Deer } from "../entities/deer";
+import { Wolf } from "../entities/wolf";
+import { Bear } from "../entities/bear";
 import { scheduler } from "node:timers/promises";
 import {
   ContainerPropSnapshot,
@@ -81,6 +89,7 @@ import {
   SpawnedItemSnapshot
 } from "./lootspawnworker";
 import type { ItemFunction } from "types/zoneserver";
+import { Gasser } from "../entities/gasser";
 const debug = require("debug")("ZoneServer");
 const apm = require("elastic-apm-node");
 
@@ -157,6 +166,7 @@ export class WorldObjectManager {
   _lastLootRespawnTime: number = 0;
   _lastVehicleRespawnTime: number = 0;
   _lastNpcRespawnTime: number = 0;
+  _lastPrototypeZombieRespawnTime: number = 0;
   _lastWaterSourceReplenishTime: number = 0;
   private _waterSourceCache: WaterSource[] | null = null;
 
@@ -174,11 +184,14 @@ export class WorldObjectManager {
   npcSpawnRadius!: number;
   chanceNpc!: number;
   chanceScreamer!: number;
+  chanceGasser!: number;
+  chanceExploder!: number;
   chanceWornLetter!: number;
   waterSourceReplenishTimer!: number;
   waterSourceRefillAmount!: number;
   gridScrapLimit!: number;
   gridScrapLimitEnabled!: boolean;
+  npcSpawnCap!: number;
 
   private zombieSlots = [
     EquipSlots.HEAD,
@@ -245,6 +258,13 @@ export class WorldObjectManager {
           await this.createNpcsThreaded(server);
           npcSpan?.end();
           this._lastNpcRespawnTime = Date.now();
+        }
+        // Prototype zombies: 1 hour respawn timer (3,600,000 ms), 100% spawn chance
+        if (this._lastPrototypeZombieRespawnTime + 3_600_000 <= Date.now()) {
+          const prototypeSpan = transaction.startSpan("spawnPrototypeZombies");
+          await this.spawnPrototypeZombies(server);
+          prototypeSpan?.end();
+          this._lastPrototypeZombieRespawnTime = Date.now();
         }
         if (
           this._lastVehicleRespawnTime + this.vehicleRespawnTimer <=
@@ -433,7 +453,10 @@ export class WorldObjectManager {
         existingNpcPositions,
         this.npcSpawnRadius,
         this.chanceNpc,
-        this.chanceScreamer
+        this.chanceScreamer,
+        this.chanceGasser,
+        this.chanceExploder,
+        this.npcSpawnCap
       );
 
       let i = 0;
@@ -443,7 +466,8 @@ export class WorldObjectManager {
           entry.modelId,
           new Float32Array(entry.position),
           new Float32Array(eul2quat(new Float32Array(entry.rotation))),
-          entry.spawnerId
+          entry.spawnerId,
+          entry.npcId
         );
         if (++i % 100 === 0) await scheduler.yield();
       }
@@ -608,21 +632,98 @@ export class WorldObjectManager {
     modelId: number,
     position: Float32Array,
     rotation: Float32Array,
-    spawnerId: number = 0
+    spawnerId: number = 0,
+    npcId?: NpcIds
   ) {
     const characterId = generateRandomGuid();
-    const npc = new Npc(
-      characterId,
-      server.getTransientId(characterId),
-      modelId,
-      position,
-      rotation,
-      server,
-      spawnerId
-    );
+    const transientId = server.getTransientId(characterId);
+    let npc: Npc;
 
-    // doesn't work anymore
-    // this.equipRandomSkins(server, npc, this.zombieSlots, bannedZombieModels);
+    switch (modelId) {
+      case ModelIds.ZOMBIE_FEMALE_WALKER:
+      case ModelIds.ZOMBIE_MALE_WALKER:
+        switch (npcId) {
+          case NpcIds.EXPLODER:
+            npc = new Exploder(
+              characterId,
+              transientId,
+              position,
+              rotation,
+              server,
+              spawnerId
+            );
+            break;
+          case NpcIds.GASSER:
+            npc = new Gasser(
+              characterId,
+              transientId,
+              position,
+              rotation,
+              server,
+              spawnerId
+            );
+
+            break;
+          default:
+            let variant = this.getVariantBasedOnPoi(new Float32Array(position));
+            npc = new ZombieWalker(
+              characterId,
+              transientId,
+              modelId,
+              position,
+              rotation,
+              server,
+              spawnerId,
+              variant
+            );
+            break;
+        }
+        break;
+      case ModelIds.ZOMBIE_SCREAMER:
+        npc = new ZombieScreamer(
+          characterId,
+          transientId,
+          position,
+          rotation,
+          server,
+          spawnerId
+        );
+        break;
+      case ModelIds.DEER:
+      case ModelIds.DEER_BUCK:
+        npc = new Deer(
+          characterId,
+          transientId,
+          modelId,
+          position,
+          rotation,
+          server,
+          spawnerId
+        );
+        break;
+      case ModelIds.WOLF:
+        npc = new Wolf(
+          characterId,
+          transientId,
+          position,
+          rotation,
+          server,
+          spawnerId
+        );
+        break;
+      case ModelIds.BEAR:
+        npc = new Bear(
+          characterId,
+          transientId,
+          position,
+          rotation,
+          server,
+          spawnerId
+        );
+        break;
+      default:
+        throw new Error(`Unknown NPC modelId: ${modelId}`);
+    }
     server._npcs[characterId] = npc;
     if (spawnerId) this.spawnedNpcs[spawnerId] = characterId;
     return npc;
@@ -1333,6 +1434,7 @@ export class WorldObjectManager {
     // This is only for giving the world some life
     for (const spawnerType of Z1_npcs) {
       const authorizedModelId: number[] = [];
+
       switch (spawnerType.actorDefinition) {
         case "NPCSpawner_ZombieLazy.adr":
           authorizedModelId.push(ModelIds.ZOMBIE_FEMALE_WALKER);
@@ -1384,19 +1486,160 @@ export class WorldObjectManager {
           if (screamerChance <= this.chanceScreamer) {
             authorizedModelId.push(9667);
           }
-          this.createNpc(
-            server,
+          const modelId =
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
-            ],
+            ];
+          let npcId: NpcIds | undefined;
+          if (
+            modelId === ModelIds.ZOMBIE_FEMALE_WALKER ||
+            modelId === ModelIds.ZOMBIE_MALE_WALKER
+          ) {
+            if (Math.floor(Math.random() * 1000) + 1 <= this.chanceExploder) {
+              npcId = NpcIds.EXPLODER;
+            } else if (
+              Math.floor(Math.random() * 1000) + 1 <=
+              this.chanceGasser
+            ) {
+              npcId = NpcIds.GASSER;
+            }
+          }
+          this.createNpc(
+            server,
+            modelId,
             new Float32Array(npcInstance.position),
             new Float32Array(eul2quat(npcInstance.rotation)),
-            npcInstance.id
+            npcInstance.id,
+            npcId
           );
         }
       }
     }
     debug("All npcs objects created");
+  }
+
+  _Poimap: Map<string, string> = new Map([["17", "Nurse"]]);
+
+  private getVariantBasedOnPoi(position: Float32Array): string {
+    // Find which POI contains this position
+    for (const poi of Z1_POIs) {
+      if (!poi.bounds || !Array.isArray(poi.bounds)) continue;
+
+      // Check if position is in any of the polygon bounds for this POI
+      for (const polygon of poi.bounds) {
+        // Validate polygon is an array and has proper structure
+        if (!Array.isArray(polygon) || polygon.length < 3) continue;
+
+        if (this.isPointInPolygon([position[0], position[2]], polygon)) {
+          // Found POI - look up variant from map using POI ID
+          const variant = this._Poimap.get(String(poi.POIid));
+          if (variant) {
+            return variant;
+          }
+        }
+      }
+    }
+    // No POI found - return empty for random variant
+    return "";
+  }
+
+  private isPointInPolygon(
+    point: [number, number],
+    polygon: Array<[number, number]>
+  ): boolean {
+    const [x, y] = point;
+    let inside = false;
+
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      const coord = polygon[i];
+      const prevCoord = polygon[j];
+
+      // Validate coordinates are properly formatted
+      if (
+        !Array.isArray(coord) ||
+        !Array.isArray(prevCoord) ||
+        coord.length < 2 ||
+        prevCoord.length < 2
+      ) {
+        continue;
+      }
+
+      const [xi, yi] = coord;
+      const [xj, yj] = prevCoord;
+
+      const intersect =
+        yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+      if (intersect) inside = !inside;
+    }
+
+    return inside;
+  }
+
+  private async spawnPrototypeZombies(server: ZoneServer2016) {
+    // Prototype zombies: 100% spawn chance, independent respawn (1 hour)
+    for (const spawnerType of Z1_npcs) {
+      let prototypeNpcId: number | null = null;
+
+      switch (spawnerType.actorDefinition) {
+        case "NPCSpawner_PrototypeAssaultZombie.adr":
+          prototypeNpcId = NpcIds.PROTOTYPE_ASSAULT_ZOMBIE;
+          break;
+        case "NPCSpawner_PrototypeHunterZombie.adr":
+          prototypeNpcId = NpcIds.PROTOTYPE_HUNTER_ZOMBIE;
+          break;
+        case "NPCSpawner_PrototypeSniperZombie.adr":
+          prototypeNpcId = NpcIds.PROTOTYPE_SNIPER_ZOMBIE;
+          break;
+        default:
+          continue;
+      }
+
+      const authorizedModelId = [ModelIds.ZOMBIE_MALE_WALKER];
+
+      for (const npcInstance of spawnerType.instances) {
+        let spawn = true;
+
+        // Check if there's already a prototype zombie at this location
+        for (const a in server._npcs) {
+          if (!server._npcs[a]) continue;
+          if (
+            isPosInRadius(
+              this.npcSpawnRadius,
+              npcInstance.position,
+              server._npcs[a].state.position
+            )
+          ) {
+            spawn = false;
+            break;
+          }
+        }
+
+        if (!spawn) continue;
+
+        // Create PrototypeZombie directly (not generic ZombieWalker)
+        const characterId = generateRandomGuid();
+        const transientId = server.getTransientId(characterId);
+        const modelId =
+          authorizedModelId[
+            Math.floor(Math.random() * authorizedModelId.length)
+          ];
+
+        const npc = new PrototypeZombie(
+          characterId,
+          transientId,
+          modelId,
+          new Float32Array(npcInstance.position),
+          new Float32Array(eul2quat(npcInstance.rotation)),
+          server,
+          npcInstance.id,
+          prototypeNpcId ?? NpcIds.ZOMBIE
+        );
+
+        server._npcs[characterId] = npc;
+        if (npcInstance.id) this.spawnedNpcs[npcInstance.id] = characterId;
+      }
+    }
+    debug("Prototype zombies spawned");
   }
 
   refillScrapInChunks(server: ZoneServer2016) {
