@@ -119,7 +119,7 @@ export class LoginServer extends EventEmitter {
   _enableHttpServer: boolean;
   _httpServerPort: number = Number(process.env.HTTP_PORT ?? 80);
   private _zoneConnectionManager!: ZoneConnectionManager;
-  private _zoneConnections: { [LZConnectionClientId: string]: number } = {};
+  private _zoneConnections: { [serverId: number]: LZConnectionClient } = {};
   private _globalBroadcastAllowedZones: Set<number> = new Set(
     (process.env.GLOBAL_BROADCAST_SERVER_IDS || "")
       .split(",")
@@ -221,8 +221,7 @@ export class LoginServer extends EventEmitter {
             return;
           }
           try {
-            const connectionEstablished: boolean =
-              !!this._zoneConnections[client.clientId];
+            const connectionEstablished: boolean = !!client.serverId;
             if (connectionEstablished || packet.name === "SessionRequest") {
               switch (packet.name) {
                 case "SessionRequest": {
@@ -250,8 +249,18 @@ export class LoginServer extends EventEmitter {
                   }
                   if (status === 1) {
                     debug(`ZoneConnection established`);
+                    // A serverId must map to only one connection at a time.
+                    const previousClient = this._zoneConnections[serverId];
+                    if (
+                      previousClient &&
+                      previousClient.clientId !== client.clientId
+                    ) {
+                      delete this._zoneConnectionManager._clients[
+                        previousClient.clientId
+                      ];
+                    }
                     client.serverId = serverId;
-                    this._zoneConnections[client.clientId] = serverId;
+                    this._zoneConnections[serverId] = client;
                     await this.updateZoneServerVersion(serverId, h1emuVersion);
                     await this.updateZoneServerRuleSets(
                       serverId,
@@ -272,7 +281,7 @@ export class LoginServer extends EventEmitter {
                 case "UpdateZonePopulation": {
                   const { population } = packet.data;
 
-                  const serverId = this._zoneConnections[client.clientId];
+                  const serverId = client.serverId;
                   const serverData = await this._db
                     .collection(DB_COLLECTIONS.SERVERS)
                     .findOne({ serverId: serverId });
@@ -319,7 +328,7 @@ export class LoginServer extends EventEmitter {
                   break;
                 }
                 case "GlobalBroadcastRequest": {
-                  const originServerId = this._zoneConnections[client.clientId];
+                  const originServerId = client.serverId;
                   if (
                     !originServerId ||
                     !this._globalBroadcastAllowedZones.has(originServerId)
@@ -327,25 +336,27 @@ export class LoginServer extends EventEmitter {
                     return;
                   const { broadcastType, initiatorName, message, rewardIds } =
                     packet.data;
-                  for (const zoneClientId in this._zoneConnections) {
-                    const zoneServerId = this._zoneConnections[zoneClientId];
-                    if (!this._globalBroadcastAllowedZones.has(zoneServerId))
-                      continue;
+                  for (const zoneClientId in this._zoneConnectionManager
+                    ._clients) {
                     const zoneClient =
                       this._zoneConnectionManager._clients[zoneClientId];
-                    if (zoneClient) {
-                      this._zoneConnectionManager.sendData(
-                        zoneClient,
-                        "GlobalBroadcastForward",
-                        {
-                          broadcastType,
-                          initiatorName,
-                          message,
-                          originServerId,
-                          rewardIds
-                        }
-                      );
-                    }
+                    const zoneServerId = zoneClient.serverId;
+                    if (
+                      !zoneServerId ||
+                      !this._globalBroadcastAllowedZones.has(zoneServerId)
+                    )
+                      continue;
+                    this._zoneConnectionManager.sendData(
+                      zoneClient,
+                      "GlobalBroadcastForward",
+                      {
+                        broadcastType,
+                        initiatorName,
+                        message,
+                        originServerId,
+                        rewardIds
+                      }
+                    );
                   }
                   break;
                 }
@@ -394,11 +405,12 @@ export class LoginServer extends EventEmitter {
               reason ? "Connection Lost" : "Unknown Error"
             }`
           );
-          delete this._zoneConnections[client.clientId];
+          // A superseded connection must not evict the one that replaced it.
           if (
             client.serverId &&
-            !Object.values(this._zoneConnections).includes(client.serverId)
+            this._zoneConnections[client.serverId]?.clientId === client.clientId
           ) {
+            delete this._zoneConnections[client.serverId];
             await this.updateServerStatus(client.serverId, false);
           }
         }
@@ -861,10 +873,7 @@ export class LoginServer extends EventEmitter {
 
     for (let index = 0; index < servers.length; index++) {
       const server: GameServer = servers[index];
-      if (
-        server.allowedAccess &&
-        !Object.values(this._zoneConnections).includes(server.serverId)
-      ) {
+      if (server.allowedAccess && !this._zoneConnections[server.serverId]) {
         await this.updateServerStatus(server.serverId, false);
       }
     }
@@ -1378,16 +1387,12 @@ export class LoginServer extends EventEmitter {
   }
 
   getZoneConnectionClient(serverId: number): LZConnectionClient | null {
-    const zoneConnectionIndex = Object.values(this._zoneConnections).findIndex(
-      (e) => e === serverId
-    );
-    const zoneConnectionString = Object.keys(this._zoneConnections)[
-      zoneConnectionIndex
-    ];
-    if (zoneConnectionString) {
-      const [address, port] = zoneConnectionString.split(":");
-
-      const LZClient = new LZConnectionClient({ address, port: Number(port) });
+    const client = this._zoneConnections[serverId];
+    if (client) {
+      const LZClient = new LZConnectionClient({
+        address: client.address,
+        port: client.port
+      });
       // Hack since the loginserver doesn't have a serverId
       LZClient.serverId = MAX_UINT32;
       return LZClient;
@@ -1608,9 +1613,7 @@ export class LoginServer extends EventEmitter {
             const response: httpServerMessage = {
               type: "pingzone",
               requestId: requestId,
-              data: Object.values(this._zoneConnections).includes(data)
-                ? "pong"
-                : "error"
+              data: this._zoneConnections[data] ? "pong" : "error"
             };
             this._httpServer.postMessage(response);
             break;
