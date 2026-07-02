@@ -191,6 +191,15 @@ export class SpeedTreeManager {
       unk4: true
     });
 
+    const tree = this._speedTreesList.get(objectId);
+    if (tree) {
+      server.pushSound({
+        position: tree.position,
+        radius: 80,
+        agitation: 10
+      });
+    }
+
     this._speedTreesDestroyed[objectId] = {
       objectId: objectId,
       modelName: name

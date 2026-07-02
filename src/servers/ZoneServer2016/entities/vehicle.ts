@@ -373,7 +373,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         break;
       }
     }
-    server.aiManager.addEntity(this);
+    server.explosiveManager.addEntity(this);
   }
 
   getSeatCount() {
@@ -724,6 +724,13 @@ export class Vehicle2016 extends BaseLootableEntity {
     );
     this.engineOn = true;
     this.startResourceUpdater(server);
+    if (this.vehicleId !== VehicleIds.SPECTATE) {
+      server.pushSound({
+        radius: 80,
+        position: this.state.position,
+        agitation: 5
+      });
+    }
   }
 
   stopEngine(server: ZoneServer2016) {
@@ -901,6 +908,14 @@ export class Vehicle2016 extends BaseLootableEntity {
         }
       );
       this.effectTags.push(hornEffect);
+
+      if (this.vehicleId !== VehicleIds.SPECTATE) {
+        server.pushSound({
+          radius: 250,
+          position: this.state.position,
+          agitation: 25
+        });
+      }
       return;
     }
 
@@ -1113,6 +1128,13 @@ export class Vehicle2016 extends BaseLootableEntity {
         ResourceTypes.FUEL,
         server._vehicles
       );
+      if (this.getSirenState() && this.vehicleId !== VehicleIds.SPECTATE) {
+        server.pushSound({
+          position: this.state.position,
+          radius: 200,
+          agitation: 20
+        });
+      }
       this.resourcesUpdater.refresh();
     }, 3000);
   }
@@ -1345,7 +1367,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     // TODO: Have to revisit when the heightmap is implemented server side.
     // fix floating vehicle lootbags
     server.worldObjectManager.createLootbag(server, this);
-    server.aiManager.removeEntity(this);
+    server.explosiveManager.removeEntity(this);
     return deleted;
   }
 

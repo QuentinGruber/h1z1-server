@@ -30,7 +30,6 @@ import {
   getDateString
 } from "../../../../utils/utils";
 import { ExplosiveEntity } from "../../entities/explosiveentity";
-import { Npc } from "../../entities/npc";
 import { ZoneClient2016 as Client } from "../../classes/zoneclient";
 import {
   characterBuildKitLoadout,
@@ -45,6 +44,8 @@ import {
   Effects,
   EquipSlots,
   Items,
+  ModelIds,
+  NpcIds,
   ResourceIds,
   ResourceTypes,
   VehicleIds
@@ -65,6 +66,16 @@ import { FullCharacterSaveData } from "types/savedata";
 import { scheduler } from "node:timers/promises";
 import { Vehicle2016 } from "../../entities/vehicle";
 import { AddSimpleNpc } from "types/zone2016packets";
+import { Npc } from "../../entities/npc";
+import { ZombieWalker } from "../../entities/zombiewalker";
+import { ZombieScreamer } from "../../entities/zombiescreamer";
+import { Exploder } from "../../entities/exploder";
+import { Gasser } from "../../entities/gasser";
+import { Deer } from "../../entities/deer";
+import { DeerEvents } from "../../jsms/deer.jsm";
+import { ZombieEvents } from "../../jsms/zombie.jsm";
+import { Wolf } from "../../entities/wolf";
+import { Bear } from "../../entities/bear";
 import { writeFileSync } from "node:fs";
 import { PluginManager } from "../../managers/pluginmanager";
 const itemDefinitions = PluginManager.loadServerData(
@@ -2253,22 +2264,137 @@ export const commands: Array<Command> = [
     name: "spawnnpc",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      const guid = server.generateGuid();
-      const transientId = server.getTransientId(guid);
       if (!args[0]) {
         server.sendChatText(client, "[ERROR] You need to specify a model id !");
         return;
       }
-      const characterId = server.generateGuid();
-      const npc = new Npc(
-        characterId,
-        transientId,
+      server.worldObjectManager.createNpc(
+        server,
         Number(args[0]),
         client.character.state.position,
-        client.character.state.lookAt,
-        server
+        client.character.state.lookAt
       );
-      server._npcs[characterId] = npc; // save npc
+    }
+  },
+  {
+    name: "spawn",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      const npcTypes: { [name: string]: number } = {
+        zombie: ModelIds.ZOMBIE_FEMALE_WALKER,
+        zombie_female: ModelIds.ZOMBIE_FEMALE_WALKER,
+        zombie_male: ModelIds.ZOMBIE_MALE_WALKER,
+        zombie_screamer: ModelIds.ZOMBIE_SCREAMER,
+        gasser: ModelIds.ZOMBIE_MALE_WALKER,
+        exploder: ModelIds.ZOMBIE_MALE_WALKER,
+        deer: ModelIds.DEER,
+        deer_buck: ModelIds.DEER_BUCK,
+        wolf: ModelIds.WOLF,
+        bear: ModelIds.BEAR
+      };
+      const availableTypes = Object.keys(npcTypes).join(", ");
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `[ERROR] Usage: /spawn <type> [count]\nAvailable types: ${availableTypes}`
+        );
+        return;
+      }
+      const modelId = npcTypes[args[0]];
+      if (modelId === undefined) {
+        server.sendChatText(
+          client,
+          `[ERROR] Unknown NPC type "${args[0]}". Available: ${availableTypes}`
+        );
+        return;
+      }
+      const count = args[1] ? parseInt(args[1], 10) : 1;
+      if (isNaN(count) || count < 1 || count > 500) {
+        server.sendChatText(
+          client,
+          `[ERROR] Count must be a number between 1 and 500`
+        );
+        return;
+      }
+      const scatterRadius = 10;
+      const npcIdMap: Record<string, NpcIds> = {
+        exploder: NpcIds.EXPLODER,
+        gasser: NpcIds.GASSER
+      };
+      for (let i = 0; i < count; i++) {
+        const offsetX = (Math.random() - 0.5) * 2 * scatterRadius;
+        const offsetZ = (Math.random() - 0.5) * 2 * scatterRadius;
+        const pos = new Float32Array([
+          client.character.state.position[0] + offsetX,
+          client.character.state.position[1],
+          client.character.state.position[2] + offsetZ,
+          1
+        ]);
+        server.worldObjectManager.createNpc(
+          server,
+          modelId,
+          pos,
+          client.character.state.lookAt,
+          0,
+          npcIdMap[args[0]]
+        );
+      }
+      server.sendChatText(
+        client,
+        `Spawned ${count} ${args[0]} around your position`
+      );
+    }
+  },
+  {
+    name: "despawn",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      const npcGroups: { [name: string]: (npc: Npc) => boolean } = {
+        zombie: (npc) =>
+          npc instanceof ZombieWalker || npc instanceof ZombieScreamer,
+        zombie_female: (npc) =>
+          npc instanceof ZombieWalker &&
+          npc.actorModelId === ModelIds.ZOMBIE_FEMALE_WALKER,
+        zombie_male: (npc) =>
+          npc instanceof ZombieWalker &&
+          npc.actorModelId === ModelIds.ZOMBIE_MALE_WALKER,
+        zombie_screamer: (npc) => npc instanceof ZombieScreamer,
+        exploder: (npc) => npc instanceof Exploder,
+        deer: (npc) =>
+          npc instanceof Deer && npc.actorModelId === ModelIds.DEER,
+        deer_buck: (npc) =>
+          npc instanceof Deer && npc.actorModelId === ModelIds.DEER_BUCK,
+        wolf: (npc) => npc instanceof Wolf,
+        bear: (npc) => npc instanceof Bear,
+        all: () => true
+      };
+      const availableTypes = Object.keys(npcGroups).join(", ");
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `[ERROR] Usage: /despawn <type>\nAvailable types: ${availableTypes}`
+        );
+        return;
+      }
+      const matcher = npcGroups[args[0]];
+      if (!matcher) {
+        server.sendChatText(
+          client,
+          `[ERROR] Unknown type "${args[0]}". Available: ${availableTypes}`
+        );
+        return;
+      }
+      let count = 0;
+      for (const characterId in server._npcs) {
+        const npc = server._npcs[characterId];
+        if (!matcher(npc)) continue;
+        if (npc.spawnerId) {
+          delete server.worldObjectManager.spawnedNpcs[npc.spawnerId];
+        }
+        server.deleteEntity(characterId, server._npcs);
+        count++;
+      }
+      server.sendChatText(client, `Despawned ${count} ${args[0]} NPC(s).`);
     }
   },
   {
@@ -3873,6 +3999,32 @@ export const commands: Array<Command> = [
       server.sendChatText(client, `Set weather ${args[0]} to ${args[1]}`);
       console.log(server.weatherManager.weather);
       server.weatherManager.sendUpdateToAll(server, client, false);
+    }
+  },
+  {
+    name: "npcs",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, _args: Array<string>) => {
+      let zombies = 0;
+      let screamers = 0;
+      let gassers = 0;
+      let exploders = 0;
+      let bears = 0;
+      let wolves = 0;
+      let deer = 0;
+      for (const npc of Object.values(server._npcs)) {
+        if (npc instanceof ZombieScreamer) screamers++;
+        else if (npc instanceof Gasser) gassers++;
+        else if (npc instanceof Exploder) exploders++;
+        else if (npc instanceof ZombieWalker) zombies++;
+        else if (npc instanceof Bear) bears++;
+        else if (npc instanceof Wolf) wolves++;
+        else if (npc instanceof Deer) deer++;
+      }
+      server.sendChatText(
+        client,
+        `[NPCs] Zombies: ${zombies} | Screamers: ${screamers} | Gassers: ${gassers} | Exploders: ${exploders} | Bears: ${bears} | Wolves: ${wolves} | Deer: ${deer}`
+      );
     }
   }
 

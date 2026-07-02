@@ -1476,6 +1476,7 @@ export class LoginServer extends EventEmitter {
             ...newCharacter,
             actorModelId: characterModelData.modelId,
             headActor: characterModelData.headActor,
+            eyeActor: characterModelData.eyeActor,
             gender: payload.gender,
             hairModel: characterModelData.hairModel
           };
@@ -1492,6 +1493,7 @@ export class LoginServer extends EventEmitter {
             ...newCharacter,
             actorModelId: characterModelData.modelId,
             headActor: characterModelData.headActor,
+            eyeActor: characterModelData.eyeActor,
             gender: payload.gender,
             hairModel: characterModelData.hairModel
           };

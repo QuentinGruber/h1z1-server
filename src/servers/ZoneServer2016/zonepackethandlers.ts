@@ -259,6 +259,10 @@ export class ZonePacketHandlers {
     server.customizeDTO(client);
 
     client.character.startResourceUpdater(client, server);
+    if (server.infectionEnabled) {
+      client.character.startVirusBurnTick(client, server);
+      client.character.startImmunityFadeTick(client, server);
+    }
     server.sendData<CharacterCharacterStateDelta>(
       client,
       "Character.CharacterStateDelta",
@@ -394,7 +398,7 @@ export class ZonePacketHandlers {
       if (client.firstCharacterReleased) {
         server.challengeManager.loadChallenges(client);
         client.firstCharacterReleased = false;
-        server.aiManager.addEntity(client.character);
+        server.explosiveManager.addEntity(client.character);
         if (
           server.voiceChatManager.useVoiceChatV2 &&
           server.voiceChatManager.joinVoiceChatOnConnect
@@ -1412,6 +1416,13 @@ export class ZonePacketHandlers {
         server.stopHudTimer(client);
         delete client.hudTimer;
       }
+      if (vehicle.engineOn) {
+        server.pushSound({
+          radius: 50,
+          position: fixedPosUpdate,
+          agitation: 3
+        });
+      }
     }
 
     // Send position updates to other clients
@@ -1627,7 +1638,7 @@ export class ZonePacketHandlers {
       client.character.state.position = position;
 
       // Check if player stepped on an armed landmine
-      if (server.aiManager.explosiveEntities.size > 0) {
+      if (server.explosiveManager.explosiveEntities.size > 0) {
         const landmineCells = server.getGridCellsInRadius(position, 0.6);
         for (const cell of landmineCells) {
           for (const obj of cell.objects) {

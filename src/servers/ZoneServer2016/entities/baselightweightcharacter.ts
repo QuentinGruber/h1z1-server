@@ -32,6 +32,21 @@ function getHeadActor(modelId: number): string {
   }
 }
 
+function getEyeActor(modelId: number): string {
+  switch (modelId) {
+    case ModelIds.SURVIVOR_MALE_HEAD_01:
+      return "SurvivorMale_Eyes_01.adr";
+    case ModelIds.SURVIVAL_FEMALE_HEAD_01:
+      return "SurvivorFemale_Eyes_01.adr";
+    case ModelIds.ZOMBIE_FEMALE_HEAD:
+      return Math.random() < 0.5
+        ? "ZombieFemale_Eyes_01.adr"
+        : "ZombieFemale_EyeLeft_01.adr";
+    default:
+      return "";
+  }
+}
+
 export abstract class BaseLightweightCharacter extends BaseEntity {
   /** State of the BaseLightweightCharacter, includes: state (Float32Array),
    * rotation(Float32Array), lookAt(Float32Array), and yaw (number) */
@@ -85,6 +100,9 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
   /** Returns the modelId of the lightweight, zombies or players */
   headActor = getHeadActor(this.actorModelId);
 
+  /** Sets eyes for characters */
+  eyeActor = getEyeActor(this.actorModelId);
+
   /** Used for constructions */
   profileId: number = 0;
 
@@ -103,6 +121,12 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
   movementVersion: number = 0;
 
   navAgent?: CrowdAgent;
+
+  /** Object the character's animation is attached to. Overridden by Npc to
+   * attach the animation to itself (used for zombie animations) */
+  get attachedObjectTargetId(): string {
+    return "0x0";
+  }
 
   constructor(
     characterId: string,
@@ -167,7 +191,12 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
       },
       movementVersion: this.movementVersion,
       headActor: this.headActor,
-      attachedObject: {}
+      eyeActor: this.eyeActor,
+      attachedObject: {
+        // This doesn't do anything. I thought it could've been related to animations - Jason
+        //targetObjectId: this.attachedObjectTargetId,
+        //animationName: "Idle"
+      }
     };
   }
 }
