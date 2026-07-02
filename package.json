@@ -90,5 +90,9 @@
   "bugs": {
     "url": "https://github.com/QuentinGruber/h1z1-server/issues"
   },
-  "homepage": "http://h1emu.com/"
+  "homepage": "http://h1emu.com/",
+  "allowScripts": {
+    "h1z1-dataschema@1.9.3": true,
+    "esbuild@0.28.0": true
+  }
 }
