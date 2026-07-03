@@ -37,34 +37,38 @@ export class GroupManager {
   }
 
   async getGroupMembers(group: Group, server: ZoneServer2016) {
-    const members = [];
+    // Resolve all offline members in parallel instead of sequentially
+    const resolved = await Promise.all(
+      Object.values(group.members).map(async (member) => {
+        let client = server.getClientByCharId(member);
+        if (!client) {
+          client = await server.getOfflineClientByCharId(member);
+        }
+        return { member, client };
+      })
+    );
 
-    for (const [index, member] of Object.values(group.members).entries()) {
-      let client = server.getClientByCharId(member);
-      if (!client) {
-        client = await server.getOfflineClientByCharId(member);
-      }
+    return resolved.flatMap(({ member, client }, index) => {
       const character = client?.character;
-
-      if (!client || !character) continue;
-
-      members.push({
-        characterId: member,
-        inviteData: {
+      if (!client || !character) return [];
+      return [
+        {
           characterId: member,
-          identity: {
-            characterFirstName: character?.name,
-            unknownQword1: member
-          }
-        },
-        unknownByte1: character.isAlive ? 0 : -1,
-        position: character?.state.position,
-        rotation: character?.state.rotation,
-        memberId: index,
-        unknownQword2: member
-      });
-    }
-    return members;
+          inviteData: {
+            characterId: member,
+            identity: {
+              characterFirstName: character?.name,
+              unknownQword1: member
+            }
+          },
+          unknownByte1: character.isAlive ? 0 : -1,
+          position: character?.state.position,
+          rotation: character?.state.rotation,
+          memberId: index,
+          unknownQword2: member
+        }
+      ];
+    });
   }
 
   async syncGroup(
@@ -72,31 +76,31 @@ export class GroupManager {
     groupId: number,
     forceSync: boolean = false
   ) {
-    const group = await this.getGroup(server, groupId);
-    if (!group) return;
+    // Check rate limit before hitting MongoDB
     const now = Date.now();
     const lastSyncTime = this.groupSync[groupId];
+    if (lastSyncTime && lastSyncTime + 5000 > now && !forceSync) return;
 
-    if (!lastSyncTime || lastSyncTime + 5000 <= now || forceSync) {
-      this.groupSync[groupId] = now;
+    const group = await this.getGroup(server, groupId);
+    if (!group) return;
+    this.groupSync[groupId] = now;
 
-      const members = await this.getGroupMembers(group, server);
-      const sendData = {
-        unknownDword1: group.groupId,
-        unknownData1: {
-          groupId: group.groupId,
-          characterId: group.leader
-        },
-        members
-      };
+    const members = await this.getGroupMembers(group, server);
+    const sendData = {
+      unknownDword1: group.groupId,
+      unknownData1: {
+        groupId: group.groupId,
+        characterId: group.leader
+      },
+      members
+    };
 
-      this.sendDataToGroup<GroupUnknown12>(
-        server,
-        group.groupId,
-        "Group.Unknown12",
-        sendData
-      );
-    }
+    this.sendDataToGroup<GroupUnknown12>(
+      server,
+      group.groupId,
+      "Group.Unknown12",
+      sendData
+    );
   }
 
   async getGroup(

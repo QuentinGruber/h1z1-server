@@ -29,6 +29,7 @@ const Z1_crates = PluginManager.loadServerData("2016/zoneData/Z1_crates.json");
 const Z1_destroyables = PluginManager.loadServerData(
   "2016/zoneData/Z1_destroyables.json"
 );
+const Z1_POIs = PluginManager.loadServerData("2016/zoneData/Z1_POIs.json");
 const models = PluginManager.loadServerData("2016/dataSources/Models.json");
 // const bannedZombieModels = PluginManager.loadServerData("2016/sampleData/bannedZombiesModels.json");
 import {
@@ -45,6 +46,7 @@ import {
   Items,
   Effects,
   ModelIds,
+  NpcIds,
   DefaultSkinsConveys,
   DefaultSkinsBackpack,
   DefaultSkinsMotorHelmet,
@@ -70,7 +72,13 @@ import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 import { WaterSource } from "../entities/watersource";
 import { TreasureChest } from "../entities/treasurechest";
 import { Npc } from "../entities/npc";
-//import { EntityType } from "h1emu-ai";
+import { ZombieWalker } from "../entities/zombiewalker";
+import { ZombieScreamer } from "../entities/zombiescreamer";
+import { PrototypeZombie } from "../entities/prototypezombie";
+import { Exploder } from "../entities/exploder";
+import { Deer } from "../entities/deer";
+import { Wolf } from "../entities/wolf";
+import { Bear } from "../entities/bear";
 import { scheduler } from "node:timers/promises";
 import {
   ContainerPropSnapshot,
@@ -81,6 +89,7 @@ import {
   SpawnedItemSnapshot
 } from "./lootspawnworker";
 import type { ItemFunction } from "types/zoneserver";
+import { Gasser } from "../entities/gasser";
 const debug = require("debug")("ZoneServer");
 const apm = require("elastic-apm-node");
 
@@ -157,7 +166,9 @@ export class WorldObjectManager {
   _lastLootRespawnTime: number = 0;
   _lastVehicleRespawnTime: number = 0;
   _lastNpcRespawnTime: number = 0;
+  _lastPrototypeZombieRespawnTime: number = 0;
   _lastWaterSourceReplenishTime: number = 0;
+  private _waterSourceCache: WaterSource[] | null = null;
 
   /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   vehicleSpawnCap!: number;
@@ -173,11 +184,14 @@ export class WorldObjectManager {
   npcSpawnRadius!: number;
   chanceNpc!: number;
   chanceScreamer!: number;
+  chanceGasser!: number;
+  chanceExploder!: number;
   chanceWornLetter!: number;
   waterSourceReplenishTimer!: number;
   waterSourceRefillAmount!: number;
   gridScrapLimit!: number;
   gridScrapLimitEnabled!: boolean;
+  npcSpawnCap!: number;
 
   private zombieSlots = [
     EquipSlots.HEAD,
@@ -228,35 +242,58 @@ export class WorldObjectManager {
           if (this.gridScrapLimitEnabled) {
             this.refillScrapInChunks(server);
           }
+          const lootSpan = transaction.startSpan("createLootThreaded");
           await this.createLootThreaded(server);
+          lootSpan?.end();
+          const containerLootSpan = transaction.startSpan(
+            "createContainerLootThreaded"
+          );
           await this.createContainerLootThreaded(server);
+          containerLootSpan?.end();
           this._lastLootRespawnTime = Date.now();
           server.divideLargeCells(700);
         }
         if (this._lastNpcRespawnTime + this.npcRespawnTimer <= Date.now()) {
+          const npcSpan = transaction.startSpan("createNpcsThreaded");
           await this.createNpcsThreaded(server);
+          npcSpan?.end();
           this._lastNpcRespawnTime = Date.now();
+        }
+        // Prototype zombies: 1 hour respawn timer (3,600,000 ms), 100% spawn chance
+        if (this._lastPrototypeZombieRespawnTime + 3_600_000 <= Date.now()) {
+          const prototypeSpan = transaction.startSpan("spawnPrototypeZombies");
+          await this.spawnPrototypeZombies(server);
+          prototypeSpan?.end();
+          this._lastPrototypeZombieRespawnTime = Date.now();
         }
         if (
           this._lastVehicleRespawnTime + this.vehicleRespawnTimer <=
           Date.now()
         ) {
+          const vehicleSpan = transaction.startSpan("createVehicles");
           this.createVehicles(server);
+          vehicleSpan?.end();
           this._lastVehicleRespawnTime = Date.now();
         }
         if (
           this._lastWaterSourceReplenishTime + this.waterSourceReplenishTimer <=
           Date.now()
         ) {
-          this.replenishWaterSources(server);
+          const waterSpan = transaction.startSpan("replenishWaterSources");
+          await this.replenishWaterSources(server);
+          waterSpan?.end();
           this._lastWaterSourceReplenishTime = Date.now();
         }
 
+        const questSpan = transaction.startSpan("updateQuestContainers");
         await this.updateQuestContainers(server);
+        questSpan?.end();
       }
 
       if (server.isSurvival()) {
+        const despawnSpan = transaction.startSpan("despawnEntities");
         await this.despawnEntities(server);
+        despawnSpan?.end();
       }
     } finally {
       transaction.end();
@@ -306,6 +343,7 @@ export class WorldObjectManager {
         ingameHour
       );
 
+      let i = 0;
       for (const entry of plan) {
         if (this.spawnedLootObjects[entry.spawnerId]) continue;
         const item = server.generateItem(
@@ -321,9 +359,11 @@ export class WorldObjectManager {
           new Float32Array(entry.rotation),
           entry.spawnerId
         );
+        if (++i % 200 === 0) await scheduler.yield();
       }
     } catch (error) {
-      debug(`[WARN] createLootThreaded fallback to main thread: ${error}`);
+      console.log(`[WOM] createLootThreaded fallback: ${error}`);
+      apm.captureError(error);
       await this.createLoot(server);
     }
   }
@@ -333,6 +373,7 @@ export class WorldObjectManager {
       const worker = this.getLootSpawnWorker();
       const props: ContainerPropSnapshot[] = [];
 
+      let i = 0;
       for (const characterId in server._lootableProps) {
         const prop = server._lootableProps[characterId] as LootableProp;
         if (!prop.shouldSpawnLoot) continue;
@@ -351,11 +392,13 @@ export class WorldObjectManager {
           ],
           existingItemDefinitionIds: []
         });
+        if (++i % 100 === 0) await scheduler.yield();
       }
 
       const plan = await worker.createContainerLootPlan(props);
       const updatedProps = new Set<string>();
 
+      i = 0;
       for (const entry of plan) {
         const prop = server._lootableProps[entry.characterId] as LootableProp;
         if (!prop) continue;
@@ -376,6 +419,7 @@ export class WorldObjectManager {
           applyItemFunctions(item, entry.functions);
         server.addContainerItem(prop, item, container);
         updatedProps.add(entry.characterId);
+        if (++i % 50 === 0) await scheduler.yield();
       }
 
       if (!updatedProps.size) return;
@@ -389,8 +433,8 @@ export class WorldObjectManager {
         });
       });
     } catch (error) {
-      debug(
-        `[WARN] createContainerLootThreaded fallback to main thread: ${error}`
+      console.warn(
+        `[WOM] createContainerLootThreaded fallback to main thread: ${error}`
       );
       await this.createContainerLoot(server);
     }
@@ -409,29 +453,40 @@ export class WorldObjectManager {
         existingNpcPositions,
         this.npcSpawnRadius,
         this.chanceNpc,
-        this.chanceScreamer
+        this.chanceScreamer,
+        this.chanceGasser,
+        this.chanceExploder,
+        this.npcSpawnCap
       );
 
+      let i = 0;
       for (const entry of plan) {
         this.createNpc(
           server,
           entry.modelId,
           new Float32Array(entry.position),
           new Float32Array(eul2quat(new Float32Array(entry.rotation))),
-          entry.spawnerId
+          entry.spawnerId,
+          entry.npcId
         );
+        if (++i % 100 === 0) await scheduler.yield();
       }
     } catch (error) {
-      debug(`[WARN] createNpcsThreaded fallback to main thread: ${error}`);
+      console.warn(
+        `[WOM] createNpcsThreaded fallback to main thread: ${error}`
+      );
       await this.createNpcs(server);
     }
   }
 
   private async despawnEntities(server: ZoneServer2016) {
+    const tx = apm.currentTransaction;
     try {
       const worker = this.getLootSpawnWorker();
       const now = Date.now();
 
+      // Snapshots are pure reads — no yields needed, each loop is < 5ms.
+      let snapshotSpan = tx?.startSpan("despawn.npcSnapshot");
       const npcs: NpcDespawnSnapshot[] = Object.values(server._npcs).map(
         (npc) => ({
           characterId: npc.characterId,
@@ -439,21 +494,37 @@ export class WorldObjectManager {
           deathTime: npc.deathTime
         })
       );
+      snapshotSpan?.end();
+
+      snapshotSpan = tx?.startSpan("despawn.lootbagSnapshot");
       const lootbags: LootbagDespawnSnapshot[] = Object.values(
         server._lootbags
       ).map((lootbag) => ({
         characterId: lootbag.characterId,
         creationTime: lootbag.creationTime
       }));
-      const items: ItemDespawnSnapshot[] = Object.values(
-        server._spawnedItems
-      ).map((itemObject) => ({
-        characterId: itemObject.characterId,
-        creationTime: itemObject.creationTime,
-        spawnerId: itemObject.spawnerId,
-        itemDefinitionId: itemObject.item.itemDefinitionId
-      }));
+      snapshotSpan?.end();
 
+      snapshotSpan = tx?.startSpan("despawn.itemSnapshot");
+      // Only include items old enough to possibly be despawned — items younger
+      // than 50% of the shortest timer are guaranteed safe and skipped entirely.
+      const minDespawnMs = Math.min(
+        this.itemDespawnTimer,
+        this.lootDespawnTimer
+      );
+      const items: ItemDespawnSnapshot[] = [];
+      for (const itemObject of Object.values(server._spawnedItems)) {
+        if (now - itemObject.creationTime < minDespawnMs * 0.5) continue;
+        items.push({
+          characterId: itemObject.characterId,
+          creationTime: itemObject.creationTime,
+          spawnerId: itemObject.spawnerId,
+          itemDefinitionId: itemObject.item.itemDefinitionId
+        });
+      }
+      snapshotSpan?.end();
+
+      const planSpan = tx?.startSpan("despawn.workerPlan");
       const plan = await worker.createDespawnPlan({
         now,
         deadNpcDespawnTimer: this.deadNpcDespawnTimer,
@@ -465,41 +536,56 @@ export class WorldObjectManager {
         lootbags,
         items
       });
+      planSpan?.end();
 
-      for (const characterId of plan.npcCharacterIds.slice(
-        0,
-        this.maxNpcDespawnsPerRun
-      )) {
-        server.deleteEntity(characterId, server._npcs);
-      }
+      const npcDeleteSpan = tx?.startSpan("despawn.deleteNpcs");
+      server.batchDeleteEntities(
+        plan.npcCharacterIds.slice(0, this.maxNpcDespawnsPerRun),
+        server._npcs
+      );
+      npcDeleteSpan?.end();
+      await scheduler.yield();
 
-      for (const characterId of plan.lootbagCharacterIds.slice(
-        0,
-        this.maxLootbagDespawnsPerRun
-      )) {
-        server.deleteEntity(characterId, server._lootbags);
-      }
+      const lootbagDeleteSpan = tx?.startSpan("despawn.deleteLootbags");
+      server.batchDeleteEntities(
+        plan.lootbagCharacterIds.slice(0, this.maxLootbagDespawnsPerRun),
+        server._lootbags
+      );
+      lootbagDeleteSpan?.end();
+      await scheduler.yield();
 
-      for (const entry of plan.itemEntries.slice(
-        0,
-        this.maxItemDespawnsPerRun
-      )) {
+      const itemEntries = plan.itemEntries.slice(0, this.maxItemDespawnsPerRun);
+
+      // Phase 1: send effects + collect ids — entity must still be in dict
+      const itemEffectsSpan = tx?.startSpan("despawn.itemEffects");
+      let i = 0;
+      const itemIdsToDelete: string[] = [];
+      const explosiveIdsToDelete: string[] = [];
+      for (const entry of itemEntries) {
         const itemObject = server._spawnedItems[entry.characterId];
         if (!itemObject) continue;
-        server.deleteEntity(itemObject.characterId, server._spawnedItems);
-        if (entry.deleteExplosive) {
-          server.deleteEntity(itemObject.characterId, server._explosives);
-        }
-        if (entry.spawnerId != -1) {
-          delete this.spawnedLootObjects[entry.spawnerId];
-        }
         server.sendCompositeEffectToAllWithSpawnedEntity(
           server._spawnedItems,
           itemObject,
           server.getItemDefinition(entry.itemDefinitionId)?.PICKUP_EFFECT ??
             5151
         );
+        itemIdsToDelete.push(entry.characterId);
+        if (entry.deleteExplosive) explosiveIdsToDelete.push(entry.characterId);
+        if (entry.spawnerId != -1)
+          delete this.spawnedLootObjects[entry.spawnerId];
+        if (++i % 20 === 0) await scheduler.yield();
       }
+      itemEffectsSpan?.end();
+
+      // Phase 2: one grid pass for all items, one for explosives
+      const itemDeleteSpan = tx?.startSpan("despawn.deleteItems");
+      server.batchDeleteEntities(itemIdsToDelete, server._spawnedItems);
+      itemDeleteSpan?.end();
+      await scheduler.yield();
+      const explosiveDeleteSpan = tx?.startSpan("despawn.deleteExplosives");
+      server.batchDeleteEntities(explosiveIdsToDelete, server._explosives);
+      explosiveDeleteSpan?.end();
     } catch (error) {
       debug(`[WARN] despawnEntities threaded path failed: ${error}`);
       // Safe fallback to avoid leaking stale entities if worker path fails.
@@ -546,21 +632,98 @@ export class WorldObjectManager {
     modelId: number,
     position: Float32Array,
     rotation: Float32Array,
-    spawnerId: number = 0
+    spawnerId: number = 0,
+    npcId?: NpcIds
   ) {
     const characterId = generateRandomGuid();
-    const npc = new Npc(
-      characterId,
-      server.getTransientId(characterId),
-      modelId,
-      position,
-      rotation,
-      server,
-      spawnerId
-    );
+    const transientId = server.getTransientId(characterId);
+    let npc: Npc;
 
-    // doesn't work anymore
-    // this.equipRandomSkins(server, npc, this.zombieSlots, bannedZombieModels);
+    switch (modelId) {
+      case ModelIds.ZOMBIE_FEMALE_WALKER:
+      case ModelIds.ZOMBIE_MALE_WALKER:
+        switch (npcId) {
+          case NpcIds.EXPLODER:
+            npc = new Exploder(
+              characterId,
+              transientId,
+              position,
+              rotation,
+              server,
+              spawnerId
+            );
+            break;
+          case NpcIds.GASSER:
+            npc = new Gasser(
+              characterId,
+              transientId,
+              position,
+              rotation,
+              server,
+              spawnerId
+            );
+
+            break;
+          default:
+            let variant = this.getVariantBasedOnPoi(new Float32Array(position));
+            npc = new ZombieWalker(
+              characterId,
+              transientId,
+              modelId,
+              position,
+              rotation,
+              server,
+              spawnerId,
+              variant
+            );
+            break;
+        }
+        break;
+      case ModelIds.ZOMBIE_SCREAMER:
+        npc = new ZombieScreamer(
+          characterId,
+          transientId,
+          position,
+          rotation,
+          server,
+          spawnerId
+        );
+        break;
+      case ModelIds.DEER:
+      case ModelIds.DEER_BUCK:
+        npc = new Deer(
+          characterId,
+          transientId,
+          modelId,
+          position,
+          rotation,
+          server,
+          spawnerId
+        );
+        break;
+      case ModelIds.WOLF:
+        npc = new Wolf(
+          characterId,
+          transientId,
+          position,
+          rotation,
+          server,
+          spawnerId
+        );
+        break;
+      case ModelIds.BEAR:
+        npc = new Bear(
+          characterId,
+          transientId,
+          position,
+          rotation,
+          server,
+          spawnerId
+        );
+        break;
+      default:
+        throw new Error(`Unknown NPC modelId: ${modelId}`);
+    }
     server._npcs[characterId] = npc;
     if (spawnerId) this.spawnedNpcs[spawnerId] = characterId;
     return npc;
@@ -845,6 +1008,12 @@ export class WorldObjectManager {
             Number(propType.renderDistance)
           );
           server._lootableProps[characterId] = obj;
+          if (
+            propInstance.modelId === ModelIds.HOSPITAL_LAB_WORKBENCH ||
+            propInstance.modelId === ModelIds.TREASURE_CHEST
+          ) {
+            server._questContainerProps[characterId] = obj;
+          }
           obj.equipItem(server, server.generateItem(obj.containerId), false);
           if (
             ![
@@ -1031,19 +1200,32 @@ export class WorldObjectManager {
         server._destroyableDTOlist.push(propInstance.id);
       });
     });
+
+    // Build static spatial map for destroyables (they never move, so this is built once).
+    const sz = ZoneServer2016._DESTROYABLE_GRID_SIZE;
+    for (const characterId in server._destroyables) {
+      const d = server._destroyables[characterId];
+      const key = `${Math.floor(d.state.position[0] / sz)},${Math.floor(d.state.position[2] / sz)}`;
+      let bucket = server._destroyableSpatialMap.get(key);
+      if (!bucket) {
+        bucket = [];
+        server._destroyableSpatialMap.set(key, bucket);
+      }
+      bucket.push(d);
+    }
     debug("All props created");
   }
 
   async replenishWaterSources(server: ZoneServer2016) {
-    let counter = 0;
-    for (const a in server._taskProps) {
-      if (counter > 9) {
-        counter = 0;
-        await scheduler.yield();
-      }
-      counter++;
-      const propInstance = server._taskProps[a];
-      if (propInstance instanceof WaterSource) propInstance.replenish();
+    if (!this._waterSourceCache) {
+      this._waterSourceCache = Object.values(server._taskProps).filter(
+        (p): p is WaterSource => p instanceof WaterSource
+      );
+    }
+    let i = 0;
+    for (const ws of this._waterSourceCache) {
+      ws.replenish();
+      if (++i % 100 === 0) await scheduler.yield();
     }
   }
 
@@ -1189,6 +1371,7 @@ export class WorldObjectManager {
     );
 
     server._vehicles[vehicle.characterId] = vehicle;
+    server.insertVehicleIntoSpatialMap(vehicle);
     // Immediately send the vehicle to any clients in range
     for (const sessionId in server._clients) {
       const client = server._clients[sessionId];
@@ -1201,59 +1384,65 @@ export class WorldObjectManager {
       "WorldObjectManager::createVehicles",
       "custom"
     );
-    if (_.size(server._vehicles) >= this.vehicleSpawnCap) return;
-    const respawnAmount = Math.ceil(
-      (this.vehicleSpawnCap - _.size(server._vehicles)) / 8
-    );
-    for (let x = 0; x < respawnAmount; x++) {
-      const dataVehicle =
-        Z1_vehicles[randomIntFromInterval(0, Z1_vehicles.length - 1)];
-      let spawn = true;
-      Object.values(server._vehicles).forEach((spawnedVehicle: Vehicle2016) => {
-        if (!spawn) return;
-        if (
-          isPosInRadius(
-            this.vehicleSpawnRadius,
-            dataVehicle.position,
-            spawnedVehicle.state.position
-          )
-        ) {
-          spawn = false;
-        }
-      });
-      if (!spawn) {
-        continue;
-      }
-      const characterId = generateRandomGuid(),
-        vehicleData = new Vehicle2016(
-          characterId,
-          server.getTransientId(characterId),
-          0,
-          new Float32Array(dataVehicle.position),
-          new Float32Array(dataVehicle.rotation),
-          server,
-          getCurrentServerTimeWrapper().getTruncatedU32(),
-          dataVehicle.vehicleId
+    try {
+      if (_.size(server._vehicles) >= this.vehicleSpawnCap) return;
+      const respawnAmount = Math.ceil(
+        (this.vehicleSpawnCap - _.size(server._vehicles)) / 8
+      );
+      for (let x = 0; x < respawnAmount; x++) {
+        const dataVehicle =
+          Z1_vehicles[randomIntFromInterval(0, Z1_vehicles.length - 1)];
+        let spawn = true;
+        Object.values(server._vehicles).forEach(
+          (spawnedVehicle: Vehicle2016) => {
+            if (!spawn) return;
+            if (
+              isPosInRadius(
+                this.vehicleSpawnRadius,
+                dataVehicle.position,
+                spawnedVehicle.state.position
+              )
+            ) {
+              spawn = false;
+            }
+          }
         );
-      vehicleData.positionUpdate.orientation = dataVehicle.orientation;
-      this.createVehicle(server, vehicleData, maxSpawnChance); // save vehicle
+        if (!spawn) {
+          continue;
+        }
+        const characterId = generateRandomGuid(),
+          vehicleData = new Vehicle2016(
+            characterId,
+            server.getTransientId(characterId),
+            0,
+            new Float32Array(dataVehicle.position),
+            new Float32Array(dataVehicle.rotation),
+            server,
+            getCurrentServerTimeWrapper().getTruncatedU32(),
+            dataVehicle.vehicleId
+          );
+        vehicleData.positionUpdate.orientation = dataVehicle.orientation;
+        this.createVehicle(server, vehicleData, maxSpawnChance); // save vehicle
+      }
+    } finally {
+      transaction.end();
+      debug("All vehicles created");
     }
-    transaction.end();
-    debug("All vehicles created");
   }
 
   private async createNpcs(server: ZoneServer2016) {
     // This is only for giving the world some life
     for (const spawnerType of Z1_npcs) {
       const authorizedModelId: number[] = [];
+
       switch (spawnerType.actorDefinition) {
         case "NPCSpawner_ZombieLazy.adr":
-          authorizedModelId.push(9510);
-          authorizedModelId.push(9634);
+          authorizedModelId.push(ModelIds.ZOMBIE_FEMALE_WALKER);
+          authorizedModelId.push(ModelIds.ZOMBIE_MALE_WALKER);
           break;
         case "NPCSpawner_ZombieWalker.adr":
-          authorizedModelId.push(9510);
-          authorizedModelId.push(9634);
+          authorizedModelId.push(ModelIds.ZOMBIE_FEMALE_WALKER);
+          authorizedModelId.push(ModelIds.ZOMBIE_MALE_WALKER);
           break;
         case "NPCSpawner_Deer001.adr":
           authorizedModelId.push(9002);
@@ -1297,19 +1486,160 @@ export class WorldObjectManager {
           if (screamerChance <= this.chanceScreamer) {
             authorizedModelId.push(9667);
           }
-          this.createNpc(
-            server,
+          const modelId =
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
-            ],
+            ];
+          let npcId: NpcIds | undefined;
+          if (
+            modelId === ModelIds.ZOMBIE_FEMALE_WALKER ||
+            modelId === ModelIds.ZOMBIE_MALE_WALKER
+          ) {
+            if (Math.floor(Math.random() * 1000) + 1 <= this.chanceExploder) {
+              npcId = NpcIds.EXPLODER;
+            } else if (
+              Math.floor(Math.random() * 1000) + 1 <=
+              this.chanceGasser
+            ) {
+              npcId = NpcIds.GASSER;
+            }
+          }
+          this.createNpc(
+            server,
+            modelId,
             new Float32Array(npcInstance.position),
             new Float32Array(eul2quat(npcInstance.rotation)),
-            npcInstance.id
+            npcInstance.id,
+            npcId
           );
         }
       }
     }
     debug("All npcs objects created");
+  }
+
+  _Poimap: Map<string, string> = new Map([["17", "Nurse"]]);
+
+  private getVariantBasedOnPoi(position: Float32Array): string {
+    // Find which POI contains this position
+    for (const poi of Z1_POIs) {
+      if (!poi.bounds || !Array.isArray(poi.bounds)) continue;
+
+      // Check if position is in any of the polygon bounds for this POI
+      for (const polygon of poi.bounds) {
+        // Validate polygon is an array and has proper structure
+        if (!Array.isArray(polygon) || polygon.length < 3) continue;
+
+        if (this.isPointInPolygon([position[0], position[2]], polygon)) {
+          // Found POI - look up variant from map using POI ID
+          const variant = this._Poimap.get(String(poi.POIid));
+          if (variant) {
+            return variant;
+          }
+        }
+      }
+    }
+    // No POI found - return empty for random variant
+    return "";
+  }
+
+  private isPointInPolygon(
+    point: [number, number],
+    polygon: Array<[number, number]>
+  ): boolean {
+    const [x, y] = point;
+    let inside = false;
+
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      const coord = polygon[i];
+      const prevCoord = polygon[j];
+
+      // Validate coordinates are properly formatted
+      if (
+        !Array.isArray(coord) ||
+        !Array.isArray(prevCoord) ||
+        coord.length < 2 ||
+        prevCoord.length < 2
+      ) {
+        continue;
+      }
+
+      const [xi, yi] = coord;
+      const [xj, yj] = prevCoord;
+
+      const intersect =
+        yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+      if (intersect) inside = !inside;
+    }
+
+    return inside;
+  }
+
+  private async spawnPrototypeZombies(server: ZoneServer2016) {
+    // Prototype zombies: 100% spawn chance, independent respawn (1 hour)
+    for (const spawnerType of Z1_npcs) {
+      let prototypeNpcId: number | null = null;
+
+      switch (spawnerType.actorDefinition) {
+        case "NPCSpawner_PrototypeAssaultZombie.adr":
+          prototypeNpcId = NpcIds.PROTOTYPE_ASSAULT_ZOMBIE;
+          break;
+        case "NPCSpawner_PrototypeHunterZombie.adr":
+          prototypeNpcId = NpcIds.PROTOTYPE_HUNTER_ZOMBIE;
+          break;
+        case "NPCSpawner_PrototypeSniperZombie.adr":
+          prototypeNpcId = NpcIds.PROTOTYPE_SNIPER_ZOMBIE;
+          break;
+        default:
+          continue;
+      }
+
+      const authorizedModelId = [ModelIds.ZOMBIE_MALE_WALKER];
+
+      for (const npcInstance of spawnerType.instances) {
+        let spawn = true;
+
+        // Check if there's already a prototype zombie at this location
+        for (const a in server._npcs) {
+          if (!server._npcs[a]) continue;
+          if (
+            isPosInRadius(
+              this.npcSpawnRadius,
+              npcInstance.position,
+              server._npcs[a].state.position
+            )
+          ) {
+            spawn = false;
+            break;
+          }
+        }
+
+        if (!spawn) continue;
+
+        // Create PrototypeZombie directly (not generic ZombieWalker)
+        const characterId = generateRandomGuid();
+        const transientId = server.getTransientId(characterId);
+        const modelId =
+          authorizedModelId[
+            Math.floor(Math.random() * authorizedModelId.length)
+          ];
+
+        const npc = new PrototypeZombie(
+          characterId,
+          transientId,
+          modelId,
+          new Float32Array(npcInstance.position),
+          new Float32Array(eul2quat(npcInstance.rotation)),
+          server,
+          npcInstance.id,
+          prototypeNpcId ?? NpcIds.ZOMBIE
+        );
+
+        server._npcs[characterId] = npc;
+        if (npcInstance.id) this.spawnedNpcs[npcInstance.id] = characterId;
+      }
+    }
+    debug("Prototype zombies spawned");
   }
 
   refillScrapInChunks(server: ZoneServer2016) {
@@ -1380,13 +1710,13 @@ export class WorldObjectManager {
 
   async updateQuestContainers(server: ZoneServer2016) {
     let counter = 0;
-    for (const a in server._lootableProps) {
-      if (counter > 100) {
+    for (const a in server._questContainerProps) {
+      if (counter > 25) {
         counter = 0;
         await scheduler.yield();
       }
       counter++;
-      const prop = server._lootableProps[a] as BaseFullCharacter;
+      const prop = server._questContainerProps[a] as BaseFullCharacter;
       switch (prop.actorModelId) {
         case ModelIds.HOSPITAL_LAB_WORKBENCH:
           if (

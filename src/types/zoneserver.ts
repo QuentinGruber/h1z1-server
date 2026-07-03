@@ -83,7 +83,7 @@ export interface CharacterEquipment {
   textureAlias?: string;
   tintAlias?: string;
   decalAlias?: string;
-  SHADER_PARAMETER_GROUP?: Array<{SHADER_SEMANTIC_ID: number}>
+  SHADER_PARAMETER_GROUP?: Array<{ SHADER_SEMANTIC_ID: number }>
 }
 
 export interface GrinderItem {
@@ -355,7 +355,7 @@ export interface Recipe {
   bundleCount?: number;
   components: Array<RecipeComponent>;
   splitted?: boolean;
-  itemId?: number;
+  rewardId: number;
   requireWorkbench?: boolean
   requireWeaponWorkbench?: boolean
   leftOverItems?: number[]
@@ -384,8 +384,8 @@ export interface smeltRecipe {
 }
 
 export interface dailyRepairMaterial {
-    itemDefinitionId: number;
-    requiredCount: number;
+  itemDefinitionId: number;
+  requiredCount: number;
 }
 
 export type SlottedConstructionEntity = ConstructionChildEntity | ConstructionParentEntity | ConstructionDoor;
@@ -393,7 +393,7 @@ export type SlottedConstructionEntity = ConstructionChildEntity | ConstructionPa
 export type ConstructionEntity = SlottedConstructionEntity | LootableConstructionEntity;
 
 export type ShelterSlotsPlacementTimer = {
-	[slot: number]: number;
+  [slot: number]: number;
 };
 
 export interface ConstructionPermissions {
@@ -487,35 +487,35 @@ export interface SpeedTree {
 }
 
 export interface ZoneSpeedTreeData {
-	objectId: number;
-	position: Float32Array
+  objectId: number;
+  position: Float32Array
 }
 
 export interface UseOption {
-	id: number;
-	typeName: string;
-	animationId: number
+  id: number;
+  typeName: string;
+  animationId: number
 }
 
 export interface HudIndicator {
-	id: number;
-	typeName: string;
-	nameId: number,
-	descriptionId: number,
-	imageSetId: number,
+  id: number;
+  typeName: string;
+  nameId: number,
+  descriptionId: number,
+  imageSetId: number,
 }
 
 export interface ScreenEffect {
-	effectId: number;
-	typeName: string;
-	duration: number;
-	screenBrightness: number;
-	colorGradingFilename: string;
-	colorGrading: number;
-	screenCover: number;
-	transparency: number;
-	color: number;
-	unknownDword3: number;
+  effectId: number;
+  typeName: string;
+  duration: number;
+  screenBrightness: number;
+  colorGradingFilename: string;
+  colorGrading: number;
+  screenCover: number;
+  transparency: number;
+  color: number;
+  unknownDword3: number;
   unknownDword7: number;
   unknownDword16: number;
   unknownDword17: number;
@@ -524,25 +524,25 @@ export interface ScreenEffect {
 }
 
 export interface clientEffect {
-	id: number;
-	typeName: string;
-	animationName: string
+  id: number;
+  typeName: string;
+  animationName: string
 }
 
 export interface modelData {
-	id: number;
-	fileName: string;
-	materialType: number
+  id: number;
+  fileName: string;
+  materialType: number
 }
 
 export interface characterIndicatorData {
-	typeName: string;
-	expirationTime: number;
+  typeName: string;
+  expirationTime: number;
 }
 
 export interface HealType {
-	healingTicks: number,
-	healingMaxTicks: number
+  healingTicks: number,
+  healingMaxTicks: number
 }
 
 export interface StanceFlags {
@@ -572,39 +572,39 @@ export interface StanceFlags {
 
 export interface Weather2016 {
   overcast: number,
-	fogDensity: number,
-	fogFloor: number,
-	fogGradient: number,
-	globalPrecipitation: number,
-	temperature: number,
-	skyClarity: number,
-	cloudWeight0: number,
-	cloudWeight1: number,
-	cloudWeight2: number,
-	cloudWeight3: number,
-	transitionTime: number,
-	sunAxisX: number,
-	sunAxisY: number,
-	sunAxisZ: number,
-	windDirectionX: number,
-	windDirectionY: number,
-	windDirectionZ: number,
-	wind: number,
-	rainMinStrength: number,
-	rainRampupTimeSeconds: number,
-	cloudFile: string,
-	stratusCloudTiling: number,
-	stratusCloudScrollU: number,
-	stratusCloudScrollV: number,
-	stratusCloudHeight: number,
-	cumulusCloudTiling: number,
-	cumulusCloudScrollU: number,
-	cumulusCloudScrollV: number,
-	cumulusCloudHeight: number,
-	cloudAnimationSpeed: number,
-	cloudSilverLiningThickness: number,
-	cloudSilverLiningBrightness: number,
-	cloudShadows: number
+  fogDensity: number,
+  fogFloor: number,
+  fogGradient: number,
+  globalPrecipitation: number,
+  temperature: number,
+  skyClarity: number,
+  cloudWeight0: number,
+  cloudWeight1: number,
+  cloudWeight2: number,
+  cloudWeight3: number,
+  transitionTime: number,
+  sunAxisX: number,
+  sunAxisY: number,
+  sunAxisZ: number,
+  windDirectionX: number,
+  windDirectionY: number,
+  windDirectionZ: number,
+  wind: number,
+  rainMinStrength: number,
+  rainRampupTimeSeconds: number,
+  cloudFile: string,
+  stratusCloudTiling: number,
+  stratusCloudScrollU: number,
+  stratusCloudScrollV: number,
+  stratusCloudHeight: number,
+  cumulusCloudTiling: number,
+  cumulusCloudScrollU: number,
+  cumulusCloudScrollV: number,
+  cumulusCloudHeight: number,
+  cloudAnimationSpeed: number,
+  cloudSilverLiningThickness: number,
+  cloudSilverLiningBrightness: number,
+  cloudShadows: number
 }
 
 export interface WeatherTemplate extends Weather2016 {
@@ -647,19 +647,19 @@ export interface ItemDefinition {
   MAX_STACK_SIZE: number,
   MIN_STACK_SIZE: number,
   PROFILE_OVERRIDE: number,
-  NO_TRADE: 0|1,
-  SINGLE_USE: 0|1,
+  NO_TRADE: 0 | 1,
+  SINGLE_USE: 0 | 1,
   MODEL_NAME: string,
   GENDER_USAGE: number,
   TEXTURE_ALIAS: string,
   SHADER_PARAMETER_GROUP_ID: number,
   CATEGORY_ID: number,
-  MEMBERS_ONLY: 0|1,
-  NON_MINI_GAME: 0|1,
+  MEMBERS_ONLY: 0 | 1,
+  NON_MINI_GAME: 0 | 1,
   PARAM1: number,
   PARAM2: number,
   PARAM3: number,
-  NO_SALE: 0|1,
+  NO_SALE: 0 | 1,
   WEAPON_TRAIL_EFFECT_ID: number,
   USE_REQUIREMENT_ID: number,
   CLIENT_USE_REQUIREMENT_ID: number,
@@ -668,16 +668,16 @@ export interface ItemDefinition {
   MIN_PROFILE_RANK: number,
   RARITY: number,
   CONTENT_ID: number,
-  NO_LIVE_GAMER: 0|1,
-  COMBAT_ONLY: 0|1,
-  FORCE_DISABLE_PREVIEW: 0|1,
+  NO_LIVE_GAMER: 0 | 1,
+  COMBAT_ONLY: 0 | 1,
+  FORCE_DISABLE_PREVIEW: 0 | 1,
   MEMBER_DISCOUNT: number,
   RACE_SET_ID: number,
   VIP_RANK_REQUIRED: number,
   PERSIST_PROFILE_SWITCH: number,
-  FLAG_QUICK_USE: 0|1,
-  FLAG_CAN_EQUIP: 0|1,
-  FLAG_ACCOUNT_SCOPE: 0|1,
+  FLAG_QUICK_USE: 0 | 1,
+  FLAG_CAN_EQUIP: 0 | 1,
+  FLAG_ACCOUNT_SCOPE: 0 | 1,
   UI_MODEL_CAMERA_ID: number,
   EQUIP_COUNT_MAX: number,
   CURRENCY_TYPE: number,
@@ -701,9 +701,9 @@ export interface ItemDefinition {
   USE_ITEM_RETICLE_ID: number,
   GRINDER_REWARD_SET_ID: number,
   BUILD_BAR_GROUP_ID: number,
-  FLAG_NO_DRAG_DROP: 0|1,
+  FLAG_NO_DRAG_DROP: 0 | 1,
   INTERACTION_ANIMATION_ID: number,
-  IS_ARMOR: 0|1,
+  IS_ARMOR: 0 | 1,
   PASSIVE_EQUIP_SLOT_GROUP_ID: number,
   SCRAP_VALUE_OVERRIDE: number,
 
@@ -718,7 +718,7 @@ export interface AccountItem extends BaseItem {
   loginSessionId: string;
 }
 
-export type EntityDictionary<Entity> = { [characterId: string]: Entity};
+export type EntityDictionary<Entity> = { [characterId: string]: Entity };
 
 export interface PropInstance {
   objectId: number,
@@ -727,4 +727,10 @@ export interface PropInstance {
 export interface RandomReward {
   reward: number;
   isRare: boolean;
+}
+
+export interface Sound {
+  position : Float32Array,
+  radius : number
+  agitation: number
 }

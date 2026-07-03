@@ -1,0 +1,56 @@
+services:
+  mongodb:
+    image: mongo:6.0
+    restart: unless-stopped
+    volumes:
+      - mongodb-data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: h1server
+    ports:
+      - "27018:27017"
+
+  login-server:
+    build:
+      context: .
+      dockerfile: docker/2015/LoginServer.Dockerfile
+    depends_on:
+      - mongodb
+    environment:
+      MONGO_URL: mongodb://127.0.0.1:27018/h1server
+    network_mode: host
+    restart: unless-stopped
+
+  zone-server-2016:
+    build:
+      context: .
+      dockerfile: docker/2016/ZoneServer.Dockerfile
+    depends_on:
+      - mongodb
+      - login-server
+    environment:
+      MONGO_URL: mongodb://127.0.0.1:27018/h1server
+      WORLD_ID: ${WORLD_ID:-2}
+      LOGINSERVER_IP: "127.0.0.1"
+    network_mode: host
+    restart: unless-stopped
+    profiles:
+      - "2016"
+
+  zone-server-2015:
+    build:
+      context: .
+      dockerfile: docker/2015/ZoneServer.Dockerfile
+    depends_on:
+      - mongodb
+      - login-server
+    environment:
+      MONGO_URL: mongodb://127.0.0.1:27018/h1server
+      WORLD_ID: ${WORLD_ID:-0}
+      LOGINSERVER_IP: "127.0.0.1"
+    network_mode: host
+    restart: unless-stopped
+    profiles:
+      - "2015"
+
+volumes:
+  mongodb-data:

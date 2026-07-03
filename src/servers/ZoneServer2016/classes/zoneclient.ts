@@ -20,6 +20,8 @@ import { BaseEntity } from "../entities/baseentity";
 import { FireHint } from "../../../types/zoneserver";
 import { Lootbag } from "../entities/lootbag";
 import { TrackedEntitySet } from "./trackedentityset";
+import { ConstructionParentEntity } from "../entities/constructionparententity";
+import { ConstructionChildEntity } from "../entities/constructionchildentity";
 //import { h1z1PacketsType2016 } from "../../../types/packets";
 //import { zone2016packets } from "../../../types/zone2016packets";
 
@@ -36,6 +38,8 @@ export class ZoneClient2016 {
   isAdmin: boolean = false;
   isDebugMode: boolean = false;
   isDecoy: boolean = false;
+  colorKeysEnabled: boolean = false;
+  activeColorKeyPeriod: string | undefined = undefined;
   banType: string = "";
   HWID: string = "";
   posAtLastRoutine: Float32Array = new Float32Array();
@@ -67,6 +71,9 @@ export class ZoneClient2016 {
   hudTimer?: NodeJS.Timeout | null = null;
   spawnedDTOs: any[] = [];
   spawnedEntities: Set<BaseEntity> = new Set();
+  spawnedConstructionEntities: Set<
+    ConstructionParentEntity | ConstructionChildEntity
+  > = new Set();
   sentInteractionCounter: number = 1;
   searchedProps: (LootableProp | Lootbag)[] = [];
   managedObjects: string[] = [];
@@ -100,6 +107,8 @@ export class ZoneClient2016 {
   subscribedCells: Set<import("./gridcell").GridCell> = new Set();
   posAtLastCellUpdate: Float32Array = new Float32Array([0, 0, 0, 1]);
   lastKnownChunkRenderDistance: number = 400;
+  isSpawningCells: boolean = false;
+  pendingCellRescan: boolean = false;
   startingPos?: Float32Array;
   firstReleased: boolean = true;
   /*(lightWeightNpcQueue: {
@@ -137,7 +146,11 @@ export class ZoneClient2016 {
     this.loginSessionId = loginSessionId;
     this.spawnedEntities = new TrackedEntitySet<Client>(
       server._entityObservers,
-      this
+      this,
+      this.spawnedConstructionEntities as Set<BaseEntity>,
+      (e) =>
+        e instanceof ConstructionParentEntity ||
+        e instanceof ConstructionChildEntity
     );
     this.managedObjects = [];
     this.clearTimers = () => {

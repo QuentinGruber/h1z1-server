@@ -18,6 +18,7 @@ import { Effects, ModelIds } from "../models/enums";
 import { AddLightweightNpc, AddSimpleNpc } from "types/zone2016packets";
 import { BaseSimpleNpc } from "./basesimplenpc";
 import { BaseEntity } from "./baseentity";
+import { BoxObstacle, vec3 } from "recast-navigation";
 
 function getDestroyedModels(actorModelId: ModelIds): number[] {
   switch (actorModelId) {
@@ -111,6 +112,71 @@ function getDestroyedEffectId(actorModelId: ModelIds): Effects {
       return Effects.TEST_Null;
   }
 }
+
+function setObstacle(
+  server: ZoneServer2016,
+  actorModelId: ModelIds,
+  position: Float32Array,
+  rotation: Float32Array
+): BoxObstacle | null {
+  const yaw = rotation[1];
+  switch (actorModelId) {
+    case ModelIds.FENCES_WOOD_PLANKS_GREY_PLANK:
+    case ModelIds.FENCES_WOOD_PLANKS_GREY_POSTS_1X1:
+    case ModelIds.FENCES_WOOD_PLANKS_GREY_1X1:
+    case ModelIds.FENCES_WOOD_PLANKS_GREY_GAP_1X1:
+      return server.navManager.addObstacle(
+        position,
+        vec3.fromArray([1.0, 2.0, 0.5]),
+        yaw
+      );
+    case ModelIds.FENCES_WOOD_PLANKS_GREY_POSTS_1X2:
+      return server.navManager.addObstacle(
+        position,
+        vec3.fromArray([2.0, 2.0, 0.5]),
+        yaw
+      );
+    case ModelIds.CHAIN_LINK_FENCE_1X1:
+      return server.navManager.addObstacle(
+        position,
+        vec3.fromArray([1.0, 2.0, 0.5]),
+        yaw
+      );
+    case ModelIds.CHAIN_LINK_FENCE_1X2:
+      return server.navManager.addObstacle(
+        position,
+        vec3.fromArray([2.0, 2.0, 0.5]),
+        yaw
+      );
+    case ModelIds.BARBED_WIRE_FENCE_1X1:
+      return server.navManager.addObstacle(
+        position,
+        vec3.fromArray([1.0, 2.0, 0.5]),
+        yaw
+      );
+    case ModelIds.BARBED_WIRE_FENCE_1X2:
+      return server.navManager.addObstacle(
+        position,
+        vec3.fromArray([2.0, 2.0, 0.5]),
+        yaw
+      );
+    case ModelIds.FENCE_RANCH_1X1:
+      return server.navManager.addObstacle(
+        position,
+        vec3.fromArray([1.0, 2.0, 0.5]),
+        yaw
+      );
+    case ModelIds.FENCE_RANCH_1X2:
+      return server.navManager.addObstacle(
+        position,
+        vec3.fromArray([2.0, 2.0, 0.5]),
+        yaw
+      );
+    default:
+      return null;
+  }
+}
+
 export class Destroyable extends BaseSimpleNpc {
   spawnerId: number;
   maxHealth: number;
@@ -119,6 +185,7 @@ export class Destroyable extends BaseSimpleNpc {
   destroyedModels: number[] = [];
   destroyed: boolean = false;
   destroyedEffectId: Effects;
+  obstacleRef: BoxObstacle | null = null;
   constructor(
     characterId: string,
     transientId: number,
@@ -140,23 +207,33 @@ export class Destroyable extends BaseSimpleNpc {
       this.destroyedModels[(this.destroyedModels.length * Math.random()) | 0];
     this.maxHealth = getMaxHealth(actorModelId);
     this.health = this.maxHealth;
+
+    if (!process.env.DISABLE_AI && server.aiEnabled) {
+      this.obstacleRef = setObstacle(server, actorModelId, position, rotation);
+    }
   }
 
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     this.health -= damageInfo.damage;
-    server.sendDataToAllWithSpawnedEntity(
-      server._destroyables,
-      this.characterId,
-      "Character.UpdateSimpleProxyHealth",
-      this.pGetSimpleProxyHealth()
-    );
-    if (this.health > 0) return;
+    if (this.health > 0) {
+      server.sendDataToAllWithSpawnedEntity(
+        server._destroyables,
+        this.characterId,
+        "Character.UpdateSimpleProxyHealth",
+        this.pGetSimpleProxyHealth()
+      );
+      return;
+    }
+    this.health = 0;
     this.destroy(server, true);
   }
 
   destroy(server: ZoneServer2016, useDestroyedModel: boolean = false): boolean {
     if (!this.destroyed) {
       this.destroyed = true;
+      if (this.obstacleRef) {
+        server.navManager.removeObstacle(this.obstacleRef);
+      }
       server.sendDataToAllWithSpawnedEntity(
         server._destroyables,
         this.characterId,

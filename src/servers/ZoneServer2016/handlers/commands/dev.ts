@@ -30,7 +30,7 @@ import {
   ItemsAddAccountItem,
   Loot
 } from "types/zone2016packets";
-import { Npc } from "../../entities/npc";
+import { ZombieWalker } from "../../entities/zombiewalker";
 import { ZoneClient2016 as Client } from "../../classes/zoneclient";
 import { ZoneServer2016 } from "../../zoneserver";
 import { Effects, Items, ModelIds, VehicleIds } from "../../models/enums";
@@ -63,6 +63,20 @@ const abilities = PluginManager.loadServerData(
   );
 
 const dev: any = {
+  testscreeneffect: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    const effectName = args[1];
+    const effect = server._screenEffects[effectName];
+    if (effect) {
+      server.addScreenEffect(client, effect);
+      server.sendChatText(client, `Applied effect ${effectName}`);
+    } else {
+      server.sendChatText(client, `Failed to applied effect ${effectName}`);
+    }
+  },
   load_balancing: function (
     server: ZoneServer2016,
     client: Client,
@@ -670,10 +684,10 @@ const dev: any = {
   },
   path: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     const characterId = server.generateGuid();
-    const npc = new Npc(
+    const npc = new ZombieWalker(
       characterId,
       server.getTransientId(characterId),
-      9510,
+      ModelIds.ZOMBIE_FEMALE_WALKER,
       client.character.state.position,
       client.character.state.rotation,
       server
@@ -719,7 +733,31 @@ const dev: any = {
     });
   },
   ai: function (server: ZoneServer2016, client: Client, args: Array<string>) {
-    server.sendChatText(client, server.aiManager.getEntitiesStats());
+    server.sendChatText(client, server.explosiveManager.getEntitiesStats());
+  },
+  navdump: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendChatText(client, "Start NavMesh dump");
+    server.navManager.dumpNavmesh();
+    server.sendChatText(client, "NavMesh dump done");
+  },
+  zombie_test: async function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    for (const k in server._npcs) {
+      const npc = server._npcs[k];
+      if (npc.navAgent) {
+        const playerPos = client.character.state.position;
+        const targetNavPoint =
+          server.navManager.getClosestNavPointVec3(playerPos);
+        npc.navAgent.requestMoveTarget(targetNavPoint);
+      }
+    }
   },
   zombie: async function (
     server: ZoneServer2016,
@@ -729,39 +767,43 @@ const dev: any = {
     // spawn a zombie
     const characterId = server.generateGuid();
     const transient = server.getTransientId(characterId);
-    const zombie = new Npc(
+    const spawnPos = client.character.state.position;
+
+    const zombie = new ZombieWalker(
       characterId,
       transient,
-      9510,
-      client.character.state.position,
+      ModelIds.ZOMBIE_FEMALE_WALKER,
+      spawnPos,
       client.character.state.rotation,
       server
     );
 
     server._npcs[characterId] = zombie;
-    // server.aiManager.add_entity(zombie, zombie.entityType);
+    console.log(
+      `[ZOMBIE-DEBUG] Creating nav agent at zombie state.position: [${zombie.state.position[0].toFixed(2)}, ${zombie.state.position[1].toFixed(2)}, ${zombie.state.position[2].toFixed(2)}]`
+    );
     const a = server.navManager.createAgent(zombie.state.position);
     zombie.navAgent = a;
+    // Sync zombie to its navmesh spawn point converted back to game coords
+    const initialGamePos = NavManager.navToGame(a.position());
+    zombie.state.position = initialGamePos;
+    console.log(
+      `[ZOMBIE-DEBUG] Nav agent created, navPos=[${a.position().x.toFixed(2)}, ${a.position().y.toFixed(2)}, ${a.position().z.toFixed(2)}] gamePos=[${initialGamePos[0].toFixed(2)}, ${initialGamePos[1].toFixed(2)}, ${initialGamePos[2].toFixed(2)}]`
+    );
 
-    await scheduler.wait(5000);
-    let retries = 0;
+    await scheduler.wait(1000);
     const interval = setInterval(() => {
-      retries++;
-      if (retries > 10) {
-        clearInterval(interval);
-      }
-
       server.navManager.updt();
       if (zombie.navAgent) {
-        zombie.navAgent.requestMoveTarget(
-          server.navManager.getClosestNavPoint(client.character.state.position)
-        );
-        console.log(zombie.navAgent.interpolatedPosition);
-        zombie.goTo(
-          NavManager.Vec3ToFloat32(zombie.navAgent.interpolatedPosition)
-        );
+        const playerPos = client.character.state.position;
+        const targetNavPoint =
+          server.navManager.getClosestNavPointVec3(playerPos);
+        zombie.navAgent.requestMoveTarget(targetNavPoint);
+        const navPos = zombie.navAgent.interpolatedPosition;
+        const gamePos = NavManager.navToGame(navPos);
+        zombie.goTo(gamePos);
       }
-    }, 500);
+    }, 100);
   },
   abilities: function (
     server: ZoneServer2016,
@@ -888,6 +930,34 @@ const dev: any = {
     }
     server.sendChatText(client, `Deleted ${counter} small shacks`);
   },
+  testanimall: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    const anim = args[1];
+    for (const k in server._npcs) {
+      const npc = server._npcs[k];
+      npc.playAnimation(anim);
+    }
+    server.sendChatText(client, `Applied anim ${anim} on all spawned npcs`);
+  },
+  zombieray: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    for (const k in server._npcs) {
+      const npc = server._npcs[k];
+      const npc_pos = npc.state.position;
+      const player_pos = client.character.state.position;
+
+      console.time("recast");
+      const result = server.navManager.raycast(npc_pos, player_pos);
+      console.timeEnd("recast");
+      console.log(result);
+    }
+  },
   zombiemove: function (
     server: ZoneServer2016,
     client: Client,
@@ -896,10 +966,10 @@ const dev: any = {
     // spawn a zombie
     const characterId = server.generateGuid();
     const transient = server.getTransientId(characterId);
-    const zombie = new Npc(
+    const zombie = new ZombieWalker(
       characterId,
       transient,
-      9510,
+      ModelIds.ZOMBIE_FEMALE_WALKER,
       client.character.state.position,
       client.character.state.rotation,
       server

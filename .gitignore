@@ -7,3 +7,5 @@ benchmarks_out
 bin/*.exe
 .vs
 config.yaml
+/navMeshDump.obj
+*.tsbuildinfo

@@ -12,7 +12,8 @@
 // ======================================================================
 
 const debugName = "ZoneServer",
-  debug = require("debug")(debugName);
+  debug = require("debug")(debugName),
+  apm = require("elastic-apm-node");
 
 import { EventEmitter } from "node:events";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
@@ -52,6 +53,7 @@ import {
   GameModes,
   ReplicationPropertyHash
 } from "./models/enums";
+import { Factions } from "./jsms/factions";
 import { WeatherManager } from "./managers/weathermanager";
 
 import {
@@ -71,6 +73,7 @@ import {
   RandomReward,
   RewardCrateDefinition,
   ScreenEffect,
+  Sound,
   StanceFlags,
   UseOption
 } from "../../types/zoneserver";
@@ -224,8 +227,6 @@ import { LootableProp } from "./entities/lootableprop";
 import { PlantingDiameter } from "./entities/plantingdiameter";
 import { Plant } from "./entities/plant";
 import { SmeltingEntity } from "./classes/smeltingentity";
-import { spawn, Worker } from "threads";
-import { WorldDataManagerThreaded } from "./managers/worlddatamanagerthread";
 import { logVersion } from "../../utils/processErrorHandling";
 import { TaskProp } from "./entities/taskprop";
 import { ChatManager } from "./managers/chatmanager";
@@ -263,9 +264,8 @@ import { ProjectileEntity } from "./entities/projectileentity";
 import { ChallengeManager, ChallengeType } from "./managers/challengemanager";
 import { RandomEventsManager } from "./managers/randomeventsmanager";
 import { ExplosionManager } from "./managers/explosionmanager";
-import { AiManager } from "./managers/aimanager";
+import { AiManager } from "./managers/explosivemanager";
 import { AirdropManager } from "./managers/airdropmanager";
-import { PacketEncodingWorker } from "./managers/packetencodingworker";
 //import { TaskManager } from "./managers/tasksmanager";
 
 const spawnLocations2 = PluginManager.loadServerData(
@@ -354,10 +354,31 @@ export class ZoneServer2016 extends EventEmitter {
   private _gridNumCols = 0;
   private _gridNumRows = 0;
   _spawnGrid: SpawnCell[] = [];
+  /** Pre-computed axis-aligned bounding box of all spawn cells for O(1) map bounds checks. */
+  private _mapBoundsMinX = -Infinity;
+  private _mapBoundsMaxX = Infinity;
+  private _mapBoundsMinZ = -Infinity;
+  private _mapBoundsMaxZ = Infinity;
 
   /** Spatial hashes rebuilt every world tick to accelerate spawnCharacters/vehicleManager lookups. */
   private _charSpatialMap = new Map<string, Client[]>();
+  private _vehicleSpatialMap = new Map<string, Vehicle[]>();
+  /** Static spatial hash for destroyables — built once at startup since they never move. */
+  readonly _destroyableSpatialMap = new Map<string, Destroyable[]>();
   private static readonly _CHAR_GRID_SIZE = 300;
+  static readonly _DESTROYABLE_GRID_SIZE = 50;
+
+  /** AI target map rebuilt every AI tick for spatial detection in JSMs. */
+  aiTargetSpatialMap = new Map<
+    string,
+    {
+      id: string;
+      position: Float32Array;
+      faction: Factions;
+    }[]
+  >();
+  private static readonly _AI_TARGET_GRID_SIZE = 50;
+  recastRoutine?: NodeJS.Timeout;
 
   private static _charGridRange(
     pos: Float32Array,
@@ -369,6 +390,19 @@ export class ZoneServer2016 extends EventEmitter {
       Math.floor((pos[0] + radius) / sz),
       Math.floor((pos[2] - radius) / sz),
       Math.floor((pos[2] + radius) / sz)
+    ];
+  }
+
+  static _gridRange(
+    pos: Float32Array | number[],
+    radius: number,
+    gridSize: number
+  ): [number, number, number, number] {
+    return [
+      Math.floor((pos[0] - radius) / gridSize),
+      Math.floor((pos[0] + radius) / gridSize),
+      Math.floor((pos[2] - radius) / gridSize),
+      Math.floor((pos[2] + radius) / gridSize)
     ];
   }
 
@@ -399,6 +433,7 @@ export class ZoneServer2016 extends EventEmitter {
   _constructionDoors: EntityDictionary<ConstructionDoor> = {};
   _constructionSimple: EntityDictionary<ConstructionChildEntity> = {};
   _lootableProps: EntityDictionary<LootableProp> = {};
+  _questContainerProps: EntityDictionary<LootableProp> = {};
   _taskProps: EntityDictionary<TaskProp> = {};
   _crates: EntityDictionary<Crate> = {};
   _destroyables: EntityDictionary<Destroyable> = {};
@@ -413,6 +448,7 @@ export class ZoneServer2016 extends EventEmitter {
   _modelsData: { [modelId: number]: modelData } = {};
   _syncTeleport: { [characterId: string]: boolean } = {};
   blockSyncTeleportTicks: number = 0;
+  private _spectatorMapTick: number = 0;
 
   /** Interactible options for items - See (ZonePacketHandlers.ts or datasources/ItemUseOptions) */
   _itemUseOptions: { [optionId: number]: UseOption } = {};
@@ -451,7 +487,7 @@ export class ZoneServer2016 extends EventEmitter {
   decayManager: DecayManager;
   abilitiesManager: AbilitiesManager;
   weatherManager: WeatherManager;
-  worldDataManager!: WorldDataManagerThreaded;
+  worldDataManager!: WorldDataManager;
   hookManager: HookManager;
   chatManager: ChatManager;
   rconManager: RConManager;
@@ -462,11 +498,10 @@ export class ZoneServer2016 extends EventEmitter {
   pluginManager: PluginManager;
   configManager: ConfigManager;
   playTimeManager: PlayTimeManager;
-  aiManager: AiManager;
+  explosiveManager: AiManager;
   airdropManager: AirdropManager;
 
   _ready: boolean = false;
-  private packetEncodingWorker?: PacketEncodingWorker;
 
   /** Information from ServerItemDefinitions.json */
   _itemDefinitions: { [itemDefinitionId: number]: ItemDefinition } =
@@ -519,6 +554,9 @@ export class ZoneServer2016 extends EventEmitter {
   inGameTimeManager: IngameTimeManager = new IngameTimeManager();
   commandHandler: CommandHandler;
   dynamicappearance: DynamicAppearance;
+  pathfindingRoutine?: NodeJS.Timeout;
+  aiTickRoutine?: NodeJS.Timeout;
+  private lastFsmTick: number = Date.now();
 
   /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   proximityItemsDistance!: number;
@@ -555,6 +593,11 @@ export class ZoneServer2016 extends EventEmitter {
   maxPacketLoss: number = 5;
   //tasksManager: TaskManager;
   //clientRoutineRate!: number;
+  aiEnabled!: boolean;
+  aiTickRate!: number;
+  pathfindingUpdateRate!: number;
+  infectionEnabled!: boolean;
+  sounds: Sound[] = [];
 
   constructor(
     serverPort: number,
@@ -588,7 +631,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.pluginManager = new PluginManager();
     this.commandHandler = new CommandHandler();
     this.playTimeManager = new PlayTimeManager();
-    this.aiManager = new AiManager(this);
+    this.explosiveManager = new AiManager(this);
     this.airdropManager = new AirdropManager(this);
     this.navManager = new NavManager();
     this.challengeManager = new ChallengeManager(this);
@@ -762,26 +805,57 @@ export class ZoneServer2016 extends EventEmitter {
         //   // If there is a lot of packet to process, it's better, if there is none then we only add like some µsec
         //   await scheduler.yield();
         // }
-        const packet = this._protocol.parse(data, flags);
 
-        // for reversing new packets
-        /*
-        if(
-          packet?.name == ""
-        ) {
-          let hexString = '';
-          for (let i = 0; i < data.length; i++) {
-              const byte = data[i].toString(16).padStart(2, '0');
-              hexString += byte + ' ';
+        // Position broadcasts are relayed as-is and fire hundreds of times per second —
+        // not worth the per-packet transaction overhead.
+        const isPositionUpdate = flags === GatewayChannels.UpdatePosition;
+        let transaction = isPositionUpdate
+          ? null
+          : apm.startTransaction("PacketReceive", "game");
+
+        try {
+          const parseSpan = transaction?.startSpan("parse");
+          const packet = this._protocol.parse(data, flags);
+          parseSpan?.end();
+
+          // for reversing new packets
+          /*
+          if(
+            packet?.name == ""
+          ) {
+            let hexString = '';
+            for (let i = 0; i < data.length; i++) {
+                const byte = data[i].toString(16).padStart(2, '0');
+                hexString += byte + ' ';
+            }
+            console.log(`<Buffer ${hexString.trim()}>`);
           }
-          console.log(`<Buffer ${hexString.trim()}>`);
-        }
-        */
+          */
 
-        if (packet) {
-          this.onZoneDataEvent(this._clients[soeClientSessionId], packet);
-        } else {
-          debug("zonefailed : ", data);
+          if (packet) {
+            if (transaction) {
+              if (packet.name === "PlayerUpdateManagedPosition") {
+                // Same reasoning as UpdatePosition flag — high-frequency relay,
+                // not worth the per-packet transaction overhead.
+                transaction.end();
+                transaction = null;
+              } else {
+                transaction.name = `Packet::${packet.name}`;
+                const client = this._clients[soeClientSessionId];
+                if (client?.character?.characterId) {
+                  transaction.addLabels({
+                    character_id: client.character.characterId,
+                    packet_name: packet.name
+                  });
+                }
+              }
+            }
+            this.onZoneDataEvent(this._clients[soeClientSessionId], packet);
+          } else {
+            debug("zonefailed : ", data);
+          }
+        } finally {
+          transaction?.end();
         }
       }
     );
@@ -1029,8 +1103,10 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async stop() {
+    clearInterval(this.recastRoutine);
     clearInterval(this.challengePositionCheckInterval);
-    this.worldDataManager.kill();
+    clearInterval(this.aiTickRoutine);
+    clearInterval(this.pathfindingRoutine);
     await this.worldObjectManager.stop();
     await this.explosionManager.stop();
     this.inGameTimeManager.stop();
@@ -1046,10 +1122,6 @@ export class ZoneServer2016 extends EventEmitter {
     }
     if (this._mongoClient) {
       await this._mongoClient.close();
-    }
-    if (this.packetEncodingWorker) {
-      await this.packetEncodingWorker.stop();
-      this.packetEncodingWorker = undefined;
     }
     await this._gatewayServer.stop();
     await this.rconManager.stop();
@@ -1158,6 +1230,13 @@ export class ZoneServer2016 extends EventEmitter {
     "Mount.MountRequest"
   ]);
   private static readonly MAX_HEAVY_PACKETS_PER_CLIENT_PER_SEC = 100;
+  private static readonly _noApmPackets = new Set([
+    "PlayerUpdatePosition",
+    "PlayerUpdateManagedPosition",
+    "KeepAlive",
+    "ClientUpdate.MonitorTimeDrift",
+    "Vehicle.StateData"
+  ]);
 
   onZoneDataEvent(client: Client, packet: H1z1ProtocolReadingFormat) {
     if (!client) {
@@ -1224,16 +1303,24 @@ export class ZoneServer2016 extends EventEmitter {
       }, true);*/
     }
 
+    const packetTx = ZoneServer2016._noApmPackets.has(packet.name)
+      ? null
+      : apm.startTransaction(`Packet::${packet.name}`, "custom");
     try {
+      const processSpan = apm.currentTransaction?.startSpan("processPacket");
       this._packetHandlers.processPacket(
         this,
         client,
         packet as ReceivedPacket<any>
       );
+      processSpan?.end();
     } catch (error) {
+      apm.currentTransaction?.setOutcome("failure");
       console.error(error);
       console.error(`An error occurred while processing a packet : `, packet);
       logVersion();
+    } finally {
+      packetTx?.end();
     }
 
     /*this.tasksManager.register(async () => {
@@ -1988,14 +2075,22 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private async setupServer() {
-    // TODO: Disabled for now
-    // await this.navManager.loadNav();
+    if (!process.env.DISABLE_AI && this.aiEnabled) {
+      await this.navManager.loadNav();
+      this.aiTickRoutine = setInterval(() => this.tickAi(), this.aiTickRate);
+      this.pathfindingRoutine = setInterval(
+        () => this.updatePathfindingPositions(),
+        this.pathfindingUpdateRate
+      );
+      this.recastRoutine = setInterval(
+        () => this.navManager.updt(),
+        this.navManager.updateFrequency * 1000
+      );
+    }
     this.weatherManager.init();
     this.playTimeManager.init(this);
     this.initModelsDataSource();
-    this.worldDataManager = (await spawn(
-      new Worker("./managers/worlddatamanagerthread")
-    )) as unknown as WorldDataManagerThreaded;
+    this.worldDataManager = new WorldDataManager();
     await this.worldDataManager.initialize(this._worldId, this._mongoAddress);
     if (!this._soloMode) {
       [this._db, this._mongoClient] = await WorldDataManager.getDatabase(
@@ -2239,22 +2334,22 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  startH1emuAi() {
+  startExplosiveManager() {
     setInterval(() => {
       try {
-        if (process.env.ENABLE_AI_TIME_LOGS) {
+        if (process.env.ENABLE_EXPLOSIVE_TIME_LOGS) {
           const start = performance.now();
-          this.aiManager.run();
+          this.explosiveManager.run();
           const end = performance.now();
           const duration = end - start;
           if (duration >= 1) {
             console.log(
-              `H1emu-ai took ${duration}ms with ${this.aiManager.getEntitiesTotalNumber()} entities`
+              `H1emu-ai took ${duration}ms with ${this.explosiveManager.getEntitiesTotalNumber()} entities`
             );
           }
-          console.log(this.aiManager.getEntitiesStats());
+          console.log(this.explosiveManager.getEntitiesStats());
         } else {
-          this.aiManager.run();
+          this.explosiveManager.run();
         }
       } catch (e) {
         console.error(e);
@@ -2269,12 +2364,25 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnServerInit"))) return;
 
     await this.setupServer();
-    this.initializePacketEncodingWorker();
     if (this.isPvE) {
       console.log("Server in PvE mode");
     }
     this.fairPlayManager.decryptFairPlayValues();
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
+    if (this._spawnGrid.length > 0) {
+      this._mapBoundsMinX = Math.min(
+        ...this._spawnGrid.map((c) => c.position[0] - c.width / 2)
+      );
+      this._mapBoundsMaxX = Math.max(
+        ...this._spawnGrid.map((c) => c.position[0] + c.width / 2)
+      );
+      this._mapBoundsMinZ = Math.min(
+        ...this._spawnGrid.map((c) => c.position[2] - c.height / 2)
+      );
+      this._mapBoundsMaxZ = Math.max(
+        ...this._spawnGrid.map((c) => c.position[2] + c.height / 2)
+      );
+    }
     if (this.isSurvival()) {
       this.speedtreeManager.initiateList();
     }
@@ -2313,9 +2421,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.rewardManager.start();
     }
     this.hookManager.checkHook("OnServerReady");
-    if (!process.env.DISABLE_AI) {
-      this.startH1emuAi();
-    }
+    this.startExplosiveManager();
     this.challengePositionCheckInterval = setInterval(
       () => this.checkPlayersPositionsChallenges(),
       30_000
@@ -2532,7 +2638,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._gridOriginZ = minZ;
     this._gridNumCols = numCols;
     this._gridNumRows = numRows;
-    this._gridLookup = new Array(numCols * numRows);
+    this._gridLookup = Array.from({ length: numCols * numRows });
     for (const cell of this._grid) {
       const col = Math.round((cell.position[0] - minX) / cs);
       const row = Math.round((cell.position[2] - minZ) / cs);
@@ -2563,7 +2669,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._gridOriginZ = minZ;
     this._gridNumCols = numCols;
     this._gridNumRows = numRows;
-    this._gridLookup = new Array(numCols * numRows);
+    this._gridLookup = Array.from({ length: numCols * numRows });
     for (const cell of this._grid) {
       // A large cell covers multiple lookup slots — fill all of them
       const cols = Math.round(cell.width / cs);
@@ -2649,6 +2755,7 @@ export class ZoneServer2016 extends EventEmitter {
               pz <= cell.position[2] + cell.height
             ) {
               cell.objects.push(obj);
+              cell.lastModified = Date.now();
               setImmediate(() => this.onEntityAddedToCell(obj, cell));
               break;
             }
@@ -2696,6 +2803,7 @@ export class ZoneServer2016 extends EventEmitter {
     const gridCell = this._gridLookup[col * this._gridNumCols + row];
     if (!gridCell || gridCell.objects.includes(obj)) return;
     gridCell.objects.push(obj);
+    gridCell.lastModified = Date.now();
     setImmediate(() => this.onEntityAddedToCell(obj, gridCell));
   }
 
@@ -2726,27 +2834,34 @@ export class ZoneServer2016 extends EventEmitter {
 
   private async worldRoutine() {
     if (!this.hookManager.checkHook("OnWorldRoutine")) return;
-    else {
-      if (this._ready) {
-        this.constructionManager.plantManager(this);
-        await scheduler.yield();
-        await this.worldObjectManager.run(this);
-        await scheduler.yield();
-        this.checkVehiclesInMapBounds();
-        await scheduler.yield();
-        this.updateSyncTeleport();
-        await scheduler.yield();
-        this.updateSpectatorMap();
-        if (
-          this.enableWorldSaves &&
-          !this._isSaving &&
-          this.nextSaveTime - Date.now() < 0
-        ) {
-          this.saveWorld();
-        }
-      }
+    const tx = apm.startTransaction("worldRoutine", "custom");
+    if (this._ready) {
+      let span = tx?.startSpan("checkVehiclesInMapBounds");
+      await this.checkVehiclesInMapBounds();
+      span?.end();
+      await scheduler.yield();
+      let span2 = tx?.startSpan("updateSyncTeleport");
+      this.updateSyncTeleport();
+      span2?.end();
+      await scheduler.yield();
+      let span3 = tx?.startSpan("updateSpectatorMap");
+      this.updateSpectatorMap();
+      span3?.end();
     }
+    tx?.end();
     this.worldRoutineTimer.refresh();
+    // Fire AFTER the transaction ends so these run in a clean APM context
+    if (this._ready) {
+      if (
+        this.enableWorldSaves &&
+        !this._isSaving &&
+        this.nextSaveTime - Date.now() < 0
+      ) {
+        void this.saveWorld();
+      }
+      void this.constructionManager.plantManager(this);
+      void this.worldObjectManager.run(this);
+    }
   }
 
   async deleteClient(client: Client) {
@@ -2766,7 +2881,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (client.character) {
       client.isLoading = true; // stop anything from acting on character
-      this.aiManager.removeEntity(client.character);
+      this.explosiveManager.removeEntity(client.character);
       // "shift" time played prior to logging out
       client.character.metrics.startedSurvivingTP +=
         Date.now() - Number(client.character.lastLoginDate);
@@ -4297,24 +4412,27 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private shouldRemoveEntity(client: Client, entity: BaseEntity): boolean {
-    return (
-      entity && // in case if entity is undefined somehow
-      //!(entity instanceof ConstructionParentEntity) &&
-      !(entity instanceof Vehicle2016) &&
-      (this.filterOutOfDistance(entity, client.character.state.position) ||
-        this.constructionManager.shouldHideEntity(this, client, entity))
-    );
+    if (!entity || entity instanceof Vehicle2016) return false;
+    if (this.constructionManager.shouldHideEntity(this, client, entity)) {
+      return true;
+    }
+    const anchor = this.getConstructionRoot(entity);
+    return this.filterOutOfDistance(anchor, client.character.state.position);
   }
 
-  private removeOutOfDistanceEntities(client: Client) {
+  private async removeOutOfDistanceEntities(client: Client) {
     // does not include vehicles
-    for (const entity of client.spawnedEntities) {
+    const entities = [...client.spawnedEntities];
+    let i = 0;
+    for (const entity of entities) {
+      if (!client.spawnedEntities.has(entity)) continue; // removed during yield
       if (this.shouldRemoveEntity(client, entity)) {
         this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
           characterId: entity.characterId
         });
         client.spawnedEntities.delete(entity);
       }
+      if (++i % 100 === 0) await scheduler.yield();
     }
   }
 
@@ -4385,7 +4503,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     // 5. Clean up registries
     for (const { id, entity } of entities) {
-      this.aiManager.removeEntity(entity);
+      this.explosiveManager.removeEntity(entity);
       delete dictionary[id];
       delete this._transientIds[this._characterIds[id]];
       delete this._characterIds[id];
@@ -4400,6 +4518,10 @@ export class ZoneServer2016 extends EventEmitter {
   ): boolean {
     const entity = dictionary[characterId];
     if (!entity) return false;
+    if (entity instanceof BaseLightweightCharacter && entity.navAgent) {
+      this.navManager.crowd.removeAgent(entity.navAgent);
+      entity.navAgent = undefined;
+    }
     this.sendDataToAllWithSpawnedEntity<CharacterRemovePlayer>(
       dictionary,
       characterId,
@@ -4430,7 +4552,7 @@ export class ZoneServer2016 extends EventEmitter {
         );
       }
     }
-    this.aiManager.removeEntity(entity);
+    this.explosiveManager.removeEntity(entity);
     delete dictionary[characterId];
     delete this._transientIds[this._characterIds[characterId]];
     delete this._characterIds[characterId];
@@ -4456,6 +4578,18 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData<AddLightweightNpc>(client, "AddLightweightNpc", {
       ...entity.pGetLightweight(),
       nameId
+    });
+    entity.effectTags.forEach((effectTag: number) => {
+      this.sendData<CharacterAddEffectTagCompositeEffect>(
+        client,
+        "Character.AddEffectTagCompositeEffect",
+        {
+          characterId: entity.characterId,
+          effectId: effectTag,
+          unknownDword1: effectTag,
+          unknownDword2: effectTag
+        }
+      );
     });
     this.sendReplicationData(client, entity);
   }
@@ -4573,26 +4707,21 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  private checkVehiclesInMapBounds() {
+  private async checkVehiclesInMapBounds() {
     if (this.isBattleRoyale()) return;
+    let i = 0;
     for (const a in this._vehicles) {
       const vehicle = this._vehicles[a];
-      let inMapBounds: boolean = false;
-      this._spawnGrid.forEach((cell: SpawnCell) => {
-        const position = vehicle.state.position;
-        if (
-          position[0] >= cell.position[0] - cell.width / 2 &&
-          position[0] <= cell.position[0] + cell.width / 2 &&
-          position[2] >= cell.position[2] - cell.height / 2 &&
-          position[2] <= cell.position[2] + cell.height / 2
-        ) {
-          inMapBounds = true;
-        }
-      });
-
-      if (!inMapBounds || vehicle.state.position[1] < -50) {
+      const position = vehicle.state.position;
+      const inMapBounds =
+        position[0] >= this._mapBoundsMinX &&
+        position[0] <= this._mapBoundsMaxX &&
+        position[2] >= this._mapBoundsMinZ &&
+        position[2] <= this._mapBoundsMaxZ;
+      if (!inMapBounds || position[1] < -50) {
         vehicle.destroy(this, true);
       }
+      if (++i % 50 === 0) await scheduler.yield();
     }
   }
 
@@ -4678,14 +4807,42 @@ export class ZoneServer2016 extends EventEmitter {
     return result;
   }
 
+  /** Walks up a construction part's parent chain to the root foundation so an
+   *  entire base (deck + expansions + their doors/shelters) can be treated as a
+   *  single visibility unit. Returns the entity itself for non-construction
+   *  entities or parts whose parent can't be resolved. */
+  getConstructionRoot(entity: BaseEntity): BaseEntity {
+    let current: BaseEntity = entity;
+    let pid = (current as { parentObjectCharacterId?: string })
+      .parentObjectCharacterId;
+    let guard = 0;
+    // guard bounds the walk in case of corrupt/cyclic parent links
+    while (pid && pid !== "0" && guard++ < 16) {
+      const parent =
+        this._constructionFoundations[pid] || this._constructionSimple[pid];
+      if (!parent || parent === current) break;
+      current = parent;
+      pid = (current as { parentObjectCharacterId?: string })
+        .parentObjectCharacterId;
+    }
+    return current;
+  }
+
   /** Spawns a single grid entity for a client if not already spawned and within range */
   private spawnEntityForClient(client: Client, object: BaseEntity): void {
     const position = client.character.state.position;
+    const anchor =
+      object instanceof ConstructionParentEntity ||
+      object instanceof ConstructionChildEntity ||
+      object instanceof ConstructionDoor ||
+      object instanceof LootableConstructionEntity
+        ? this.getConstructionRoot(object)
+        : object;
     if (
       !isPosInRadius(
-        (object.npcRenderDistance as number) || this.charactersRenderDistance,
+        (anchor.npcRenderDistance as number) || this.charactersRenderDistance,
         position,
-        object.state.position
+        anchor.state.position
       )
     )
       return;
@@ -4762,9 +4919,44 @@ export class ZoneServer2016 extends EventEmitter {
         }
         if (object instanceof Npc) {
           object.updateEquipment(this);
+          if (object.currentAnimation) {
+            this.sendData(client, "Character.PlayAnimation", {
+              characterId: object.characterId,
+              animationName: object.currentAnimation
+            });
+          }
           return;
         }
       }
+    }
+  }
+
+  /** Spawns entities in all subscribed cells for a client, sequentially.
+   *  Guard prevents concurrent runs for the same client. */
+  private async _spawnSubscribedCells(client: Client): Promise<void> {
+    // Never silently drop a re-scan request: if one is already running, flag it
+    // so the in-flight pass runs again once it finishes. Dropping it could leave
+    // entities (e.g. expansion doors/shelters skipped while out of range on the
+    // first pass) unspawned until the player happens to move far enough to
+    // trigger another scan.
+    if (client.isSpawningCells) {
+      client.pendingCellRescan = true;
+      return;
+    }
+    client.isSpawningCells = true;
+    client.pendingCellRescan = false;
+    const tx = apm.startTransaction("spawnSubscribedCells", "custom");
+    try {
+      for (const cell of client.subscribedCells) {
+        await this.spawnCellObjectsForClient(client, cell);
+      }
+    } finally {
+      tx?.end();
+      client.isSpawningCells = false;
+    }
+    // If a re-scan was requested while we were running, run it again.
+    if (client.pendingCellRescan) {
+      setImmediate(() => void this._spawnSubscribedCells(client));
     }
   }
 
@@ -4775,6 +4967,7 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     cell: GridCell
   ): Promise<void> {
+    await scheduler.yield(); // Defer to event loop so callers never block inline
     const ping = client.avgPing;
     const batchSize = ping > 300 ? 10 : ping > 100 ? 25 : 50;
     let i = 0;
@@ -4916,7 +5109,9 @@ export class ZoneServer2016 extends EventEmitter {
       default:
         debug("send data", packetName);
     }
+    const packSpan = apm.currentTransaction?.startSpan(`pack::${packetName}`);
     const data = this._protocol.pack(packetName, obj);
+    packSpan?.end();
     if (data) {
       this._gatewayServer.sendTunnelData(client.soeClientId, data, channel);
     }
@@ -5465,36 +5660,47 @@ export class ZoneServer2016 extends EventEmitter {
     const renderDist = this.charactersRenderDistance;
 
     // Spawn any in-range vehicles not yet visible to this client.
-    // Iterates this._vehicles directly (not the spatial map snapshot) so
-    // vehicles added after the last world-tick rebuild are not missed.
-    for (const key in this._vehicles) {
-      const vehicle = this._vehicles[key];
-      if (
-        !isPosInRadius(
-          vehicle.npcRenderDistance || renderDist,
-          pos,
-          vehicle.state.position
-        )
-      )
-        continue;
-      if (client.spawnedEntities.has(vehicle)) continue;
-      this.sendData<AddLightweightVehicle>(client, "AddLightweightVehicle", {
-        ...vehicle.pGetLightweightVehicle(),
-        unknownGuid1: this.generateGuid()
-      });
-      vehicle.effectTags.forEach((effectTag: number) => {
-        this.sendData<CharacterAddEffectTagCompositeEffect>(
-          client,
-          "Character.AddEffectTagCompositeEffect",
-          {
-            characterId: vehicle.characterId,
-            effectId: effectTag,
-            unknownDword1: effectTag,
-            unknownDword2: effectTag
-          }
-        );
-      });
-      client.spawnedEntities.add(vehicle);
+    // Uses the spatial map snapshot — vehicles that spawn mid-tick appear on
+    // the next tick (max 200ms delay), matching character spawn behaviour.
+    const [cellMinX, cellMaxX, cellMinZ, cellMaxZ] =
+      ZoneServer2016._charGridRange(pos, renderDist);
+    for (let cx = cellMinX; cx <= cellMaxX; cx++) {
+      for (let cz = cellMinZ; cz <= cellMaxZ; cz++) {
+        const bucket = this._vehicleSpatialMap.get(`${cx},${cz}`);
+        if (!bucket) continue;
+        for (const vehicle of bucket) {
+          if (
+            !isPosInRadius(
+              vehicle.npcRenderDistance || renderDist,
+              pos,
+              vehicle.state.position
+            )
+          )
+            continue;
+          if (client.spawnedEntities.has(vehicle)) continue;
+          this.sendData<AddLightweightVehicle>(
+            client,
+            "AddLightweightVehicle",
+            {
+              ...vehicle.pGetLightweightVehicle(),
+              unknownGuid1: this.generateGuid()
+            }
+          );
+          vehicle.effectTags.forEach((effectTag: number) => {
+            this.sendData<CharacterAddEffectTagCompositeEffect>(
+              client,
+              "Character.AddEffectTagCompositeEffect",
+              {
+                characterId: vehicle.characterId,
+                effectId: effectTag,
+                unknownDword1: effectTag,
+                unknownDword2: effectTag
+              }
+            );
+          });
+          client.spawnedEntities.add(vehicle);
+        }
+      }
     }
 
     // Despawn vehicles that are no longer in range.
@@ -5913,6 +6119,7 @@ export class ZoneServer2016 extends EventEmitter {
       });
       return;
     }
+    const tx = apm.currentTransaction;
     vehicle.removeHotwireEffect(this);
     const seatId = vehicle.getCharacterSeat(client.character.characterId);
     client.character.vehicleExitDate = new Date().getTime();
@@ -5930,6 +6137,7 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     vehicle.seats[seatId] = "";
+    let span = tx?.startSpan("sendDismountResponse");
     this.sendDataToAllWithSpawnedEntity<MountDismountResponse>(
       this._characters,
       client.character.characterId,
@@ -5938,6 +6146,7 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: client.character.characterId
       }
     );
+    span?.end();
     client.isInAir = false;
 
     // Check if there are no more passengers in the vehicle
@@ -5965,6 +6174,7 @@ export class ZoneServer2016 extends EventEmitter {
       unknownBytes1: { itemData: {} },
       unknownBytes2: { itemData: {} }
     });
+    span = tx?.startSpan("sendVehicleOwner");
     this.sendDataToAllWithSpawnedEntity<VehicleOwner>(
       this._vehicles,
       vehicle.characterId,
@@ -5977,7 +6187,10 @@ export class ZoneServer2016 extends EventEmitter {
         passengers: []
       }
     );
+    span?.end();
+    span = tx?.startSpan("dismountContainer");
     client.character.dismountContainer(this);
+    span?.end();
   }
 
   changeSeat(client: Client, packet: ReceivedPacket<MountSeatChangeRequest>) {
@@ -6775,6 +6988,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @param {LoadoutItem} loadoutItem - The new loadout item.
    */
   switchLoadoutSlot(client: Client, loadoutItem: LoadoutItem) {
+    const tx = apm.currentTransaction;
     const oldLoadoutSlot = client.character.currentLoadoutSlot;
     this.reloadInterrupt(client, client.character._loadout[oldLoadoutSlot]);
 
@@ -6790,21 +7004,27 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     // remove passive equip
+    let span = tx?.startSpan("clearEquipmentSlot");
     this.clearEquipmentSlot(
       client.character,
       client.character.getActiveEquipmentSlot(loadoutItem),
       true
     );
+    span?.end();
     client.character.currentLoadoutSlot = loadoutItem.slotId;
+    span = tx?.startSpan("equipItem-active");
     client.character.equipItem(this, loadoutItem, true, loadoutItem.slotId);
+    span?.end();
 
     // equip passive slot
+    span = tx?.startSpan("equipItem-passive");
     client.character.equipItem(
       this,
       client.character._loadout[oldLoadoutSlot],
       true,
       oldLoadoutSlot
     );
+    span?.end();
     if (loadoutItem.weapon) loadoutItem.weapon.currentReloadCount = 0;
     if (this.isWeapon(loadoutItem.itemDefinitionId)) {
       const itemDefinition = this.getItemDefinition(
@@ -6817,6 +7037,7 @@ export class ZoneServer2016 extends EventEmitter {
           itemDefinition.ACTIVATABLE_ABILITY_ID
         );
       }
+      span = tx?.startSpan("sendRemoteWeaponUpdate");
       this.sendRemoteWeaponUpdateDataToAllOthers(
         client,
         client.character.transientId,
@@ -6827,7 +7048,9 @@ export class ZoneServer2016 extends EventEmitter {
           firemodeIndex: 0
         }
       );
+      span?.end();
 
+      span = tx?.startSpan("sendWeaponStance");
       this.sendDataToAllOthersWithSpawnedEntity<CharacterWeaponStance>(
         this._characters,
         client,
@@ -6838,6 +7061,7 @@ export class ZoneServer2016 extends EventEmitter {
           stance: client.character.weaponStance
         }
       );
+      span?.end();
     }
   }
 
@@ -8610,6 +8834,83 @@ export class ZoneServer2016 extends EventEmitter {
     if (!weaponItem.weapon || weaponItem.weapon.ammoCount <= 0) {
       return;
     }
+    switch (weaponItem.weapon.itemDefinitionId) {
+      case WeaponDefinitionIds.WEAPON_AR15_2:
+      case WeaponDefinitionIds.WEAPON_PURGE:
+      case WeaponDefinitionIds.WEAPON_BLAZE:
+      case WeaponDefinitionIds.WEAPON_FROSTBITE:
+      case WeaponDefinitionIds.WEAPON_AR15:
+        this.pushSound({
+          position: client.character.state.position,
+          radius: 100,
+          agitation: 10
+        });
+        break;
+      case WeaponDefinitionIds.WEAPON_308:
+        this.pushSound({
+          position: client.character.state.position,
+          radius: 200,
+          agitation: 10
+        });
+        break;
+      case WeaponDefinitionIds.WEAPON_AK47:
+        this.pushSound({
+          position: client.character.state.position,
+          radius: 120,
+          agitation: 10
+        });
+        break;
+      case WeaponDefinitionIds.WEAPON_SHOTGUN:
+        this.pushSound({
+          position: client.character.state.position,
+          radius: 150,
+          agitation: 15
+        });
+        break;
+      case WeaponDefinitionIds.WEAPON_NAGAFENS_RAGE:
+        this.pushSound({
+          position: client.character.state.position,
+          radius: 160,
+          agitation: 15
+        });
+        break;
+      case WeaponDefinitionIds.WEAPON_1911:
+      case WeaponDefinitionIds.WEAPON_M9:
+        this.pushSound({
+          position: client.character.state.position,
+          radius: 75,
+          agitation: 8
+        });
+        break;
+      case WeaponDefinitionIds.WEAPON_R380:
+        this.pushSound({
+          position: client.character.state.position,
+          radius: 60,
+          agitation: 7
+        });
+        break;
+      case WeaponDefinitionIds.WEAPON_MAGNUM:
+        this.pushSound({
+          position: client.character.state.position,
+          radius: 90,
+          agitation: 10
+        });
+        break;
+      case WeaponDefinitionIds.WEAPON_REAPER:
+        this.pushSound({
+          position: client.character.state.position,
+          radius: 180,
+          agitation: 12
+        });
+        break;
+      default:
+        this.pushSound({
+          position: client.character.state.position,
+          radius: 10,
+          agitation: 10
+        });
+        break;
+    }
     this.challengeManager.registerChallengeProgression(
       client,
       ChallengeType.GLOBAL_DISARMAMENT,
@@ -8999,6 +9300,20 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   applyMovementModifier(client: Client, modifier: MovementModifiers) {
+    if (modifier === MovementModifiers.SCREAM) {
+      this.multiplyMovementModifier(client, MovementModifiers.SNARED);
+      if (client.character.timeouts["screamed"]) {
+        client.character.timeouts["screamed"]._onTimeout();
+        clearTimeout(client.character.timeouts["screamed"]);
+        delete client.character.timeouts["screamed"];
+      }
+      client.character.timeouts["screamed"] = setTimeout(() => {
+        if (!client.character.timeouts["screamed"]) return;
+        this.divideMovementModifier(client, MovementModifiers.SNARED);
+        delete client.character.timeouts["screamed"];
+      }, 6000);
+      return;
+    }
     this.multiplyMovementModifier(client, modifier);
     let hudIndicator: HudIndicator | undefined;
     switch (modifier) {
@@ -9274,6 +9589,19 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  detectSnaking(
+    server: ZoneServer2016,
+    client: Client,
+    stanceFlags: StanceFlags
+  ) {
+    if (stanceFlags.SITTING) {
+      server.multiplyMovementModifier(client, 0.2);
+      setTimeout(() => {
+        server.divideMovementModifier(client, 0.2);
+      }, 2000);
+    }
+  }
+
   //#endregion
 
   async reloadZonePacketHandlers() {
@@ -9379,7 +9707,7 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.state.position.slice() as Float32Array;
     //this.constructionManager.spawnConstructionParentsInRange(this, client); // put into grid
     this.vehicleManager(client);
-    this.removeOutOfDistanceEntities(client);
+    void this.removeOutOfDistanceEntities(client);
     void this.updateClientSubscriptions(client);
     this.spawnCharacters(client);
     //this.constructionManager.worldConstructionManager(this, client);
@@ -9408,26 +9736,40 @@ export class ZoneServer2016 extends EventEmitter {
    *  known position. Called from the server tick — NOT from packet handlers. */
   private runClientTick(client: Client) {
     if (client.isLoading) return;
+    if (client.colorKeysEnabled) this.updateColorKeyEffect(client);
+    const tx = apm.currentTransaction;
     const pos = client.character.state.position;
 
     // Construction permissions: run when player has moved 3+ units
     if (getDistance2d(pos, client.posAtLastPermissionCheck) >= 3) {
+      const sp = tx?.startSpan("constructionPermissionsManager");
       this.constructionManager.constructionPermissionsManager(this, client);
+      sp?.end();
       client.posAtLastPermissionCheck = pos.slice() as Float32Array;
     }
 
     // Heavy world scans: run when player has moved 10+ units
     if (getDistance2d(pos, client.posAtLastRoutine) >= 10) {
-      if (!this.disableMapBoundsCheck) this.checkInMapBounds(client);
+      if (!this.disableMapBoundsCheck) {
+        const sp = tx?.startSpan("checkInMapBounds");
+        this.checkInMapBounds(client);
+        sp?.end();
+      }
+      const sp2 = tx?.startSpan("assignChunkRenderDistance");
       this.assignChunkRenderDistance(client);
-      if (!this.disablePOIManager) this.POIManager(client);
+      sp2?.end();
+      if (!this.disablePOIManager) {
+        const sp3 = tx?.startSpan("POIManager");
+        this.POIManager(client);
+        sp3?.end();
+      }
+      const sp4 = tx?.startSpan("vehicleManager");
       this.vehicleManager(client);
+      sp4?.end();
 
       // Spawn any entities in already-subscribed cells that weren't in render
       // range when first subscribed — e.g. NPCs that spawned nearby.
-      for (const cell of client.subscribedCells) {
-        this.spawnCellObjectsForClient(client, cell);
-      }
+      void this._spawnSubscribedCells(client);
 
       client.posAtLastRoutine = pos.slice() as Float32Array;
       client.lastRoutineTime = Date.now();
@@ -9438,14 +9780,30 @@ export class ZoneServer2016 extends EventEmitter {
       getDistance2d(pos, client.posAtLastCellUpdate) >= 62.5 ||
       client.chunkRenderDistance !== client.lastKnownChunkRenderDistance
     ) {
+      const sp5 = tx?.startSpan("updateClientSubscriptions");
       void this.updateClientSubscriptions(client);
+      sp5?.end();
     }
 
+    const sp6 = tx?.startSpan("spawnCharacters");
     this.spawnCharacters(client);
+    sp6?.end();
   }
 
   private _worldTickTimer?: NodeJS.Timeout;
   private static readonly WORLD_TICK_MS = 200;
+
+  insertVehicleIntoSpatialMap(vehicle: Vehicle) {
+    const sz = ZoneServer2016._CHAR_GRID_SIZE;
+    const pos = vehicle.state.position;
+    const key = `${Math.floor(pos[0] / sz)},${Math.floor(pos[2] / sz)}`;
+    let bucket = this._vehicleSpatialMap.get(key);
+    if (!bucket) {
+      bucket = [];
+      this._vehicleSpatialMap.set(key, bucket);
+    }
+    if (!bucket.includes(vehicle)) bucket.push(vehicle);
+  }
 
   private _rebuildSpatialMaps() {
     const sz = ZoneServer2016._CHAR_GRID_SIZE;
@@ -9463,19 +9821,94 @@ export class ZoneServer2016 extends EventEmitter {
       }
       bucket.push(c);
     }
+
+    this._vehicleSpatialMap.clear();
+    for (const vehicleId in this._vehicles) {
+      const v = this._vehicles[vehicleId];
+      const pos = v.state.position;
+      const key = `${Math.floor(pos[0] / sz)},${Math.floor(pos[2] / sz)}`;
+      let bucket = this._vehicleSpatialMap.get(key);
+      if (!bucket) {
+        bucket = [];
+        this._vehicleSpatialMap.set(key, bucket);
+      }
+      bucket.push(v);
+    }
   }
 
+  private _clientTicksRunning = false;
+
+  private async _runClientTicks() {
+    if (this._clientTicksRunning) return;
+    this._clientTicksRunning = true;
+    const tx = apm.startTransaction("clientTicks", "custom");
+    try {
+      for (const sessionId in this._clients) {
+        const clientSpan = tx?.startSpan("clientTick");
+        this.runClientTick(this._clients[sessionId]);
+        clientSpan?.end();
+        await scheduler.yield();
+      }
+    } finally {
+      tx?.end();
+      this._clientTicksRunning = false;
+    }
+  }
+
+  private _rebuildAiTargetMap(): void {
+    const sz = ZoneServer2016._AI_TARGET_GRID_SIZE;
+    this.aiTargetSpatialMap.clear();
+    for (const characterId in this._characters) {
+      const char = this._characters[characterId];
+      if (!char.isAlive || char.isVanished || char.isHidden || char.isSpectator)
+        continue;
+      const pos = char.state.position;
+      const key = `${Math.floor(pos[0] / sz)},${Math.floor(pos[2] / sz)}`;
+      let b = this.aiTargetSpatialMap.get(key);
+      if (!b) {
+        b = [];
+        this.aiTargetSpatialMap.set(key, b);
+      }
+      b.push({
+        id: characterId,
+        position: pos,
+        faction: Factions.HUMAN
+      });
+    }
+    for (const npcId in this._npcs) {
+      const npc = this._npcs[npcId];
+      if (!npc.isAlive) continue;
+      const pos = npc.state.position;
+      const key = `${Math.floor(pos[0] / sz)},${Math.floor(pos[2] / sz)}`;
+      let b = this.aiTargetSpatialMap.get(key);
+      if (!b) {
+        b = [];
+        this.aiTargetSpatialMap.set(key, b);
+      }
+      b.push({
+        id: npcId,
+        position: pos,
+        faction: npc.faction
+      });
+    }
+  }
+
+  private _lastTickTime = 0;
+
   startWorldTick() {
-    const tick = () => {
+    const tick = async () => {
       if (!this._ready) {
+        this._lastTickTime = Date.now();
         this._worldTickTimer = setTimeout(tick, ZoneServer2016.WORLD_TICK_MS);
         return;
       }
+      const tx = apm.startTransaction("WorldTick", "custom");
+      const span = tx?.startSpan("rebuildSpatialMaps");
       this._rebuildSpatialMaps();
-      for (const sessionId in this._clients) {
-        this.runClientTick(this._clients[sessionId]);
-      }
+      span?.end();
+      tx?.end();
       this._worldTickTimer = setTimeout(tick, ZoneServer2016.WORLD_TICK_MS);
+      void this._runClientTicks();
     };
     this._worldTickTimer = setTimeout(tick, ZoneServer2016.WORLD_TICK_MS);
   }
@@ -9491,16 +9924,14 @@ export class ZoneServer2016 extends EventEmitter {
     };
     client.pingTimer = setTimeout(pingLoop, 3000);
 
-    const fairPlayLoop = () => {
+    const fairPlayLoop = async () => {
       if (!this._clients[client.sessionId]) return;
       if (!client.isLoading) {
         this.createFairPlayInternalPacket(client);
         // Clean up out-of-distance entities, then re-spawn anything in subscribed
         // cells that has come back into render range since the last cleanup.
-        this.removeOutOfDistanceEntities(client);
-        for (const cell of client.subscribedCells) {
-          this.spawnCellObjectsForClient(client, cell);
-        }
+        await this.removeOutOfDistanceEntities(client);
+        void this._spawnSubscribedCells(client);
       }
       client.fairPlayTimer = setTimeout(fairPlayLoop, 9000);
     };
@@ -9548,18 +9979,12 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   checkInMapBounds(client: Client) {
-    let inMapBounds: boolean = false;
-    this._spawnGrid.forEach((cell: SpawnCell) => {
-      const pos = client.character.state.position;
-      if (
-        pos[0] >= cell.position[0] - cell.width / 2 &&
-        pos[0] <= cell.position[0] + cell.width / 2 &&
-        pos[2] >= cell.position[2] - cell.height / 2 &&
-        pos[2] <= cell.position[2] + cell.height / 2
-      ) {
-        inMapBounds = true;
-      }
-    });
+    const pos = client.character.state.position;
+    const inMapBounds =
+      pos[0] >= this._mapBoundsMinX &&
+      pos[0] <= this._mapBoundsMaxX &&
+      pos[2] >= this._mapBoundsMinZ &&
+      pos[2] <= this._mapBoundsMaxZ;
     const index = client.character.screenEffects.indexOf("OUTOFMAPBOUNDS");
     if (!inMapBounds && (!client.isAdmin || !client.isDebugMode)) {
       const damageInfo: DamageInfo = {
@@ -9716,6 +10141,33 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData(client, "ScreenEffect.RemoveScreenEffect", effect);
   }
 
+  private getColorKeyPeriod(time: number): string {
+    if (time < 7200) return "NIGHT"; // midnight – 2 AM
+    if (time < 18000) return "DEEP_BLUE"; // 2 AM – 5 AM
+    if (time < 36000) return "DAWN"; // 5 AM – 10 AM
+    if (time < 59400) return "DAY"; // 10 AM – 4:30 PM
+    if (time < 64800) return "TWILIGHT"; // 4:30 PM – 6 PM
+    if (time < 72000) return "DUSK"; // 6 PM – 8 PM
+    return "NIGHT"; // 8 PM – midnight
+  }
+
+  updateColorKeyEffect(client: Client) {
+    const period = this.getColorKeyPeriod(this.inGameTimeManager.time);
+    if (client.activeColorKeyPeriod === period) return;
+    if (client.activeColorKeyPeriod) {
+      this.removeScreenEffect(
+        client,
+        this._screenEffects[client.activeColorKeyPeriod]
+      );
+    }
+    // Hacky workaround
+    setTimeout(
+      () => this.addScreenEffect(client, this._screenEffects[period]),
+      100
+    );
+    client.activeColorKeyPeriod = period;
+  }
+
   private _sendDataToAll<ZonePacket>(
     packetName: h1z1PacketsType2016,
     obj: ZonePacket
@@ -9728,23 +10180,10 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  private initializePacketEncodingWorker() {
-    this.packetEncodingWorker = new PacketEncodingWorker(this._clientProtocol);
-  }
-
   private async packPacket<ZonePacket>(
     packetName: h1z1PacketsType2016,
     obj: ZonePacket
   ): Promise<Buffer | null> {
-    if (this.packetEncodingWorker) {
-      try {
-        return await this.packetEncodingWorker.encodePacket(packetName, obj);
-      } catch (error) {
-        debug(
-          `Packet encoding worker failed for ${packetName}, falling back to local pack: ${error}`
-        );
-      }
-    }
     return this._protocol.pack(packetName, obj);
   }
 
@@ -10020,7 +10459,15 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   updateSpectatorMap() {
-    this.sendDataToAllAdmins("Spectator.AllSpectators", {
+    const adminClients = Object.values(this._clients).filter((c) => c.isAdmin);
+    if (adminClients.length === 0) return;
+    // With many players the pack is expensive — skip every other tick
+    if (
+      Object.keys(this._clients).length > 20 &&
+      ++this._spectatorMapTick % 2 !== 0
+    )
+      return;
+    const data = this._protocol.pack("Spectator.AllSpectators", {
       unknownDword1: 1,
       unknownArray1: Object.values(this._clients).map((client) => ({
         characterId: client.character.characterId,
@@ -10033,6 +10480,10 @@ export class ZoneServer2016 extends EventEmitter {
       })),
       unknownArray2: []
     });
+    if (!data) return;
+    for (const admin of adminClients) {
+      this.sendRawDataReliable(admin, data);
+    }
   }
 
   addToSyncTeleport(client: Client, position: Float32Array) {
@@ -10128,6 +10579,71 @@ export class ZoneServer2016 extends EventEmitter {
     });
 
     return isInPoi;
+  }
+
+  private tickNpcFsms(dt: number): void {
+    const safeDt = Math.min(dt, 1.0);
+    for (const k in this._npcs) {
+      const npc = this._npcs[k];
+      if (!npc.isAlive) continue;
+      if (npc.fsm) npc.fsm.tick(safeDt);
+    }
+  }
+
+  pushSound(sound: Sound): void {
+    if (process.env.DISABLE_AI || !this.aiEnabled) return;
+    this.sounds.push(sound);
+  }
+
+  private tickAi(): void {
+    const now = Date.now();
+    const dt = (now - this.lastFsmTick) / 1000;
+    this.lastFsmTick = now;
+    this._rebuildAiTargetMap();
+    this.tickNpcFsms(dt);
+    // reset sounds every AI tick
+    this.sounds = [];
+  }
+
+  updatePathfindingPositions(): void {
+    for (const k in this._npcs) {
+      const npc = this._npcs[k];
+      if (npc.navAgent) {
+        const navPos = npc.navAgent.interpolatedPosition;
+        const gamePos = NavManager.navToGame(navPos);
+        if (
+          gamePos[0] != npc.state.position[0] ||
+          gamePos[2] != npc.state.position[2]
+        ) {
+          npc.goTo(gamePos);
+        }
+      }
+    }
+
+    for (const k in this._characters) {
+      const character = this._characters[k];
+      if (!character.navAgent) {
+        character.navAgent = this.navManager.createPassiveAgent(
+          character.state.position
+        );
+      } else {
+        character.navAgent.teleport(
+          NavManager.gameToNav(character.state.position)
+        );
+      }
+    }
+
+    for (const k in this._vehicles) {
+      const vehicle = this._vehicles[k];
+      if (!vehicle.navAgent) {
+        vehicle.navAgent = this.navManager.createPassiveAgent(
+          vehicle.state.position,
+          2.0
+        );
+      } else {
+        vehicle.navAgent.teleport(NavManager.gameToNav(vehicle.state.position));
+      }
+    }
   }
 }
 

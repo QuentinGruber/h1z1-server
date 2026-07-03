@@ -13,8 +13,10 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // TODO enable @typescript-eslint/no-unused-vars
+import { scheduler } from "node:timers/promises";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { ZoneServer2016 } from "./zoneserver";
+const apm = require("elastic-apm-node");
 const debug = require("debug")("ZoneServer");
 
 import {
@@ -168,6 +170,7 @@ import { LoadoutItem } from "./classes/loadoutItem";
 import { BaseItem } from "./classes/baseItem";
 import { Collection } from "mongodb";
 import { ItemObject } from "./entities/itemobject";
+import { ExplosiveEntity } from "./entities/explosiveentity";
 
 function getStanceFlags(num: number): StanceFlags {
   function getBit(bin: string, bit: number) {
@@ -256,6 +259,10 @@ export class ZonePacketHandlers {
     server.customizeDTO(client);
 
     client.character.startResourceUpdater(client, server);
+    if (server.infectionEnabled) {
+      client.character.startVirusBurnTick(client, server);
+      client.character.startImmunityFadeTick(client, server);
+    }
     server.sendData<CharacterCharacterStateDelta>(
       client,
       "Character.CharacterStateDelta",
@@ -391,7 +398,7 @@ export class ZonePacketHandlers {
       if (client.firstCharacterReleased) {
         server.challengeManager.loadChallenges(client);
         client.firstCharacterReleased = false;
-        server.aiManager.addEntity(client.character);
+        server.explosiveManager.addEntity(client.character);
         if (
           server.voiceChatManager.useVoiceChatV2 &&
           server.voiceChatManager.joinVoiceChatOnConnect
@@ -634,6 +641,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<CollisionDamage>
   ) {
+    const tx = apm.currentTransaction;
     const DamageTypes = [
       "WeaponDamage",
       "VehicleCollision",
@@ -644,26 +652,34 @@ export class ZonePacketHandlers {
     const cause = packet.data.causeOfDamage ?? 0;
     if (packet.data.objectCharacterId != client.character.characterId) {
       const objVehicle = server._vehicles[packet.data.objectCharacterId || ""];
-      if (objVehicle && objVehicle.engineOn) {
-        for (const a in server._destroyables) {
-          const destroyable = server._destroyables[a];
-          if (destroyable.destroyedModel) continue;
-          if (
-            !packet.data.position ||
-            !isPosInRadius(
-              4.5,
-              destroyable.state.position,
-              packet.data.position
-            )
-          ) {
-            continue;
+      if (objVehicle && objVehicle.engineOn && packet.data.position) {
+        const pos = packet.data.position;
+        const [cx0, cx1, cz0, cz1] = ZoneServer2016._gridRange(
+          pos,
+          4.5,
+          ZoneServer2016._DESTROYABLE_GRID_SIZE
+        );
+        const sp = tx?.startSpan("collisionDamage.destroyables");
+        let destroyableCount = 0;
+        outer: for (let cx = cx0; cx <= cx1; cx++) {
+          for (let cz = cz0; cz <= cz1; cz++) {
+            const bucket = server._destroyableSpatialMap.get(`${cx},${cz}`);
+            if (!bucket) continue;
+            for (const destroyable of bucket) {
+              if (destroyableCount >= 5) break outer;
+              if (destroyable.destroyedModel) continue;
+              if (!isPosInRadius(4.5, destroyable.state.position, pos))
+                continue;
+              destroyableCount++;
+              destroyable.OnProjectileHit(server, {
+                entity: `${objVehicle.characterId} collision`,
+                damage: 1000000
+              });
+            }
           }
-          const damageInfo: DamageInfo = {
-            entity: `${objVehicle.characterId} collision`,
-            damage: 1000000
-          };
-          destroyable.OnProjectileHit(server, damageInfo);
         }
+        sp?.setLabel("destroyableCount", destroyableCount);
+        sp?.end();
       }
       if (objVehicle && packet.data.characterId != objVehicle.characterId) {
         if (objVehicle.getNextSeatId(server) == 0) return;
@@ -685,28 +701,30 @@ export class ZonePacketHandlers {
       // damage must pass this threshold to be applied
       if (damage <= 800) return;
 
+      const sp2 = tx?.startSpan("collisionDamage.characterDamage");
       if (server.isPvE) {
-        // only apply collision dmg if falling
         if (characterId === objectCharacterId) {
           client.character.damage(server, {
             entity: `Server.${DamageTypes[cause]}`,
             damage: damage
           });
         }
+        sp2?.end();
         return;
       }
-
       client.character.damage(server, {
         entity: `Server.${DamageTypes[cause]}`,
         damage: damage
       });
+      sp2?.end();
     } else if (vehicle) {
-      // leave old system with this damage threshold to damage flipped vehicles
       if (damage > 5000 && damage < 5500) {
+        const sp3 = tx?.startSpan("collisionDamage.vehicleDamage");
         vehicle.damage(server, {
           entity: "Server.CollisionDamage",
           damage: damage / 50
         });
+        sp3?.end();
       }
     }
   }
@@ -1398,6 +1416,13 @@ export class ZonePacketHandlers {
         server.stopHudTimer(client);
         delete client.hudTimer;
       }
+      if (vehicle.engineOn) {
+        server.pushSound({
+          radius: 50,
+          position: fixedPosUpdate,
+          agitation: 3
+        });
+      }
     }
 
     // Send position updates to other clients
@@ -1500,20 +1525,10 @@ export class ZonePacketHandlers {
     if (stance) {
       const stanceFlags = getStanceFlags(stance);
 
-      if (stanceFlags.SITTING) {
-        server.sendData<CommandRunSpeed>(client, "Command.RunSpeed", {
-          runSpeed: 0.1
-        });
-        setTimeout(() => {
-          server.sendData<CommandRunSpeed>(client, "Command.RunSpeed", {
-            runSpeed: 0
-          });
-        }, 2000);
-      }
-
       // Detect movements based on stance
       server.fairPlayManager.detectJumpXSMovement(server, client, stanceFlags);
       server.fairPlayManager.detectDroneMovement(server, client, stanceFlags);
+      server.detectSnaking(server, client, stanceFlags);
       server.detectEnasMovement(server, client, stanceFlags);
 
       // Handle jump logic
@@ -1621,6 +1636,20 @@ export class ZonePacketHandlers {
         }, 1500);
       }
       client.character.state.position = position;
+
+      // Check if player stepped on an armed landmine
+      if (server.explosiveManager.explosiveEntities.size > 0) {
+        const landmineCells = server.getGridCellsInRadius(position, 0.6);
+        for (const cell of landmineCells) {
+          for (const obj of cell.objects) {
+            if (!(obj instanceof ExplosiveEntity)) continue;
+            if (!obj.isArmed) continue;
+            if (isPosInRadiusWithY(0.6, position, obj.state.position, 0.5)) {
+              obj.detonate(client.character.characterId);
+            }
+          }
+        }
+      }
 
       // Stop HUD timer if position is out of radius
       if (
@@ -3253,7 +3282,7 @@ export class ZonePacketHandlers {
     }
   }
 
-  Weapon(
+  async Weapon(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<WeaponWeapon>
@@ -3268,9 +3297,10 @@ export class ZonePacketHandlers {
 
     switch (weaponpacket?.packetName) {
       case "Weapon.MultiWeapon":
-        weaponpacket?.packet.packets.forEach((p: any) => {
+        for (const p of weaponpacket.packet.packets) {
           this.handleWeaponPacket(server, client, p);
-        });
+          await scheduler.yield();
+        }
         break;
       default:
         this.handleWeaponPacket(server, client, packet.data.weaponPacket);

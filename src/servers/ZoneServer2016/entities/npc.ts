@@ -16,36 +16,40 @@ import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import {
-  chance,
-  generateRandomGuid,
   getCurrentServerTimeWrapper,
   getDistance,
   logClientActionToMongo,
-  randomIntFromInterval
+  metersToFeet
 } from "../../../utils/utils";
 import { DB_COLLECTIONS, KILL_TYPE } from "../../../utils/enums";
 import {
   Items,
-  MaterialTypes,
   MeleeTypes,
-  ModelIds,
   NpcIds,
   PositionUpdateType,
-  StringIds
+  ResourceIds,
+  ResourceTypes
 } from "../models/enums";
 import { CommandInteractionString } from "types/zone2016packets";
 import { BaseEntity } from "./baseentity";
 import { ChallengeType } from "../managers/challengemanager";
 import { ProjectileEntity } from "./projectileentity";
-import { Lootbag } from "../entities/lootbag";
-import { LoadoutContainer } from "../classes/loadoutcontainer";
+import { JSM } from "../jsms/jsm";
+import { Factions } from "../jsms/factions";
 
-export class Npc extends BaseFullCharacter {
+export abstract class Npc extends BaseFullCharacter {
   health: number;
   npcRenderDistance = 100;
+
+  /** Attach the animation object to the npc itself (used for zombie animations) */
+  override get attachedObjectTargetId(): string {
+    return this.transientId.toString();
+  }
+
   spawnerId: number;
   deathTime: number = 0;
   npcId: number = 0;
+  faction: Factions = Factions.None;
   rewardItems: { itemDefId: number; weight: number }[] = [];
   flags = {
     bit0: 0,
@@ -77,8 +81,13 @@ export class Npc extends BaseFullCharacter {
     return this.deathTime == 0;
   }
   server: ZoneServer2016;
-  npcMeleeDamage: number;
+  npcMeleeDamage: number = 0;
+  fsm?: JSM<string | number>;
+  currentAnimation = "";
+  lookAtTarget: Float32Array | null = null;
   isSelected: boolean = false;
+  variant: string = "";
+
   constructor(
     characterId: string,
     transientId: number,
@@ -86,43 +95,46 @@ export class Npc extends BaseFullCharacter {
     position: Float32Array,
     rotation: Float32Array,
     server: ZoneServer2016,
-    spawnerId: number = 0
+    spawnerId: number = 0,
+    variant: string = ""
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.positionUpdateType = PositionUpdateType.MOVABLE;
     this.spawnerId = spawnerId;
     this.health = 10000;
-    this.initNpcData();
     this.server = server;
-    switch (actorModelId) {
-      case ModelIds.ZOMBIE_FEMALE_WALKER:
-      case ModelIds.ZOMBIE_MALE_WALKER:
-        this.materialType = MaterialTypes.ZOMBIE;
-        this.npcMeleeDamage = 2000;
-        break;
-      case ModelIds.ZOMBIE_SCREAMER:
-        this.materialType = MaterialTypes.ZOMBIE;
-        this.npcMeleeDamage = 3000;
-        break;
-      case ModelIds.DEER:
-      case ModelIds.DEER_BUCK:
-        this.materialType = MaterialTypes.FLESH;
-        this.npcMeleeDamage = 0;
-        break;
-      case ModelIds.WOLF:
-        this.materialType = MaterialTypes.FLESH;
-        this.npcMeleeDamage = 2000;
-        break;
-      case ModelIds.BEAR:
-        this.materialType = MaterialTypes.FLESH;
-        this.npcMeleeDamage = 4000;
-        break;
-      default:
-        this.materialType = MaterialTypes.FLESH;
-        this.npcMeleeDamage = 0;
-        break;
+    this.variant = variant;
+    if (!process.env.DISABLE_AI && this.server.aiEnabled) {
+      this.navAgent = this.server.navManager.createAgent(this.state.position);
     }
-    server.aiManager.addEntity(this);
+    server.explosiveManager.addEntity(this);
+  }
+
+  protected abstract addLoot(server: ZoneServer2016): void;
+  protected abstract onHarvest(
+    server: ZoneServer2016,
+    client: ZoneClient2016
+  ): void;
+  protected abstract buildInteractionString(
+    server: ZoneServer2016,
+    client: ZoneClient2016
+  ): void;
+
+  setAnimation(animationName: string) {
+    this.currentAnimation = animationName;
+    this.server.sendDataToAllWithSpawnedEntity(
+      this.server._npcs,
+      this.characterId,
+      "Character.PlayAnimation",
+      { characterId: this.characterId, animationName }
+    );
+  }
+
+  setSpeed(speed: number) {
+    if (this.navAgent) {
+      this.navAgent.maxSpeed = speed;
+      this.navAgent.maxAcceleration = speed * 2.0;
+    }
   }
 
   playAnimation(animationName: string) {
@@ -130,16 +142,29 @@ export class Npc extends BaseFullCharacter {
       this.server._npcs,
       this.characterId,
       "Character.PlayAnimation",
+      { characterId: this.characterId, animationName }
+    );
+  }
+
+  removeEffectTag(effectId: number) {
+    const index = this.effectTags.indexOf(effectId);
+    if (index <= -1) return;
+    this.effectTags.splice(index, 1);
+    this.server.sendDataToAllWithSpawnedEntity(
+      this.server._npcs,
+      this.characterId,
+      "Character.RemoveEffectTagCompositeEffect",
       {
         characterId: this.characterId,
-        animationName: animationName
+        effectId: effectId,
+        newEffectId: 0
       }
     );
   }
 
   applyDamage(characterId: string) {
     const client = this.server.getClientByCharId(characterId);
-    if (client) {
+    if (client?.isLoading === false) {
       const damageInfo: DamageInfo = {
         entity: this.characterId,
         weapon: Items.WEAPON_MACHETE01,
@@ -156,7 +181,34 @@ export class Npc extends BaseFullCharacter {
           hitLocation: client.character.meleeHit.abilityHitLocation
         }
       };
+      const mountedVehicleId = client.vehicle.mountedVehicle;
+      if (mountedVehicleId) {
+        const vehicle = this.server._vehicles[mountedVehicleId];
+        if (vehicle) {
+          vehicle.OnMeleeHit(this.server, damageInfo);
+          return;
+        }
+      }
+
       client.character.OnMeleeHit(this.server, damageInfo);
+      if (this.server.isSurvival() && this.server.infectionEnabled) {
+        const virus = client.character._resources[ResourceIds.VIRUS];
+        if (virus > 0) {
+          client.character.immunity = Math.max(
+            0,
+            client.character.immunity - 50
+          );
+        } else {
+          client.character._resources[ResourceIds.VIRUS] = 200;
+          this.server.updateResource(
+            client,
+            client.character.characterId,
+            200,
+            ResourceIds.VIRUS,
+            ResourceTypes.VIRUS
+          );
+        }
+      }
     } else {
       console.log(
         `CharacterId ${characterId} not found when applying damage from npc`
@@ -170,8 +222,6 @@ export class Npc extends BaseFullCharacter {
       const sourceEntity = server.getEntity(damageInfo.entity);
       if (sourceEntity instanceof ProjectileEntity) {
         client = server.getClientByCharId(sourceEntity.managerCharacterId);
-      } else {
-        return;
       }
     }
     const oldHealth = this.health;
@@ -180,18 +230,7 @@ export class Npc extends BaseFullCharacter {
       this.deathTime = Date.now();
       this.flags.knockedOut = 1;
 
-      // Custom lootbag for zombies
-      switch (this.actorModelId) {
-        case ModelIds.ZOMBIE_FEMALE_WALKER:
-        case ModelIds.ZOMBIE_MALE_WALKER:
-        case ModelIds.ZOMBIE_SCREAMER: {
-          this.addZombieLoot(server);
-          break;
-        }
-        default:
-          server.worldObjectManager.createLootbag(server, this);
-          break;
-      }
+      this.addLoot(server);
 
       if (client) {
         if (this.npcId === NpcIds.ZOMBIE) {
@@ -256,129 +295,6 @@ export class Npc extends BaseFullCharacter {
     }
   }
 
-  addZombieLoot(server: ZoneServer2016) {
-    const lootItems: any[] = [];
-
-    const wornLetters = [
-      Items.WORN_LETTER_CHURCH_PV,
-      Items.WORN_LETTER_LJ_PV,
-      Items.WORN_LETTER_MISTY_DAM,
-      Items.WORN_LETTER_RADIO,
-      Items.WORN_LETTER_RUBY_LAKE,
-      Items.WORN_LETTER_TOXIC_LAKE,
-      Items.WORN_LETTER_VILLAS,
-      Items.WORN_LETTER_WATER_TOWER
-    ];
-    // Worn letter (4% chance, up to 2)
-    if (chance(50)) {
-      const randomWornLetter =
-        wornLetters[randomIntFromInterval(0, wornLetters.length - 1)];
-      const wornLetterItem = server.generateItem(randomWornLetter, 1);
-      if (wornLetterItem) {
-        lootItems.push(wornLetterItem);
-      }
-    }
-
-    const GoodammoTypes = [
-      Items.AMMO_12GA,
-      Items.AMMO_223,
-      Items.AMMO_308,
-      Items.AMMO_762
-    ];
-    // Ammo (5% chance)
-    if (chance(50)) {
-      for (let i = 0; i < 2; i++) {
-        const randomAmmo =
-          GoodammoTypes[randomIntFromInterval(0, GoodammoTypes.length - 1)];
-        const ammoCount = randomIntFromInterval(1, 3);
-        const ammoItem = server.generateItem(randomAmmo, ammoCount);
-        if (ammoItem) {
-          lootItems.push(ammoItem);
-        }
-      }
-    }
-
-    const ammoTypes = [Items.AMMO_380, Items.AMMO_9MM, Items.AMMO_45];
-    // Ammo (10% chance)
-    if (chance(100)) {
-      for (let i = 0; i < ammoTypes.length - 1; i++) {
-        const randomAmmo =
-          ammoTypes[randomIntFromInterval(0, ammoTypes.length - 1)];
-        const ammoCount = randomIntFromInterval(1, 5);
-        const ammoItem = server.generateItem(randomAmmo, ammoCount);
-        if (ammoItem) {
-          lootItems.push(ammoItem);
-        }
-      }
-    }
-
-    const specialItems = [
-      Items.WEAPON_BOW_MAKESHIFT,
-      Items.BACKPACK_BLUE_ORANGE,
-      Items.CRUMPLED_NOTE,
-      Items.REFRIGERATOR_NOTE
-    ];
-    // Special item (15% chance)
-    if (chance(150)) {
-      for (let i = 0; i < specialItems.length - 1; i++) {
-        const randomSpecial =
-          specialItems[randomIntFromInterval(0, specialItems.length - 1)];
-        const specialItem = server.generateItem(randomSpecial, 1);
-        if (specialItem) {
-          lootItems.push(specialItem);
-        }
-      }
-    }
-
-    // Prototype item (1% chance)
-    const PrototypeItems = [
-      Items.PROTOTYPE_MECHANISM,
-      Items.PROTOTYPE_RECEIVER,
-      Items.PROTOTYPE_TRIGGER_ASSEMBLY
-    ];
-    if (chance(10)) {
-      const randomSpecial =
-        PrototypeItems[randomIntFromInterval(0, PrototypeItems.length - 1)];
-      const specialItem = server.generateItem(randomSpecial, 1);
-      if (specialItem) {
-        lootItems.push(specialItem);
-      }
-    }
-
-    // Cloth (80% chance)
-    if (chance(800)) {
-      const clothCount = randomIntFromInterval(1, 3);
-      const clothItem = server.generateItem(Items.CLOTH, clothCount);
-      if (clothItem) {
-        lootItems.push(clothItem);
-      }
-    }
-
-    // Only spawn lootbag if there is loot
-    if (lootItems.length === 0) return;
-
-    const characterId = generateRandomGuid();
-    const lootbag = new Lootbag(
-      characterId,
-      server.getTransientId(characterId),
-      ModelIds.LOOT_BAG_CLEAN,
-      new Float32Array([
-        this.state.position[0] + 0.7,
-        this.state.position[1],
-        this.state.position[2] + 0.7
-      ]),
-      new Float32Array([0, 0, 0, 0]),
-      server
-    );
-    const container = lootbag.getContainer();
-
-    for (const item of lootItems) {
-      server.addContainerItem(lootbag, item, container as LoadoutContainer);
-    }
-
-    server._lootbags[characterId] = lootbag;
-  }
-
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
     server.sendData(client, "LightweightToFullNpc", this.pGetFull(server));
 
@@ -439,77 +355,21 @@ export class Npc extends BaseFullCharacter {
     if (!this.isAlive) return; // prevent dead npc despawning from melee dmg
     damageInfo.damage = damageInfo.damage / 1.5;
     this.damage(server, damageInfo);
+
+    const client = server.getClientByCharId(damageInfo.entity);
+    if (!client) return;
+    const weapon = client.character.getEquippedWeapon();
+    if (!weapon) return;
+
+    const durabilityDamage = server.getDurabilityDamage(
+      weapon.itemDefinitionId
+    );
+
+    server.damageItem(client.character, weapon, durabilityDamage);
   }
 
   destroy(server: ZoneServer2016): boolean {
     return server.deleteEntity(this.characterId, server._npcs);
-  }
-
-  initNpcData() {
-    switch (this.actorModelId) {
-      case ModelIds.ZOMBIE_SCREAMER:
-        this.nameId = StringIds.BANSHEE;
-        this.npcId = NpcIds.ZOMBIE;
-        break;
-      case ModelIds.ZOMBIE_FEMALE_WALKER:
-      case ModelIds.ZOMBIE_MALE_WALKER:
-        this.nameId = StringIds.ZOMBIE_WALKER;
-        this.rewardItems = [
-          {
-            itemDefId: Items.BRAIN_INFECTED,
-            weight: 10
-          }
-        ];
-        this.npcId = NpcIds.ZOMBIE;
-        break;
-      case ModelIds.DEER_BUCK:
-      case ModelIds.DEER:
-        this.nameId = StringIds.DEER;
-        this.rewardItems = [
-          {
-            itemDefId: Items.MEAT_VENISON,
-            weight: 30
-          },
-          {
-            itemDefId: Items.ANIMAL_FAT,
-            weight: 20
-          },
-          {
-            itemDefId: Items.DEER_BLADDER,
-            weight: 10
-          }
-        ];
-        this.npcId = NpcIds.DEER;
-        break;
-      case ModelIds.WOLF:
-        this.nameId = StringIds.WOLF;
-        this.rewardItems = [
-          {
-            itemDefId: Items.MEAT_WOLF,
-            weight: 30
-          },
-          {
-            itemDefId: Items.ANIMAL_FAT,
-            weight: 20
-          }
-        ];
-        this.npcId = NpcIds.WOLF;
-        break;
-      case ModelIds.BEAR:
-        this.nameId = StringIds.BEAR;
-        this.rewardItems = [
-          {
-            itemDefId: Items.MEAT_BEAR,
-            weight: 40
-          },
-          {
-            itemDefId: Items.ANIMAL_FAT,
-            weight: 20
-          }
-        ];
-        this.npcId = NpcIds.BEAR;
-        break;
-    }
   }
 
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
@@ -526,34 +386,7 @@ export class Npc extends BaseFullCharacter {
     const skinningKnife = client.character.getItemById(Items.SKINNING_KNIFE);
     if (!this.isAlive && skinningKnife) {
       server.utilizeHudTimer(client, this.nameId, 5000, 0, () => {
-        switch (this.actorModelId) {
-          case ModelIds.ZOMBIE_FEMALE_WALKER:
-          case ModelIds.ZOMBIE_MALE_WALKER:
-          case ModelIds.ZOMBIE_SCREAMER:
-            const emptySyringe = client.character.getItemById(
-              Items.SYRINGE_EMPTY
-            );
-            if (emptySyringe) {
-              client.character.lootContainerItem(
-                server,
-                server.generateItem(Items.SYRINGE_INFECTED_BLOOD)
-              );
-              server.removeInventoryItem(client.character, emptySyringe);
-              return;
-            }
-            this.triggerAwards(server, client, this.rewardItems);
-            break;
-          case ModelIds.DEER_BUCK:
-          case ModelIds.DEER:
-            this.triggerAwards(server, client, this.rewardItems);
-            break;
-          case ModelIds.BEAR:
-            this.triggerAwards(server, client, this.rewardItems);
-            break;
-          case ModelIds.WOLF:
-            this.triggerAwards(server, client, this.rewardItems);
-            break;
-        }
+        this.onHarvest(server, client);
         server.damageItem(client.character, skinningKnife, 200);
         server.deleteEntity(this.characterId, server._npcs);
       });
@@ -613,23 +446,7 @@ export class Npc extends BaseFullCharacter {
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     if (!this.isAlive && client.character.hasItem(Items.SKINNING_KNIFE)) {
-      switch (this.actorModelId) {
-        case ModelIds.ZOMBIE_FEMALE_WALKER:
-        case ModelIds.ZOMBIE_MALE_WALKER:
-        case ModelIds.ZOMBIE_SCREAMER:
-          if (client.character.hasItem(Items.SYRINGE_EMPTY)) {
-            this.sendInteractionString(server, client, StringIds.EXTRACT_BLOOD);
-            return;
-          }
-          this.sendInteractionString(server, client, StringIds.HARVEST);
-          break;
-        case ModelIds.DEER_BUCK:
-        case ModelIds.DEER:
-        case ModelIds.WOLF:
-        case ModelIds.BEAR:
-          this.sendInteractionString(server, client, StringIds.HARVEST);
-          break;
-      }
+      this.buildInteractionString(server, client);
     }
   }
 
@@ -647,28 +464,103 @@ export class Npc extends BaseFullCharacter {
       }
     );
   }
+
+  stopMovement() {
+    if (!this.navAgent) return;
+    this.navAgent.resetMoveTarget();
+  }
+
   goTo(position: Float32Array) {
-    const angleInRadians2 = Math.random() * (2 * Math.PI) - Math.PI;
-    const angleInRadians = Math.atan2(
-      position[1] - this.state.position[1],
-      getDistance(this.state.position, position)
-    );
+    const orientTarget = this.lookAtTarget ?? position;
+    const dx = orientTarget[0] - this.state.position[0];
+    const dz = orientTarget[2] - this.state.position[2];
+    const dy = orientTarget[1] - this.state.position[1];
+
+    const horizontalDist = Math.sqrt(dx * dx + dz * dz);
+    const orientation = Math.atan2(dx, dz);
+    const prevOrientation = this.state.yaw ?? orientation;
+    let angleChange = orientation - prevOrientation;
+    // normalize to [-π, π]
+    angleChange = Math.atan2(Math.sin(angleChange), Math.cos(angleChange));
+    this.state.yaw = orientation;
+    const frontTilt = Math.atan2(dy, horizontalDist);
+
+    const sinO = Math.sin(orientation);
+    const cosO = Math.cos(orientation);
+
+    const lateralDist = dx * cosO - dz * sinO;
+
+    const sideTilt = Math.atan2(lateralDist, horizontalDist);
+
     this.state.position = position;
-    this.server.sendDataToAll("PlayerUpdatePosition", {
-      transientId: this.transientId,
-      positionUpdate: {
-        sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
-        position: this.state.position,
-        unknown3_int8: 0,
-        stance: 66565,
-        engineRPM: 0,
-        orientation: angleInRadians2,
-        frontTilt: 0,
-        sideTilt: 0,
-        angleChange: 0,
-        verticalSpeed: angleInRadians,
-        horizontalSpeed: 0.5
+
+    let horizontalSpeed = horizontalDist;
+    let verticalSpeed = Math.abs(dy);
+    if (this.navAgent) {
+      const vel = this.navAgent.velocity();
+      horizontalSpeed = metersToFeet(Math.sqrt(vel.x * vel.x + vel.z * vel.z));
+      verticalSpeed = metersToFeet(Math.abs(vel.y));
+    }
+
+    this.server.sendDataToAllWithSpawnedEntity(
+      this.server._npcs,
+      this.characterId,
+      "PlayerUpdatePosition",
+      {
+        transientId: this.transientId,
+        positionUpdate: {
+          sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
+          position: this.state.position,
+          unknown3_int8: 0,
+          stance: 66565,
+          engineRPM: 0,
+          orientation,
+          frontTilt,
+          sideTilt,
+          angleChange,
+          verticalSpeed,
+          horizontalSpeed
+        }
       }
-    });
+    );
+  }
+
+  lookAt(targetPosition: Float32Array) {
+    const dx = targetPosition[0] - this.state.position[0];
+    const dz = targetPosition[2] - this.state.position[2];
+    const dy = targetPosition[1] - this.state.position[1];
+    const horizontalDist = Math.sqrt(dx * dx + dz * dz);
+    const orientation = Math.atan2(dx, dz);
+    const prevOrientation = this.state.yaw ?? orientation;
+    let angleChange = orientation - prevOrientation;
+    angleChange = Math.atan2(Math.sin(angleChange), Math.cos(angleChange));
+    this.state.yaw = orientation;
+    const frontTilt = Math.atan2(dy, horizontalDist);
+    const sinO = Math.sin(orientation);
+    const cosO = Math.cos(orientation);
+    const lateralDist = dx * cosO - dz * sinO;
+    const sideTilt = Math.atan2(lateralDist, horizontalDist);
+
+    this.server.sendDataToAllWithSpawnedEntity(
+      this.server._npcs,
+      this.characterId,
+      "PlayerUpdatePosition",
+      {
+        transientId: this.transientId,
+        positionUpdate: {
+          sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
+          position: this.state.position,
+          unknown3_int8: 0,
+          stance: 66565,
+          engineRPM: 0,
+          orientation,
+          frontTilt,
+          sideTilt,
+          angleChange,
+          verticalSpeed: 0,
+          horizontalSpeed: 0
+        }
+      }
+    );
   }
 }

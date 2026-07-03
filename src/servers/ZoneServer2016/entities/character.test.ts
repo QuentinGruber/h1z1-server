@@ -6,7 +6,8 @@ import {
   createFakeCharacter,
   createFakeZoneClient
 } from "../../../utils/test.utils";
-import { Npc } from "./npc";
+import { ZombieWalker } from "./zombiewalker";
+import { ModelIds } from "../models/enums";
 
 process.env.FORCE_DISABLE_WS = "true";
 test("Damage-pve", { timeout: 10000 }, async (t) => {
@@ -44,10 +45,10 @@ test("Damage-npc-pvp", { timeout: 10000 }, async (t) => {
   const character = createFakeCharacter(zone);
   createFakeZoneClient(zone, character);
   const zguid = zone.generateGuid();
-  const damager = new Npc(
+  const damager = new ZombieWalker(
     zguid,
     zone.getTransientId(zguid),
-    9510,
+    ModelIds.ZOMBIE_FEMALE_WALKER,
     new Float32Array([0, 0, 0, 1]),
     new Float32Array([0, 0, 0, 1]),
     zone
@@ -81,10 +82,10 @@ test("Damage-npc-pve", { timeout: 10000 }, async (t) => {
   const character = createFakeCharacter(zone);
   createFakeZoneClient(zone, character);
   const zguid = zone.generateGuid();
-  const damager = new Npc(
+  const damager = new ZombieWalker(
     zguid,
     zone.getTransientId(zguid),
-    9510,
+    ModelIds.ZOMBIE_FEMALE_WALKER,
     new Float32Array([0, 0, 0, 1]),
     new Float32Array([0, 0, 0, 1]),
     zone

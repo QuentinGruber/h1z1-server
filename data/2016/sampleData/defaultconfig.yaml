@@ -111,10 +111,14 @@ worldobjects:
   vehicleSpawnCap: 120
   # How far any other vehicle has to be for another to spawn
   vehicleSpawnRadius: 50
+
+  npcSpawnCap: 1000
   # How far another spawned npc has to be for another to spawn
-  npcSpawnRadius: 3
+  npcSpawnRadius: 2
   chanceNpc: 100 # To be reworked: 100 max
-  chanceScreamer: 5 # To be reworked: 1000 max
+  chanceScreamer: 50 # To be reworked: 1000 max
+  chanceGasser: 0 # DISABLED for now 1000 max (rolled only on normal walkers)
+  chanceExploder: 50 # 1000 max (rolled only on normal walkers)
 
   chanceWornLetter: 1 # 100 max
 
@@ -206,3 +210,9 @@ groups:
   enabled: true
   player_limit: 12
   foundation_player_limit: 12
+
+ai:
+  enabled: true
+  aiTickRate: 200 # ms between AI FSM (zombie state machine) ticks
+  pathfindingUpdateRate: 150 # ms between pathfinding simulation and position sync
+  infection: false

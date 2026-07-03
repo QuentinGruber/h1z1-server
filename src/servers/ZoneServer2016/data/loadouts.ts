@@ -113,6 +113,177 @@ export const characterSkinsLoadout = [
   { item: Items.FULLY_GEARED_EXPLORER_BACKPACK }
 ];
 
+export const zombieShirts: Items[] = [
+  Items.SHIRT_DEFAULT,
+  Items.CAMO_TAN_FLANNEL_SHIRT,
+  Items.BLUE_FLANNEL_SHIRT,
+  Items.BROWN_FLANNEL_SHIRT,
+  Items.GREEN_FLANNEL_SHIRT,
+  Items.RED_FLANNEL_SHIRT,
+  Items.PAISLEY_FLANNEL_SHIRT,
+  Items.CAMO_GREEN_FLANNEL_SHIRT,
+  Items.SHIRT_SCRUBS_BLUE,
+  Items.SHIRT_SCRUBS_GRAY,
+  Items.PARAMEDIC_UNIFORM,
+  Items.POLICE_SHIRT,
+  Items.BASIC_HOODIE,
+  Items.HAPPY_SKULL_SCRUBS_SHIRT,
+  Items.MILITARY_SCRUBS_SHIRT,
+  Items.HUGZ_NEEDED_SCRUBS_SHIRT,
+  Items.KURAMA_MEDICAL_SCRUBS_SHIRT
+];
+
+export const zombiePants: Items[] = [
+  Items.PANTS_DEFAULT,
+  Items.FLOWER_PRINT_PANTS,
+  Items.POLICE_SLACKS,
+  Items.LEGGINGS,
+  Items.PANTS_SCRUBS_BLUE,
+  Items.PANTS_SCRUBS_GRAY,
+  Items.HAPPY_SKULL_SCRUBS_PANTS,
+  Items.MILITARY_SCRUBS_PANTS,
+  Items.HUGZ_NEEDED_SCRUBS_PANTS,
+  Items.KURAMA_MEDICAL_SCRUBS_PANTS
+];
+
+export const zombieBoots: Items[] = [
+  Items.BOOTS_GRAY_BLUE,
+  Items.CONVEYS_RED,
+  Items.CONVEYS_BLUE,
+  Items.CONVEYS_WHITE,
+  Items.BOOTS_TAN
+];
+
+export const zombieHats: Items[] = [
+  Items.AVIATOR_CAP,
+  Items.BLACK_BEANIE,
+  Items.POLICE_HAT,
+  Items.CAP_SCRUBS_BLUE,
+  Items.CAP_SCRUBS_GRAY,
+  Items.HAPPY_SKULL_SCRUBS_CAP,
+  Items.MILITARY_SCRUBS_CAP,
+  Items.HUGZ_NEEDED_SCRUBS_CAP,
+  Items.KURAMA_MEDICAL_SCRUBS_CAP
+];
+
+export const green_scrubs: Items[] = [
+  Items.GREEN_SCRUBS_SHIRT,
+  Items.GREEN_SCRUBS_PANTS,
+  Items.GREEN_SCRUBS_CAP
+];
+
+export const red_scrubs: Items[] = [
+  Items.RED_SCRUBS_SHIRT,
+  Items.RED_SCRUBS_PANTS,
+  Items.RED_SCRUBS_CAP
+];
+
+export const blue_scrubs: Items[] = [
+  Items.SHIRT_SCRUBS_BLUE,
+  Items.PANTS_SCRUBS_BLUE,
+  Items.CAP_SCRUBS_BLUE
+];
+
+export const gray_scrubs: Items[] = [
+  Items.SHIRT_SCRUBS_GRAY,
+  Items.PANTS_SCRUBS_GRAY,
+  Items.CAP_SCRUBS_GRAY
+];
+
+export const kurama_medical_scrubs: Items[] = [
+  Items.KURAMA_MEDICAL_SCRUBS_SHIRT,
+  Items.KURAMA_MEDICAL_SCRUBS_PANTS,
+  Items.KURAMA_MEDICAL_SCRUBS_CAP
+];
+
+export const happy_skull_scrubs: Items[] = [
+  Items.HAPPY_SKULL_SCRUBS_SHIRT,
+  Items.HAPPY_SKULL_SCRUBS_PANTS,
+  Items.HAPPY_SKULL_SCRUBS_CAP
+];
+
+export const military_scrubs: Items[] = [
+  Items.MILITARY_SCRUBS_SHIRT,
+  Items.MILITARY_SCRUBS_PANTS,
+  Items.MILITARY_SCRUBS_CAP
+];
+
+export const hugz_needed_scrubs: Items[] = [
+  Items.HUGZ_NEEDED_SCRUBS_SHIRT,
+  Items.HUGZ_NEEDED_SCRUBS_PANTS,
+  Items.HUGZ_NEEDED_SCRUBS_CAP
+];
+
+export function getRandomZombieLoadout(): LoadoutKit {
+  const loadout: LoadoutKit = [
+    { item: zombieShirts[Math.floor(Math.random() * zombieShirts.length)] },
+    { item: zombiePants[Math.floor(Math.random() * zombiePants.length)] },
+    { item: zombieBoots[Math.floor(Math.random() * zombieBoots.length)] }
+  ];
+  if (Math.random() < 0.5) {
+    loadout.push({
+      item: zombieHats[Math.floor(Math.random() * zombieHats.length)]
+    });
+  }
+  return loadout;
+}
+
+export function getSpecifiedZombieLoadout(name: string): LoadoutKit {
+  let loadout: LoadoutKit = [];
+  switch (name) {
+    case "Hunter":
+      loadout = [
+        { item: Items.WEAPON_CROSSBOW },
+        { item: Items.HUNTING_POLO },
+        { item: Items.BROWN_CAMO_PANTS },
+        { item: Items.BOOTS_TAN },
+        { item: Items.SNIPER_FINGERLESS_GLOVES },
+        { item: Items.SNIPER_LAMINATED_BODY_ARMOR },
+        { item: Items.HAT_BEANIE }
+      ];
+      return loadout;
+    case "Sniper":
+      loadout = [
+        { item: Items.WEAPON_308 },
+        { item: Items.SNIPER_BOOTS },
+        { item: Items.SNIPER_CAMO_PADDED_PANTS },
+        { item: Items.SNIPER_FINGERLESS_GLOVES },
+        { item: Items.SNIPER_LAMINATED_BODY_ARMOR },
+        { item: Items.SNIPER_TACTICAL_HELMET },
+        { item: Items.SNIPER_FARMER_JACKET }
+      ];
+      return loadout;
+    case "Assault":
+      loadout = [
+        { item: Items.WEAPON_COMBAT_SHOTGUN },
+        { item: Items.HEAVY_ASSAULT_POLO_SHIRT },
+        { item: Items.HEAVY_ASSAULT_COMBAT_BOOTS },
+        { item: Items.HEAVY_ASSAULT_FULL_HELMET },
+        { item: Items.HEAVY_ASSAULT_BODY_ARMOR },
+        { item: Items.HEAVY_ASSAULT_PADDED_GLOVES },
+        { item: Items.HEAVY_ASSAULT_MILITARY_PANTS }
+      ];
+      return loadout;
+    case "Nurse":
+      const allScrubs = [
+        green_scrubs,
+        red_scrubs,
+        blue_scrubs,
+        gray_scrubs,
+        kurama_medical_scrubs,
+        happy_skull_scrubs,
+        military_scrubs,
+        hugz_needed_scrubs
+      ];
+      const selectedScrubs =
+        allScrubs[Math.floor(Math.random() * allScrubs.length)];
+      loadout = selectedScrubs.map((item) => ({ item }));
+      return loadout;
+    default:
+      return getRandomZombieLoadout();
+  }
+}
+
 export const characterVehicleKit = [
   { item: Items.SPARKPLUGS },
   { item: Items.VEHICLE_KEY },

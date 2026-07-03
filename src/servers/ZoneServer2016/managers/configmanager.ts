@@ -118,7 +118,8 @@ export class ConfigManager {
       decay,
       smelting,
       randomevents,
-      groups
+      groups,
+      ai
     } = this.defaultConfig;
     return {
       ...this.defaultConfig,
@@ -178,6 +179,10 @@ export class ConfigManager {
       groups: {
         ...groups,
         ...config.groups
+      },
+      ai: {
+        ...ai,
+        ...config.ai
       }
     };
   }
@@ -280,6 +285,11 @@ export class ConfigManager {
     this.applyEnvToSection(
       "GROUPS",
       this.config.groups as unknown as Record<string, unknown>,
+      normalizedEnv
+    );
+    this.applyEnvToSection(
+      "AI",
+      this.config.ai as unknown as Record<string, unknown>,
       normalizedEnv
     );
 
@@ -466,9 +476,12 @@ export class ConfigManager {
       maxItemDespawnsPerRun,
       chanceWornLetter,
       vehicleSpawnRadius,
+      npcSpawnCap,
       npcSpawnRadius,
       chanceNpc,
       chanceScreamer,
+      chanceGasser,
+      chanceExploder,
       lootbagDespawnTimer,
       crowbarHitRewardChance,
       crowbarHitDamage,
@@ -476,6 +489,7 @@ export class ConfigManager {
       gridScrapLimitEnabled
     } = this.config.worldobjects;
     server.worldObjectManager.vehicleSpawnCap = vehicleSpawnCap;
+    server.worldObjectManager.npcSpawnCap = npcSpawnCap;
     server.worldObjectManager.hasCustomLootRespawnTime =
       hasCustomLootRespawnTime;
     server.worldObjectManager.lootRespawnTimer = lootRespawnTimer;
@@ -495,6 +509,8 @@ export class ConfigManager {
     server.worldObjectManager.npcSpawnRadius = npcSpawnRadius;
     server.worldObjectManager.chanceNpc = chanceNpc;
     server.worldObjectManager.chanceScreamer = chanceScreamer;
+    server.worldObjectManager.chanceGasser = chanceGasser;
+    server.worldObjectManager.chanceExploder = chanceExploder;
 
     server.worldObjectManager.chanceWornLetter = chanceWornLetter;
 
@@ -612,6 +628,21 @@ export class ConfigManager {
     server.groupManager.playerLimit = player_limit;
     server.groupManager.foundationPlayerLimit = foundation_player_limit;
     server.groupManager.enabled = enabled;
+    //#endregion
+
+    //#region ai
+    const {
+      enabled: aiEnabled,
+      aiTickRate,
+      pathfindingUpdateRate,
+      infection
+    } = this.config.ai;
+    server.aiEnabled = aiEnabled;
+    server.aiTickRate = aiTickRate;
+    server.pathfindingUpdateRate = pathfindingUpdateRate;
+    server.infectionEnabled = infection;
+    // TODO: add to config
+    server.navManager.updateFrequency = 1 / 60;
     //#endregion
   }
 }
