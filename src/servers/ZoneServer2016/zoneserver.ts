@@ -10606,8 +10606,24 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   updatePathfindingPositions(): void {
+    // streaming navmesh: load the fine tiles around live players, unload the rest
+    if (this.navManager.streaming) {
+      const playerPositions: Float32Array[] = [];
+      for (const k in this._characters) {
+        const c = this._characters[k];
+        if (c.isAlive) playerPositions.push(c.state.position);
+      }
+      this.navManager.streamAround(playerPositions);
+    }
     for (const k in this._npcs) {
       const npc = this._npcs[k];
+      if (!npc.navAgent) {
+        // streaming: an NPC spawned where no navmesh tile was loaded yet gets no
+        // agent; retry once a player's window has streamed its tile in (else
+        // natural world spawns far from any player simply stay agentless).
+        npc.navAgent =
+          this.navManager.createAgent(npc.state.position) ?? undefined;
+      }
       if (npc.navAgent) {
         const navPos = npc.navAgent.interpolatedPosition;
         const gamePos = NavManager.navToGame(navPos);
@@ -10615,6 +10631,17 @@ export class ZoneServer2016 extends EventEmitter {
           gamePos[0] != npc.state.position[0] ||
           gamePos[2] != npc.state.position[2]
         ) {
+          // guard: skip absurd / off-map agent positions. An agent placed
+          // off-navmesh can yield garbage interpolated coords, which crash
+          // PlayerUpdatePosition serialization (uint32 out of range).
+          if (
+            !Number.isFinite(gamePos[0]) ||
+            !Number.isFinite(gamePos[2]) ||
+            Math.abs(gamePos[0]) > 4096 ||
+            Math.abs(gamePos[2]) > 4096
+          ) {
+            continue;
+          }
           npc.goTo(gamePos);
         }
       }

@@ -784,6 +784,12 @@ const dev: any = {
     );
     const a = server.navManager.createAgent(zombie.state.position);
     zombie.navAgent = a;
+    if (!a) {
+      console.log(
+        "[ZOMBIE-DEBUG] no navmesh under spawn point, agent deferred"
+      );
+      return;
+    }
     // Sync zombie to its navmesh spawn point converted back to game coords
     const initialGamePos = NavManager.navToGame(a.position());
     zombie.state.position = initialGamePos;
