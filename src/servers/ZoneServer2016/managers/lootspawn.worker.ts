@@ -93,10 +93,7 @@ interface DespawnRequest {
 }
 
 type WorkerRequest =
-  | LootPlanRequest
-  | ContainerPlanRequest
-  | NpcPlanRequest
-  | DespawnRequest;
+  LootPlanRequest | ContainerPlanRequest | NpcPlanRequest | DespawnRequest;
 
 interface LootPlanEntry {
   spawnerId: number;
@@ -362,8 +359,7 @@ function resolveEntry(
   if (type === "loot_table") {
     const table =
       (containerTables[entry.table ?? ""] as
-        | { pools: LootPool[] }
-        | undefined) ??
+        { pools: LootPool[] } | undefined) ??
       (groundTables[entry.table ?? ""] as { pools: LootPool[] } | undefined);
     if (!table) return null;
     const eligible = getEligibleEntries(table.pools, ctx);

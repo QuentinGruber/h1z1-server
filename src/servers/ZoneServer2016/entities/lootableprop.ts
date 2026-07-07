@@ -280,12 +280,14 @@ export class LootableProp extends BaseLootableEntity {
     isInstant?: boolean
     /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
-    if (this.actorModelId == ModelIds.HOSPITAL_GROSSING_STATION && client.character.hasItem(Items.VIAL_H1Z1_B_INFECTED_BLOOD)) {
+    if (
+      this.actorModelId == ModelIds.HOSPITAL_GROSSING_STATION &&
+      client.character.hasItem(Items.VIAL_H1Z1_B_INFECTED_BLOOD)
+    ) {
       const requiredItemId = Items.VIAL_H1Z1_B_INFECTED_BLOOD;
       const requiredCount = 1;
-      const inventoryCount = client.character.getInventoryItemAmount(
-        requiredItemId
-      );
+      const inventoryCount =
+        client.character.getInventoryItemAmount(requiredItemId);
 
       if (requiredCount > inventoryCount) {
         return;

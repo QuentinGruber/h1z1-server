@@ -3393,5 +3393,5 @@ export const recipes: { [recipeId: number]: Recipe } = {
         requiredAmount: 1
       }
     ]
-  },
+  }
 };

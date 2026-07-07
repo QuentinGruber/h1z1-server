@@ -783,10 +783,6 @@ export enum AccountItems {
   MYSTERY_BAG_V2 = 2033
 }
 export enum Items {
-  
-  
-
-
   // region test
   HEAVY_ASSAULT_POLO_SHIRT = 3170,
   HEAVY_ASSAULT_COMBAT_BOOTS = 3180,

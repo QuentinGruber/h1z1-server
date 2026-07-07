@@ -223,9 +223,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
    * uses CharacterId (string) for indexing */
   freeplaceEntities: {
     [characterId: string]:
-      | ConstructionChildEntity
-      | ConstructionDoor
-      | LootableConstructionEntity;
+      ConstructionChildEntity | ConstructionDoor | LootableConstructionEntity;
   } = {};
 
   constructor(
@@ -553,9 +551,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
 
   addFreeplaceConstruction(
     entity:
-      | ConstructionChildEntity
-      | ConstructionDoor
-      | LootableConstructionEntity
+      ConstructionChildEntity | ConstructionDoor | LootableConstructionEntity
   ) {
     this.freeplaceEntities[entity.characterId] = entity;
   }

@@ -156,7 +156,7 @@ export class ProjectileEntity extends BaseLightweightCharacter {
     this.triggered = true;
     let effectId = 0;
     let effectType = 0;
-    let effectTime
+    let effectTime;
     const sendToThrower = true;
     switch (this.itemDefinitionId) {
       case Items.GRENADE_FLASH:
