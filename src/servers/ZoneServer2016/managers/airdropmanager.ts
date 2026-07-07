@@ -60,9 +60,12 @@ export class AirdropManager {
       dirX = Math.random() * 0.4 - 0.2;
     }
 
-    const length = Math.hypot(dirX, dirZ);
+    const length = Math.hypot(dirX, dirZ) || 1;
     dirX /= length;
     dirZ /= length;
+
+    if (Math.sign(dirX) != (Math.sign(playerX) || 1)) dirX = -dirX;
+    if (Math.sign(dirZ) != (Math.sign(playerZ) || 1)) dirZ = -dirZ;
 
     const maxDist = mapBound * 1.5;
 
