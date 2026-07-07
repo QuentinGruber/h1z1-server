@@ -143,10 +143,10 @@
         },
         {
           "item": 3040,
-          "weight": 100,
+          "weight": 50,
           "count": {
-            "min": 0,
-            "max": 3
+            "min": 1,
+            "max": 2
           }
         }
       ]
