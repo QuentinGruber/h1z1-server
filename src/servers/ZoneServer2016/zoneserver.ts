@@ -18,6 +18,7 @@ const debugName = "ZoneServer",
 import { EventEmitter } from "node:events";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import { LoginConnectionManager } from "../LoginZoneConnection/loginconnectionmanager";
+import { WsLoginConnectionManager } from "../LoginZoneConnection/wsloginconnectionmanager";
 import { LZConnectionClient } from "../LoginZoneConnection/shared/lzconnectionclient";
 import { Resolver } from "node:dns";
 
@@ -342,7 +343,9 @@ export class ZoneServer2016 extends EventEmitter {
   _serverName = process.env.SERVER_NAME || "";
   readonly _mongoAddress: string;
   private _clientProtocol: string;
-  protected _loginConnectionManager!: LoginConnectionManager;
+  protected _loginConnectionManager!:
+    | LoginConnectionManager
+    | WsLoginConnectionManager;
   _serverGuid = generateRandomGuid();
   _worldId = 0;
   _grid: GridCell[] = [];
@@ -898,10 +901,11 @@ export class ZoneServer2016 extends EventEmitter {
     this.commandHandler.reloadCommands();
   }
   async registerLoginConnectionListeners(internalServerPort?: number) {
-    this._loginConnectionManager = new LoginConnectionManager(
-      this._worldId,
-      internalServerPort
-    ); // opens local socket to connect to loginserver
+    // a per-server secret means this zone authenticates over ws; without one
+    // it falls back to the legacy UDP transport
+    this._loginConnectionManager = process.env.LZ_SERVER_SECRET
+      ? new WsLoginConnectionManager(this._worldId)
+      : new LoginConnectionManager(this._worldId, internalServerPort);
 
     this._loginConnectionManager.on(
       "session",
