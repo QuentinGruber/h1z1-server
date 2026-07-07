@@ -97,9 +97,14 @@ export class ProjectileEntity extends BaseLightweightCharacter {
         this.actorModelId = 9468;
         triggerTimeoutDelay = 1000;
         break;
+      case Items.GRENADE_SCREAM:
+        this.actorModelId = 9443;
+        triggerTimeoutDelay = 1000;
+        break;
       case Items.WEAPON_MOLOTOV:
         this.actorModelId = 9440;
         triggerTimeoutDelay = 0;
+        break;
       case Items.WEAPON_BOW_RECURVE:
         this.actorModelId = 0;
         triggerTimeoutDelay = 0;
@@ -151,6 +156,7 @@ export class ProjectileEntity extends BaseLightweightCharacter {
     this.triggered = true;
     let effectId = 0;
     let effectType = 0;
+    let effectTime
     const sendToThrower = true;
     switch (this.itemDefinitionId) {
       case Items.GRENADE_FLASH:
@@ -164,6 +170,11 @@ export class ProjectileEntity extends BaseLightweightCharacter {
       case Items.GRENADE_HE:
         effectId = 5301;
         effectType = 1;
+        break;
+      case Items.GRENADE_SCREAM:
+        effectId = 5260;
+        effectType = 3;
+        effectTime = 15;
         break;
       case Items.GRENADE_SMOKE:
         effectId = 2333;
@@ -189,7 +200,8 @@ export class ProjectileEntity extends BaseLightweightCharacter {
             {
               characterId: this.characterId,
               effectId: effectId,
-              position: this.state.position
+              position: this.state.position,
+              effectTime: effectTime ? effectTime : 0
             }
           );
         } else if (client) {
@@ -201,7 +213,8 @@ export class ProjectileEntity extends BaseLightweightCharacter {
             {
               characterId: this.characterId,
               effectId: effectId,
-              position: this.state.position
+              position: this.state.position,
+              effectTime: effectTime ? effectTime : 0
             }
           );
         }
@@ -255,13 +268,18 @@ export class ProjectileEntity extends BaseLightweightCharacter {
         }
       }, 1000);
     }
-
     if (this.itemDefinitionId == Items.WEAPON_MOLOTOV)
       server.explosionDamage(this);
 
     if (this.itemDefinitionId == Items.GRENADE_FLASH)
       server.explosionDamage(this);
+
+    if (this.itemDefinitionId == Items.GRENADE_SCREAM) {
+      server.explosionDamage(this);
+    }
+
     switch (this.itemDefinitionId) {
+      case Items.GRENADE_SCREAM:
       case Items.GRENADE_FLASH:
       case Items.GRENADE_HE:
       case Items.WEAPON_MOLOTOV:
