@@ -3379,19 +3379,5 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ],
     requireWeaponWorkbench: true
-  },
-  1148: {
-    rewardId: Items.GRENADE_SCREAM,
-    filterId: FilterIds.WEAPONS,
-    components: [
-      {
-        itemDefinitionId: Items.GRENADE_SONIC_BROKEN,
-        requiredAmount: 1
-      },
-      {
-        itemDefinitionId: Items.VIAL_H1Z1_B_PLASMA,
-        requiredAmount: 1
-      }
-    ]
   }
 };
