@@ -173,7 +173,7 @@ export class ProjectileEntity extends BaseLightweightCharacter {
         break;
       case Items.GRENADE_SCREAM:
         effectId = 5260;
-        effectType = 3;
+        effectType = 1;
         effectTime = 15;
         break;
       case Items.GRENADE_SMOKE:
@@ -193,16 +193,19 @@ export class ProjectileEntity extends BaseLightweightCharacter {
     switch (effectType) {
       case 1:
         if (sendToThrower) {
+          const packet: CharacterPlayWorldCompositeEffect = {
+            characterId: this.characterId,
+            effectId: effectId,
+            position: this.state.position
+          };
+          if (effectTime) {
+            packet.effectTime = effectTime;
+          }
           server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
             server._throwableProjectiles,
             this.characterId,
             "Character.PlayWorldCompositeEffect",
-            {
-              characterId: this.characterId,
-              effectId: effectId,
-              position: this.state.position,
-              effectTime: effectTime ? effectTime : 0
-            }
+            packet
           );
         } else if (client) {
           server.sendDataToAllOthersWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
@@ -213,8 +216,7 @@ export class ProjectileEntity extends BaseLightweightCharacter {
             {
               characterId: this.characterId,
               effectId: effectId,
-              position: this.state.position,
-              effectTime: effectTime ? effectTime : 0
+              position: this.state.position
             }
           );
         }
