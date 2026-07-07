@@ -202,7 +202,7 @@ export class ZombieScreamer extends Npc {
     if (emptyVial) {
       client.character.lootContainerItem(
         server,
-        server.generateItem(Items.VIAL_H1Z1_B_PLASMA)
+        server.generateItem(Items.VIAL_H1Z1_B_INFECTED_BLOOD)
       );
       server.removeInventoryItem(client.character, emptyVial);
       return;
