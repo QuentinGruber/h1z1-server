@@ -5244,7 +5244,8 @@ export class ZoneServer2016 extends EventEmitter {
             distance: entity.interactionDistance,
             disableInteractionGlow:
               entity instanceof ConstructionChildEntity ||
-              entity instanceof ConstructionParentEntity
+              entity instanceof ConstructionParentEntity ||
+              entity instanceof TemporaryEntity
           }
         }
       }

@@ -131,6 +131,7 @@ import {
   GrinderExchangeRequest,
   GrinderExchangeResponse,
   RagdollUpdatePose,
+  RagdollStop,
   AnimationRequest,
   ClientFinishedLoading,
   SynchronizedTeleportNotifyReady,
@@ -3782,6 +3783,18 @@ export class ZonePacketHandlers {
     //server.sendDataToAllOthersWithSpawnedEntity(server._characters, client, client.character.characterId, "Ragdoll.UpdatePose", packet.data)
   }
 
+  RagdollStop(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<RagdollStop>
+  ) {
+    const entity = server.getEntity(packet.data.characterId);
+    if (!(entity instanceof BaseFullCharacter)) {
+      return;
+    }
+    entity.OnRagdollStop(server, client, packet.data);
+  }
+
   async grinderExchangeRequest(
     server: ZoneServer2016,
     client: Client,
@@ -4277,6 +4290,9 @@ export class ZonePacketHandlers {
         break;
       case "Ragdoll.UpdatePose":
         this.RagdollUpdatePose(server, client, packet);
+        break;
+      case "Ragdoll.Stop":
+        this.RagdollStop(server, client, packet);
         break;
       case "Grinder.ExchangeRequest":
         this.grinderExchangeRequest(server, client, packet);

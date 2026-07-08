@@ -217,6 +217,7 @@ export enum ModelIds {
   WOLF = 9003,
   BEAR = 9187,
   RAVEN = 9230,
+  GUTS = 9444,
   CORN_CROPSTATE_1 = 59,
   CORN_CROPSTATE_2 = 60,
   CORN_CROPSTATE_3 = 61,
