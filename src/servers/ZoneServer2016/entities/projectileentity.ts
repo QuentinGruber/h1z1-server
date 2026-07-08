@@ -192,15 +192,15 @@ export class ProjectileEntity extends BaseLightweightCharacter {
 
     switch (effectType) {
       case 1:
+        const packet: CharacterPlayWorldCompositeEffect = {
+          characterId: this.characterId,
+          effectId: effectId,
+          position: this.state.position
+        };
+        if (effectTime) {
+          packet.effectTime = effectTime;
+        }
         if (sendToThrower) {
-          const packet: CharacterPlayWorldCompositeEffect = {
-            characterId: this.characterId,
-            effectId: effectId,
-            position: this.state.position
-          };
-          if (effectTime) {
-            packet.effectTime = effectTime;
-          }
           server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
             server._throwableProjectiles,
             this.characterId,
@@ -213,11 +213,7 @@ export class ProjectileEntity extends BaseLightweightCharacter {
             client,
             this.characterId,
             "Character.PlayWorldCompositeEffect",
-            {
-              characterId: this.characterId,
-              effectId: effectId,
-              position: this.state.position
-            }
+            packet
           );
         }
         break;

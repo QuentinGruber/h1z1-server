@@ -3430,8 +3430,54 @@ export class ZoneServer2016 extends EventEmitter {
         this.pushSound({
           radius: 100,
           position: sourceEntity.state.position,
-          agitation: 30
+          agitation: 100
         });
+
+        // Keep re-emitting the scream noise so AI can stay interested while the
+        // grenade is charging. AI sounds are cleared every tick.
+        const screamPulseInterval = setInterval(() => {
+          this.pushSound({
+            radius: 100,
+            position: sourceEntity.state.position,
+            agitation: 100
+          });
+        }, 500);
+
+        // Schedule explosion damage after 15 seconds
+        setTimeout(async () => {
+          clearInterval(screamPulseInterval);
+          this.sendCompositeEffectToAllInRange(
+            600,
+            sourceEntity.characterId,
+            sourceEntity.state.position,
+            Effects.PFX_Impact_Explosion_FragGrenade_Default_08m
+          );
+          const [cx0, cx1, cz0, cz1] = ZoneServer2016._charGridRange(
+            sourceEntity.state.position,
+            5
+          );
+          for (let cx = cx0; cx <= cx1; cx++) {
+            for (let cz = cz0; cz <= cz1; cz++) {
+              const bucket = this._charSpatialMap.get(`${cx},${cz}`);
+              if (!bucket) continue;
+              for (const c of bucket) {
+                if (
+                  isPosInRadiusWithY(
+                    10,
+                    c.character.state.position,
+                    sourceEntity.state.position,
+                    3
+                  )
+                )
+                  c.character.OnExplosiveHit(this, sourceEntity);
+              }
+            }
+          }
+
+          return;
+        }, 15000);
+
+        return;
       }
     }
 
