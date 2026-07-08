@@ -175,11 +175,17 @@ export class WsZoneConnectionManager extends EventEmitter {
 
   async stop(): Promise<void> {
     if (this._heartbeat) clearInterval(this._heartbeat);
+    // ws server close() won't drop live client sockets; terminate them so the
+    // server (and the event loop) can actually shut down
+    for (const id in this._sockets) this._sockets[id].terminate();
     await new Promise<void>((resolve) => {
       if (!this._wss) return resolve();
       this._wss.close(() => resolve());
     });
-    this._tlsServer?.close();
+    await new Promise<void>((resolve) => {
+      if (!this._tlsServer) return resolve();
+      this._tlsServer.close(() => resolve());
+    });
   }
 }
 

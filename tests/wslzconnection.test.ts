@@ -1,16 +1,17 @@
 import test from "node:test";
 import assert from "node:assert";
 import path from "node:path";
-import { WsZoneConnectionManager } from "../src/servers/LoginZoneConnection/wszoneconnectionmanager";
-import { WsLoginConnectionManager } from "../src/servers/LoginZoneConnection/wsloginconnectionmanager";
+import { WsZoneConnectionManager } from "../out/servers/LoginZoneConnection/wszoneconnectionmanager";
+import { WsLoginConnectionManager } from "../out/servers/LoginZoneConnection/wsloginconnectionmanager";
 
 const SECRET = "goodsecret";
 const SERVER_ID = 42;
 
 // exercise the wss path: login serves a self-signed test cert, zone dials wss
 // and skips verification (transport tests aren't validating the cert chain)
-process.env.LZ_TLS_CERT = path.join(__dirname, "fixtures", "test-login.crt");
-process.env.LZ_TLS_KEY = path.join(__dirname, "fixtures", "test-login.key");
+const fixtures = path.join(__dirname, "..", "tests", "fixtures");
+process.env.LZ_TLS_CERT = path.join(fixtures, "test-login.crt");
+process.env.LZ_TLS_KEY = path.join(fixtures, "test-login.key");
 process.env.LZ_TLS = "1";
 process.env.LZ_TLS_INSECURE = "1";
 

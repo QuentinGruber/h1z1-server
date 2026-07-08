@@ -38,6 +38,8 @@ export class WsLoginConnectionManager extends EventEmitter {
   private _hasBeenConnected = false;
   private _reconnectTimer?: NodeJS.Timeout;
   private _reconnectDelay = 5000;
+  // set by stop() so the socket's own close event doesn't trigger a reconnect
+  private _stopping = false;
   private _pingTimeout?: NodeJS.Timeout;
   // login pings every 5s; if none arrives within this window the link is dead
   private _deadTimeoutMs = 12000;
@@ -101,6 +103,8 @@ export class WsLoginConnectionManager extends EventEmitter {
     socket.on("close", (code, reason) => {
       clearTimeout(this._pingTimeout);
       this._connected = false;
+      // intentional shutdown: don't reconnect or emit a disconnect
+      if (this._stopping) return;
       if (code === 4001) {
         console.error(
           "[ERROR] LoginConnection refused: bad server secret (LZ_SERVER_SECRET) or server not whitelisted"
@@ -174,6 +178,7 @@ export class WsLoginConnectionManager extends EventEmitter {
   }
 
   async stop() {
+    this._stopping = true;
     if (this._reconnectTimer) clearTimeout(this._reconnectTimer);
     clearTimeout(this._pingTimeout);
     this._socket?.close();
