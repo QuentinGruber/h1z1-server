@@ -1286,7 +1286,8 @@ export const commands: Array<Command> = [
       const bannedClient = (await server._db
         ?.collection(DB_COLLECTIONS.BANNED)
         .findOne({ name: args[0], active: true })) as
-        WithId<ClientBan> | undefined;
+        | WithId<ClientBan>
+        | undefined;
 
       if (bannedClient) {
         server.sendChatText(
@@ -1383,7 +1384,8 @@ export const commands: Array<Command> = [
       const bannedClient = (await server._db
         ?.collection(DB_COLLECTIONS.BANNED)
         .findOne({ loginSessionId: args[0], active: true })) as
-        WithId<ClientBan> | undefined;
+        | WithId<ClientBan>
+        | undefined;
 
       if (bannedClient) {
         server.sendChatText(
