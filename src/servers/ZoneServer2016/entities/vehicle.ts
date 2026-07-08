@@ -197,7 +197,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   isLocked: boolean = false;
 
   /** Used to determine the position of the vehicle to transmit to the server */
-  positionUpdate: any /*positionUpdate*/;
+  positionUpdate: any; /*positionUpdate*/
 
   /** Speed (H1Z1 RPMs) of the vehicle */
   engineRPM: number = 0;

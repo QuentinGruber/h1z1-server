@@ -221,7 +221,8 @@ function pushScreamSound(screamer: ScreamerInstance): void {
   screamer.server.pushSound({
     position: screamer.npc.state.position.slice() as Float32Array,
     radius: ATTRACT_RADIUS,
-    agitation: ATTRACT_AGITATION
+    agitation: ATTRACT_AGITATION,
+    priority: 5
   });
 }
 

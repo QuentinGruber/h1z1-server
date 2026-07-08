@@ -3413,6 +3413,79 @@ export class ZoneServer2016 extends EventEmitter {
         }
         return;
       }
+
+      if (sourceEntity.itemDefinitionId == Items.GRENADE_SCREAM) {
+        this.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
+          this._throwableProjectiles,
+          sourceEntity.characterId,
+          "Character.PlayWorldCompositeEffect",
+          {
+            characterId: sourceEntity.characterId,
+            effectId: 5270,
+            position: sourceEntity.state.position,
+            effectTime: 15
+          }
+        );
+
+        this.pushSound({
+          radius: 30,
+          position: sourceEntity.state.position,
+          agitation: 100,
+          priority: 10
+        });
+
+        // Keep re-emitting the scream noise so AI can stay interested while the
+        // grenade is charging. AI sounds are cleared every tick.
+        const screamPulseInterval = setInterval(() => {
+          this.pushSound({
+            radius: 30,
+            position: sourceEntity.state.position,
+            agitation: 100,
+            priority: 10
+          });
+        }, 500);
+
+        // Schedule explosion damage after 15 seconds
+        setTimeout(async () => {
+          clearInterval(screamPulseInterval);
+          this.sendCompositeEffectToAllInRange(
+            600,
+            sourceEntity.characterId,
+            sourceEntity.state.position,
+            Effects.PFX_Impact_Explosion_FragGrenade_Default_08m
+          );
+          if (!this.isPvE) {
+            for (const client in Object(this._clients)) {
+              if (!client) continue;
+              if (
+                isPosInRadiusWithY(
+                  10,
+                  this._clients[client].character.state.position,
+                  sourceEntity.state.position,
+                  5
+                )
+              )
+                this._clients[client].character.OnExplosiveHit(
+                  this,
+                  sourceEntity
+                );
+            }
+            for (const npcId in Object(this._npcs)) {
+              if (!npcId) continue;
+              if (
+                isPosInRadiusWithY(
+                  10,
+                  this._npcs[npcId].state.position,
+                  sourceEntity.state.position,
+                  5
+                )
+              ) {
+                this._npcs[npcId].OnExplosiveHit(this, sourceEntity);
+              }
+            }
+          }
+        }, 15000);
+      }
     }
 
     // render distance is max client.chunkRenderDistance, could probably be lowered a lot
