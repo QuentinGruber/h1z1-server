@@ -40,6 +40,7 @@ const AGITATION_DECAY_RATE = 1;
 const AGITATION_INITIAL = 50;
 const INVESTIGATE_TIMEOUT = 120;
 const STUMBLE_CHANCE = 0.001;
+const OVERRIDE_ACTION_SOUND_PRIORITY = 10;
 
 function pickPatrolPoint(
   server: ZoneServer2016,
@@ -64,17 +65,28 @@ function moveToward(
 function listenToSounds(gasser: ZombieInstance, sounds: Sound[]): Sound | null {
   let nearest: Sound | null = null;
   let nearestDist = Infinity;
+  let bestPriority = Number.NEGATIVE_INFINITY;
   for (const sound of sounds) {
     const dist = getDistance2d(gasser.npc.state.position, sound.position);
     if (dist < sound.radius) {
       gasser.agitation = Math.min(100, gasser.agitation + sound.agitation);
-      if (dist < nearestDist) {
+      const priority = sound.priority ?? 0;
+      if (
+        priority > bestPriority ||
+        (priority === bestPriority && dist < nearestDist)
+      ) {
         nearest = sound;
+        bestPriority = priority;
         nearestDist = dist;
       }
     }
   }
   return nearest;
+}
+
+function shouldOverrideAction(sound: Sound | null): boolean {
+  if (!sound) return false;
+  return (sound.priority ?? 0) >= OVERRIDE_ACTION_SOUND_PRIORITY;
 }
 
 function trySeePlayer(gasser: ZombieInstance): boolean {
@@ -309,6 +321,10 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
         const nearestSound = listenToSounds(gasser, gasser.server.sounds);
         if (nearestSound) {
           gasser.lastNoisePos = nearestSound.position;
+          if (shouldOverrideAction(nearestSound)) {
+            gasser.event(ZombieEvents.HearNoise);
+            return;
+          }
           gasser.stateTimer = 0;
           moveToward(gasser.npc, nearestSound.position, gasser.server);
         }
@@ -316,7 +332,12 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
 
       [ZombieTransitions.Chase]: (dt: number) => {
         tickTimers(gasser, dt);
-        listenToSounds(gasser, gasser.server.sounds);
+        const nearestSound = listenToSounds(gasser, gasser.server.sounds);
+        if (nearestSound && shouldOverrideAction(nearestSound)) {
+          gasser.lastNoisePos = nearestSound.position;
+          gasser.event(ZombieEvents.HearNoise);
+          return;
+        }
         applyAgitation(gasser);
 
         const chaseTarget = getChaseTarget(gasser);
@@ -350,6 +371,12 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
       },
 
       [ZombieTransitions.Stumble]: (dt: number) => {
+        const nearestSound = listenToSounds(gasser, gasser.server.sounds);
+        if (nearestSound && shouldOverrideAction(nearestSound)) {
+          gasser.lastNoisePos = nearestSound.position;
+          gasser.event(ZombieEvents.HearNoise);
+          return;
+        }
         gasser.stateTimer += dt;
         if (gasser.stateTimer >= 5) {
           gasser.event(ZombieEvents.StumbleTimeout);
@@ -358,7 +385,12 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
 
       [ZombieTransitions.Attack]: (dt: number) => {
         tickTimers(gasser, dt);
-        listenToSounds(gasser, gasser.server.sounds);
+        const nearestSound = listenToSounds(gasser, gasser.server.sounds);
+        if (nearestSound && shouldOverrideAction(nearestSound)) {
+          gasser.lastNoisePos = nearestSound.position;
+          gasser.event(ZombieEvents.HearNoise);
+          return;
+        }
         applyAgitation(gasser);
 
         const attackTarget = getChaseTarget(gasser);
@@ -391,7 +423,12 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
         gasser.hunger = Math.min(100, gasser.hunger + dt * 2);
         gasser.stateTimer += dt * 2;
         gasser.lastAttackTime += dt;
-        listenToSounds(gasser, gasser.server.sounds);
+        const nearestSound = listenToSounds(gasser, gasser.server.sounds);
+        if (nearestSound && shouldOverrideAction(nearestSound)) {
+          gasser.lastNoisePos = nearestSound.position;
+          gasser.event(ZombieEvents.HearNoise);
+          return;
+        }
 
         const attackTarget = getChaseTarget(gasser);
         if (attackTarget) {
@@ -415,7 +452,12 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
       [ZombieTransitions.Feed]: (dt: number) => {
         gasser.stateTimer += dt;
         gasser.lastAttackTime += dt;
-        listenToSounds(gasser, gasser.server.sounds);
+        const nearestSound = listenToSounds(gasser, gasser.server.sounds);
+        if (nearestSound && shouldOverrideAction(nearestSound)) {
+          gasser.lastNoisePos = nearestSound.position;
+          gasser.event(ZombieEvents.HearNoise);
+          return;
+        }
         applyAgitation(gasser);
 
         if (gasser.corpseTargetId) {
@@ -463,10 +505,23 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
     [
       {
         eventId: ZombieEvents.HearNoise,
-        from: [ZombieTransitions.Wander, ZombieTransitions.Idle],
+        from: [
+          ZombieTransitions.Wander,
+          ZombieTransitions.Idle,
+          ZombieTransitions.Investigate,
+          ZombieTransitions.Chase,
+          ZombieTransitions.Stumble,
+          ZombieTransitions.Attack,
+          ZombieTransitions.Attacking,
+          ZombieTransitions.Feed
+        ],
         to: ZombieTransitions.Investigate,
         EnterTransition: () => {
           gasser.stateTimer = 0;
+          gasser.targetCharacterId = null;
+          gasser.corpseTargetId = null;
+          gasser.isEatingCorpse = false;
+          gasser.npc.lookAtTarget = null;
           gasser.targetPos = gasser.lastNoisePos;
           if (gasser.targetPos)
             moveToward(gasser.npc, gasser.targetPos, gasser.server);

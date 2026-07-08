@@ -733,4 +733,5 @@ export interface Sound {
   position : Float32Array,
   radius : number
   agitation: number
+  priority?: number
 }

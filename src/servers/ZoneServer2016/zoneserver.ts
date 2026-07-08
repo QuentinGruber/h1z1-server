@@ -3428,18 +3428,20 @@ export class ZoneServer2016 extends EventEmitter {
         );
 
         this.pushSound({
-          radius: 100,
+          radius: 30,
           position: sourceEntity.state.position,
-          agitation: 100
+          agitation: 100,
+          priority: 10
         });
 
         // Keep re-emitting the scream noise so AI can stay interested while the
         // grenade is charging. AI sounds are cleared every tick.
         const screamPulseInterval = setInterval(() => {
           this.pushSound({
-            radius: 100,
+            radius: 30,
             position: sourceEntity.state.position,
-            agitation: 100
+            agitation: 100,
+            priority: 10
           });
         }, 500);
 
@@ -3452,32 +3454,37 @@ export class ZoneServer2016 extends EventEmitter {
             sourceEntity.state.position,
             Effects.PFX_Impact_Explosion_FragGrenade_Default_08m
           );
-          const [cx0, cx1, cz0, cz1] = ZoneServer2016._charGridRange(
-            sourceEntity.state.position,
-            5
-          );
-          for (let cx = cx0; cx <= cx1; cx++) {
-            for (let cz = cz0; cz <= cz1; cz++) {
-              const bucket = this._charSpatialMap.get(`${cx},${cz}`);
-              if (!bucket) continue;
-              for (const c of bucket) {
-                if (
-                  isPosInRadiusWithY(
-                    10,
-                    c.character.state.position,
-                    sourceEntity.state.position,
-                    3
-                  )
+          if (!this.isPvE) {
+            for (const client in Object(this._clients)) {
+              if (!client) continue;
+              if (
+                isPosInRadiusWithY(
+                  10,
+                  this._clients[client].character.state.position,
+                  sourceEntity.state.position,
+                  5
                 )
-                  c.character.OnExplosiveHit(this, sourceEntity);
+              )
+                this._clients[client].character.OnExplosiveHit(
+                  this,
+                  sourceEntity
+                );
+            }
+            for (const npcId in Object(this._npcs)) {
+              if (!npcId) continue;
+              if (
+                isPosInRadiusWithY(
+                  10,
+                  this._npcs[npcId].state.position,
+                  sourceEntity.state.position,
+                  5
+                )
+              ) {
+                this._npcs[npcId].OnExplosiveHit(this, sourceEntity);
               }
             }
           }
-
-          return;
         }, 15000);
-
-        return;
       }
     }
 

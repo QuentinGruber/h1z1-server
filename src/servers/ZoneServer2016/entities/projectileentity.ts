@@ -99,7 +99,7 @@ export class ProjectileEntity extends BaseLightweightCharacter {
         break;
       case Items.GRENADE_SCREAM:
         this.actorModelId = 9443;
-        triggerTimeoutDelay = 1000;
+        triggerTimeoutDelay = 3000;
         break;
       case Items.WEAPON_MOLOTOV:
         this.actorModelId = 9440;
