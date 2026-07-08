@@ -49,11 +49,17 @@ interface PendingExplosion {
 }
 
 function charBaseDamage(entity: BaseEntity): number {
-  if (entity instanceof ExplosiveEntity) return 50000;
+  if (entity instanceof ExplosiveEntity) return entity.charBlastDamage ?? 50000;
   if (entity instanceof ProjectileEntity) {
     return entity.actorModelId === 0 ? 8000 : 10000;
   }
   return 10000;
+}
+
+/** Per-explosion blast radius; ExplosiveEntity may widen it via blastRadius. */
+function blastRadius(entity: BaseEntity): number | undefined {
+  if (entity instanceof ExplosiveEntity) return entity.blastRadius;
+  return undefined;
 }
 
 function vehicleBaseDamage(entity: BaseEntity): number {
@@ -215,7 +221,8 @@ export class ExplosionManager {
         600,
         "",
         pos,
-        Effects.PFX_Impact_Explosion_Landmine_Dirt_10m
+        entity.explosionEffectId ??
+          Effects.PFX_Impact_Explosion_Landmine_Dirt_10m
       );
       if (christmas) {
         this._server.sendCompositeEffectToAllInRange(
@@ -241,19 +248,24 @@ export class ExplosionManager {
     const server = this._server;
 
     // ---- Explosions (serialised for worker) ------------------------
-    const explosions = chunk.map(({ entity }) => ({
-      x: entity.state.position[0],
-      y: entity.state.position[1],
-      z: entity.state.position[2],
-      charBaseDamage: charBaseDamage(entity),
-      vehicleBaseDamage: vehicleBaseDamage(entity),
-      constructionDamage: constructionBaseDamage(
-        entity,
-        server.baseConstructionDamage
-      ),
-      attackerId: attackerId(entity),
-      weaponId: weaponId(entity)
-    }));
+    const explosions = chunk.map(({ entity }) => {
+      const r = blastRadius(entity);
+      return {
+        x: entity.state.position[0],
+        y: entity.state.position[1],
+        z: entity.state.position[2],
+        charBaseDamage: charBaseDamage(entity),
+        vehicleBaseDamage: vehicleBaseDamage(entity),
+        constructionDamage: constructionBaseDamage(
+          entity,
+          server.baseConstructionDamage
+        ),
+        attackerId: attackerId(entity),
+        weaponId: weaponId(entity),
+        radius: r ?? EXPLOSION_CHARACTER_RADIUS,
+        yRadius: r ?? EXPLOSION_CHARACTER_Y_RADIUS
+      };
+    });
 
     // ---- Grid scan (one lookup per unique 1m position key) ---------
     // Multiple explosions at the same spot produce identical grid lookups.
@@ -342,6 +354,10 @@ export class ExplosionManager {
       maxY = -Infinity,
       minZ = Infinity,
       maxZ = -Infinity;
+    // Expand the pre-filter box by the widest blast in the chunk so bombs with
+    // a larger radius aren't pruned before the precise per-explosion check.
+    let maxRadius = EXPLOSION_CHARACTER_RADIUS;
+    let maxYRadius = EXPLOSION_CHARACTER_Y_RADIUS;
     for (const { entity } of chunk) {
       const p = entity.state.position;
       if (p[0] < minX) minX = p[0];
@@ -350,13 +366,18 @@ export class ExplosionManager {
       if (p[1] > maxY) maxY = p[1];
       if (p[2] < minZ) minZ = p[2];
       if (p[2] > maxZ) maxZ = p[2];
+      const r = blastRadius(entity);
+      if (r !== undefined) {
+        if (r > maxRadius) maxRadius = r;
+        if (r > maxYRadius) maxYRadius = r;
+      }
     }
-    minX -= EXPLOSION_CHARACTER_RADIUS;
-    maxX += EXPLOSION_CHARACTER_RADIUS;
-    minY -= EXPLOSION_CHARACTER_Y_RADIUS;
-    maxY += EXPLOSION_CHARACTER_Y_RADIUS;
-    minZ -= EXPLOSION_CHARACTER_RADIUS;
-    maxZ += EXPLOSION_CHARACTER_RADIUS;
+    minX -= maxRadius;
+    maxX += maxRadius;
+    minY -= maxYRadius;
+    maxY += maxYRadius;
+    minZ -= maxRadius;
+    maxZ += maxRadius;
 
     const characters = server.isPvE
       ? []
@@ -464,11 +485,11 @@ export class ExplosionManager {
           lastWeapon: number | undefined;
         for (const exp of explosions) {
           const dx = char.x - exp.x;
-          if (Math.abs(dx) > EXPLOSION_CHARACTER_RADIUS) continue;
+          if (Math.abs(dx) > exp.radius) continue;
           const dz = char.z - exp.z;
-          if (Math.abs(dz) > EXPLOSION_CHARACTER_RADIUS) continue;
+          if (Math.abs(dz) > exp.radius) continue;
           const dy = char.y - exp.y;
-          if (Math.abs(dy) > EXPLOSION_CHARACTER_Y_RADIUS) continue;
+          if (Math.abs(dy) > exp.yRadius) continue;
           const d = Math.sqrt(dx * dx + dy * dy + dz * dz);
           totalDamage += d > 1 ? exp.charBaseDamage / d : exp.charBaseDamage;
           lastAttacker = exp.attackerId;
@@ -494,7 +515,7 @@ export class ExplosionManager {
             dy = veh.y - exp.y,
             dz = veh.z - exp.z;
           const sq = dx * dx + dy * dy + dz * dz;
-          if (sq > 25) continue;
+          if (sq > exp.radius * exp.radius) continue;
           const d = Math.sqrt(sq);
           totalDamage +=
             d > 1 ? exp.vehicleBaseDamage / d : exp.vehicleBaseDamage;

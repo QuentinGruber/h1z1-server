@@ -2079,8 +2079,12 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private async setupServer() {
-    if (!process.env.DISABLE_AI && this.aiEnabled) {
+    // The navmesh is just map data - load it independently of AI so features
+    // like airdrop ground-height still work when AI is disabled.
+    if (!process.env.DISABLE_NAV) {
       await this.navManager.loadNav();
+    }
+    if (!process.env.DISABLE_AI && this.aiEnabled) {
       this.aiTickRoutine = setInterval(() => this.tickAi(), this.aiTickRate);
       this.pathfindingRoutine = setInterval(
         () => this.updatePathfindingPositions(),
@@ -7762,7 +7766,7 @@ export class ZoneServer2016 extends EventEmitter {
         item.itemDefinitionId
       ) ||
       !this.airdropManager.spawnAirdrop(
-        client.character.state.position,
+        this.getAirdropDropPosition(client.character.state.position),
         client.character.hasAirdropClearance ? "Hospital" : "",
         client.isDebugMode,
         client.character.characterId
@@ -10583,6 +10587,52 @@ export class ZoneServer2016 extends EventEmitter {
     });
 
     return isInPoi;
+  }
+
+  /** A drop must clear POIs, bases and vehicles (buildings are inside POIs). */
+  private isValidAirdropPosition(position: Float32Array): boolean {
+    if (this.isPosInPoi(position)) return false;
+    for (const a in this._constructionFoundations) {
+      if (
+        isPosInRadius(
+          50,
+          this._constructionFoundations[a].state.position,
+          position
+        )
+      )
+        return false;
+    }
+    for (const v in this._vehicles) {
+      if (isPosInRadius(10, this._vehicles[v].state.position, position))
+        return false;
+    }
+    return true;
+  }
+
+  /**
+   * Picks a random drop spot inside the caller's grid cell (the playable
+   * 10x10 area spans -3720..3720, so each cell is 744 units) that avoids POIs,
+   * bases and vehicles. Ground height comes from the navmesh so drops land on
+   * walkable terrain, not inside buildings. Falls back to the caller's spot.
+   */
+  getAirdropDropPosition(callerPos: Float32Array): Float32Array {
+    if (!this.airdropManager.useNavmesh) return callerPos;
+    const BOUNDARY = 3720;
+    const CELL = (BOUNDARY * 2) / 10; // 744
+    const cellMin = (p: number) =>
+      -BOUNDARY +
+      Math.min(9, Math.max(0, Math.floor((p + BOUNDARY) / CELL))) * CELL;
+    const minX = cellMin(callerPos[0]);
+    const minZ = cellMin(callerPos[2]);
+
+    for (let i = 0; i < 30; i++) {
+      const x = minX + Math.random() * CELL;
+      const z = minZ + Math.random() * CELL;
+      const pos = this.navManager.getNavGroundPoint(x, z);
+      if (!pos) continue;
+      if (this.isValidAirdropPosition(pos)) return pos;
+    }
+    return callerPos;
   }
 
   private tickNpcFsms(dt: number): void {

@@ -1913,6 +1913,19 @@ const dev: any = {
       );
     }, 61874);
   },
+  bombingrun: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.airdropManager.spawnAirdrop(
+      client.character.state.position,
+      "",
+      true,
+      client.character.characterId,
+      "bombing"
+    );
+  },
   updatecharacter: function (
     server: ZoneServer2016,
     client: Client,

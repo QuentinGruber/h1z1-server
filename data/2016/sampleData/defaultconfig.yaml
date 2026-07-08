@@ -83,8 +83,22 @@ weather:
 
 airdrop:
   minimumPlayers: 10
-  planeMovementSpeed: 140000
-  crateDropSpeed: 60000
+  # Drop at a random valid spot in the caller's grid cell. This is experimental, use at your own risk.
+  useNavmesh: true
+  types:
+    normal:
+      planeSpeed: 140000
+      crateDropSpeed: 60000
+    bombing:
+      planeSpeed: 24000
+      levelFlight: true
+      bombCount: 100
+      bombBlastRadius: 12
+      bombBlastDamage: 150000
+      bombReleaseHeight: 950
+      bombFallSpeed: 60
+      corridorLength: 260
+      corridorWidth: 60
 
 # Anything to do with loot, vehicle, and npc spawning / despawning
 worldobjects:
