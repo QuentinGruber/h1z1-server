@@ -288,6 +288,15 @@ export class ExplosionManager {
         for (const obj of cell.objects) {
           if (obj instanceof ExplosiveEntity && obj.detonated) continue;
 
+          // TODO: Probably want to introduce a damage instigator, so you can still blow up your own stuff
+          if (
+            server.isPvE &&
+            (obj instanceof ConstructionChildEntity ||
+              obj instanceof ConstructionDoor ||
+              obj instanceof ConstructionParentEntity)
+          )
+            continue;
+
           if (obj instanceof ConstructionChildEntity) {
             if (constructionMap.has(obj.characterId)) continue;
             if (IMMUNE_IDS.has(obj.itemDefinitionId)) continue;
