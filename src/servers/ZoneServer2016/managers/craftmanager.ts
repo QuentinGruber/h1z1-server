@@ -604,10 +604,11 @@ export class CraftManager {
           }
           removedItems.push({
             itemDS,
-            count: Math.min(itemDS.item.stackCount, remainingItems)
+            count: remainingItems
           });
           remainingItems = 0;
         } else {
+          const originalStackCount = itemDS.item.stackCount;
           if (
             await this.removeCraftComponent(
               server,
@@ -617,9 +618,9 @@ export class CraftManager {
           ) {
             removedItems.push({
               itemDS,
-              count: Math.min(itemDS.item.stackCount, remainingItems)
+              count: originalStackCount
             });
-            remainingItems -= itemDS.item.stackCount;
+            remainingItems -= originalStackCount;
           } else {
             server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             craftSuccess = false; // return if not enough items
