@@ -27,7 +27,6 @@ import {
   ZombieEvents,
   type ZombieInstance
 } from "./zombie.jsm";
-import { applyDamageToTarget } from "./zombie.jsm";
 
 const BASE_SPEED = 1.0;
 const MAX_SPEED = 3.0;
@@ -42,8 +41,8 @@ const GAS_CHARGE_PER_ZOMBIE = 0.1;
 const MELEE_SLASH_RANGE = 2;
 const GAS_SPIT_RANGE = 10;
 const GAS_CLOUD_RANGE = 10;
-const GAS_DAMAGE_PER_TICK = 300;
-const GAS_DAMAGE_TICK_MS = 10000;
+const GAS_DAMAGE_PER_TICK = 500;
+const GAS_DAMAGE_TICK_MS = 1000;
 const GAS_DAMAGE_DURATION_MS = 10000;
 
 function pickPatrolPoint(
@@ -86,6 +85,22 @@ function listenToSounds(gasser: ZombieInstance, sounds: Sound[]): Sound | null {
     }
   }
   return nearest;
+}
+
+function applyDamageToTarget(zombie: ZombieInstance): void {
+  if (!zombie.targetCharacterId) return;
+  const character = zombie.server._characters[zombie.targetCharacterId];
+  if (character) {
+    zombie.npc.applyDamage(zombie.targetCharacterId);
+    return;
+  }
+  const targetNpc = zombie.server._npcs[zombie.targetCharacterId];
+  if (targetNpc && targetNpc.isAlive) {
+    targetNpc.damage(zombie.server, {
+      entity: zombie.npc.characterId,
+      damage: zombie.npc.npcMeleeDamage
+    });
+  }
 }
 
 function shouldOverrideAction(sound: Sound | null): boolean {
@@ -193,7 +208,7 @@ export function spawnGasCloudAt(
   ownerCharacterId: string
 ): void {
   server.sendCompositeEffectToAllInRange(
-    50,
+    100,
     ownerCharacterId,
     position,
     Effects.PFX_Char_Zombie_Gasser_GasCloud

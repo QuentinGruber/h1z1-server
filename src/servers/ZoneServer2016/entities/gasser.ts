@@ -35,7 +35,7 @@ export class Gasser extends ZombieWalker {
       server,
       spawnerId
     );
-    this.npcMeleeDamage = 0;
+    this.npcMeleeDamage = 2500;
     this.npcId = NpcIds.GASSER;
     this.nameId = StringIds.ZOMBIE_WALKER;
     this.effectTags.push(Effects.PFX_Char_Zombie_Gasser_Ambient);
