@@ -75,6 +75,11 @@ export class Gasser extends ZombieWalker {
         )
           continue;
 
+        // schedule body removal after ragdoll animation completes (~0.1 seconds)
+        setTimeout(() => {
+          server.deleteEntity(this.characterId, server._npcs);
+        }, 100);
+
         character.damage(server, {
           entity: this.characterId,
           damage: GASSER_DEATH_EXPLOSION_DAMAGE
