@@ -39,10 +39,12 @@ const GAS_CHARGE_RANGE = 10;
 const GAS_CHARGE_PER_CLIENT = 0.2;
 const GAS_CHARGE_PER_ZOMBIE = 0.1;
 const MELEE_SLASH_RANGE = 2;
-const GAS_SPIT_RANGE = 12;
-const GAS_CLOUD_RANGE = 7;
-const GAS_DAMAGE_PER_TICK = 500;
-const GAS_DAMAGE_TICK_MS = 1000;
+const GAS_SPIT_RANGE = 10;
+const SPIT_PROJECTILE_SPEED = 20; // meters per second
+const SPIT_MIN_TRAVEL_MS = 120;
+const GAS_CLOUD_RANGE = 10;
+const GAS_DAMAGE_PER_TICK = 300;
+const GAS_DAMAGE_TICK_MS = 2000;
 const GAS_DAMAGE_DURATION_MS = 10000;
 
 function pickPatrolPoint(
@@ -192,13 +194,29 @@ function getChaseTarget(gasser: ZombieInstance): {
   return null;
 }
 
+function applyDamageToTarget(zombie: ZombieInstance): void {
+  if (!zombie.targetCharacterId) return;
+  const character = zombie.server._characters[zombie.targetCharacterId];
+  if (character) {
+    zombie.npc.applyDamage(zombie.targetCharacterId);
+    return;
+  }
+  const targetNpc = zombie.server._npcs[zombie.targetCharacterId];
+  if (targetNpc && targetNpc.isAlive) {
+    targetNpc.damage(zombie.server, {
+      entity: zombie.npc.characterId,
+      damage: zombie.npc.npcMeleeDamage
+    });
+  }
+}
+
 export function spawnGasCloudAt(
   server: ZoneServer2016,
   position: Float32Array,
   ownerCharacterId: string
 ): void {
   server.sendCompositeEffectToAllInRange(
-    GAS_CLOUD_RANGE,
+    50,
     ownerCharacterId,
     position,
     Effects.PFX_Char_Zombie_Gasser_GasCloud
@@ -323,6 +341,7 @@ function decayAgitation(gasser: ZombieInstance, dt: number) {
 }
 
 export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
+  let isSpitAttack = false;
   const gasser = new JSM(
     {
       [ZombieTransitions.Wander]: (dt: number) => {
@@ -445,7 +464,7 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
         );
         if (chaseDist > 50) {
           gasser.event(ZombieEvents.LostPlayer);
-        } else if (chaseDist < 2) {
+        } else if (chaseDist <= GAS_SPIT_RANGE) {
           gasser.event(ZombieEvents.ReachPlayer);
         } else {
           if (trySmellCorpse(gasser)) return;
@@ -505,10 +524,17 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
         if (attackDist > GAS_SPIT_RANGE) {
           gasser.event(ZombieEvents.PlayerBacked);
         } else if (gasser.lastAttackTime > 2) {
-          if (attackDist <= MELEE_SLASH_RANGE) {
+          if (
+            attackDist <= MELEE_SLASH_RANGE &&
+            gasser.ChargeGas >= 100 &&
+            Math.random() < 0.1
+          ) {
+            gasser.event(ZombieEvents.ReleaseGas);
+          } else if (attackDist <= MELEE_SLASH_RANGE) {
             gasser.event(ZombieEvents.StartAttacking);
           } else {
-            gasser.event(ZombieEvents.Spit);
+            // disable spit attack for now, as it can be too powerful and hard to dodge
+            // gasser.event(ZombieEvents.Spit);
           }
         }
       },
@@ -532,15 +558,13 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
 
         if (gasser.stateTimer >= 2) {
           if (attackTarget) {
-            const attackDist = getDistance(
-              gasser.npc.state.position,
-              attackTarget.position
-            );
-            const inSlashRange = attackDist <= MELEE_SLASH_RANGE;
-            if (inSlashRange) {
-              if (gasser.ChargeGas >= 100 && Math.random() < 0.5) {
-                releaseGas(gasser);
-              }
+            if (isSpitAttack) {
+              // Spit attack logic would go here
+            } else if (
+              getDistance(gasser.npc.state.position, attackTarget.position) <=
+              MELEE_SLASH_RANGE
+            ) {
+              applyDamageToTarget(gasser);
             }
           }
           gasser.event(ZombieEvents.DoneAttacking);
@@ -694,6 +718,7 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
         from: [ZombieTransitions.Attack],
         to: ZombieTransitions.Attacking,
         EnterTransition: () => {
+          isSpitAttack = false;
           gasser.npc.playAnimation(ZombieOneshotAnim.KnifeSlash);
           gasser.stateTimer = 0;
           gasser.lastAttackTime = 0;
@@ -704,7 +729,18 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
         from: [ZombieTransitions.Attack],
         to: ZombieTransitions.Attacking,
         EnterTransition: () => {
+          isSpitAttack = true;
           gasser.npc.playAnimation(ZombieOneshotAnim.Spit);
+          gasser.stateTimer = 0;
+          gasser.lastAttackTime = 0;
+        }
+      },
+      {
+        eventId: ZombieEvents.ReleaseGas,
+        from: [ZombieTransitions.Attack],
+        to: ZombieTransitions.Attack,
+        EnterTransition: () => {
+          releaseGas(gasser);
           gasser.stateTimer = 0;
           gasser.lastAttackTime = 0;
         }
@@ -714,6 +750,7 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
         from: [ZombieTransitions.Attacking],
         to: ZombieTransitions.Attack,
         EnterTransition: () => {
+          isSpitAttack = false;
           gasser.lastAttackTime = 2;
         }
       },
