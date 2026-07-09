@@ -5269,14 +5269,12 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     //TODO: This is temporary until we fix the ReplicationData correctly for construction Objects.
-    if (
-      !(
-        entity instanceof ConstructionDoor ||
-        entity instanceof ConstructionParentEntity ||
-        entity instanceof ConstructionChildEntity ||
-        entity instanceof LootableConstructionEntity
-      )
-    ) {
+    if (!(
+      entity instanceof ConstructionDoor ||
+      entity instanceof ConstructionParentEntity ||
+      entity instanceof ConstructionChildEntity ||
+      entity instanceof LootableConstructionEntity
+    )) {
       this.sendData<ReplicationCreateComponent>(
         client,
         "Replication.CreateComponent",

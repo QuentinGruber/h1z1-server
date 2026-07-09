@@ -820,9 +820,7 @@ export class WorldDataManager {
     });
     Object.values(entityData.freeplaceEntities).forEach((freeplaceData) => {
       let freeplace:
-        | ConstructionChildEntity
-        | ConstructionDoor
-        | LootableConstructionEntity;
+        ConstructionChildEntity | ConstructionDoor | LootableConstructionEntity;
       if ("occupiedWallSlots" in freeplaceData) {
         freeplace = this.loadConstructionChildEntity(server, freeplaceData);
       } else if ("passwordHash" in freeplaceData) {
