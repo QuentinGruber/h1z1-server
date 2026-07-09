@@ -133,7 +133,11 @@ export class WsLoginConnectionManager extends EventEmitter {
       this.emit("disconnect", null, this._loginClient, 1);
       this.reconnect();
     });
-    socket.on("error", (e) => debug(`ws error: ${e}`));
+    socket.on("error", (e: NodeJS.ErrnoException) => {
+      console.error(
+        `[ERROR] LoginConnection socket error to ${this.url()}: ${e.code || ""} ${e.message}`
+      );
+    });
   }
 
   private onMessage(buf: Buffer) {
