@@ -249,7 +249,7 @@ function getChaseTarget(zombie: ZombieInstance): {
   return null;
 }
 
-function applyDamageToTarget(zombie: ZombieInstance): void {
+export function applyDamageToTarget(zombie: ZombieInstance): void {
   if (!zombie.targetCharacterId) return;
   const character = zombie.server._characters[zombie.targetCharacterId];
   if (character) {

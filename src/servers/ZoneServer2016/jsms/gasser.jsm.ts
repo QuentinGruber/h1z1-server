@@ -27,6 +27,7 @@ import {
   ZombieEvents,
   type ZombieInstance
 } from "./zombie.jsm";
+import { applyDamageToTarget } from "./zombie.jsm";
 
 const BASE_SPEED = 1.0;
 const MAX_SPEED = 3.0;
@@ -90,14 +91,6 @@ function listenToSounds(gasser: ZombieInstance, sounds: Sound[]): Sound | null {
 function shouldOverrideAction(sound: Sound | null): boolean {
   if (!sound) return false;
   return (sound.priority ?? 0) >= OVERRIDE_ACTION_SOUND_PRIORITY;
-}
-
-function releaseGas(gasser: ZombieInstance): void {
-  gasser.npc.stopMovement();
-  gasser.npc.lookAtTarget = null;
-  spawnGasCloud(gasser);
-  gasser.npc.playAnimation(ZombieOneshotAnim.GasConvulse);
-  gasser.ChargeGas = 0;
 }
 
 function chargeGas(gasser: ZombieInstance): void {
@@ -192,22 +185,6 @@ function getChaseTarget(gasser: ZombieInstance): {
       isHidden: false
     };
   return null;
-}
-
-function applyDamageToTarget(zombie: ZombieInstance): void {
-  if (!zombie.targetCharacterId) return;
-  const character = zombie.server._characters[zombie.targetCharacterId];
-  if (character) {
-    zombie.npc.applyDamage(zombie.targetCharacterId);
-    return;
-  }
-  const targetNpc = zombie.server._npcs[zombie.targetCharacterId];
-  if (targetNpc && targetNpc.isAlive) {
-    targetNpc.damage(zombie.server, {
-      entity: zombie.npc.characterId,
-      damage: zombie.npc.npcMeleeDamage
-    });
-  }
 }
 
 export function spawnGasCloudAt(
@@ -535,9 +512,6 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
             gasser.event(ZombieEvents.ReleaseGas);
           } else if (attackDist <= MELEE_SLASH_RANGE) {
             gasser.event(ZombieEvents.StartAttacking);
-          } else {
-            // disable spit attack for now, as it can be too powerful and hard to dodge
-            // gasser.event(ZombieEvents.Spit);
           }
         }
       },
@@ -739,9 +713,16 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
         from: [ZombieTransitions.Attack],
         to: ZombieTransitions.Attacking,
         EnterTransition: () => {
-          releaseGas(gasser);
+          gasser.npc.stopMovement();
+          gasser.npc.lookAtTarget = null;
+          gasser.npc.playAnimation(ZombieOneshotAnim.GasConvulse);
+          spawnGasCloud(gasser);
+          setTimeout(() => {
+            gasser.npc.playAnimation(ZombieOneshotAnim.Stagger_Light); // after gas release, play stagger animation to fix animation beeing stuck in gas convulse animation
+          }, 5000);
+          gasser.ChargeGas = 0;
           gasser.stateTimer = 0;
-          gasser.lastAttackTime = 0;
+          gasser.lastAttackTime = 2;
         }
       },
       {
