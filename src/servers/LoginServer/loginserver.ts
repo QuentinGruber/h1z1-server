@@ -262,6 +262,17 @@ export class LoginServer extends EventEmitter {
                   if (status === 1) {
                     debug(`ZoneConnection established`);
                     client.serverId = serverId;
+                    // evict any stale connection still mapped to this serverId
+                    // so getZoneConnectionClient can't pick a dead/wrong one
+                    for (const staleId in this._zoneConnections) {
+                      if (
+                        this._zoneConnections[staleId] == serverId &&
+                        staleId != client.clientId
+                      ) {
+                        this._zoneConnectionManager.dropClient(staleId);
+                        delete this._zoneConnections[staleId];
+                      }
+                    }
                     this._zoneConnections[client.clientId] = serverId;
                     await this.updateZoneServerVersion(serverId, h1emuVersion);
                     await this.updateZoneServerRuleSets(
