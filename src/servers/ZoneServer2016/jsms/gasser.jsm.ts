@@ -18,7 +18,7 @@ import type { Sound } from "../../../types/zoneserver";
 import { NavManager } from "../../../utils/recast";
 const debug = require("debug")("ai");
 import { getDistance2d, getDistance } from "../../../utils/utils";
-import { Effects } from "../models/enums";
+import { Effects, NpcIds } from "../models/enums";
 import { Factions, isHostile } from "./factions";
 import {
   ZombieLoopingAnim,
@@ -214,6 +214,32 @@ export function spawnGasCloudAt(
     Effects.PFX_Char_Zombie_Gasser_GasCloud
   );
 
+  const ownerNpc = server._npcs[ownerCharacterId];
+  if (ownerNpc?.npcId === NpcIds.GASSER) {
+    for (const npc of Object.values(server._npcs)) {
+      if (!npc.isAlive || npc.characterId === ownerCharacterId) continue;
+      if (npc.faction !== Factions.ZOMBIE) continue;
+      if (getDistance2d(position, npc.state.position) > GAS_CLOUD_RANGE)
+        continue;
+      if (npc.effectTags.includes(Effects.PFX_Char_Zombie_Gasser_Ambient))
+        continue;
+
+      npc.effectTags.push(Effects.PFX_Char_Zombie_Gasser_Ambient);
+      server.sendDataToAllWithSpawnedEntity(
+        server._npcs,
+        npc.characterId,
+        "Character.AddEffectTagCompositeEffect",
+        {
+          characterId: npc.characterId,
+          unknownDword1: Effects.PFX_Char_Zombie_Gasser_Ambient,
+          effectId: Effects.PFX_Char_Zombie_Gasser_Ambient,
+          unknownGuid: ownerCharacterId,
+          unknownDword2: 3
+        }
+      );
+    }
+  }
+
   const applyGasDamage = () => {
     for (const character of Object.values(server._characters)) {
       if (!character.isAlive) continue;
@@ -253,36 +279,6 @@ export function spawnGasCloudAt(
   }, GAS_DAMAGE_DURATION_MS);
 }
 
-function applyGastoOtherzombie(
-  gasser: ZombieInstance,
-  gasPosition: Float32Array
-): void {
-  for (const characterId in gasser.server._npcs) {
-    const npc = gasser.server._npcs[characterId];
-
-    if (!npc.isAlive || npc.characterId === gasser.npc.characterId) continue;
-    if (npc.faction !== Factions.ZOMBIE) continue;
-    if (getDistance2d(gasPosition, npc.state.position) > GAS_CLOUD_RANGE)
-      continue;
-    if (npc.effectTags.includes(Effects.PFX_Char_Zombie_Gasser_Ambient))
-      continue;
-
-    npc.effectTags.push(Effects.PFX_Char_Zombie_Gasser_Ambient);
-    gasser.server.sendDataToAllWithSpawnedEntity(
-      gasser.server._npcs,
-      npc.characterId,
-      "Character.AddEffectTagCompositeEffect",
-      {
-        characterId: npc.characterId,
-        unknownDword1: Effects.PFX_Char_Zombie_Gasser_Ambient,
-        effectId: Effects.PFX_Char_Zombie_Gasser_Ambient,
-        unknownGuid: gasser.npc.characterId,
-        unknownDword2: 3
-      }
-    );
-  }
-}
-
 function spawnGasCloud(gasser: ZombieInstance): void {
   const targetCharacter =
     gasser.server._characters[gasser.targetCharacterId ?? ""];
@@ -296,7 +292,6 @@ function spawnGasCloud(gasser: ZombieInstance): void {
     targetPos.slice() as Float32Array,
     gasser.npc.characterId
   );
-  applyGastoOtherzombie(gasser, targetPos);
 }
 
 function tickTimers(gasser: ZombieInstance, dt: number): void {

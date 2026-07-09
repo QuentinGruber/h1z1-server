@@ -15,6 +15,7 @@ import { ZoneServer2016 } from "../zoneserver";
 import { Effects, ModelIds, NpcIds, StringIds } from "../models/enums";
 import { ZombieWalker } from "./zombiewalker";
 import { createGasser, spawnGasCloudAt } from "../jsms/gasser.jsm";
+import { getDistance } from "../../../utils/utils";
 import { DamageInfo } from "types/zoneserver";
 
 export class Gasser extends ZombieWalker {
@@ -49,8 +50,15 @@ export class Gasser extends ZombieWalker {
     const wasAlive = this.isAlive;
     await super.damage(server, damageInfo);
     // explode into a gas cloud
-    if (wasAlive && !this.isAlive) {
+    if (
+      wasAlive &&
+      !this.isAlive &&
+      this.effectTags.includes(Effects.PFX_Char_Zombie_Gasser_Ambient)
+    ) {
       this.removeEffectTag(Effects.PFX_Char_Zombie_Gasser_Ambient);
+
+      const GASSER_DEATH_EXPLOSION_RANGE = 10;
+      const GASSER_DEATH_EXPLOSION_DAMAGE = Math.floor(10000 / 3);
 
       server.sendCompositeEffectToAllInRange(
         100,
@@ -58,6 +66,20 @@ export class Gasser extends ZombieWalker {
         this.state.position,
         Effects.PFX_Char_Zombie_Gasser_ExplosionGasCloud
       );
+
+      for (const character of Object.values(server._characters)) {
+        if (!character.isAlive) continue;
+        if (
+          getDistance(character.state.position, this.state.position) >
+          GASSER_DEATH_EXPLOSION_RANGE
+        )
+          continue;
+
+        character.damage(server, {
+          entity: this.characterId,
+          damage: GASSER_DEATH_EXPLOSION_DAMAGE
+        });
+      }
 
       spawnGasCloudAt(server, this.state.position, this.characterId);
     }
