@@ -2079,12 +2079,13 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private async setupServer() {
+    const aiEnabled = !process.env.DISABLE_AI && this.aiEnabled;
     // The navmesh is just map data - load it independently of AI so features
     // like airdrop ground-height still work when AI is disabled.
-    if (!process.env.DISABLE_NAV) {
+    if (aiEnabled || this.airdropManager.useNavmesh) {
       await this.navManager.loadNav();
     }
-    if (!process.env.DISABLE_AI && this.aiEnabled) {
+    if (aiEnabled) {
       this.aiTickRoutine = setInterval(() => this.tickAi(), this.aiTickRate);
       this.pathfindingRoutine = setInterval(
         () => this.updatePathfindingPositions(),
