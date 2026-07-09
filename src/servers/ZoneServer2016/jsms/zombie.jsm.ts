@@ -102,7 +102,8 @@ export const enum ZombieEvents {
   DoneAttacking = "doneAttacking",
   StartStumble = "startStumble",
   StumbleTimeout = "stumbleTimeout",
-  CoverEars = "coverEars"
+  CoverEars = "coverEars",
+  ReleaseGas = "releaseGas"
 }
 
 export interface ZombieInstance extends JSM<ZombieEvents> {
@@ -119,6 +120,7 @@ export interface ZombieInstance extends JSM<ZombieEvents> {
   lastAttackTime: number;
   wanderOrigin: Float32Array;
   isCoveringEars: boolean;
+  ChargeGas: number;
   coverEarsTimer: number;
   npc: Npc;
   server: ZoneServer2016;
