@@ -3792,6 +3792,7 @@ export class ZonePacketHandlers {
     if (!(entity instanceof BaseFullCharacter)) {
       return;
     }
+    if (packet.data.characterId != client.character.characterId) return;
     entity.OnRagdollStop(server, client, packet.data);
   }
 
