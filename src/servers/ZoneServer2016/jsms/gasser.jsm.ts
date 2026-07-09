@@ -38,6 +38,8 @@ const OVERRIDE_ACTION_SOUND_PRIORITY = 10;
 const GAS_CHARGE_RANGE = 10;
 const GAS_CHARGE_PER_CLIENT = 0.2;
 const GAS_CHARGE_PER_ZOMBIE = 0.1;
+const MELEE_SLASH_RANGE = 2;
+const GAS_SPIT_RANGE = 12;
 const GAS_CLOUD_RANGE = 7;
 const GAS_DAMAGE_PER_TICK = 500;
 const GAS_DAMAGE_TICK_MS = 1000;
@@ -500,10 +502,14 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
           gasser.npc.state.position,
           attackTarget.position
         );
-        if (attackDist >= 2) {
+        if (attackDist > GAS_SPIT_RANGE) {
           gasser.event(ZombieEvents.PlayerBacked);
         } else if (gasser.lastAttackTime > 2) {
-          gasser.event(ZombieEvents.StartAttacking);
+          if (attackDist <= MELEE_SLASH_RANGE) {
+            gasser.event(ZombieEvents.StartAttacking);
+          } else {
+            gasser.event(ZombieEvents.Spit);
+          }
         }
       },
 
@@ -530,7 +536,8 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
               gasser.npc.state.position,
               attackTarget.position
             );
-            if (attackDist <= 2) {
+            const inSlashRange = attackDist <= MELEE_SLASH_RANGE;
+            if (inSlashRange) {
               if (gasser.ChargeGas >= 100 && Math.random() < 0.5) {
                 releaseGas(gasser);
               }
@@ -684,6 +691,16 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
       },
       {
         eventId: ZombieEvents.StartAttacking,
+        from: [ZombieTransitions.Attack],
+        to: ZombieTransitions.Attacking,
+        EnterTransition: () => {
+          gasser.npc.playAnimation(ZombieOneshotAnim.KnifeSlash);
+          gasser.stateTimer = 0;
+          gasser.lastAttackTime = 0;
+        }
+      },
+      {
+        eventId: ZombieEvents.Spit,
         from: [ZombieTransitions.Attack],
         to: ZombieTransitions.Attacking,
         EnterTransition: () => {

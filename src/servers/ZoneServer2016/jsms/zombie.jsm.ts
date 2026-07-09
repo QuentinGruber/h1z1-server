@@ -99,6 +99,7 @@ export const enum ZombieEvents {
   DoneFeeding = "doneFeeding",
   IdleTimeout = "idleTimeout",
   StartAttacking = "startAttacking",
+  Spit = "spit",
   DoneAttacking = "doneAttacking",
   StartStumble = "startStumble",
   StumbleTimeout = "stumbleTimeout",
