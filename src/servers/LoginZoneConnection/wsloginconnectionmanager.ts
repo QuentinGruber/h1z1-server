@@ -27,7 +27,11 @@ const debug = require("debug")("WsLoginConnection");
  */
 export class WsLoginConnectionManager extends EventEmitter {
   _protocol = new LZConnectionProtocol();
-  private _loginServerInfo: { address?: string; port: number } = { port: 0 };
+  private _loginServerInfo: {
+    address?: string;
+    hostname?: string;
+    port: number;
+  } = { port: 0 };
   private _sessionData: any;
   private _secret: string = process.env.LZ_SERVER_SECRET || "";
   private _tls: boolean = process.env.LZ_TLS === "1";
@@ -59,7 +63,7 @@ export class WsLoginConnectionManager extends EventEmitter {
   }
 
   private connect() {
-    const options: ClientOptions = {
+    const options: ClientOptions & { servername?: string } = {
       headers: {
         "x-server-id": String(this._serverId),
         authorization: this._secret
@@ -72,6 +76,10 @@ export class WsLoginConnectionManager extends EventEmitter {
         options.ca = fs.readFileSync(process.env.LZ_TLS_CA);
       if (process.env.LZ_TLS_INSECURE === "1")
         options.rejectUnauthorized = false;
+      // we dial the resolved IP but the cert is issued for the domain, so tell
+      // TLS to send SNI and verify against the hostname, not the IP
+      if (this._loginServerInfo.hostname)
+        options.servername = this._loginServerInfo.hostname;
     }
     const socket = new WebSocket(this.url(), options);
     this._socket = socket;

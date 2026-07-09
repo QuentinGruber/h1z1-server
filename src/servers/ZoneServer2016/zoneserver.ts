@@ -469,7 +469,11 @@ export class ZoneServer2016 extends EventEmitter {
   _characterIds: { [characterId: string]: number } = {};
 
   /** Determines which login server is used, Localhost by default. */
-  readonly _loginServerInfo: { address?: string; port: number } = {
+  readonly _loginServerInfo: {
+    address?: string;
+    hostname?: string;
+    port: number;
+  } = {
     address: process.env.LOGINSERVER_IP,
     port: 1110
   };
@@ -9676,6 +9680,9 @@ export class ZoneServer2016 extends EventEmitter {
       "loginserver.h1emu.com"
     );
     this._loginServerInfo.address = loginServerAddress[0] as string;
+    // keep the hostname for TLS SNI/cert validation; we dial the resolved IP
+    // but the cert is issued for the domain, so wss must verify against it
+    this._loginServerInfo.hostname = "loginserver.h1emu.com";
   }
   executeFuncForAllReadyClients(callback: (client: Client) => void) {
     for (const client in this._clients) {
