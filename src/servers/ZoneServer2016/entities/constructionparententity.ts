@@ -10,7 +10,7 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
-const debug = require("debug")("Nav");
+
 import { ConstructionChildEntity } from "./constructionchildentity";
 import { LootableConstructionEntity } from "./lootableconstructionentity";
 import {
@@ -307,7 +307,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     if (!process.env.DISABLE_AI && server.aiEnabled) {
       this.obstacleRef = setObstacle(server, actorModelId, position, rotation);
       if (this.obstacleRef) {
-        debug(
+        console.log(
           `[NavMesh] Added obstacle for construction ${this.characterId} (modelId: ${actorModelId})`
         );
       }

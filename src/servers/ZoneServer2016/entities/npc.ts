@@ -23,7 +23,6 @@ import {
 } from "../../../utils/utils";
 import { DB_COLLECTIONS, KILL_TYPE } from "../../../utils/enums";
 import {
-  Effects,
   Items,
   MeleeTypes,
   NpcIds,
@@ -37,7 +36,6 @@ import { ChallengeType } from "../managers/challengemanager";
 import { ProjectileEntity } from "./projectileentity";
 import { JSM } from "../jsms/jsm";
 import { Factions } from "../jsms/factions";
-import { spawnGasCloudAt } from "../jsms/gasser.jsm";
 
 export abstract class Npc extends BaseFullCharacter {
   health: number;
@@ -294,22 +292,6 @@ export abstract class Npc extends BaseFullCharacter {
         oldHealth
       );
       client.character.addCombatlogEntry(damageRecord);
-    }
-
-    if (
-      !this.isAlive &&
-      this.effectTags.includes(Effects.PFX_Char_Zombie_Gasser_Ambient)
-    ) {
-      this.removeEffectTag(Effects.PFX_Char_Zombie_Gasser_Ambient);
-
-      server.sendCompositeEffectToAllInRange(
-        100,
-        this.characterId,
-        this.state.position,
-        Effects.PFX_Char_Zombie_Gasser_ExplosionGasCloud
-      );
-
-      spawnGasCloudAt(server, this.state.position, this.characterId);
     }
   }
 

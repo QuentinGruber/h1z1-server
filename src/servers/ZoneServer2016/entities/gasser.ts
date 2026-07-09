@@ -51,14 +51,6 @@ export class Gasser extends ZombieWalker {
     // explode into a gas cloud
     if (wasAlive && !this.isAlive) {
       this.removeEffectTag(Effects.PFX_Char_Zombie_Gasser_Ambient);
-
-      server.sendCompositeEffectToAllInRange(
-        100,
-        this.characterId,
-        this.state.position,
-        Effects.PFX_Char_Zombie_Gasser_ExplosionGasCloud
-      );
-
       spawnGasCloudAt(server, this.state.position, this.characterId);
     }
   }
