@@ -5,7 +5,7 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
-
+const debug = require("debug")("Nav");
 function getRenderDistance(itemDefinitionId: number) {
   let range: number = 0;
   switch (itemDefinitionId) {
@@ -223,9 +223,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
    * uses CharacterId (string) for indexing */
   freeplaceEntities: {
     [characterId: string]:
-      | ConstructionChildEntity
-      | ConstructionDoor
-      | LootableConstructionEntity;
+      ConstructionChildEntity | ConstructionDoor | LootableConstructionEntity;
   } = {};
 
   constructor(
@@ -331,7 +329,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     if (!process.env.DISABLE_AI && server.aiEnabled) {
       this.obstacleRef = setObstacle(server, actorModelId, position, rotation);
       if (this.obstacleRef) {
-        console.log(
+        debug(
           `[NavMesh] Added obstacle for construction ${this.characterId} (modelId: ${actorModelId})`
         );
       }
@@ -553,9 +551,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
 
   addFreeplaceConstruction(
     entity:
-      | ConstructionChildEntity
-      | ConstructionDoor
-      | LootableConstructionEntity
+      ConstructionChildEntity | ConstructionDoor | LootableConstructionEntity
   ) {
     this.freeplaceEntities[entity.characterId] = entity;
   }
