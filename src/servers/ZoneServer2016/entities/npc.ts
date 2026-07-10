@@ -23,6 +23,7 @@ import {
 } from "../../../utils/utils";
 import { DB_COLLECTIONS, KILL_TYPE } from "../../../utils/enums";
 import {
+  Effects,
   Items,
   MeleeTypes,
   NpcIds,
@@ -36,6 +37,7 @@ import { ChallengeType } from "../managers/challengemanager";
 import { ProjectileEntity } from "./projectileentity";
 import { JSM } from "../jsms/jsm";
 import { Factions } from "../jsms/factions";
+import { spawnGasCloudAt } from "../jsms/gasser.jsm";
 
 export abstract class Npc extends BaseFullCharacter {
   health: number;
@@ -292,6 +294,44 @@ export abstract class Npc extends BaseFullCharacter {
         oldHealth
       );
       client.character.addCombatlogEntry(damageRecord);
+    }
+
+    if (
+      !this.isAlive &&
+      this.effectTags.includes(Effects.PFX_Char_Zombie_Gasser_Ambient)
+    ) {
+      const GASSER_DEATH_EXPLOSION_RANGE = 10;
+      const GASSER_DEATH_EXPLOSION_DAMAGE = Math.floor(10000 / 3);
+
+      this.removeEffectTag(Effects.PFX_Char_Zombie_Gasser_Ambient);
+
+      for (const character of Object.values(server._characters)) {
+        if (!character.isAlive) continue;
+        if (
+          getDistance(character.state.position, this.state.position) >
+          GASSER_DEATH_EXPLOSION_RANGE
+        )
+          continue;
+
+        character.damage(server, {
+          entity: this.characterId,
+          damage: GASSER_DEATH_EXPLOSION_DAMAGE
+        });
+      }
+
+      server.sendCompositeEffectToAllInRange(
+        100,
+        this.characterId,
+        this.state.position,
+        Effects.PFX_Char_Zombie_Gasser_ExplosionGasCloud
+      );
+
+      // schedule body removal after ragdoll animation completes (~0.1 seconds)
+      setTimeout(() => {
+        server.deleteEntity(this.characterId, server._npcs);
+      }, 100);
+
+      spawnGasCloudAt(server, this.state.position, this.characterId);
     }
   }
 

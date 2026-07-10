@@ -185,6 +185,7 @@ export class WorldObjectManager {
   chanceNpc!: number;
   chanceScreamer!: number;
   chanceGasser!: number;
+  chanceGasserPropagation!: number;
   chanceExploder!: number;
   chanceWornLetter!: number;
   waterSourceReplenishTimer!: number;
