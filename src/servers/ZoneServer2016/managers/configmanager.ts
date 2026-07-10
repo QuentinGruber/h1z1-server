@@ -481,6 +481,7 @@ export class ConfigManager {
       chanceNpc,
       chanceScreamer,
       chanceGasser,
+      chanceGasserPropagation,
       chanceExploder,
       lootbagDespawnTimer,
       crowbarHitRewardChance,
@@ -510,6 +511,7 @@ export class ConfigManager {
     server.worldObjectManager.chanceNpc = chanceNpc;
     server.worldObjectManager.chanceScreamer = chanceScreamer;
     server.worldObjectManager.chanceGasser = chanceGasser;
+    server.worldObjectManager.chanceGasserPropagation = chanceGasserPropagation;
     server.worldObjectManager.chanceExploder = chanceExploder;
 
     server.worldObjectManager.chanceWornLetter = chanceWornLetter;

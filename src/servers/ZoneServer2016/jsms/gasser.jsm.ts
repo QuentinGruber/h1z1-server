@@ -223,6 +223,11 @@ export function spawnGasCloudAt(
         continue;
       if (npc.effectTags.includes(Effects.PFX_Char_Zombie_Gasser_Ambient))
         continue;
+      if (
+        Math.floor(Math.random() * 100) + 1 >
+        server.worldObjectManager.chanceGasserPropagation
+      )
+        continue;
 
       npc.effectTags.push(Effects.PFX_Char_Zombie_Gasser_Ambient);
       server.sendDataToAllWithSpawnedEntity(

@@ -91,6 +91,7 @@ interface WorldObjectsConfig {
   chanceNpc: number;
   chanceScreamer: number;
   chanceGasser: number;
+  chanceGasserPropagation: number;
   chanceExploder: number;
 
   crowbarHitRewardChance: number;
