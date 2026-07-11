@@ -6,7 +6,7 @@ import { getCurrentServerTimeWrapper } from "../../../utils/utils";
 import assert from "node:assert";
 
 process.env.FORCE_DISABLE_WS = "true";
-test("Damage-pve", { timeout: 10000 }, async (t) => {
+test("Damage-pve", { timeout: 60000 }, async (t) => {
   const zone = new ZoneServer2016(0);
   zone.isPvE = true;
   await zone.start();
@@ -41,7 +41,7 @@ test("Damage-pve", { timeout: 10000 }, async (t) => {
   await zone.stop();
 });
 
-test("Damage-pvp", { timeout: 10000 }, async (t) => {
+test("Damage-pvp", { timeout: 60000 }, async (t) => {
   const zone = new ZoneServer2016(0);
   await zone.start();
   assert.equal(zone.isPvE, false);

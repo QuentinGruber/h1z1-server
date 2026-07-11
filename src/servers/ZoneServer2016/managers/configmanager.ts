@@ -452,11 +452,7 @@ export class ConfigManager {
     //#endregion
 
     //#region airdrops
-    const { planeMovementSpeed, crateDropSpeed, minimumPlayers } =
-      this.config.airdrop;
-    server.airdropManager.minimumPlayers = minimumPlayers;
-    server.airdropManager.planeMovementSpeed = planeMovementSpeed;
-    server.airdropManager.crateDropSpeed = crateDropSpeed;
+    server.airdropManager.applyConfig(this.config.airdrop);
     //#endregion
 
     //#region worldobjects

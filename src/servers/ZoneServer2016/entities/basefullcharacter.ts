@@ -15,7 +15,8 @@ import {
   AudioSetSwitch,
   EquipmentSetCharacterEquipment,
   EquipmentSetCharacterEquipmentSlot,
-  LightweightToFullNpc
+  LightweightToFullNpc,
+  RagdollStop
 } from "types/zone2016packets";
 import { CharacterEquipment, DamageInfo } from "../../../types/zoneserver";
 import { LoadoutKit } from "../data/loadouts";
@@ -1437,6 +1438,14 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     console.log(
       `[ERROR] Unhandled FullCharacterDataRequest from client ${client.guid}!`
     );
+  }
+
+  OnRagdollStop(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: RagdollStop
+  ) {
+    console.log(`[ERROR] Unhandled RagdollStop from client ${client.guid}!`);
   }
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {

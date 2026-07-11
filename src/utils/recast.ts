@@ -172,6 +172,18 @@ export class NavManager {
     return n.nearestPoint;
   }
 
+  // Nearest navmesh point at (x, z), searched from above with height ignored.
+  // Returns null when the spot is off-mesh (water/void/gap)
+  getNavGroundPoint(x: number, z: number): Float32Array | null {
+    if (!this.navMeshQuery) return null;
+    const n = this.navMeshQuery.findNearestPoly(
+      { x, y: 1000, z },
+      { halfExtents: { x: 10, y: 2000, z: 10 } }
+    );
+    if (!n.success || !n.nearestRef) return null;
+    return NavManager.navToGame(n.nearestPoint);
+  }
+
   createAgent(gamePos: Float32Array): CrowdAgent {
     const navPosition = this.getClosestNavPointVec3(gamePos);
     debug(

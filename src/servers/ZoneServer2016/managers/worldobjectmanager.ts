@@ -79,6 +79,7 @@ import { Exploder } from "../entities/exploder";
 import { Deer } from "../entities/deer";
 import { Wolf } from "../entities/wolf";
 import { Bear } from "../entities/bear";
+import { BasicNpc } from "../entities/basicnpc";
 import { scheduler } from "node:timers/promises";
 import {
   ContainerPropSnapshot,
@@ -723,7 +724,17 @@ export class WorldObjectManager {
         );
         break;
       default:
-        throw new Error(`Unknown NPC modelId: ${modelId}`);
+        // Fallback to BasicNpc as this was used for testing models as well
+        npc = new BasicNpc(
+          characterId,
+          transientId,
+          modelId,
+          position,
+          rotation,
+          server,
+          spawnerId
+        );
+        break;
     }
     server._npcs[characterId] = npc;
     if (spawnerId) this.spawnedNpcs[spawnerId] = characterId;
