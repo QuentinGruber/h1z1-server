@@ -47,22 +47,26 @@ export class NavManager {
     const mesh_parts: Buffer[] = [];
     const tc_parts: Buffer[] = [];
     let part = 0;
-    while (true) {
-      const partPath = __dirname + `/../../data/2016/navData/z1_${part}.bin`;
-      if (!existsSync(partPath)) break;
-      mesh_parts.push(readFileSync(partPath));
-      console.log(`[NAV] loaded nav part ${part}`);
-      part++;
-    }
-    part = 0;
+    if (!process.env.FAKE_NAVMESH) {
+      while (true) {
+        const partPath = __dirname + `/../../data/2016/navData/z1_${part}.bin`;
+        if (!existsSync(partPath)) break;
+        mesh_parts.push(readFileSync(partPath));
+        console.log(`[NAV] loaded nav part ${part}`);
+        part++;
+      }
+      part = 0;
 
-    while (true) {
-      const partPath =
-        __dirname + `/../../data/2016/navData/z1_cache_${part}.bin`;
-      if (!existsSync(partPath)) break;
-      tc_parts.push(readFileSync(partPath));
-      console.log(`[NAV] loaded nav cache part ${part}`);
-      part++;
+      while (true) {
+        const partPath =
+          __dirname + `/../../data/2016/navData/z1_cache_${part}.bin`;
+        if (!existsSync(partPath)) break;
+        tc_parts.push(readFileSync(partPath));
+        console.log(`[NAV] loaded nav cache part ${part}`);
+        part++;
+      }
+    } else {
+      console.log(`"[NAV]" Empty navmesh loaded`);
     }
     await initRecast();
 
