@@ -18,6 +18,7 @@ const debugName = "ZoneServer",
 import { EventEmitter } from "node:events";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import { LoginConnectionManager } from "../LoginZoneConnection/loginconnectionmanager";
+import { WsLoginConnectionManager } from "../LoginZoneConnection/wsloginconnectionmanager";
 import { LZConnectionClient } from "../LoginZoneConnection/shared/lzconnectionclient";
 import { Resolver } from "node:dns";
 
@@ -342,7 +343,9 @@ export class ZoneServer2016 extends EventEmitter {
   _serverName = process.env.SERVER_NAME || "";
   readonly _mongoAddress: string;
   private _clientProtocol: string;
-  protected _loginConnectionManager!: LoginConnectionManager;
+  protected _loginConnectionManager!:
+    | LoginConnectionManager
+    | WsLoginConnectionManager;
   _serverGuid = generateRandomGuid();
   _worldId = 0;
   _grid: GridCell[] = [];
@@ -466,7 +469,11 @@ export class ZoneServer2016 extends EventEmitter {
   _characterIds: { [characterId: string]: number } = {};
 
   /** Determines which login server is used, Localhost by default. */
-  readonly _loginServerInfo: { address?: string; port: number } = {
+  readonly _loginServerInfo: {
+    address?: string;
+    hostname?: string;
+    port: number;
+  } = {
     address: process.env.LOGINSERVER_IP,
     port: 1110
   };
@@ -898,10 +905,11 @@ export class ZoneServer2016 extends EventEmitter {
     this.commandHandler.reloadCommands();
   }
   async registerLoginConnectionListeners(internalServerPort?: number) {
-    this._loginConnectionManager = new LoginConnectionManager(
-      this._worldId,
-      internalServerPort
-    ); // opens local socket to connect to loginserver
+    // a per-server secret means this zone authenticates over ws; without one
+    // it falls back to the legacy UDP transport
+    this._loginConnectionManager = process.env.LZ_SERVER_SECRET
+      ? new WsLoginConnectionManager(this._worldId)
+      : new LoginConnectionManager(this._worldId, internalServerPort);
 
     this._loginConnectionManager.on(
       "session",
@@ -2077,8 +2085,13 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private async setupServer() {
-    if (!process.env.DISABLE_AI && this.aiEnabled) {
+    const aiEnabled = !process.env.DISABLE_AI && this.aiEnabled;
+    // The navmesh is just map data - load it independently of AI so features
+    // like airdrop ground-height still work when AI is disabled.
+    if (aiEnabled || this.airdropManager.useNavmesh) {
       await this.navManager.loadNav();
+    }
+    if (aiEnabled) {
       this.aiTickRoutine = setInterval(() => this.tickAi(), this.aiTickRate);
       this.pathfindingRoutine = setInterval(
         () => this.updatePathfindingPositions(),
@@ -3600,6 +3613,79 @@ export class ZoneServer2016 extends EventEmitter {
           }
         }
         return;
+      }
+
+      if (sourceEntity.itemDefinitionId == Items.GRENADE_SCREAM) {
+        this.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
+          this._throwableProjectiles,
+          sourceEntity.characterId,
+          "Character.PlayWorldCompositeEffect",
+          {
+            characterId: sourceEntity.characterId,
+            effectId: 5270,
+            position: sourceEntity.state.position,
+            effectTime: 15
+          }
+        );
+
+        this.pushSound({
+          radius: 30,
+          position: sourceEntity.state.position,
+          agitation: 100,
+          priority: 10
+        });
+
+        // Keep re-emitting the scream noise so AI can stay interested while the
+        // grenade is charging. AI sounds are cleared every tick.
+        const screamPulseInterval = setInterval(() => {
+          this.pushSound({
+            radius: 30,
+            position: sourceEntity.state.position,
+            agitation: 100,
+            priority: 10
+          });
+        }, 500);
+
+        // Schedule explosion damage after 15 seconds
+        setTimeout(async () => {
+          clearInterval(screamPulseInterval);
+          this.sendCompositeEffectToAllInRange(
+            600,
+            sourceEntity.characterId,
+            sourceEntity.state.position,
+            Effects.PFX_Impact_Explosion_FragGrenade_Default_08m
+          );
+          if (!this.isPvE) {
+            for (const client in Object(this._clients)) {
+              if (!client) continue;
+              if (
+                isPosInRadiusWithY(
+                  10,
+                  this._clients[client].character.state.position,
+                  sourceEntity.state.position,
+                  5
+                )
+              )
+                this._clients[client].character.OnExplosiveHit(
+                  this,
+                  sourceEntity
+                );
+            }
+            for (const npcId in Object(this._npcs)) {
+              if (!npcId) continue;
+              if (
+                isPosInRadiusWithY(
+                  10,
+                  this._npcs[npcId].state.position,
+                  sourceEntity.state.position,
+                  5
+                )
+              ) {
+                this._npcs[npcId].OnExplosiveHit(this, sourceEntity);
+              }
+            }
+          }
+        }, 15000);
       }
     }
 
@@ -5424,7 +5510,8 @@ export class ZoneServer2016 extends EventEmitter {
             distance: entity.interactionDistance,
             disableInteractionGlow:
               entity instanceof ConstructionChildEntity ||
-              entity instanceof ConstructionParentEntity
+              entity instanceof ConstructionParentEntity ||
+              entity instanceof TemporaryEntity
           }
         }
       }
@@ -7946,7 +8033,7 @@ export class ZoneServer2016 extends EventEmitter {
         item.itemDefinitionId
       ) ||
       !this.airdropManager.spawnAirdrop(
-        client.character.state.position,
+        this.getAirdropDropPosition(client.character.state.position),
         client.character.hasAirdropClearance ? "Hospital" : "",
         client.isDebugMode,
         client.character.characterId
@@ -9854,6 +9941,9 @@ export class ZoneServer2016 extends EventEmitter {
       "loginserver.h1emu.com"
     );
     this._loginServerInfo.address = loginServerAddress[0] as string;
+    // keep the hostname for TLS SNI/cert validation; we dial the resolved IP
+    // but the cert is issued for the domain, so wss must verify against it
+    this._loginServerInfo.hostname = "loginserver.h1emu.com";
   }
   executeFuncForAllReadyClients(callback: (client: Client) => void) {
     for (const client in this._clients) {
@@ -10767,6 +10857,52 @@ export class ZoneServer2016 extends EventEmitter {
     });
 
     return isInPoi;
+  }
+
+  /** A drop must clear POIs, bases and vehicles (buildings are inside POIs). */
+  private isValidAirdropPosition(position: Float32Array): boolean {
+    if (this.isPosInPoi(position)) return false;
+    for (const a in this._constructionFoundations) {
+      if (
+        isPosInRadius(
+          50,
+          this._constructionFoundations[a].state.position,
+          position
+        )
+      )
+        return false;
+    }
+    for (const v in this._vehicles) {
+      if (isPosInRadius(10, this._vehicles[v].state.position, position))
+        return false;
+    }
+    return true;
+  }
+
+  /**
+   * Picks a random drop spot inside the caller's grid cell (the playable
+   * 10x10 area spans -3720..3720, so each cell is 744 units) that avoids POIs,
+   * bases and vehicles. Ground height comes from the navmesh so drops land on
+   * walkable terrain, not inside buildings. Falls back to the caller's spot.
+   */
+  getAirdropDropPosition(callerPos: Float32Array): Float32Array {
+    if (!this.airdropManager.useNavmesh) return callerPos;
+    const BOUNDARY = 3720;
+    const CELL = (BOUNDARY * 2) / 10; // 744
+    const cellMin = (p: number) =>
+      -BOUNDARY +
+      Math.min(9, Math.max(0, Math.floor((p + BOUNDARY) / CELL))) * CELL;
+    const minX = cellMin(callerPos[0]);
+    const minZ = cellMin(callerPos[2]);
+
+    for (let i = 0; i < 30; i++) {
+      const x = minX + Math.random() * CELL;
+      const z = minZ + Math.random() * CELL;
+      const pos = this.navManager.getNavGroundPoint(x, z);
+      if (!pos) continue;
+      if (this.isValidAirdropPosition(pos)) return pos;
+    }
+    return callerPos;
   }
 
   private tickNpcFsms(dt: number): void {

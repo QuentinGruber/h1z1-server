@@ -280,6 +280,38 @@ export class LootableProp extends BaseLootableEntity {
     isInstant?: boolean
     /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
+    if (
+      this.actorModelId == ModelIds.HOSPITAL_GROSSING_STATION &&
+      client.character.hasItem(Items.VIAL_H1Z1_B_INFECTED_BLOOD)
+    ) {
+      const requiredItemId = Items.VIAL_H1Z1_B_INFECTED_BLOOD;
+      const requiredCount = 1;
+      const inventoryCount =
+        client.character.getInventoryItemAmount(requiredItemId);
+
+      if (requiredCount > inventoryCount) {
+        return;
+      }
+
+      const itemsPassed: { itemDefinitionId: number; count: number }[] = [];
+      itemsPassed.push({
+        itemDefinitionId: Items.VIAL_H1Z1_B_PLASMA,
+        count: 5
+      });
+
+      const requiredItemInfo = {
+        itemDefinitionId: requiredItemId,
+        count: requiredCount
+      };
+      server.taskOption(
+        client,
+        15000,
+        StringIds.GROSSING_STATION,
+        requiredItemInfo,
+        itemsPassed
+      );
+      return;
+    }
     if (!client.searchedProps.includes(this)) {
       server.utilizeHudTimer(
         client,
@@ -302,6 +334,20 @@ export class LootableProp extends BaseLootableEntity {
         guid: this.characterId,
         stringId: StringIds.USE_TARGET
       });
+      return;
+    }
+    if (this.actorModelId == ModelIds.HOSPITAL_GROSSING_STATION) {
+      if (client.character.hasItem(Items.VIAL_H1Z1_B_INFECTED_BLOOD)) {
+        server.sendData(client, "Command.InteractionString", {
+          guid: this.characterId,
+          stringId: StringIds.CREATE_H1Z1_B_PLASMA
+        });
+      } else {
+        server.sendData(client, "Command.InteractionString", {
+          guid: this.characterId,
+          stringId: StringIds.SEARCH
+        });
+      }
       return;
     }
     if (client.searchedProps.includes(this)) {

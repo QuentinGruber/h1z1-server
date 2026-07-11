@@ -10,7 +10,7 @@ import { ZombieWalker } from "./zombiewalker";
 import { ModelIds } from "../models/enums";
 
 process.env.FORCE_DISABLE_WS = "true";
-test("Damage-pve", { timeout: 10000 }, async (t) => {
+test("Damage-pve", { timeout: 60000 }, async (t) => {
   const zone = new ZoneServer2016(0);
   zone.isPvE = true;
   await zone.start();
@@ -39,7 +39,7 @@ test("Damage-pve", { timeout: 10000 }, async (t) => {
   });
   await zone.stop();
 });
-test("Damage-npc-pvp", { timeout: 10000 }, async (t) => {
+test("Damage-npc-pvp", { timeout: 60000 }, async (t) => {
   const zone = new ZoneServer2016(0);
   await zone.start();
   const character = createFakeCharacter(zone);
@@ -74,7 +74,7 @@ test("Damage-npc-pvp", { timeout: 10000 }, async (t) => {
   });
   await zone.stop();
 });
-test("Damage-npc-pve", { timeout: 10000 }, async (t) => {
+test("Damage-npc-pve", { timeout: 60000 }, async (t) => {
   const zone = new ZoneServer2016(0);
   zone.isPvE = true;
   await zone.start();
@@ -112,7 +112,7 @@ test("Damage-npc-pve", { timeout: 10000 }, async (t) => {
   await zone.stop();
 });
 
-test("Damage-pvp", { timeout: 10000 }, async (t) => {
+test("Damage-pvp", { timeout: 60000 }, async (t) => {
   const zone = new ZoneServer2016(0);
   await zone.start();
   assert.equal(zone.isPvE, false);

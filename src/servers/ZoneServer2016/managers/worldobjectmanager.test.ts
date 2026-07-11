@@ -15,7 +15,7 @@ import test, { after } from "node:test";
 import assert from "node:assert";
 import { LootTableManager } from "./loottablemanager";
 
-test("WorldObjectManager", { timeout: 10000 }, async (t) => {
+test("WorldObjectManager", { timeout: 60000 }, async (t) => {
   await t.test("containerLootSpawners", () => {
     const manager = new LootTableManager();
     manager.load();

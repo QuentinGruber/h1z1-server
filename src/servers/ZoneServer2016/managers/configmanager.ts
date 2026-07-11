@@ -452,11 +452,7 @@ export class ConfigManager {
     //#endregion
 
     //#region airdrops
-    const { planeMovementSpeed, crateDropSpeed, minimumPlayers } =
-      this.config.airdrop;
-    server.airdropManager.minimumPlayers = minimumPlayers;
-    server.airdropManager.planeMovementSpeed = planeMovementSpeed;
-    server.airdropManager.crateDropSpeed = crateDropSpeed;
+    server.airdropManager.applyConfig(this.config.airdrop);
     //#endregion
 
     //#region worldobjects
@@ -481,6 +477,7 @@ export class ConfigManager {
       chanceNpc,
       chanceScreamer,
       chanceGasser,
+      chanceGasserPropagation,
       chanceExploder,
       lootbagDespawnTimer,
       crowbarHitRewardChance,
@@ -510,6 +507,7 @@ export class ConfigManager {
     server.worldObjectManager.chanceNpc = chanceNpc;
     server.worldObjectManager.chanceScreamer = chanceScreamer;
     server.worldObjectManager.chanceGasser = chanceGasser;
+    server.worldObjectManager.chanceGasserPropagation = chanceGasserPropagation;
     server.worldObjectManager.chanceExploder = chanceExploder;
 
     server.worldObjectManager.chanceWornLetter = chanceWornLetter;

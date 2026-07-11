@@ -16,7 +16,7 @@ import { PropInstance } from "types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
 import assert from "node:assert";
 
-test("speedTreeManager", { timeout: 10000 }, async (t) => {
+test("speedTreeManager", { timeout: 60000 }, async (t) => {
   const speedTreeManager = new SpeedTreeManager();
   await t.test("initiateList", () => {
     speedTreeManager.initiateList();

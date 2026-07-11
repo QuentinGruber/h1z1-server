@@ -21,6 +21,7 @@ import {
   LoadoutSlots,
   MaterialTypes,
   MeleeTypes,
+  ModelIds,
   ResourceIds,
   ResourceIndicators,
   ResourceTypes,
@@ -65,6 +66,7 @@ import {
   CommandPlayDialogEffect,
   EquipmentSetCharacterEquipmentSlot,
   LoadoutSetLoadoutSlots,
+  RagdollStop,
   SendSelfToClient
 } from "types/zone2016packets";
 import { Vehicle2016 } from "../entities/vehicle";
@@ -1895,6 +1897,24 @@ export class Character2016 extends BaseFullCharacter {
       unknownDword9: 1,
       weaponData: this.pGetItemWeaponData(server, item)
     };
+  }
+
+  OnRagdollStop(
+    server: ZoneServer2016,
+    _client: ZoneClient2016,
+    packet: RagdollStop
+  ) {
+    if (server.isBattleRoyale()) return;
+    const position = packet.position,
+      rotation = packet.rotation;
+    if (this.isAlive || !position || !rotation) return;
+    server.constructionManager.placeTemporaryEntity(
+      server,
+      ModelIds.GUTS,
+      new Float32Array([position[0], position[1], position[2], 0]),
+      new Float32Array([0, rotation[0], 0, 0]), // TODO: This probably needs changing
+      300000 // 5 minutes
+    );
   }
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {

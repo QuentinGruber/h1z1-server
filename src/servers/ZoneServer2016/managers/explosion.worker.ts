@@ -13,10 +13,8 @@
 
 import { parentPort } from "worker_threads";
 
-// ---- Constants (must stay in sync with explosionmanager.ts) ----------
-const EXPLOSION_CHARACTER_RADIUS = 5;
-const EXPLOSION_CHARACTER_Y_RADIUS = 3;
-const EXPLOSION_VEHICLE_RADIUS = 5;
+// Blast radii are per-explosion (see ExplosionEntry.radius/yRadius), computed
+// on the main thread in explosionmanager.ts.
 
 // ---- Snapshot types sent from the main thread ------------------------
 
@@ -32,6 +30,10 @@ export interface ExplosionEntry {
   constructionDamage: number;
   attackerId: string;
   weaponId?: number;
+  /** horizontal + vehicle blast radius (defaults to EXPLOSION_CHARACTER_RADIUS) */
+  radius: number;
+  /** vertical blast radius (defaults to EXPLOSION_CHARACTER_Y_RADIUS) */
+  yRadius: number;
 }
 
 export interface CharacterSnapshot {
@@ -134,11 +136,11 @@ function processChunk(snapshot: ChunkSnapshot): ExplosionPlan {
 
     for (const exp of explosions) {
       const dx = char.x - exp.x;
-      if (Math.abs(dx) > EXPLOSION_CHARACTER_RADIUS) continue;
+      if (Math.abs(dx) > exp.radius) continue;
       const dz = char.z - exp.z;
-      if (Math.abs(dz) > EXPLOSION_CHARACTER_RADIUS) continue;
+      if (Math.abs(dz) > exp.radius) continue;
       const dy = char.y - exp.y;
-      if (Math.abs(dy) > EXPLOSION_CHARACTER_Y_RADIUS) continue;
+      if (Math.abs(dy) > exp.yRadius) continue;
 
       const d = Math.sqrt(dx * dx + dy * dy + dz * dz);
       totalDamage += d > 1 ? exp.charBaseDamage / d : exp.charBaseDamage;
@@ -164,7 +166,7 @@ function processChunk(snapshot: ChunkSnapshot): ExplosionPlan {
 
     for (const exp of explosions) {
       const sq = sqDist(veh.x, veh.y, veh.z, exp.x, exp.y, exp.z);
-      if (sq > EXPLOSION_VEHICLE_RADIUS * EXPLOSION_VEHICLE_RADIUS) continue;
+      if (sq > exp.radius * exp.radius) continue;
       const d = Math.sqrt(sq);
       totalDamage += d > 1 ? exp.vehicleBaseDamage / d : exp.vehicleBaseDamage;
       lastAttacker = exp.attackerId;

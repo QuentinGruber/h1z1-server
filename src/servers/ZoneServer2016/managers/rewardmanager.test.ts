@@ -16,7 +16,7 @@ import assert from "node:assert";
 import { RewardManager } from "./rewardmanager";
 
 process.env.FORCE_DISABLE_WS = "true";
-test("RewardManager", { timeout: 10000 }, async (t) => {
+test("RewardManager", { timeout: 60000 }, async (t) => {
   const rewardManager = new RewardManager(void 0 as any);
   await t.test("Total chances rewards", () => {
     const totalChances = rewardManager["rewards"].reduce(

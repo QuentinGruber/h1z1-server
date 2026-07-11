@@ -10,7 +10,7 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
-
+const debug = require("debug")("Nav");
 import {
   ConstructionPermissionIds,
   Effects,
@@ -143,7 +143,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     ) {
       this.obstacleRef = setObstacle(server, actorModelId, position, rotation);
       if (this.obstacleRef) {
-        console.log(
+        debug(
           `[NavMesh] Added obstacle for world lootable ${characterId} (modelId: ${actorModelId})`
         );
       }

@@ -31,6 +31,15 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   /** Returns true upon explosion of the explosive */
   detonated = false;
 
+  /** Overrides the blast particle effect (defaults to the landmine effect) */
+  explosionEffectId?: number;
+
+  /** Overrides the character/vehicle blast radius (defaults to 5) */
+  blastRadius?: number;
+
+  /** Overrides the base character damage of the blast (defaults to 50000) */
+  charBlastDamage?: number;
+
   /** Used for shooting explosion with projectiles, 1 for IEDS and a coinflip between 1 and 2 for biofuel/ethanol */
   triggerExplosionShots =
     this.isLandmine() || this.isIED() ? 1 : Math.floor(Math.random() * 2) + 1;

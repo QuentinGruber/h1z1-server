@@ -15,6 +15,8 @@ import {
   ConstructionChildEntity,
   cascadeDestroyConstructionChild
 } from "./constructionchildentity";
+const debug = require("debug")("Nav");
+import { ConstructionChildEntity } from "./constructionchildentity";
 import { LootableConstructionEntity } from "./lootableconstructionentity";
 import { ConstructionDoor } from "./constructiondoor";
 import {
@@ -311,7 +313,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     if (!process.env.DISABLE_AI && server.aiEnabled) {
       this.obstacleRef = setObstacle(server, actorModelId, position, rotation);
       if (this.obstacleRef) {
-        console.log(
+        debug(
           `[NavMesh] Added obstacle for construction ${this.characterId} (modelId: ${actorModelId})`
         );
       }

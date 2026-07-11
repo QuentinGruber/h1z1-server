@@ -17,15 +17,9 @@ import type { ZoneServer2016 } from "../zoneserver";
 import type { Sound } from "../../../types/zoneserver";
 import { NavManager } from "../../../utils/recast";
 const debug = require("debug")("ai");
-import {
-  generateRandomGuid,
-  getDistance2d,
-  getDistance
-} from "../../../utils/utils";
-import { Items } from "../models/enums";
-import { isHostile } from "./factions";
-import { ProjectileEntity } from "../entities/projectileentity";
-import type { ZoneClient2016 } from "../classes/zoneclient";
+import { getDistance2d, getDistance } from "../../../utils/utils";
+import { Effects, NpcIds } from "../models/enums";
+import { Factions, isHostile } from "./factions";
 import {
   ZombieLoopingAnim,
   ZombieOneshotAnim,
@@ -40,6 +34,16 @@ const AGITATION_DECAY_RATE = 1;
 const AGITATION_INITIAL = 50;
 const INVESTIGATE_TIMEOUT = 120;
 const STUMBLE_CHANCE = 0.001;
+const OVERRIDE_ACTION_SOUND_PRIORITY = 10;
+const GAS_CHARGE_RANGE = 10;
+const GAS_CHARGE_PER_CLIENT = 0.2;
+const GAS_CHARGE_PER_ZOMBIE = 0.1;
+const MELEE_SLASH_RANGE = 2;
+const GAS_SPIT_RANGE = 10;
+const GAS_CLOUD_RANGE = 10;
+const GAS_DAMAGE_PER_TICK = 500;
+const GAS_DAMAGE_TICK_MS = 1000;
+const GAS_DAMAGE_DURATION_MS = 10000;
 
 function pickPatrolPoint(
   server: ZoneServer2016,
@@ -64,17 +68,71 @@ function moveToward(
 function listenToSounds(gasser: ZombieInstance, sounds: Sound[]): Sound | null {
   let nearest: Sound | null = null;
   let nearestDist = Infinity;
+  let bestPriority = Number.NEGATIVE_INFINITY;
   for (const sound of sounds) {
     const dist = getDistance2d(gasser.npc.state.position, sound.position);
     if (dist < sound.radius) {
       gasser.agitation = Math.min(100, gasser.agitation + sound.agitation);
-      if (dist < nearestDist) {
+      const priority = sound.priority ?? 0;
+      if (
+        priority > bestPriority ||
+        (priority === bestPriority && dist < nearestDist)
+      ) {
         nearest = sound;
+        bestPriority = priority;
         nearestDist = dist;
       }
     }
   }
   return nearest;
+}
+
+function applyDamageToTarget(zombie: ZombieInstance): void {
+  if (!zombie.targetCharacterId) return;
+  const character = zombie.server._characters[zombie.targetCharacterId];
+  if (character) {
+    zombie.npc.applyDamage(zombie.targetCharacterId);
+    return;
+  }
+  const targetNpc = zombie.server._npcs[zombie.targetCharacterId];
+  if (targetNpc && targetNpc.isAlive) {
+    targetNpc.damage(zombie.server, {
+      entity: zombie.npc.characterId,
+      damage: zombie.npc.npcMeleeDamage
+    });
+  }
+}
+
+function shouldOverrideAction(sound: Sound | null): boolean {
+  if (!sound) return false;
+  return (sound.priority ?? 0) >= OVERRIDE_ACTION_SOUND_PRIORITY;
+}
+
+function chargeGas(gasser: ZombieInstance): void {
+  const origin = gasser.npc.state.position;
+  let nearbyClients = 0;
+  let nearbyZombies = 0;
+
+  for (const client of Object.values(gasser.server._clients)) {
+    const character = client.character;
+    if (!character?.isAlive) continue;
+    if (getDistance2d(origin, character.state.position) <= GAS_CHARGE_RANGE) {
+      nearbyClients++;
+    }
+  }
+
+  for (const npc of Object.values(gasser.server._npcs)) {
+    if (!npc.isAlive || npc.characterId === gasser.npc.characterId) continue;
+    if (npc.faction !== Factions.ZOMBIE) continue;
+    if (getDistance2d(origin, npc.state.position) <= GAS_CHARGE_RANGE) {
+      nearbyZombies++;
+    }
+  }
+
+  const chargeGain =
+    nearbyClients * GAS_CHARGE_PER_CLIENT +
+    nearbyZombies * GAS_CHARGE_PER_ZOMBIE;
+  gasser.ChargeGas = Math.min(100, gasser.ChargeGas + chargeGain);
 }
 
 function trySeePlayer(gasser: ZombieInstance): boolean {
@@ -149,27 +207,81 @@ export function spawnGasCloudAt(
   position: Float32Array,
   ownerCharacterId: string
 ): void {
-  const characterId = generateRandomGuid();
-  const transientId = server.getTransientId(characterId);
-  const cloud = new ProjectileEntity(
-    characterId,
-    transientId,
-    0,
-    position.slice() as Float32Array,
-    new Float32Array([0, 0, 0, 0]),
-    server,
-    Items.GRENADE_GAS,
-    0,
-    ownerCharacterId
+  server.sendCompositeEffectToAllInRange(
+    100,
+    ownerCharacterId,
+    position,
+    Effects.PFX_Char_Zombie_Gasser_GasCloud
   );
-  server._throwableProjectiles[characterId] = cloud;
-  server.getClientsInRange(200, position).forEach((c: ZoneClient2016) => {
-    server.addLightweightNpc(c, cloud);
-    c.spawnedEntities.add(cloud);
-  });
-  // bypass the grenade's 5-second fuse and trigger the gas cloud immediately
-  clearTimeout(cloud.triggerTimeout);
-  cloud.onTrigger(server);
+
+  const ownerNpc = server._npcs[ownerCharacterId];
+  if (ownerNpc?.npcId === NpcIds.GASSER) {
+    for (const npc of Object.values(server._npcs)) {
+      if (!npc.isAlive || npc.characterId === ownerCharacterId) continue;
+      if (npc.faction !== Factions.ZOMBIE) continue;
+      if (getDistance2d(position, npc.state.position) > GAS_CLOUD_RANGE)
+        continue;
+      if (npc.effectTags.includes(Effects.PFX_Char_Zombie_Gasser_Ambient))
+        continue;
+      if (
+        Math.floor(Math.random() * 100) + 1 >
+        server.worldObjectManager.chanceGasserPropagation
+      )
+        continue;
+
+      npc.effectTags.push(Effects.PFX_Char_Zombie_Gasser_Ambient);
+      server.sendDataToAllWithSpawnedEntity(
+        server._npcs,
+        npc.characterId,
+        "Character.AddEffectTagCompositeEffect",
+        {
+          characterId: npc.characterId,
+          unknownDword1: Effects.PFX_Char_Zombie_Gasser_Ambient,
+          effectId: Effects.PFX_Char_Zombie_Gasser_Ambient,
+          unknownGuid: ownerCharacterId,
+          unknownDword2: 3
+        }
+      );
+    }
+  }
+
+  const applyGasDamage = () => {
+    for (const character of Object.values(server._characters)) {
+      if (!character.isAlive) continue;
+      if (server.checkRespirator(character)) continue;
+      if (getDistance(character.state.position, position) > GAS_CLOUD_RANGE)
+        continue;
+
+      character.damage(server, {
+        entity: ownerCharacterId || "Server.GasserGas",
+        damage: GAS_DAMAGE_PER_TICK
+      });
+
+      server.sendDataToAllWithSpawnedEntity(
+        server._characters,
+        character.characterId,
+        "Character.PlayAnimation",
+        {
+          characterId: character.characterId,
+          animationName: "Action",
+          animationType: "ActionType",
+          unm4: 0,
+          unknownDword1: 0,
+          unknownByte1: 0,
+          unknownDword2: 0,
+          unknownByte1xda: 0,
+          unknownDword3: 10
+        }
+      );
+    }
+  };
+
+  applyGasDamage();
+  const gasDamageInterval = setInterval(applyGasDamage, GAS_DAMAGE_TICK_MS);
+
+  setTimeout(() => {
+    clearInterval(gasDamageInterval);
+  }, GAS_DAMAGE_DURATION_MS);
 }
 
 function spawnGasCloud(gasser: ZombieInstance): void {
@@ -285,7 +397,6 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
 
         trySmellCorpse(gasser);
       },
-
       [ZombieTransitions.Investigate]: (dt: number) => {
         tickTimers(gasser, dt);
         applyAgitation(gasser);
@@ -309,6 +420,10 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
         const nearestSound = listenToSounds(gasser, gasser.server.sounds);
         if (nearestSound) {
           gasser.lastNoisePos = nearestSound.position;
+          if (shouldOverrideAction(nearestSound)) {
+            gasser.event(ZombieEvents.HearNoise);
+            return;
+          }
           gasser.stateTimer = 0;
           moveToward(gasser.npc, nearestSound.position, gasser.server);
         }
@@ -316,7 +431,12 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
 
       [ZombieTransitions.Chase]: (dt: number) => {
         tickTimers(gasser, dt);
-        listenToSounds(gasser, gasser.server.sounds);
+        const nearestSound = listenToSounds(gasser, gasser.server.sounds);
+        if (nearestSound && shouldOverrideAction(nearestSound)) {
+          gasser.lastNoisePos = nearestSound.position;
+          gasser.event(ZombieEvents.HearNoise);
+          return;
+        }
         applyAgitation(gasser);
 
         const chaseTarget = getChaseTarget(gasser);
@@ -330,6 +450,8 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
           return;
         }
 
+        chargeGas(gasser);
+
         gasser.npc.lookAtTarget = chaseTarget.position;
         const chaseDist = getDistance2d(
           gasser.npc.state.position,
@@ -337,7 +459,7 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
         );
         if (chaseDist > 50) {
           gasser.event(ZombieEvents.LostPlayer);
-        } else if (chaseDist < 2) {
+        } else if (chaseDist <= GAS_SPIT_RANGE) {
           gasser.event(ZombieEvents.ReachPlayer);
         } else {
           if (trySmellCorpse(gasser)) return;
@@ -350,6 +472,12 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
       },
 
       [ZombieTransitions.Stumble]: (dt: number) => {
+        const nearestSound = listenToSounds(gasser, gasser.server.sounds);
+        if (nearestSound && shouldOverrideAction(nearestSound)) {
+          gasser.lastNoisePos = nearestSound.position;
+          gasser.event(ZombieEvents.HearNoise);
+          return;
+        }
         gasser.stateTimer += dt;
         if (gasser.stateTimer >= 5) {
           gasser.event(ZombieEvents.StumbleTimeout);
@@ -358,7 +486,12 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
 
       [ZombieTransitions.Attack]: (dt: number) => {
         tickTimers(gasser, dt);
-        listenToSounds(gasser, gasser.server.sounds);
+        const nearestSound = listenToSounds(gasser, gasser.server.sounds);
+        if (nearestSound && shouldOverrideAction(nearestSound)) {
+          gasser.lastNoisePos = nearestSound.position;
+          gasser.event(ZombieEvents.HearNoise);
+          return;
+        }
         applyAgitation(gasser);
 
         const attackTarget = getChaseTarget(gasser);
@@ -374,16 +507,27 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
           gasser.event(ZombieEvents.LostPlayer);
           return;
         }
+
+        chargeGas(gasser);
+
         gasser.npc.lookAtTarget = attackTarget.position;
         moveToward(gasser.npc, attackTarget.position, gasser.server);
         const attackDist = getDistance(
           gasser.npc.state.position,
           attackTarget.position
         );
-        if (attackDist >= 2) {
+        if (attackDist > GAS_SPIT_RANGE) {
           gasser.event(ZombieEvents.PlayerBacked);
         } else if (gasser.lastAttackTime > 2) {
-          gasser.event(ZombieEvents.StartAttacking);
+          if (
+            attackDist <= MELEE_SLASH_RANGE &&
+            gasser.ChargeGas >= 100 &&
+            Math.random() < 0.1
+          ) {
+            gasser.event(ZombieEvents.ReleaseGas);
+          } else if (attackDist <= MELEE_SLASH_RANGE) {
+            gasser.event(ZombieEvents.StartAttacking);
+          }
         }
       },
 
@@ -391,7 +535,13 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
         gasser.hunger = Math.min(100, gasser.hunger + dt * 2);
         gasser.stateTimer += dt * 2;
         gasser.lastAttackTime += dt;
-        listenToSounds(gasser, gasser.server.sounds);
+        chargeGas(gasser);
+        const nearestSound = listenToSounds(gasser, gasser.server.sounds);
+        if (nearestSound && shouldOverrideAction(nearestSound)) {
+          gasser.lastNoisePos = nearestSound.position;
+          gasser.event(ZombieEvents.HearNoise);
+          return;
+        }
 
         const attackTarget = getChaseTarget(gasser);
         if (attackTarget) {
@@ -400,12 +550,11 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
 
         if (gasser.stateTimer >= 2) {
           if (attackTarget) {
-            const attackDist = getDistance(
-              gasser.npc.state.position,
-              attackTarget.position
-            );
-            if (attackDist <= 2) {
-              spawnGasCloud(gasser);
+            if (
+              getDistance(gasser.npc.state.position, attackTarget.position) <=
+              MELEE_SLASH_RANGE
+            ) {
+              applyDamageToTarget(gasser);
             }
           }
           gasser.event(ZombieEvents.DoneAttacking);
@@ -415,7 +564,12 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
       [ZombieTransitions.Feed]: (dt: number) => {
         gasser.stateTimer += dt;
         gasser.lastAttackTime += dt;
-        listenToSounds(gasser, gasser.server.sounds);
+        const nearestSound = listenToSounds(gasser, gasser.server.sounds);
+        if (nearestSound && shouldOverrideAction(nearestSound)) {
+          gasser.lastNoisePos = nearestSound.position;
+          gasser.event(ZombieEvents.HearNoise);
+          return;
+        }
         applyAgitation(gasser);
 
         if (gasser.corpseTargetId) {
@@ -463,10 +617,23 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
     [
       {
         eventId: ZombieEvents.HearNoise,
-        from: [ZombieTransitions.Wander, ZombieTransitions.Idle],
+        from: [
+          ZombieTransitions.Wander,
+          ZombieTransitions.Idle,
+          ZombieTransitions.Investigate,
+          ZombieTransitions.Chase,
+          ZombieTransitions.Stumble,
+          ZombieTransitions.Attack,
+          ZombieTransitions.Attacking,
+          ZombieTransitions.Feed
+        ],
         to: ZombieTransitions.Investigate,
         EnterTransition: () => {
           gasser.stateTimer = 0;
+          gasser.targetCharacterId = null;
+          gasser.corpseTargetId = null;
+          gasser.isEatingCorpse = false;
+          gasser.npc.lookAtTarget = null;
           gasser.targetPos = gasser.lastNoisePos;
           if (gasser.targetPos)
             moveToward(gasser.npc, gasser.targetPos, gasser.server);
@@ -541,9 +708,36 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
         from: [ZombieTransitions.Attack],
         to: ZombieTransitions.Attacking,
         EnterTransition: () => {
+          gasser.npc.playAnimation(ZombieOneshotAnim.KnifeSlash);
+          gasser.stateTimer = 0;
+          gasser.lastAttackTime = 0;
+        }
+      },
+      {
+        eventId: ZombieEvents.Spit,
+        from: [ZombieTransitions.Attack],
+        to: ZombieTransitions.Attacking,
+        EnterTransition: () => {
           gasser.npc.playAnimation(ZombieOneshotAnim.Spit);
           gasser.stateTimer = 0;
           gasser.lastAttackTime = 0;
+        }
+      },
+      {
+        eventId: ZombieEvents.ReleaseGas,
+        from: [ZombieTransitions.Attack],
+        to: ZombieTransitions.Attacking,
+        EnterTransition: () => {
+          gasser.npc.stopMovement();
+          gasser.npc.lookAtTarget = null;
+          gasser.npc.playAnimation(ZombieOneshotAnim.GasConvulse);
+          spawnGasCloud(gasser);
+          setTimeout(() => {
+            gasser.npc.playAnimation(ZombieOneshotAnim.Stagger_Light); // after gas release, play stagger animation to fix animation beeing stuck in gas convulse animation
+          }, 5000);
+          gasser.ChargeGas = 0;
+          gasser.stateTimer = 0;
+          gasser.lastAttackTime = 2;
         }
       },
       {
@@ -613,6 +807,10 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
 
   gasser.onTransition = (from: string, to: string, eventId: string) => {
     debug(`[${gasser.id}] ${from} → ${to} (${eventId})`);
+    debug(`  Position: ${gasser.npc.state.position.join(", ")}`);
+    debug(`  Agitation: ${gasser.agitation}`);
+    debug(`  Hunger: ${gasser.hunger}`);
+    debug(`  ChargeGas: ${gasser.ChargeGas}`);
   };
   gasser.id = npc.characterId;
   gasser.npc = npc;
@@ -633,6 +831,7 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
   gasser.lastAttackTime = 0;
   gasser.isCoveringEars = false;
   gasser.coverEarsTimer = 0;
+  gasser.ChargeGas = 100;
 
   return gasser;
 }

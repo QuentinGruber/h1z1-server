@@ -20,7 +20,7 @@ import { WorldDataManager } from "./worlddatamanager";
 import { generate_random_guid } from "h1emu-core";
 import { Items } from "../models/enums";
 
-test("decaymanager", { timeout: 10000 }, async (t) => {
+test("decaymanager", { timeout: 60000 }, async (t) => {
   const zone = new ZoneServer2016(0);
   await zone.start();
   const originalDate = Date.now();

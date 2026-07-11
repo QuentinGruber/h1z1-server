@@ -64,11 +64,19 @@ export class LootTableManager {
       "lootTables",
       subdir
     );
+    const packageBaseDir = path.join(
+      PluginManager.getPackageDataRoot(),
+      "2016",
+      "lootTables",
+      subdir
+    );
 
     // Collect all known table names from the base directory including subdirectories
     const allNames = new Set<string>();
     if (fs.existsSync(baseDir)) {
       this.collectTableNames(baseDir, baseDir, allNames);
+    } else if (fs.existsSync(packageBaseDir)) {
+      this.collectTableNames(packageBaseDir, packageBaseDir, allNames);
     }
 
     // Plugins can also introduce brand-new tables by adding files not present in base
@@ -114,6 +122,10 @@ export class LootTableManager {
   ): T | null {
     const relPath = path.join("2016", "lootTables", subdir, `${name}.json`);
     const baseFilePath = path.join(process.cwd(), "data", relPath);
+    const packageFilePath = path.join(
+      PluginManager.getPackageDataRoot(),
+      relPath
+    );
 
     // Collect plugin overrides in priority order (last one wins for full replace,
     // all appended pools are collected for append merges)
@@ -142,6 +154,8 @@ export class LootTableManager {
     let baseTable: T | null = null;
     if (fs.existsSync(baseFilePath)) {
       baseTable = JSON.parse(fs.readFileSync(baseFilePath, "utf8")) as T;
+    } else if (fs.existsSync(packageFilePath)) {
+      baseTable = JSON.parse(fs.readFileSync(packageFilePath, "utf8")) as T;
     }
 
     // Determine final table

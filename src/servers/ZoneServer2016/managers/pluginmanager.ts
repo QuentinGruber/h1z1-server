@@ -231,6 +231,10 @@ export class PluginManager {
     return null;
   }
 
+  public static getPackageDataRoot(): string {
+    return path.join(__dirname, "../../../..", "data");
+  }
+
   public static getPluginDataRoots(): string[] {
     if (process.env.DISABLE_PLUGINS) {
       return [];
