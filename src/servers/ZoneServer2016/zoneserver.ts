@@ -9389,11 +9389,22 @@ export class ZoneServer2016 extends EventEmitter {
   applyMovementModifier(client: Client, modifier: MovementModifiers) {
     if (modifier === MovementModifiers.SCREAM) {
       this.multiplyMovementModifier(client, MovementModifiers.SNARED);
+      const hudIndicator = this._hudIndicators[ResourceIndicators.BANSHEE_CALL];
       if (client.character.timeouts["screamed"]) {
         client.character.timeouts["screamed"]._onTimeout();
         clearTimeout(client.character.timeouts["screamed"]);
         delete client.character.timeouts["screamed"];
+        if (client.character.hudIndicators[hudIndicator.typeName]) {
+          client.character.hudIndicators[
+            hudIndicator.typeName
+          ].expirationTime += 6000;
+        }
       }
+      client.character.hudIndicators[hudIndicator.typeName] = {
+        typeName: hudIndicator.typeName,
+        expirationTime: Date.now() + 6000
+      };
+      this.sendHudIndicators(client);
       client.character.timeouts["screamed"] = setTimeout(() => {
         if (!client.character.timeouts["screamed"]) return;
         this.divideMovementModifier(client, MovementModifiers.SNARED);

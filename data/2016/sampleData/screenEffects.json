@@ -397,7 +397,7 @@
     "colorGradingFilename": "",
     "colorGrading": 0,
     "screenCover": 0,
-    "transparency": 0,
+    "transparency": 0.85,
     "color": "91beb9",
     "unknownDword7": 1,
     "unknownDword16": 1,
