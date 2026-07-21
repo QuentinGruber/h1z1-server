@@ -17,6 +17,7 @@ import { generate_random_guid } from "h1emu-core";
 import { Items } from "../models/enums";
 
 process.env.FORCE_DISABLE_WS = "true";
+process.env.DISABLE_DEFAULT_SOLO_ITEMS = "true";
 const isMongoTests = process.env.MONGO_TESTS === "true";
 test("AccountInventoriesManager", { timeout: 60000 }, async (t) => {
   const zone = new ZoneServer2016(0);
