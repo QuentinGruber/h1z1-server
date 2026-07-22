@@ -449,6 +449,24 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     ) {
       return false;
     }
+    // #1467: never silently overwrite an existing occupant with a different
+    // entity. The overwritten entity (and, for upper shelters, the loot nested
+    // inside it) becomes unreachable from the foundation slot graph and is dropped
+    // from the next world save -- vanishing invisibly on restart. Reject instead;
+    // callers either already gate on occupancy (placement) or re-home the loser to
+    // freeplace on load. The self-id check keeps reloading the same save idempotent.
+    const existing = occupiedSlots[slot];
+    if (existing && existing.characterId !== entity.characterId) {
+      // #1467 diagnostic: this rejection is the exact moment the slot-overwrite
+      // orphan WOULD have occurred on the pre-fix (unguarded) code — an upper shelter
+      // (and the loot nested inside it) silently dropped on the next save. Logged with
+      // full context so the live trigger can be identified from server logs without
+      // having to reproduce it; the existing occupant is preserved.
+      console.error(
+        `[#1467] setSlot blocked an overwrite: parent ${this.characterId} (item ${this.itemDefinitionId}) slot ${slot} already holds ${existing.characterId} (item ${existing.itemDefinitionId}); rejected ${entity.characterId} (item ${entity.itemDefinitionId}).`
+      );
+      return false;
+    }
     occupiedSlots[slot] = entity;
     return true;
   }
@@ -722,6 +740,27 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
         parentFoundation.freeplaceEntities[freePlacedEntity.characterId] =
           freePlacedEntity;
       }
+    } else {
+      // #1467 (preserve): the parent chain is already gone (e.g. an ancestor was
+      // destroyed earlier in the same cascade) -- preserve loot as world-owned and
+      // cascade-destroy structural survivors so nothing is orphaned
+      const handle = (
+        entity:
+          | ConstructionChildEntity
+          | ConstructionDoor
+          | LootableConstructionEntity
+      ) => {
+        if (entity instanceof LootableConstructionEntity) {
+          server._worldLootableConstruction[entity.characterId] = entity;
+          delete server._lootableConstruction[entity.characterId];
+        } else {
+          cascadeDestroyConstructionChild(server, entity);
+        }
+      };
+      freeplace.forEach(handle);
+      for (const a in this.freeplaceEntities) {
+        handle(this.freeplaceEntities[a]);
+      }
     }
     return deleted;
   }
@@ -906,5 +945,41 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       this.fixedPosition ? this.fixedPosition : this.state.position,
       sourceEntity
     );
+  }
+}
+
+/**
+ * #1467 (preserve): recursively removes a structural construction child that has
+ * no valid foundation to live on, preserving any loot nested inside it as
+ * world-owned (persisted) construction first. Used by the no-surviving-parent
+ * ("whole deck removed" / broken parent chain) paths so player loot is never
+ * silently lost while the structural pieces are cleaned up. Never touches
+ * _worldSimpleConstruction (that holds regenerated, non-persisted world props),
+ * and despawns each removed structure via deleteEntity.
+ */
+export function cascadeDestroyConstructionChild(
+  server: ZoneServer2016,
+  entity: ConstructionChildEntity | ConstructionDoor
+) {
+  if (entity instanceof ConstructionChildEntity) {
+    const nested: Array<
+      ConstructionChildEntity | ConstructionDoor | LootableConstructionEntity
+    > = [
+      ...Object.values(entity.occupiedWallSlots),
+      ...Object.values(entity.occupiedUpperWallSlots),
+      ...Object.values(entity.occupiedShelterSlots),
+      ...Object.values(entity.freeplaceEntities)
+    ];
+    for (const sub of nested) {
+      if (sub instanceof LootableConstructionEntity) {
+        server._worldLootableConstruction[sub.characterId] = sub;
+        delete server._lootableConstruction[sub.characterId];
+      } else {
+        cascadeDestroyConstructionChild(server, sub);
+      }
+    }
+    server.deleteEntity(entity.characterId, server._constructionSimple);
+  } else {
+    server.deleteEntity(entity.characterId, server._constructionDoors);
   }
 }

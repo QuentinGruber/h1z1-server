@@ -85,6 +85,21 @@ export class DecayManager {
     }, this.decayTickInterval);
   }
 
+  /**
+   * #1467: re-homed STRUCTURES (walls / shelters / gates left behind after a
+   * supporting piece is removed) live in a foundation's freeplaceEntities and must
+   * keep the deck "occupied" so decay / grief cleanup doesn't wipe them. A plain
+   * loot / storage container (LootableConstructionEntity) is NOT a structure and must
+   * never keep an otherwise-empty deck alive — it decays and despawns with the deck.
+   */
+  private hasStructuralFreeplace(parent: ConstructionParentEntity): boolean {
+    return Object.values(parent.freeplaceEntities).some(
+      (entity) =>
+        entity instanceof ConstructionChildEntity ||
+        entity instanceof ConstructionDoor
+    );
+  }
+
   private async contructionExpirationCheck(server: ZoneServer2016) {
     let destroyedGriefFoundations = 0;
     let i = 0;
@@ -104,7 +119,12 @@ export class DecayManager {
             Object.keys(foundation.occupiedWallSlots).length <
               this.griefCheckSlotAmount &&
             Object.keys(foundation.occupiedShelterSlots).length == 0 &&
-            Object.keys(foundation.occupiedExpansionSlots).length == 0
+            Object.keys(foundation.occupiedExpansionSlots).length == 0 &&
+            // #1467: don't grief-wipe a deck that still holds re-homed STRUCTURES
+            // (shelters/gates) as freeplace entities or ramps. A plain loot/storage
+            // container does NOT count — it must not keep an empty deck alive.
+            Object.keys(foundation.occupiedRampSlots).length == 0 &&
+            !this.hasStructuralFreeplace(foundation)
           ) {
             for (const a in foundation.occupiedWallSlots) {
               foundation.occupiedWallSlots[a].destroy(server);
@@ -131,17 +151,28 @@ export class DecayManager {
           if (
             Object.keys(exp.occupiedWallSlots).length != 0 ||
             Object.keys(exp.occupiedShelterSlots).length != 0 ||
-            Object.keys(exp.occupiedUpperWallSlots).length != 0
+            Object.keys(exp.occupiedUpperWallSlots).length != 0 ||
+            // #1467: re-homed freeplace STRUCTURES (not plain loot) and ramps keep
+            // an expansion non-empty
+            this.hasStructuralFreeplace(exp) ||
+            Object.keys(exp.occupiedRampSlots).length != 0
           ) {
             expansionsEmpty = false;
           }
         }
       );
       if (!expansionsEmpty) continue;
+      // #1467: a foundation is "vacant" when no STRUCTURES remain on it — re-homed
+      // shelters / gates live in freeplaceEntities (and ramps in occupiedRampSlots)
+      // and must not be treated as empty or they get wiped on decay. A plain loot /
+      // storage container left in freeplace does NOT keep the deck alive: an
+      // otherwise-empty deck still decays and takes the container with it.
       if (
         Object.keys(foundation.occupiedWallSlots).length == 0 &&
         Object.keys(foundation.occupiedShelterSlots).length == 0 &&
-        Object.keys(foundation.occupiedUpperWallSlots).length == 0
+        Object.keys(foundation.occupiedUpperWallSlots).length == 0 &&
+        !this.hasStructuralFreeplace(foundation) &&
+        Object.keys(foundation.occupiedRampSlots).length == 0
       ) {
         if (foundation.ticksWithoutObjects >= this.vacantFoundationTicks) {
           for (const a in foundation.occupiedExpansionSlots) {
