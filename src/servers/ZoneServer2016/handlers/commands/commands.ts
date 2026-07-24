@@ -78,6 +78,7 @@ import { Wolf } from "../../entities/wolf";
 import { Bear } from "../../entities/bear";
 import { writeFileSync } from "node:fs";
 import { PluginManager } from "../../managers/pluginmanager";
+import { Raven } from "../../entities/Raven";
 const itemDefinitions = PluginManager.loadServerData(
   "2016/dataSources/ServerItemDefinitions.json"
 );
@@ -2290,7 +2291,8 @@ export const commands: Array<Command> = [
         deer: ModelIds.DEER,
         deer_buck: ModelIds.DEER_BUCK,
         wolf: ModelIds.WOLF,
-        bear: ModelIds.BEAR
+        bear: ModelIds.BEAR,
+        raven: ModelIds.RAVEN
       };
       const availableTypes = Object.keys(npcTypes).join(", ");
       if (!args[0]) {
@@ -2366,6 +2368,7 @@ export const commands: Array<Command> = [
           npc instanceof Deer && npc.actorModelId === ModelIds.DEER_BUCK,
         wolf: (npc) => npc instanceof Wolf,
         bear: (npc) => npc instanceof Bear,
+        raven: (npc) => npc instanceof Raven,
         all: () => true
       };
       const availableTypes = Object.keys(npcGroups).join(", ");

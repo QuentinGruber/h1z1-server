@@ -333,6 +333,7 @@ export enum StringIds {
   DEER = 1245,
   BEAR = 1246,
   WOLF = 1213,
+  RAVEN = 1391,
   CHECK_WATER = 9833,
   FIRE_HYDRANT = 14383,
   TACTICAL_ARMOR = 12073,

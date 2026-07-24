@@ -219,7 +219,7 @@ export function createDeer(npc: Npc, server: ZoneServer2016): DeerInstance {
   ) as unknown as DeerInstance;
 
   deer.onTransition = (from: string, to: string, eventId: string) => {
-    debug(`[${deer.id}] ${from} → ${to} (${eventId})`);
+    debug(`[deer:${deer.id}] ${from} → ${to} (${eventId})`);
   };
   deer.id = npc.characterId;
   deer.npc = npc;

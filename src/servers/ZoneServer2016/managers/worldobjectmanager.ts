@@ -79,6 +79,7 @@ import { Exploder } from "../entities/exploder";
 import { Deer } from "../entities/deer";
 import { Wolf } from "../entities/wolf";
 import { Bear } from "../entities/bear";
+import { Raven } from "../entities/Raven";
 import { BasicNpc } from "../entities/basicnpc";
 import { scheduler } from "node:timers/promises";
 import {
@@ -717,6 +718,17 @@ export class WorldObjectManager {
         npc = new Bear(
           characterId,
           transientId,
+          position,
+          rotation,
+          server,
+          spawnerId
+        );
+        break;
+      case ModelIds.RAVEN:
+        npc = new Raven(
+          characterId,
+          transientId,
+          modelId,
           position,
           rotation,
           server,

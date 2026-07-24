@@ -806,11 +806,7 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
   ) as unknown as ZombieInstance;
 
   gasser.onTransition = (from: string, to: string, eventId: string) => {
-    debug(`[${gasser.id}] ${from} → ${to} (${eventId})`);
-    debug(`  Position: ${gasser.npc.state.position.join(", ")}`);
-    debug(`  Agitation: ${gasser.agitation}`);
-    debug(`  Hunger: ${gasser.hunger}`);
-    debug(`  ChargeGas: ${gasser.ChargeGas}`);
+    debug(`[gasser:${gasser.id}] ${from} → ${to} (${eventId})`);
   };
   gasser.id = npc.characterId;
   gasser.npc = npc;
