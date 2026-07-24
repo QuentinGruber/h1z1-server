@@ -559,7 +559,7 @@ export function createExploder(
   ) as unknown as ZombieInstance;
 
   exploder.onTransition = (from: string, to: string, eventId: string) => {
-    debug(`[${exploder.id}] ${from} → ${to} (${eventId})`);
+    debug(`[exploder:${exploder.id}] ${from} → ${to} (${eventId})`);
   };
   exploder.id = npc.characterId;
   exploder.npc = npc;

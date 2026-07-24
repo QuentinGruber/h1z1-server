@@ -743,7 +743,7 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
   ) as unknown as ZombieInstance;
 
   zombie.onTransition = (from: string, to: string, eventId: string) => {
-    debug(`[${zombie.id}] ${from} → ${to} (${eventId})`);
+    debug(`[zombie:${zombie.id}] ${from} → ${to} (${eventId})`);
   };
   zombie.id = npc.characterId;
   zombie.npc = npc;
