@@ -4023,7 +4023,6 @@ export const commands: Array<Command> = [
         else if (npc instanceof ZombieWalker) zombies++;
         else if (npc instanceof Bear) bears++;
         else if (npc instanceof Wolf) wolves++;
-        else if (npc instanceof Wolf) wolves++;
         else if (npc instanceof Rabbit) rabbit++;
         else if (npc instanceof Deer) deer++;
       }
