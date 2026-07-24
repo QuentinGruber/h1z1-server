@@ -8941,6 +8941,7 @@ export class ZoneServer2016 extends EventEmitter {
         });
         break;
       case WeaponDefinitionIds.WEAPON_AK47:
+      case WeaponDefinitionIds.WEAPON_AK47_SKULL:
         this.pushSound({
           position: client.character.state.position,
           radius: 120,

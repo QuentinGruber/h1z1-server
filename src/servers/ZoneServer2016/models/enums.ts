@@ -1986,6 +1986,7 @@ export enum WeaponDefinitionIds {
   WEAPON_PURGE = 1451,
 
   WEAPON_AK47 = 1405,
+  WEAPON_AK47_SKULL = 5347,
   WEAPON_AR15 = 6,
   WEAPON_AR15_2 = 10, // idk why it send me this id for an ar-15
   WEAPON_MAGNUM = 1388,
