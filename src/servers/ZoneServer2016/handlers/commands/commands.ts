@@ -72,6 +72,7 @@ import { ZombieScreamer } from "../../entities/zombiescreamer";
 import { Exploder } from "../../entities/exploder";
 import { Gasser } from "../../entities/gasser";
 import { Deer } from "../../entities/deer";
+import { Rabbit } from "../../entities/rabbit";
 import { DeerEvents } from "../../jsms/deer.jsm";
 import { ZombieEvents } from "../../jsms/zombie.jsm";
 import { Wolf } from "../../entities/wolf";
@@ -2289,6 +2290,7 @@ export const commands: Array<Command> = [
         exploder: ModelIds.ZOMBIE_MALE_WALKER,
         deer: ModelIds.DEER,
         deer_buck: ModelIds.DEER_BUCK,
+        rabbit: ModelIds.RABBIT,
         wolf: ModelIds.WOLF,
         bear: ModelIds.BEAR
       };
@@ -2364,6 +2366,7 @@ export const commands: Array<Command> = [
           npc instanceof Deer && npc.actorModelId === ModelIds.DEER,
         deer_buck: (npc) =>
           npc instanceof Deer && npc.actorModelId === ModelIds.DEER_BUCK,
+        rabbit: (npc) => npc instanceof Rabbit,
         wolf: (npc) => npc instanceof Wolf,
         bear: (npc) => npc instanceof Bear,
         all: () => true

@@ -77,6 +77,7 @@ import { ZombieScreamer } from "../entities/zombiescreamer";
 import { PrototypeZombie } from "../entities/prototypezombie";
 import { Exploder } from "../entities/exploder";
 import { Deer } from "../entities/deer";
+import { Rabbit } from "../entities/rabbit";
 import { Wolf } from "../entities/wolf";
 import { Bear } from "../entities/bear";
 import { BasicNpc } from "../entities/basicnpc";
@@ -694,6 +695,17 @@ export class WorldObjectManager {
       case ModelIds.DEER:
       case ModelIds.DEER_BUCK:
         npc = new Deer(
+          characterId,
+          transientId,
+          modelId,
+          position,
+          rotation,
+          server,
+          spawnerId
+        );
+        break;
+      case ModelIds.RABBIT:
+        npc = new Rabbit(
           characterId,
           transientId,
           modelId,
