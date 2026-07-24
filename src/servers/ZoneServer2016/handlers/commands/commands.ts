@@ -4015,6 +4015,7 @@ export const commands: Array<Command> = [
       let bears = 0;
       let wolves = 0;
       let deer = 0;
+      let rabbit = 0;
       for (const npc of Object.values(server._npcs)) {
         if (npc instanceof ZombieScreamer) screamers++;
         else if (npc instanceof Gasser) gassers++;
@@ -4022,11 +4023,13 @@ export const commands: Array<Command> = [
         else if (npc instanceof ZombieWalker) zombies++;
         else if (npc instanceof Bear) bears++;
         else if (npc instanceof Wolf) wolves++;
+        else if (npc instanceof Wolf) wolves++;
+        else if (npc instanceof Rabbit) rabbit++;
         else if (npc instanceof Deer) deer++;
       }
       server.sendChatText(
         client,
-        `[NPCs] Zombies: ${zombies} | Screamers: ${screamers} | Gassers: ${gassers} | Exploders: ${exploders} | Bears: ${bears} | Wolves: ${wolves} | Deer: ${deer}`
+        `[NPCs] Zombies: ${zombies} | Screamers: ${screamers} | Gassers: ${gassers} | Exploders: ${exploders} | Bears: ${bears} | Wolves: ${wolves} | Deer: ${deer} | Rabbit: ${rabbit}`
       );
     }
   }

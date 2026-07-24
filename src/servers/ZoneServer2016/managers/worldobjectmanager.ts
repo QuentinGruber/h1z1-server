@@ -185,6 +185,7 @@ export class WorldObjectManager {
   vehicleSpawnRadius!: number;
   npcSpawnRadius!: number;
   chanceNpc!: number;
+  chanceRabbit!: number;
   chanceScreamer!: number;
   chanceGasser!: number;
   chanceGasserPropagation!: number;
@@ -1471,6 +1472,9 @@ export class WorldObjectManager {
         case "NPCSpawner_Deer001.adr":
           authorizedModelId.push(9002);
           authorizedModelId.push(9253);
+          break;
+        case "NPCSpawner_Rabbit001.adr":
+          authorizedModelId.push(ModelIds.RABBIT);
           break;
         case "NPCSpawner_Wolf001.adr":
           authorizedModelId.push(9003);
