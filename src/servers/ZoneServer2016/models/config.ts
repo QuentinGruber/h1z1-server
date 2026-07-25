@@ -89,6 +89,7 @@ interface WorldObjectsConfig {
   vehicleSpawnRadius: number;
   npcSpawnRadius: number;
   chanceNpc: number;
+  chanceRabbit: number;
   chanceScreamer: number;
   chanceGasser: number;
   chanceGasserPropagation: number;
