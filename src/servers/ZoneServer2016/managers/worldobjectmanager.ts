@@ -77,6 +77,7 @@ import { ZombieScreamer } from "../entities/zombiescreamer";
 import { PrototypeZombie } from "../entities/prototypezombie";
 import { Exploder } from "../entities/exploder";
 import { Deer } from "../entities/deer";
+import { Rabbit } from "../entities/rabbit";
 import { Wolf } from "../entities/wolf";
 import { Bear } from "../entities/bear";
 import { BasicNpc } from "../entities/basicnpc";
@@ -184,6 +185,7 @@ export class WorldObjectManager {
   vehicleSpawnRadius!: number;
   npcSpawnRadius!: number;
   chanceNpc!: number;
+  chanceRabbit!: number;
   chanceScreamer!: number;
   chanceGasser!: number;
   chanceGasserPropagation!: number;
@@ -694,6 +696,17 @@ export class WorldObjectManager {
       case ModelIds.DEER:
       case ModelIds.DEER_BUCK:
         npc = new Deer(
+          characterId,
+          transientId,
+          modelId,
+          position,
+          rotation,
+          server,
+          spawnerId
+        );
+        break;
+      case ModelIds.RABBIT:
+        npc = new Rabbit(
           characterId,
           transientId,
           modelId,
@@ -1459,6 +1472,9 @@ export class WorldObjectManager {
         case "NPCSpawner_Deer001.adr":
           authorizedModelId.push(9002);
           authorizedModelId.push(9253);
+          break;
+        case "NPCSpawner_Rabbit001.adr":
+          authorizedModelId.push(ModelIds.RABBIT);
           break;
         case "NPCSpawner_Wolf001.adr":
           authorizedModelId.push(9003);
