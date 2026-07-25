@@ -13,7 +13,7 @@
 
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "../classes/zoneclient";
-import { Items, MaterialTypes, NpcIds, StringIds } from "../models/enums";
+import { MaterialTypes, NpcIds, StringIds } from "../models/enums";
 import { Npc } from "./npc";
 import { createRaven } from "../jsms/raven.jsm";
 import { Factions } from "../jsms/factions";
@@ -53,7 +53,7 @@ export class Raven extends Npc {
 
   protected addLoot(_server: ZoneServer2016): void {}
 
-  protected onHarvest(server: ZoneServer2016, client: ZoneClient2016): void {}
+  protected onHarvest(_server: ZoneServer2016, _client: ZoneClient2016): void {}
 
   protected buildInteractionString(
     server: ZoneServer2016,

@@ -15,7 +15,7 @@ import { JSM } from "./jsm";
 import type { Npc } from "../entities/npc";
 import type { ZoneServer2016 } from "../zoneserver";
 import { NavManager } from "../../../utils/recast";
-const debug = require("debug")("ai");
+const debug = require("debug")("raven");
 import { getDistance2d } from "../../../utils/utils";
 import { isHostile } from "./factions";
 
@@ -73,6 +73,7 @@ export interface RavenInstance extends JSM<RavenEvents> {
   isFlying: boolean;
   patrolTimer: number;
   threatPos: Float32Array | null;
+  idleDuration: number;
   npc: Npc;
   server: ZoneServer2016;
 }
@@ -132,6 +133,11 @@ function pickFleePoint(
   return success ? NavManager.navToGame(randomPoint) : fleeCenter;
 }
 
+function tickTimers(raven: RavenInstance, dt: number): void {
+  raven.stateTimer += dt;
+  raven.fleeCooldown = Math.max(0, raven.fleeCooldown - dt);
+}
+
 function moveToward(
   npc: Npc,
   target: Float32Array,
@@ -167,14 +173,27 @@ function findThreat(raven: RavenInstance, radius: number): Float32Array | null {
 export function createRaven(npc: Npc, server: ZoneServer2016): RavenInstance {
   const raven = new JSM(
     {
-      [RavenTransitions.Flying]: (dt: number) => {},
-      [RavenTransitions.Landing]: () => {},
+      [RavenTransitions.Flying]: (dt: number) => {
+        tickTimers(raven, dt);
+      },
+      [RavenTransitions.Landing]: (dt: number) => {
+        tickTimers(raven, dt);
+      },
       [RavenTransitions.Idle]: (dt: number) => {
-        if (trySeePlayer(raven)) return;
+        tickTimers(raven, dt);
+
+        // check if a hostile target has wandered into view while idle
+        if (trySeePlayer(raven)) {
+          return; // trySeePlayer already fired SpottedPlayer -> Flee
+        }
+
+        // after idling for a bit, start wandering again
+        if (raven.stateTimer >= raven.idleDuration) {
+          raven.event(RavenEvents.Wander);
+        }
       },
       [RavenTransitions.Wander]: (dt: number) => {
-        raven.stateTimer += dt;
-        if (raven.fleeCooldown > 0) raven.fleeCooldown -= dt;
+        tickTimers(raven, dt);
 
         const wanderThreat = findThreat(raven, 20);
         if (wanderThreat && raven.fleeCooldown <= 0) {
@@ -188,6 +207,12 @@ export function createRaven(npc: Npc, server: ZoneServer2016): RavenInstance {
           raven.targetPos != null &&
           getDistance2d(raven.npc.state.position, raven.targetPos) < 3;
 
+        // occasionally settle back into idle instead of patrolling forever
+        if (arrived && Math.random() < 0.3) {
+          raven.event(RavenEvents.Idle);
+          return;
+        }
+
         if (arrived || raven.targetPos == null) {
           raven.patrolTimer = 0;
           const pt = pickPatrolPoint(raven.server, raven.wanderOrigin);
@@ -198,7 +223,7 @@ export function createRaven(npc: Npc, server: ZoneServer2016): RavenInstance {
         }
       },
       [RavenTransitions.Flee]: (dt: number) => {
-        raven.stateTimer += dt;
+        tickTimers(raven, dt);
 
         const fleeThreat = findThreat(raven, 35);
         if (fleeThreat) {
@@ -226,16 +251,14 @@ export function createRaven(npc: Npc, server: ZoneServer2016): RavenInstance {
             const dz = raven.npc.state.position[2] - raven.threatPos[2];
             const dist = Math.hypot(dx, dz);
             if (dist < 3) {
-              npc.setSpeed(4); // faster
-              npc.playAnimation(GroundAnimation.Sprint); // look at player while fleeing
-            }
-            if (dist < 5) {
-              npc.setSpeed(3); // normal
-              npc.playAnimation(GroundAnimation.Run); // look at player while fleeing
-            }
-            if (dist < 7) {
-              npc.setSpeed(2); // normal
-              npc.playAnimation(GroundAnimation.Walk); // look at player while fleeing
+              npc.setSpeed(4); // player right on top of it — sprint
+              npc.playAnimation(GroundAnimation.Sprint);
+            } else if (dist < 5) {
+              npc.setSpeed(3); // player closing in — run
+              npc.playAnimation(GroundAnimation.Run);
+            } else if (dist < 7) {
+              npc.setSpeed(2); // player nearby — walk away
+              npc.playAnimation(GroundAnimation.Walk);
             }
             moveToward(raven.npc, fleeTarget, raven.server);
           }
@@ -286,6 +309,7 @@ export function createRaven(npc: Npc, server: ZoneServer2016): RavenInstance {
           raven.targetPos = null;
           raven.threatPos = null;
           raven.isFlying = false;
+          raven.idleDuration = 5 + Math.random() * 5; // 5-10s before wandering again
 
           const anims = [
             groundIdleAnimations.Idle_A,
@@ -297,6 +321,23 @@ export function createRaven(npc: Npc, server: ZoneServer2016): RavenInstance {
           raven.npc.playAnimation(
             anims[Math.floor(Math.random() * anims.length)]
           );
+        }
+      },
+      {
+        eventId: RavenEvents.Wander,
+        from: [RavenTransitions.Idle, RavenTransitions.Landing],
+        to: RavenTransitions.Wander,
+        EnterTransition: () => {
+          raven.stateTimer = 0;
+          raven.patrolTimer = 0;
+          raven.targetPos = null;
+          raven.threatPos = null;
+          raven.isFlying = false;
+          const pt = pickPatrolPoint(raven.server, raven.wanderOrigin);
+          if (pt) {
+            raven.targetPos = pt;
+            moveToward(raven.npc, pt, raven.server);
+          }
         }
       },
       {
@@ -326,6 +367,7 @@ export function createRaven(npc: Npc, server: ZoneServer2016): RavenInstance {
   raven.patrolTimer = 0;
   raven.isFlying = false;
   raven.threatPos = null;
+  raven.idleDuration = 5 + Math.random() * 5;
   npc.setSpeed(2); // Default ground walking speed
   return raven;
 }
