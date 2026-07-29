@@ -1479,6 +1479,16 @@ export class ZoneServer2016 extends EventEmitter {
         `Character (${characterId}) connection rejected due to local ban`
       );
 
+      for (const c in this._clients) {
+        const banclient = this._clients[c];
+
+        this.sendData(banclient, "H1emu.PrintToConsole", {
+          message: `Character (${banclient.character.characterId}) connection rejected due to local ban`,
+          showConsole: true,
+          clearOutput: true
+        });
+      }
+
       const unbanTime = ban.expirationDate
           ? getDateString(ban.expirationDate)
           : 0,
