@@ -246,10 +246,7 @@ function screamAtNearbyPlayers(screamer: ScreamerInstance): void {
           client,
           screamer.server._screenEffects["SCREAM"]
         );
-        screamer.server.applyMovementModifier(
-          client,
-          MovementModifiers.SCREAM
-        );
+        screamer.server.applyMovementModifier(client, MovementModifiers.SCREAM);
       }
     }
   }

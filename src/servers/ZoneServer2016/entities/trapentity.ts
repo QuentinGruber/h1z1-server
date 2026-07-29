@@ -299,9 +299,7 @@ export class TrapEntity extends BaseSimpleNpc {
           this.state.position,
           2
         )) {
-          if (
-            getDistance(vehicle.state.position, this.state.position) < 2
-          ) {
+          if (getDistance(vehicle.state.position, this.state.position) < 2) {
             vehicle.getPassengerList().map((passenger) => {
               this.detonateTrap(server, { entity: passenger, damage: 0 });
               this.isTriggered = true;

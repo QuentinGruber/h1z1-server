@@ -245,11 +245,7 @@ export class ConstructionManager {
     >(
       map: Map<string, T[]>
     ): boolean => {
-      for (const c of ConstructionManager._entitiesNear(
-        map,
-        position,
-        range
-      )) {
+      for (const c of ConstructionManager._entitiesNear(map, position, range)) {
         if (
           c.itemDefinitionId == itemDefinitionId &&
           isPosInRadius(range, position, c.state.position)

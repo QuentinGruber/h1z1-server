@@ -323,8 +323,7 @@ export class Destroyable extends BaseSimpleNpc {
 
   OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity): void {
     if (
-      getDistanceSquared(sourceEntity.state.position, this.state.position) >
-      25
+      getDistanceSquared(sourceEntity.state.position, this.state.position) > 25
     )
       return;
 
