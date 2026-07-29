@@ -110,22 +110,32 @@ function shouldOverrideAction(sound: Sound | null): boolean {
 
 function chargeGas(gasser: ZombieInstance): void {
   const origin = gasser.npc.state.position;
+  const sz = 50;
+  const cx = Math.floor(origin[0] / sz);
+  const cz = Math.floor(origin[2] / sz);
   let nearbyClients = 0;
   let nearbyZombies = 0;
 
-  for (const client of Object.values(gasser.server._clients)) {
-    const character = client.character;
-    if (!character?.isAlive) continue;
-    if (getDistance2d(origin, character.state.position) <= GAS_CHARGE_RANGE) {
-      nearbyClients++;
-    }
-  }
-
-  for (const npc of Object.values(gasser.server._npcs)) {
-    if (!npc.isAlive || npc.characterId === gasser.npc.characterId) continue;
-    if (npc.faction !== Factions.ZOMBIE) continue;
-    if (getDistance2d(origin, npc.state.position) <= GAS_CHARGE_RANGE) {
-      nearbyZombies++;
+  // aiTargetSpatialMap already carries both alive characters (HUMAN) and alive
+  // npcs with their faction, rebuilt every AI tick — reuse it instead of
+  // scanning every client + every npc on the server for each gasser.
+  for (let dx = -1; dx <= 1; dx++) {
+    for (let dz = -1; dz <= 1; dz++) {
+      const bucket = gasser.server.aiTargetSpatialMap.get(
+        `${cx + dx},${cz + dz}`
+      );
+      if (!bucket) continue;
+      for (const entry of bucket) {
+        if (getDistance2d(origin, entry.position) > GAS_CHARGE_RANGE) continue;
+        if (entry.faction === Factions.HUMAN) {
+          nearbyClients++;
+        } else if (
+          entry.faction === Factions.ZOMBIE &&
+          entry.id !== gasser.npc.characterId
+        ) {
+          nearbyZombies++;
+        }
+      }
     }
   }
 
@@ -162,16 +172,14 @@ function trySeePlayer(gasser: ZombieInstance): boolean {
 
 function trySmellCorpse(gasser: ZombieInstance): boolean {
   if (gasser.hunger < 60) return false;
-  for (const characterId in gasser.server._characters) {
-    const character = gasser.server._characters[characterId];
-    if (character.isAlive) continue;
-    if (
-      getDistance2d(gasser.npc.state.position, character.state.position) < 30
-    ) {
-      gasser.corpseTargetId = characterId;
-      gasser.event(ZombieEvents.SmellCorpse);
-      return true;
-    }
+  for (const client of gasser.server.getClientsInRange(
+    gasser.npc.state.position,
+    30
+  )) {
+    if (client.character.isAlive) continue;
+    gasser.corpseTargetId = client.character.characterId;
+    gasser.event(ZombieEvents.SmellCorpse);
+    return true;
   }
   return false;
 }
@@ -246,7 +254,8 @@ export function spawnGasCloudAt(
   }
 
   const applyGasDamage = () => {
-    for (const character of Object.values(server._characters)) {
+    for (const client of server.getClientsInRange(position, GAS_CLOUD_RANGE)) {
+      const character = client.character;
       if (!character.isAlive) continue;
       if (server.checkRespirator(character)) continue;
       if (getDistance(character.state.position, position) > GAS_CLOUD_RANGE)

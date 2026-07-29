@@ -237,8 +237,11 @@ export class ProjectileEntity extends BaseLightweightCharacter {
     if (this.itemDefinitionId == Items.GRENADE_GAS) {
       if (server.isPvE) return;
       this.gasDamageInterval = setInterval(() => {
-        for (const a in server._characters) {
-          const character = server._characters[a];
+        for (const client of server.getClientsInRange(
+          this.state.position,
+          7
+        )) {
+          const character = client.character;
           if (server.checkRespirator(character)) continue;
           if (getDistance(character.state.position, this.state.position) <= 7) {
             const damageInfo: DamageInfo = {

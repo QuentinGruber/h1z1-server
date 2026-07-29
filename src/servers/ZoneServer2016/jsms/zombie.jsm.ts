@@ -209,16 +209,14 @@ function trySeePlayer(zombie: ZombieInstance): boolean {
 
 function trySmellCorpse(zombie: ZombieInstance): boolean {
   if (zombie.hunger < 60) return false;
-  for (const characterId in zombie.server._characters) {
-    const character = zombie.server._characters[characterId];
-    if (character.isAlive) continue;
-    if (
-      getDistance2d(zombie.npc.state.position, character.state.position) < 30
-    ) {
-      zombie.corpseTargetId = characterId;
-      zombie.event(ZombieEvents.SmellCorpse);
-      return true;
-    }
+  for (const client of zombie.server.getClientsInRange(
+    zombie.npc.state.position,
+    30
+  )) {
+    if (client.character.isAlive) continue;
+    zombie.corpseTargetId = client.character.characterId;
+    zombie.event(ZombieEvents.SmellCorpse);
+    return true;
   }
   return false;
 }

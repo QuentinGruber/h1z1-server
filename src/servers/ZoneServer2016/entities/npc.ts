@@ -18,6 +18,7 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 import {
   getCurrentServerTimeWrapper,
   getDistance,
+  getDistanceSquared,
   logClientActionToMongo,
   metersToFeet
 } from "../../../utils/utils";
@@ -260,9 +261,9 @@ export abstract class Npc extends BaseFullCharacter {
           client.character.metrics.zombiesKilled++;
         else client.character.metrics.wildlifeKilled++;
       }
-      for (const a in server._clients) {
-        const c = server._clients[a];
-        if (c.spawnedEntities.has(this)) {
+      const observers = server._entityObservers.get(this.characterId);
+      if (observers) {
+        for (const c of observers) {
           if (!c.isLoading) {
             server.sendData(c, "Character.StartMultiStateDeath", {
               data: {
@@ -288,7 +289,7 @@ export abstract class Npc extends BaseFullCharacter {
     }
 
     if (client) {
-      const damageRecord = await server.generateDamageRecord(
+      const damageRecord = server.generateDamageRecord(
         this.characterId,
         damageInfo,
         oldHealth
@@ -308,8 +309,8 @@ export abstract class Npc extends BaseFullCharacter {
       for (const character of Object.values(server._characters)) {
         if (!character.isAlive) continue;
         if (
-          getDistance(character.state.position, this.state.position) >
-          GASSER_DEATH_EXPLOSION_RANGE
+          getDistanceSquared(character.state.position, this.state.position) >
+          GASSER_DEATH_EXPLOSION_RANGE * GASSER_DEATH_EXPLOSION_RANGE
         )
           continue;
 

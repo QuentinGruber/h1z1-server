@@ -588,15 +588,9 @@ export class Vehicle2016 extends BaseLootableEntity {
       : damageInfo.damage;
     const client = server.getClientByCharId(damageInfo.entity);
     if (client) {
-      queueMicrotask(async () => {
-        client.character.addCombatlogEntry(
-          await server.generateDamageRecord(
-            this.characterId,
-            damageInfo,
-            oldHealth
-          )
-        );
-      });
+      client.character.addCombatlogEntry(
+        server.generateDamageRecord(this.characterId, damageInfo, oldHealth)
+      );
     }
 
     if (this._resources[ResourceIds.CONDITION] <= 0) {
@@ -1342,10 +1336,9 @@ export class Vehicle2016 extends BaseLootableEntity {
     this.isDestroyed = true;
     if (!server._vehicles[this.characterId]) return false;
     this._resources[ResourceIds.CONDITION] = 0;
-    for (const c in server._clients) {
-      if (this.characterId === server._clients[c].vehicle.mountedVehicle) {
-        server.dismountVehicle(server._clients[c]);
-      }
+    for (const passengerId of this.getPassengerList()) {
+      const client = server.getClientByCharId(passengerId);
+      if (client) server.dismountVehicle(client);
     }
     server.sendDataToAllWithSpawnedEntity(
       server._vehicles,

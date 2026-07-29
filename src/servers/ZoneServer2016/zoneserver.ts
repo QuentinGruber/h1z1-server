@@ -1479,6 +1479,16 @@ export class ZoneServer2016 extends EventEmitter {
         `Character (${characterId}) connection rejected due to local ban`
       );
 
+      for (const c in this._clients) {
+        const banclient = this._clients[c];
+
+        this.sendData(banclient, "H1emu.PrintToConsole", {
+          message: `Character (${banclient.character.characterId}) connection rejected due to local ban`,
+          showConsole: true,
+          clearOutput: true
+        });
+      }
+
       const unbanTime = ban.expirationDate
           ? getDateString(ban.expirationDate)
           : 0,
@@ -1659,7 +1669,7 @@ export class ZoneServer2016 extends EventEmitter {
             object.state.position,
             1
           ) &&
-          client.searchedProps.includes(object)
+          client.searchedProps.has(object)
         ) {
           const container = object.getContainer();
           if (container) {
@@ -2942,11 +2952,47 @@ export class ZoneServer2016 extends EventEmitter {
     this.airdropManager.sendDeliveryStatus();
   }
 
-  async generateDamageRecord(
+  /** Cache TTL for generateDamageRecord's gateway ping lookups — the ping is only
+   *  informational (combat log), so it's refreshed out-of-band instead of being
+   *  awaited on every hit (see getCachedGatewayPing). */
+  private static readonly GATEWAY_PING_CACHE_TTL = 3000;
+
+  /** Returns a client's last-known SOE-layer ping immediately, kicking off an
+   *  out-of-band refresh (via the gateway IPC round trip) if the cached value
+   *  is stale, instead of blocking the caller on that round trip. */
+  private getCachedGatewayPing(client: Client): number {
+    const now = Date.now();
+    if (
+      now - client.gatewayPingCacheTime >
+        ZoneServer2016.GATEWAY_PING_CACHE_TTL &&
+      !client.gatewayPingRefreshing
+    ) {
+      client.gatewayPingRefreshing = true;
+      // _gatewayServer is GatewayServer | GatewayServerThreaded — the former
+      // returns the ping synchronously, the latter returns a Promise (IPC
+      // round trip); Promise.resolve() normalizes both to the async path.
+      Promise.resolve(
+        this._gatewayServer.getSoeClientAvgPing(client.soeClientId)
+      )
+        .then((ping) => {
+          client.cachedGatewayPing = ping ?? 0;
+          client.gatewayPingCacheTime = Date.now();
+        })
+        .catch(() => {
+          // keep the last known value on failure
+        })
+        .finally(() => {
+          client.gatewayPingRefreshing = false;
+        });
+    }
+    return client.cachedGatewayPing;
+  }
+
+  generateDamageRecord(
     targetCharacterId: string,
     damageInfo: DamageInfo,
     oldHealth: number
-  ): Promise<DamageRecord> {
+  ): DamageRecord {
     const targetEntity = this.getEntity(targetCharacterId),
       sourceEntity = this.getEntity(damageInfo.entity),
       targetClient = this.getClientByCharId(targetCharacterId),
@@ -2958,23 +3004,15 @@ export class ZoneServer2016 extends EventEmitter {
       targetPing = 0;
     if (sourceClient && !targetClient) {
       sourceName = sourceClient.character.name || "Unknown";
-      const sourceSOEClientAvgPing =
-        await this._gatewayServer.getSoeClientAvgPing(sourceClient.soeClientId);
-      sourcePing = sourceSOEClientAvgPing ?? 0;
+      sourcePing = this.getCachedGatewayPing(sourceClient);
     } else if (!sourceClient && targetClient) {
       targetName = targetClient.character.name || "Unknown";
-      const targetSOEClientAvgPing =
-        await this._gatewayServer.getSoeClientAvgPing(targetClient.soeClientId);
-      targetPing = targetSOEClientAvgPing ?? 0;
+      targetPing = this.getCachedGatewayPing(targetClient);
     } else if (sourceClient && targetClient) {
-      const sourceSOEClientAvgPing =
-        await this._gatewayServer.getSoeClientAvgPing(sourceClient.soeClientId);
-      const targetSOEClientAvgPing =
-        await this._gatewayServer.getSoeClientAvgPing(targetClient.soeClientId);
-      sourcePing = sourceSOEClientAvgPing ?? 0;
+      sourcePing = this.getCachedGatewayPing(sourceClient);
       sourceName = sourceClient.character.name || "Unknown";
       targetName = targetClient.character.name || "Unknown";
-      targetPing = targetSOEClientAvgPing ?? 0;
+      targetPing = this.getCachedGatewayPing(targetClient);
     }
     return {
       source: {
@@ -5712,31 +5750,23 @@ export class ZoneServer2016 extends EventEmitter {
     entityCharacterId: string = "",
     data: Buffer
   ) {
-    for (const a in this._clients) {
-      if (
-        client != this._clients[a] &&
-        this._clients[a].spawnedEntities.has(
-          this._characters[entityCharacterId]
-        )
-      ) {
-        this.sendRawDataReliable(this._clients[a], data);
-      }
+    const observers = this._entityObservers.get(entityCharacterId);
+    if (!observers) return;
+    for (const c of observers) {
+      if (c !== client) this.sendRawDataReliable(c, data);
     }
   }
 
   sendRawToAllOthersWithSpawnedEntity(
     client: Client,
-    dictionary: any,
+    _dictionary: any,
     entityCharacterId: string = "",
     data: Buffer
   ) {
-    for (const a in this._clients) {
-      if (
-        client != this._clients[a] &&
-        this._clients[a].spawnedEntities.has(dictionary[entityCharacterId])
-      ) {
-        this.sendRawDataReliable(this._clients[a], data);
-      }
+    const observers = this._entityObservers.get(entityCharacterId);
+    if (!observers) return;
+    for (const c of observers) {
+      if (c !== client) this.sendRawDataReliable(c, data);
     }
   }
 
@@ -6001,6 +6031,48 @@ export class ZoneServer2016 extends EventEmitter {
     if (ownerClient) this.sendRawDataReliable(ownerClient, data);
   }
 
+  /** Returns clients within `radius` of `position` using the char spatial map
+   *  (rebuilt every world tick) instead of scanning every character on the server. */
+  getClientsInRange(position: Float32Array, radius: number): Client[] {
+    const result: Client[] = [];
+    const [cx0, cx1, cz0, cz1] = ZoneServer2016._charGridRange(
+      position,
+      radius
+    );
+    for (let cx = cx0; cx <= cx1; cx++) {
+      for (let cz = cz0; cz <= cz1; cz++) {
+        const bucket = this._charSpatialMap.get(`${cx},${cz}`);
+        if (!bucket) continue;
+        for (const client of bucket) {
+          if (isPosInRadius(radius, client.character.state.position, position))
+            result.push(client);
+        }
+      }
+    }
+    return result;
+  }
+
+  /** Returns vehicles within `radius` of `position` using the vehicle spatial map
+   *  (rebuilt every world tick) instead of scanning every vehicle on the server. */
+  getVehiclesInRange(position: Float32Array, radius: number): Vehicle[] {
+    const result: Vehicle[] = [];
+    const [cx0, cx1, cz0, cz1] = ZoneServer2016._charGridRange(
+      position,
+      radius
+    );
+    for (let cx = cx0; cx <= cx1; cx++) {
+      for (let cz = cz0; cz <= cz1; cz++) {
+        const bucket = this._vehicleSpatialMap.get(`${cx},${cz}`);
+        if (!bucket) continue;
+        for (const vehicle of bucket) {
+          if (isPosInRadius(radius, vehicle.state.position, position))
+            result.push(vehicle);
+        }
+      }
+    }
+    return result;
+  }
+
   sendDataToAllInRange<ZonePacket>(
     range: number,
     position: Float32Array,
@@ -6051,23 +6123,6 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
   }
-
-  getClientsInRange(range: number, position: Float32Array): Client[] {
-    const clients: Client[] = [];
-    const [cx0, cx1, cz0, cz1] = ZoneServer2016._charGridRange(position, range);
-    for (let cx = cx0; cx <= cx1; cx++) {
-      for (let cz = cz0; cz <= cz1; cz++) {
-        const bucket = this._charSpatialMap.get(`${cx},${cz}`);
-        if (!bucket) continue;
-        for (const client of bucket) {
-          if (isPosInRadius(range, client.character.state.position, position))
-            clients.push(client);
-        }
-      }
-    }
-    return clients;
-  }
-
   mountVehicle(client: Client, vehicleGuid: string) {
     const vehicle = this._vehicles[vehicleGuid];
     if (!vehicle || !vehicle.isMountable) return;
@@ -8845,7 +8900,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
     this._throwableProjectiles[npc.characterId] = npc;
     if (!createNpc) return;
-    this.getClientsInRange(200, packet.packet.position).forEach((c: Client) => {
+    this.getClientsInRange(packet.packet.position, 200).forEach((c: Client) => {
       this.addLightweightNpc(c, npc);
       c.spawnedEntities.add(npc);
     });

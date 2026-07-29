@@ -227,25 +227,30 @@ function pushScreamSound(screamer: ScreamerInstance): void {
 }
 
 function screamAtNearbyPlayers(screamer: ScreamerInstance): void {
-  for (const k in screamer.server._clients) {
-    const client = screamer.server._clients[k];
-    if (
-      !client.character.isAlive ||
-      client.character.isVanished ||
-      client.character.isHidden
-    )
-      continue;
-    if (
-      getDistance2d(
-        screamer.npc.state.position,
-        client.character.state.position
-      ) <= SCREAM_RADIUS
-    ) {
-      screamer.server.addScreenEffect(
-        client,
-        screamer.server._screenEffects["SCREAM"]
+  const sz = 50;
+  const pos = screamer.npc.state.position;
+  const cx = Math.floor(pos[0] / sz);
+  const cz = Math.floor(pos[2] / sz);
+  for (let dx = -1; dx <= 1; dx++) {
+    for (let dz = -1; dz <= 1; dz++) {
+      const bucket = screamer.server.aiTargetSpatialMap.get(
+        `${cx + dx},${cz + dz}`
       );
-      screamer.server.applyMovementModifier(client, MovementModifiers.SCREAM);
+      if (!bucket) continue;
+      for (const entry of bucket) {
+        if (entry.faction !== Factions.HUMAN) continue;
+        if (getDistance2d(pos, entry.position) > SCREAM_RADIUS) continue;
+        const client = screamer.server.getClientByCharId(entry.id);
+        if (!client) continue;
+        screamer.server.addScreenEffect(
+          client,
+          screamer.server._screenEffects["SCREAM"]
+        );
+        screamer.server.applyMovementModifier(
+          client,
+          MovementModifiers.SCREAM
+        );
+      }
     }
   }
 }

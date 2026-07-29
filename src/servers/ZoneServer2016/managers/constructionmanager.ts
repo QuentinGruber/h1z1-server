@@ -137,6 +137,140 @@ export class ConstructionManager {
     server.sendAlert(client, `Construction Error: ${error}`);
   }
 
+  /** Spatial hash of construction dictionaries used by detectStackedPlacement,
+   *  rebuilt lazily and cached briefly so repeated placements in a short window
+   *  don't each re-scan every construction entity on the server. */
+  private _stackedPlacementHash?: {
+    worldSimple: Map<string, ConstructionChildEntity[]>;
+    simple: Map<string, ConstructionChildEntity[]>;
+    lootable: Map<string, LootableConstructionEntity[]>;
+    worldLootable: Map<string, LootableConstructionEntity[]>;
+    foundations: Map<string, ConstructionParentEntity[]>;
+    builtAt: number;
+  };
+  private static readonly STACKED_PLACEMENT_CACHE_TTL = 1000;
+  private static readonly STACKED_PLACEMENT_CELL_SIZE = 4;
+
+  private static _bucketByCell<T extends { state: { position: Float32Array } }>(
+    dict: Record<string, T>
+  ): Map<string, T[]> {
+    const cellSize = ConstructionManager.STACKED_PLACEMENT_CELL_SIZE;
+    const map = new Map<string, T[]>();
+    for (const key in dict) {
+      const entity = dict[key];
+      const pos = entity.state.position;
+      const cellKey = `${Math.floor(pos[0] / cellSize)},${Math.floor(pos[2] / cellSize)}`;
+      let bucket = map.get(cellKey);
+      if (!bucket) {
+        bucket = [];
+        map.set(cellKey, bucket);
+      }
+      bucket.push(entity);
+    }
+    return map;
+  }
+
+  private getStackedPlacementHash(server: ZoneServer2016) {
+    const now = Date.now();
+    if (
+      this._stackedPlacementHash &&
+      now - this._stackedPlacementHash.builtAt <
+        ConstructionManager.STACKED_PLACEMENT_CACHE_TTL
+    ) {
+      return this._stackedPlacementHash;
+    }
+    this._stackedPlacementHash = {
+      worldSimple: ConstructionManager._bucketByCell(
+        server._worldSimpleConstruction
+      ),
+      simple: ConstructionManager._bucketByCell(server._constructionSimple),
+      lootable: ConstructionManager._bucketByCell(server._lootableConstruction),
+      worldLootable: ConstructionManager._bucketByCell(
+        server._worldLootableConstruction
+      ),
+      foundations: ConstructionManager._bucketByCell(
+        server._constructionFoundations
+      ),
+      builtAt: now
+    };
+    return this._stackedPlacementHash;
+  }
+
+  /** Foundations near `position` (within a margin covering the largest
+   *  foundation cubebounds), for glitch/permission checks that need to test
+   *  `isInside()` against every foundation that could geometrically contain
+   *  a point — not just the entity's own logical parent — without scanning
+   *  every foundation on the server. */
+  getFoundationsNear(
+    server: ZoneServer2016,
+    position: Float32Array
+  ): Generator<ConstructionParentEntity> {
+    const hash = this.getStackedPlacementHash(server);
+    // largest foundation cubebounds half-extent is ~5x4.7 (radius ~6.9) — 12 gives margin
+    return ConstructionManager._entitiesNear(hash.foundations, position, 12);
+  }
+
+  /** Yields entities from the surrounding cells of a bucketed spatial hash within `radius`. */
+  private static *_entitiesNear<T>(
+    map: Map<string, T[]>,
+    position: Float32Array,
+    radius: number
+  ): Generator<T> {
+    const cellSize = ConstructionManager.STACKED_PLACEMENT_CELL_SIZE;
+    const cx = Math.floor(position[0] / cellSize);
+    const cz = Math.floor(position[2] / cellSize);
+    const cellRadius = Math.ceil(radius / cellSize) + 1;
+    for (let dx = -cellRadius; dx <= cellRadius; dx++) {
+      for (let dz = -cellRadius; dz <= cellRadius; dz++) {
+        const bucket = map.get(`${cx + dx},${cz + dz}`);
+        if (!bucket) continue;
+        for (const entity of bucket) yield entity;
+      }
+    }
+  }
+
+  /** Spatial-hash-backed replacement for utils.checkConstructionInRange when the
+   *  dictionary being queried is one of the four construction dictionaries — reuses
+   *  the same cached hash as detectStackedPlacement instead of scanning the full dictionary. */
+  isConstructionInRange(
+    server: ZoneServer2016,
+    kind: "worldSimple" | "simple" | "lootable" | "worldLootable",
+    position: Float32Array,
+    range: number,
+    itemDefinitionId: number
+  ): boolean {
+    const hash = this.getStackedPlacementHash(server);
+    const check = <
+      T extends { state: { position: Float32Array }; itemDefinitionId: number }
+    >(
+      map: Map<string, T[]>
+    ): boolean => {
+      for (const c of ConstructionManager._entitiesNear(
+        map,
+        position,
+        range
+      )) {
+        if (
+          c.itemDefinitionId == itemDefinitionId &&
+          isPosInRadius(range, position, c.state.position)
+        ) {
+          return true;
+        }
+      }
+      return false;
+    };
+    switch (kind) {
+      case "worldSimple":
+        return check(hash.worldSimple);
+      case "simple":
+        return check(hash.simple);
+      case "lootable":
+        return check(hash.lootable);
+      case "worldLootable":
+        return check(hash.worldLootable);
+    }
+  }
+
   detectStackedPlacement(
     server: ZoneServer2016,
     parentObjectCharacterId: string,
@@ -150,8 +284,12 @@ export class ConstructionManager {
       !Number(parentObjectCharacterId) &&
       !this.overridePlacementItems.includes(itemDefinitionId)
     ) {
-      for (const a in server._worldSimpleConstruction) {
-        const c = server._worldSimpleConstruction[a];
+      const hash = this.getStackedPlacementHash(server);
+      for (const c of ConstructionManager._entitiesNear(
+        hash.worldSimple,
+        position,
+        1.5
+      )) {
         const diff = Math.abs(c.state.position[1] - position[1]);
         if (
           isPosInRadiusWithY(1, c.state.position, position, 1.5) &&
@@ -160,8 +298,11 @@ export class ConstructionManager {
           return true;
         }
       }
-      for (const a in server._constructionSimple) {
-        const c = server._constructionSimple[a];
+      for (const c of ConstructionManager._entitiesNear(
+        hash.simple,
+        position,
+        1.5
+      )) {
         const diff = Math.abs(c.state.position[1] - position[1]);
         if (
           isPosInRadiusWithY(1, c.state.position, position, 1.5) &&
@@ -171,8 +312,11 @@ export class ConstructionManager {
         }
       }
 
-      for (const a in server._lootableConstruction) {
-        const c = server._lootableConstruction[a];
+      for (const c of ConstructionManager._entitiesNear(
+        hash.lootable,
+        position,
+        1.5
+      )) {
         const diff = Math.abs(c.state.position[1] - position[1]);
         if (
           isPosInRadiusWithY(1, c.state.position, position, 1.5) &&
@@ -193,8 +337,11 @@ export class ConstructionManager {
           }
         }
       }
-      for (const a in server._worldLootableConstruction) {
-        const c = server._worldLootableConstruction[a];
+      for (const c of ConstructionManager._entitiesNear(
+        hash.worldLootable,
+        position,
+        1.5
+      )) {
         const diff = Math.abs(c.state.position[1] - position[1]);
         if (
           isPosInRadiusWithY(1, c.state.position, position, 1.5) &&

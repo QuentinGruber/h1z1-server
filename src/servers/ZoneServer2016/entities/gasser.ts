@@ -15,7 +15,7 @@ import { ZoneServer2016 } from "../zoneserver";
 import { Effects, ModelIds, NpcIds, StringIds } from "../models/enums";
 import { ZombieWalker } from "./zombiewalker";
 import { createGasser, spawnGasCloudAt } from "../jsms/gasser.jsm";
-import { getDistance } from "../../../utils/utils";
+import { getDistanceSquared } from "../../../utils/utils";
 import { DamageInfo } from "types/zoneserver";
 
 export class Gasser extends ZombieWalker {
@@ -70,8 +70,8 @@ export class Gasser extends ZombieWalker {
       for (const character of Object.values(server._characters)) {
         if (!character.isAlive) continue;
         if (
-          getDistance(character.state.position, this.state.position) >
-          GASSER_DEATH_EXPLOSION_RANGE
+          getDistanceSquared(character.state.position, this.state.position) >
+          GASSER_DEATH_EXPLOSION_RANGE * GASSER_DEATH_EXPLOSION_RANGE
         )
           continue;
 

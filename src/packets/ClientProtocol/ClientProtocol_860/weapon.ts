@@ -263,11 +263,12 @@ export function packWeaponPacket(obj: any) {
   if (weaponPacketDescriptors[subType]) {
     const subPacket = weaponPacketDescriptors[subType],
       subTypeData = writePacketType(subType);
-    let subData = DataSchema.pack(subPacket.schema, subObj).data;
-    subData = Buffer.concat([subTypeData.slice(1), subData]);
-    data = Buffer.allocUnsafe(subData.length + 4);
+    const subData = DataSchema.pack(subPacket.schema, subObj).data;
+    const typeBytes = subTypeData.length - 1;
+    data = Buffer.allocUnsafe(4 + typeBytes + subData.length);
     data.writeUInt32LE((obj.gameTime & 0xffffffff) >>> 0, 0);
-    subData.copy(data, 4);
+    subTypeData.copy(data, 4, 1);
+    subData.copy(data, 4 + typeBytes);
   } else {
     throw "Unknown weapon packet type: " + subType;
   }

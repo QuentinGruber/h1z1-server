@@ -47,7 +47,7 @@ export class Lootbag extends BaseLootableEntity {
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
-    if (client.searchedProps.includes(this)) {
+    if (client.searchedProps.has(this)) {
       server.sendData(client, "Command.InteractionString", {
         guid: this.characterId,
         stringId: StringIds.OPEN
@@ -66,7 +66,7 @@ export class Lootbag extends BaseLootableEntity {
     isInstant?: boolean
     /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
-    if (!client.searchedProps.includes(this)) {
+    if (!client.searchedProps.has(this)) {
       server.utilizeHudTimer(
         client,
         server.getItemDefinition(this._containers["31"].itemDefinitionId)
@@ -75,7 +75,7 @@ export class Lootbag extends BaseLootableEntity {
         0,
         () => {
           super.OnPlayerSelect(server, client);
-          client.searchedProps.push(this);
+          client.searchedProps.add(this);
         }
       );
     } else {

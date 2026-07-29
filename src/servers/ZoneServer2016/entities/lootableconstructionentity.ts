@@ -227,9 +227,9 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     const container = this.getContainer();
     if (container) {
       container.items = {};
-      for (const a in server._characters) {
-        const character = server._characters[a];
-        if (character.mountedContainer == this) {
+      if (this.mountedCharacter) {
+        const character = server._characters[this.mountedCharacter];
+        if (character?.mountedContainer == this) {
           character.dismountContainer(server);
         }
       }
@@ -266,8 +266,10 @@ export class LootableConstructionEntity extends BaseLootableEntity {
       return;
     }
     if (server.fairPlayManager.useFairPlay) {
-      for (const a in server._constructionFoundations) {
-        const foundation = server._constructionFoundations[a];
+      for (const foundation of server.constructionManager.getFoundationsNear(
+        server,
+        this.state.position
+      )) {
         if (
           foundation.itemDefinitionId != Items.FOUNDATION &&
           foundation.itemDefinitionId != Items.FOUNDATION_EXPANSION

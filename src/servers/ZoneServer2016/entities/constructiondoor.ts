@@ -335,13 +335,18 @@ export class ConstructionDoor extends DoorEntity {
             this.isOpen &&
             allowedConstruction.includes(parent.itemDefinitionId)
           ) {
-            for (const a in server._clients) {
-              const client = server._clients[a];
-              if (client.character.isHidden == parent.characterId)
-                server.constructionManager.constructionPermissionsManager(
-                  server,
-                  client
-                );
+            // a hidden character stays subscribed to (spawned into) the
+            // shelter it's hiding in, so observers of the parent are the
+            // only clients that can possibly match isHidden below
+            const observers = server._entityObservers.get(parent.characterId);
+            if (observers) {
+              for (const client of observers) {
+                if (client.character.isHidden == parent.characterId)
+                  server.constructionManager.constructionPermissionsManager(
+                    server,
+                    client
+                  );
+              }
             }
           }
         }

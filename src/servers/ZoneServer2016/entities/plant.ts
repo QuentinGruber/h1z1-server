@@ -140,8 +140,10 @@ export class Plant extends ItemObject {
     /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
     if (this.growState != 3) return;
-    for (const a in server._constructionFoundations) {
-      const foundation = server._constructionFoundations[a];
+    for (const foundation of server.constructionManager.getFoundationsNear(
+      server,
+      this.state.position
+    )) {
       if (!foundation.isInside(this.state.position)) continue;
       if (
         foundation.isSecured &&
