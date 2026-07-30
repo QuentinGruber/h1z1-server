@@ -8115,16 +8115,7 @@ export class ZoneServer2016 extends EventEmitter {
         break;
     }
     if (!hudIndicator) return;
-    if (client.character.hudIndicators[hudIndicator.typeName]) {
-      client.character.hudIndicators[hudIndicator.typeName].expirationTime +=
-        600000;
-    } else {
-      client.character.hudIndicators[hudIndicator.typeName] = {
-        typeName: hudIndicator.typeName,
-        expirationTime: Date.now() + 600000
-      };
-      this.sendHudIndicators(client);
-    }
+    this.setHudIndicator(client, hudIndicator, 600000, true);
   }
 
   useDeerScent(client: Client, character: BaseFullCharacter, item: BaseItem) {
@@ -8133,20 +8124,8 @@ export class ZoneServer2016 extends EventEmitter {
     const hudIndicator: HudIndicator | undefined =
       this._hudIndicators["DEER SCENT"];
     if (!hudIndicator) return;
-    if (client.character.timeouts["DEER_SCENT"]) {
-      client.character.timeouts["DEER_SCENT"]._onTimeout();
-      clearTimeout(client.character.timeouts["DEER_SCENT"]);
-      delete client.character.timeouts["DEER_SCENT"];
-      if (client.character.hudIndicators[hudIndicator.typeName]) {
-        client.character.hudIndicators[hudIndicator.typeName].expirationTime +=
-          300000;
-      }
-    }
-    client.character.hudIndicators[hudIndicator.typeName] = {
-      typeName: hudIndicator.typeName,
-      expirationTime: Date.now() + 300000
-    };
-    this.sendHudIndicators(client);
+    this.refreshTimeout(client, "DEER_SCENT");
+    this.setHudIndicator(client, hudIndicator, 300000);
     client.character.timeouts["DEER_SCENT"] = setTimeout(() => {
       if (!client.character.timeouts["DEER_SCENT"]) {
         return;
@@ -8274,7 +8253,7 @@ export class ZoneServer2016 extends EventEmitter {
               client.character.timeouts["ADRENALINE"]._onTimeout(true);
               this.killCharacter(client, {
                 entity: client.character.characterId,
-                damage: 0xff
+                damage: Infinity
               });
             }, 5000);
           } else {
@@ -9387,181 +9366,145 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  applyMovementModifier(client: Client, modifier: MovementModifiers) {
-    if (modifier === MovementModifiers.SCREAM) {
-      this.multiplyMovementModifier(client, MovementModifiers.SNARED);
-      const hudIndicator = this._hudIndicators[ResourceIndicators.BANSHEE_CALL];
-      if (client.character.timeouts["screamed"]) {
-        client.character.timeouts["screamed"]._onTimeout();
-        clearTimeout(client.character.timeouts["screamed"]);
-        delete client.character.timeouts["screamed"];
-        if (client.character.hudIndicators[hudIndicator.typeName]) {
-          client.character.hudIndicators[
-            hudIndicator.typeName
-          ].expirationTime += 6000;
-        }
-      }
-      client.character.hudIndicators[hudIndicator.typeName] = {
-        typeName: hudIndicator.typeName,
-        expirationTime: Date.now() + 6000
-      };
-      this.sendHudIndicators(client);
-      client.character.timeouts["screamed"] = setTimeout(() => {
-        if (!client.character.timeouts["screamed"]) return;
-        this.divideMovementModifier(client, MovementModifiers.SNARED);
-        delete client.character.timeouts["screamed"];
-      }, 6000);
+  /** fires a timeout's pending callback early (if any) and clears its slot */
+  private refreshTimeout(client: Client, key: string) {
+    const timeout = client.character.timeouts[key];
+    if (!timeout) return;
+    timeout._onTimeout();
+    clearTimeout(timeout);
+    delete client.character.timeouts[key];
+  }
+
+  /** stack=true adds duration to an already-active indicator instead of resetting it */
+  private setHudIndicator(
+    client: Client,
+    hudIndicator: HudIndicator,
+    duration: number,
+    stack = false
+  ) {
+    const existing = client.character.hudIndicators[hudIndicator.typeName];
+    if (stack && existing) {
+      existing.expirationTime += duration;
       return;
     }
+    client.character.hudIndicators[hudIndicator.typeName] = {
+      typeName: hudIndicator.typeName,
+      expirationTime: Date.now() + duration
+    };
+    this.sendHudIndicators(client);
+  }
+
+  /** schedules the modifier's removal, forwarding any manual _onTimeout(arg) call through to onExpire */
+  private scheduleModifierExpiry(
+    client: Client,
+    key: string,
+    duration: number,
+    modifier: MovementModifiers,
+    onExpire?: (skipAfterEffect?: boolean) => void
+  ) {
+    client.character.timeouts[key] = setTimeout((skipAfterEffect?: boolean) => {
+      if (!client.character.timeouts[key]) return;
+      this.divideMovementModifier(client, modifier);
+      delete client.character.timeouts[key];
+      onExpire?.(skipAfterEffect);
+    }, duration);
+  }
+
+  applyMovementModifier(client: Client, modifier: MovementModifiers) {
     this.multiplyMovementModifier(client, modifier);
-    let hudIndicator: HudIndicator | undefined;
     switch (modifier) {
+      case MovementModifiers.SCREAM:
+        this.refreshTimeout(client, "BANSHEE_CALL");
+        this.setHudIndicator(
+          client,
+          this._hudIndicators[ResourceIndicators.BANSHEE_CALL],
+          6000
+        );
+        this.addScreenEffect(client, this._screenEffects["BANSHEE_CALL"]);
+        this.scheduleModifierExpiry(
+          client,
+          "BANSHEE_CALL",
+          6000,
+          MovementModifiers.SCREAM
+        );
+        break;
+
       case MovementModifiers.SWIZZLE:
-        hudIndicator = this._hudIndicators["SWIZZLE"];
-        if (client.character.timeouts["swizzle"]) {
-          client.character.timeouts["swizzle"]._onTimeout();
-          clearTimeout(client.character.timeouts["swizzle"]);
-          delete client.character.timeouts["swizzle"];
-          if (client.character.hudIndicators[hudIndicator.typeName]) {
-            client.character.hudIndicators[
-              hudIndicator.typeName
-            ].expirationTime += 30000;
-          }
-        }
-        client.character.hudIndicators[hudIndicator.typeName] = {
-          typeName: hudIndicator.typeName,
-          expirationTime: Date.now() + 30000
-        };
-        this.sendHudIndicators(client);
+        this.refreshTimeout(client, "SWIZZLE");
+        this.setHudIndicator(
+          client,
+          this._hudIndicators[ResourceIndicators.SWIZZLE],
+          30000
+        );
         this.addScreenEffect(client, this._screenEffects["SWIZZLE"]);
-        client.character.timeouts["swizzle"] = setTimeout(() => {
-          if (!client.character.timeouts["swizzle"]) {
-            return;
-          }
-          this.divideMovementModifier(client, modifier);
-          delete client.character.timeouts["swizzle"];
-        }, 30000);
+        this.scheduleModifierExpiry(client, "SWIZZLE", 30000, modifier);
         break;
+
       case MovementModifiers.RESTED:
-        hudIndicator = this._hudIndicators["WELL_RESTED"];
-        if (client.character.timeouts["WELL_RESTED"]) {
-          client.character.timeouts["WELL_RESTED"]._onTimeout();
-          clearTimeout(client.character.timeouts["WELL_RESTED"]);
-          delete client.character.timeouts["WELL_RESTED"];
-          if (client.character.hudIndicators[hudIndicator.typeName]) {
-            client.character.hudIndicators[
-              hudIndicator.typeName
-            ].expirationTime += 120000;
-          }
-        }
-        client.character.hudIndicators[hudIndicator.typeName] = {
-          typeName: hudIndicator.typeName,
-          expirationTime: Date.now() + 120000
-        };
-        this.sendHudIndicators(client);
-        client.character.timeouts["WELL_RESTED"] = setTimeout(() => {
-          if (!client.character.timeouts["WELL_RESTED"]) {
-            return;
-          }
-          this.divideMovementModifier(client, modifier);
-          delete client.character.timeouts["WELL_RESTED"];
-        }, 120000);
+        this.refreshTimeout(client, "WELL_RESTED");
+        this.setHudIndicator(
+          client,
+          this._hudIndicators[ResourceIndicators.WELL_RESTED],
+          120000
+        );
+        this.scheduleModifierExpiry(client, "WELL_RESTED", 120000, modifier);
         break;
+
       case MovementModifiers.SNARED:
-        if (client.character.timeouts["snared"]) {
-          client.character.timeouts["snared"]._onTimeout();
-          clearTimeout(client.character.timeouts["snared"]);
-          delete client.character.timeouts["snared"];
-        }
-        client.character.timeouts["snared"] = setTimeout(() => {
-          if (!client.character.timeouts["snared"]) {
-            return;
-          }
-          this.divideMovementModifier(client, modifier);
-          delete client.character.timeouts["snared"];
-        }, 15000);
+        this.refreshTimeout(client, "SNARED");
+        this.scheduleModifierExpiry(client, "SNARED", 15000, modifier);
         break;
-      case MovementModifiers.ADRENALINE:
-        hudIndicator = this._hudIndicators[ResourceIndicators.ADRENALINE];
-        if (client.character.timeouts["ADRENALINE"]) {
-          client.character.timeouts["ADRENALINE"]._onTimeout();
-          clearTimeout(client.character.timeouts["ADRENALINE"]);
-          delete client.character.timeouts["ADRENALINE"];
-          if (client.character.hudIndicators[hudIndicator.typeName]) {
-            client.character.hudIndicators[
-              hudIndicator.typeName
-            ].expirationTime += 30000;
-          }
-        }
-        client.character.hudIndicators[hudIndicator.typeName] = {
-          typeName: hudIndicator.typeName,
-          expirationTime: Date.now() + 30000
-        };
-        this.sendHudIndicators(client);
+
+      case MovementModifiers.SHOCKED: {
+        this.refreshTimeout(client, "SHOCKED");
+        this.scheduleModifierExpiry(client, "SHOCKED", 10000, modifier);
+        break;
+      }
+
+      case MovementModifiers.ADRENALINE: {
+        this.refreshTimeout(client, "ADRENALINE");
+        this.setHudIndicator(
+          client,
+          this._hudIndicators[ResourceIndicators.ADRENALINE],
+          30000
+        );
         const adrenalineBoostInterval = setInterval(() => {
           client.character._resources[ResourceIds.STAMINA] = 600;
         }, 1000);
-        client.character.timeouts["ADRENALINE"] = setTimeout(
-          (skipAfterEffect: boolean) => {
-            if (!client.character.timeouts["ADRENALINE"]) {
-              return;
-            }
-            this.divideMovementModifier(client, modifier);
-            delete client.character.timeouts["ADRENALINE"];
+        this.scheduleModifierExpiry(
+          client,
+          "ADRENALINE",
+          30000,
+          modifier,
+          (skipAfterEffect) => {
             clearInterval(adrenalineBoostInterval);
-
-            if (!skipAfterEffect && client.character.isAlive) {
-              setTimeout(() => {
-                hudIndicator =
-                  this._hudIndicators[
-                    ResourceIndicators.ADRENALINE_AFTER_EFFECTS
-                  ];
-                if (client.character.timeouts["ADRENALINE AFTER EFFECTS"]) {
-                  client.character.timeouts[
-                    "ADRENALINE AFTER EFFECTS"
-                  ]._onTimeout();
-                  clearTimeout(
-                    client.character.timeouts["ADRENALINE AFTER EFFECTS"]
-                  );
-                  delete client.character.timeouts["ADRENALINE AFTER EFFECTS"];
-                  if (client.character.hudIndicators[hudIndicator.typeName]) {
-                    client.character.hudIndicators[
-                      hudIndicator.typeName
-                    ].expirationTime += 30000;
+            if (skipAfterEffect || !client.character.isAlive) return;
+            setTimeout(() => {
+              this.refreshTimeout(client, "ADRENALINE AFTER EFFECTS");
+              this.setHudIndicator(
+                client,
+                this._hudIndicators[
+                  ResourceIndicators.ADRENALINE_AFTER_EFFECTS
+                ],
+                30000
+              );
+              const adrenalineAfterEffectsInterval = setInterval(() => {
+                // 4% per interval
+                client.character._resources[ResourceIds.STAMINA] -= 24;
+              }, 1000);
+              client.character.timeouts["ADRENALINE AFTER EFFECTS"] =
+                setTimeout(() => {
+                  clearInterval(adrenalineAfterEffectsInterval);
+                  if (!client.character.timeouts["ADRENALINE AFTER EFFECTS"]) {
+                    return;
                   }
-                }
-                client.character.hudIndicators[hudIndicator.typeName] = {
-                  typeName: hudIndicator.typeName,
-                  expirationTime: Date.now() + 30000
-                };
-                this.sendHudIndicators(client);
-                const adrenalineAfterEffectsInterval = setInterval(() => {
-                  // 4% per interval
-                  client.character._resources[ResourceIds.STAMINA] -= 24;
-                }, 1000);
-                client.character.timeouts["ADRENALINE AFTER EFFECTS"] =
-                  setTimeout(() => {
-                    clearInterval(adrenalineAfterEffectsInterval);
-                    if (
-                      !client.character.timeouts["ADRENALINE AFTER EFFECTS"]
-                    ) {
-                      return;
-                    }
-                    delete client.character.timeouts[
-                      "ADRENALINE AFTER EFFECTS"
-                    ];
-                    clearInterval(adrenalineAfterEffectsInterval);
-                  }, 30000);
-              }, 2000);
-            }
-          },
-          30000
+                  delete client.character.timeouts["ADRENALINE AFTER EFFECTS"];
+                }, 30000);
+            }, 2000);
+          }
         );
-
         break;
-      case MovementModifiers.BOOTS:
-        // some stuff
-        break;
+      }
     }
   }
 

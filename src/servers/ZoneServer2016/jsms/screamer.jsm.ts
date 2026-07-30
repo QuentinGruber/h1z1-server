@@ -241,10 +241,6 @@ function screamAtNearbyPlayers(screamer: ScreamerInstance): void {
         client.character.state.position
       ) <= SCREAM_RADIUS
     ) {
-      screamer.server.addScreenEffect(
-        client,
-        screamer.server._screenEffects["SCREAM"]
-      );
       screamer.server.applyMovementModifier(client, MovementModifiers.SCREAM);
     }
   }
