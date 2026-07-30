@@ -391,7 +391,7 @@
   },
   {
     "id": 37,
-    "typeName": "SCREAM",
+    "typeName": "BANSHEE_CALL",
     "duration": 6000,
     "screenBrightness": 0,
     "colorGradingFilename": "",
