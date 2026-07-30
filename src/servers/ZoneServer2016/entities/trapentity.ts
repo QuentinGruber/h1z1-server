@@ -106,6 +106,8 @@ export class TrapEntity extends BaseSimpleNpc {
         break;
       case Items.TRAP_FIRE:
       case Items.TRAP_FLASH:
+      case Items.TRAP_GAS:
+      case Items.TRAP_SHOCK:
         // Wait 10 seconds before activating the trap
         await new Promise<void>((resolve) => setTimeout(resolve, 10000));
         this.server.explosiveManager.addEntity(this);
@@ -278,42 +280,45 @@ export class TrapEntity extends BaseSimpleNpc {
         break;
       case Items.TRAP_FIRE:
       case Items.TRAP_FLASH:
+      case Items.TRAP_GAS:
+      case Items.TRAP_SHOCK:
         // Wait 10 seconds before activating the trap
-        await new Promise<void>((resolve) => setTimeout(resolve, 10000));
-
-        if (!server._traps[this.characterId]) {
-          return;
-        }
-        for (const a in server._clients) {
-          const client = server._clients[a];
-          if (
-            getDistance(client.character.state.position, this.state.position) <
-            1
-          ) {
-            this.detonateTrap(server, {
-              entity: client.character.characterId,
-              damage: 0
-            });
-            this.isTriggered = true;
-          }
-        }
-        for (const a in server._vehicles) {
-          if (
-            getDistance(
-              server._vehicles[a].state.position,
-              this.state.position
-            ) < 2
-          ) {
-            server._vehicles[a].getPassengerList().map((passenger) => {
-              this.detonateTrap(server, { entity: passenger, damage: 0 });
-              this.isTriggered = true;
-            });
-          }
-        }
-        if (this.isTriggered) {
-          this.destroy();
-        }
+        //await new Promise<void>((resolve) => setTimeout(resolve, 10000)); this is already handled in the arm() function also it causes a bug where the trap can be triggered when a player have stepped on it more then 10 seconds after it was placed
+        this.triggerAreaTrap(server);
         break;
+    }
+  }
+
+  /** Scans nearby clients/vehicles and detonates on whoever's in range.
+   *  Shared by the proximity-based area traps (fire/flash/gas/shock). */
+  private triggerAreaTrap(server: ZoneServer2016): void {
+    if (!server._traps[this.characterId]) {
+      return;
+    }
+    for (const a in server._clients) {
+      const client = server._clients[a];
+      if (
+        getDistance(client.character.state.position, this.state.position) < 1
+      ) {
+        this.detonateTrap(server, {
+          entity: client.character.characterId,
+          damage: 0
+        });
+        this.isTriggered = true;
+      }
+    }
+    for (const a in server._vehicles) {
+      if (
+        getDistance(server._vehicles[a].state.position, this.state.position) < 2
+      ) {
+        server._vehicles[a].getPassengerList().map((passenger) => {
+          this.detonateTrap(server, { entity: passenger, damage: 0 });
+          this.isTriggered = true;
+        });
+      }
+    }
+    if (this.isTriggered) {
+      this.destroy();
     }
   }
 
@@ -360,7 +365,12 @@ export class TrapEntity extends BaseSimpleNpc {
     const client = server.getClientByCharId(damageInfo.entity);
     if (
       !client ||
-      ![Items.TRAP_FLASH, Items.TRAP_FIRE].includes(this.itemDefinitionId)
+      ![
+        Items.TRAP_FLASH,
+        Items.TRAP_FIRE,
+        Items.TRAP_GAS,
+        Items.TRAP_SHOCK
+      ].includes(this.itemDefinitionId)
     )
       return;
 
@@ -451,6 +461,70 @@ export class TrapEntity extends BaseSimpleNpc {
             }
           }, interval);
         }
+        break;
+      case Items.TRAP_GAS: {
+        const radius = 7,
+          interval = 1000,
+          duration = 10000;
+        let elapsedTime = 0;
+
+        server.sendCompositeEffectToAllInRange(
+          15,
+          "",
+          this.state.position,
+          Effects.PFX_Poison_GasTrap_AOE_01
+        );
+
+        const gasInterval = setInterval(() => {
+          elapsedTime += interval;
+          for (const a in server._characters) {
+            const character = server._characters[a];
+            if (server.checkRespirator(character)) continue;
+            if (
+              getDistance(character.state.position, this.state.position) <=
+              radius
+            ) {
+              character.damage(server, {
+                entity: this.characterId,
+                damage: 500
+              });
+              server.sendDataToAllWithSpawnedEntity(
+                server._characters,
+                character.characterId,
+                "Character.PlayAnimation",
+                {
+                  characterId: character.characterId,
+                  animationName: "Action",
+                  animationType: "ActionType",
+                  unm4: 0,
+                  unknownDword1: 0,
+                  unknownByte1: 0,
+                  unknownDword2: 0,
+                  unknownByte1xda: 0,
+                  unknownDword3: 10
+                }
+              );
+            }
+          }
+          if (elapsedTime >= duration) {
+            clearInterval(gasInterval);
+          }
+        }, interval);
+        break;
+      }
+      case Items.TRAP_SHOCK:
+        client.character.damage(server, {
+          entity: this.characterId,
+          damage: 2000
+        });
+        server.sendCompositeEffectToAllInRange(
+          15,
+          "",
+          this.state.position,
+          Effects.PFX_Trap_Shock_Trigger
+        );
+        server.addScreenEffect(client, server._screenEffects["SHOCK"]);
+        server.applyMovementModifier(client, MovementModifiers.SHOCKED);
         break;
     }
 

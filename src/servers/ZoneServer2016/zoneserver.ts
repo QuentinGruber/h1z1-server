@@ -9559,8 +9559,19 @@ export class ZoneServer2016 extends EventEmitter {
         );
 
         break;
-      case MovementModifiers.BOOTS:
-        // some stuff
+      case MovementModifiers.SHOCKED:
+        if (client.character.timeouts["shocked"]) {
+          client.character.timeouts["shocked"]._onTimeout();
+          clearTimeout(client.character.timeouts["shocked"]);
+          delete client.character.timeouts["shocked"];
+        }
+        client.character.timeouts["shocked"] = setTimeout(() => {
+          if (!client.character.timeouts["shocked"]) {
+            return;
+          }
+          this.divideMovementModifier(client, modifier);
+          delete client.character.timeouts["shocked"];
+        }, 10000);
         break;
     }
   }

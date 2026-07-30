@@ -359,7 +359,9 @@ export enum MovementModifiers {
   SCREAM = 0.49,
   CONVEYS = 1.15,
   BOOTS = 1.07,
-  ADRENALINE = 1.12
+  ADRENALINE = 1.12,
+  // near-zero rather than exactly 0: divideMovementModifier reverts via 1/modifier, which is Infinity at 0
+  SHOCKED = 0.01
 }
 
 export enum ContainerErrors {
