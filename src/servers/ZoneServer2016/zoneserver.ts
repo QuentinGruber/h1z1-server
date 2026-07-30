@@ -8115,16 +8115,7 @@ export class ZoneServer2016 extends EventEmitter {
         break;
     }
     if (!hudIndicator) return;
-    if (client.character.hudIndicators[hudIndicator.typeName]) {
-      client.character.hudIndicators[hudIndicator.typeName].expirationTime +=
-        600000;
-    } else {
-      client.character.hudIndicators[hudIndicator.typeName] = {
-        typeName: hudIndicator.typeName,
-        expirationTime: Date.now() + 600000
-      };
-      this.sendHudIndicators(client);
-    }
+    this.setHudIndicator(client, hudIndicator, 600000, true);
   }
 
   useDeerScent(client: Client, character: BaseFullCharacter, item: BaseItem) {
@@ -8133,20 +8124,8 @@ export class ZoneServer2016 extends EventEmitter {
     const hudIndicator: HudIndicator | undefined =
       this._hudIndicators["DEER SCENT"];
     if (!hudIndicator) return;
-    if (client.character.timeouts["DEER_SCENT"]) {
-      client.character.timeouts["DEER_SCENT"]._onTimeout();
-      clearTimeout(client.character.timeouts["DEER_SCENT"]);
-      delete client.character.timeouts["DEER_SCENT"];
-      if (client.character.hudIndicators[hudIndicator.typeName]) {
-        client.character.hudIndicators[hudIndicator.typeName].expirationTime +=
-          300000;
-      }
-    }
-    client.character.hudIndicators[hudIndicator.typeName] = {
-      typeName: hudIndicator.typeName,
-      expirationTime: Date.now() + 300000
-    };
-    this.sendHudIndicators(client);
+    this.refreshTimeout(client, "DEER_SCENT");
+    this.setHudIndicator(client, hudIndicator, 300000);
     client.character.timeouts["DEER_SCENT"] = setTimeout(() => {
       if (!client.character.timeouts["DEER_SCENT"]) {
         return;
@@ -8274,7 +8253,7 @@ export class ZoneServer2016 extends EventEmitter {
               client.character.timeouts["ADRENALINE"]._onTimeout(true);
               this.killCharacter(client, {
                 entity: client.character.characterId,
-                damage: 0xff
+                damage: Infinity
               });
             }, 5000);
           } else {
@@ -9396,11 +9375,18 @@ export class ZoneServer2016 extends EventEmitter {
     delete client.character.timeouts[key];
   }
 
+  /** stack=true adds duration to an already-active indicator instead of resetting it */
   private setHudIndicator(
     client: Client,
     hudIndicator: HudIndicator,
-    duration: number
+    duration: number,
+    stack = false
   ) {
+    const existing = client.character.hudIndicators[hudIndicator.typeName];
+    if (stack && existing) {
+      existing.expirationTime += duration;
+      return;
+    }
     client.character.hudIndicators[hudIndicator.typeName] = {
       typeName: hudIndicator.typeName,
       expirationTime: Date.now() + duration
