@@ -283,7 +283,7 @@ export class TrapEntity extends BaseSimpleNpc {
       case Items.TRAP_GAS:
       case Items.TRAP_SHOCK:
         // Wait 10 seconds before activating the trap
-        //await new Promise<void>((resolve) => setTimeout(resolve, 10000)); this is already handled in the arm() function also it causes a bug where the trap can be triggered when a player have stepped on it more then 10 seconds after it was placed
+        //await new Promise<void>((resolve) => setTimeout(resolve, 10000)); this is already handled in the arm() function also it causes a bug where the trap can only be triggered when a player have stepped on it more then 10 seconds after it was placed (johnoclock)
         this.triggerAreaTrap(server);
         break;
     }
