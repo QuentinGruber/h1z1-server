@@ -242,10 +242,6 @@ function screamAtNearbyPlayers(screamer: ScreamerInstance): void {
         if (getDistance2d(pos, entry.position) > SCREAM_RADIUS) continue;
         const client = screamer.server.getClientByCharId(entry.id);
         if (!client) continue;
-        screamer.server.addScreenEffect(
-          client,
-          screamer.server._screenEffects["SCREAM"]
-        );
         screamer.server.applyMovementModifier(client, MovementModifiers.SCREAM);
       }
     }

@@ -101078,7 +101078,8 @@
     "IS_ARMOR": 0,
     "PASSIVE_EQUIP_SLOT_GROUP_ID": 0,
     "SCRAP_VALUE_OVERRIDE": 0,
-    "PICKUP_EFFECT": 5151
+    "PICKUP_EFFECT": 5151,
+    "PLACEMENT_MODEL_ID": 9176
   },
   "2833": {
     "NAME": "Pack of AA Batteries",

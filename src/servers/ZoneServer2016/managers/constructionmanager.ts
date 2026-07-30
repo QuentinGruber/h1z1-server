@@ -911,6 +911,8 @@ export class ConstructionManager {
       case Items.PUNJI_STICK_ROW:
       case Items.TRAP_FIRE:
       case Items.TRAP_FLASH:
+      case Items.TRAP_GAS:
+      case Items.TRAP_SHOCK:
         return this.placeTrap(
           server,
           itemDefinitionId,
