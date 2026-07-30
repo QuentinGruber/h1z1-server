@@ -9445,7 +9445,11 @@ export class ZoneServer2016 extends EventEmitter {
 
       case MovementModifiers.SWIZZLE:
         this.refreshTimeout(client, "SWIZZLE");
-        this.setHudIndicator(client, this._hudIndicators[ResourceIndicators.SWIZZLE], 30000);
+        this.setHudIndicator(
+          client,
+          this._hudIndicators[ResourceIndicators.SWIZZLE],
+          30000
+        );
         this.addScreenEffect(client, this._screenEffects["SWIZZLE"]);
         this.scheduleModifierExpiry(client, "SWIZZLE", 30000, modifier);
         break;
