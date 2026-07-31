@@ -588,15 +588,9 @@ export class Vehicle2016 extends BaseLootableEntity {
       : damageInfo.damage;
     const client = server.getClientByCharId(damageInfo.entity);
     if (client) {
-      queueMicrotask(async () => {
-        client.character.addCombatlogEntry(
-          await server.generateDamageRecord(
-            this.characterId,
-            damageInfo,
-            oldHealth
-          )
-        );
-      });
+      client.character.addCombatlogEntry(
+        server.generateDamageRecord(this.characterId, damageInfo, oldHealth)
+      );
     }
 
     if (this._resources[ResourceIds.CONDITION] <= 0) {
