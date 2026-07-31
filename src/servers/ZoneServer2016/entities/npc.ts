@@ -260,9 +260,9 @@ export abstract class Npc extends BaseFullCharacter {
           client.character.metrics.zombiesKilled++;
         else client.character.metrics.wildlifeKilled++;
       }
-      for (const a in server._clients) {
-        const c = server._clients[a];
-        if (c.spawnedEntities.has(this)) {
+      const observers = server._entityObservers.get(this.characterId);
+      if (observers) {
+        for (const c of observers) {
           if (!c.isLoading) {
             server.sendData(c, "Character.StartMultiStateDeath", {
               data: {
