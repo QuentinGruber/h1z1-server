@@ -634,11 +634,10 @@ export function packWeaponPacket(obj: any): Buffer {
   if (weaponPacketDescriptors[subType]) {
     const subPacket = weaponPacketDescriptors[subType],
       subTypeData = writePacketType(subType);
-    let subData = DataSchema.pack(subPacket.schema, subObj).data;
-    subData = Buffer.concat([subTypeData.slice(1), subData]);
-    data = Buffer.allocUnsafe(subData.length + 4);
-    data.writeUInt32LE((obj.gameTime & 0xffffffff) >>> 0, 0);
-    subData.copy(data, 4);
+    const subData = DataSchema.pack(subPacket.schema, subObj).data;
+    const header = Buffer.allocUnsafe(4);
+    header.writeUInt32LE((obj.gameTime & 0xffffffff) >>> 0, 0);
+    data = Buffer.concat([header, subTypeData.subarray(1), subData]);
   } else {
     throw "Unknown weapon packet type: " + subType;
   }
@@ -646,41 +645,34 @@ export function packWeaponPacket(obj: any): Buffer {
 }
 
 function packFirestateUpdate(obj: any): Buffer {
-  let data = Buffer.alloc(1);
-  data.writeUInt8(obj.firestate);
-  if ((obj.firestate & 2) == 0) {
-    // transientId
-    data = Buffer.concat([
-      data,
-      DataSchema.pack(
-        [
-          {
-            name: "transientId",
-            type: "custom",
-            parser: readUnsignedIntWith2bitLengthValue,
-            packer: packUnsignedIntWith2bitLengthValue
-          }
-        ],
-        obj
-      ).data
-    ]);
-  } else {
-    // floatvector4
-    data = Buffer.concat([
-      data,
-      DataSchema.pack(
-        [
-          {
-            name: "position",
-            type: "floatvector4",
-            defaultValue: [1, 1, 1, 1]
-          }
-        ],
-        obj
-      ).data
-    ]);
-  }
-  return data;
+  const fieldData =
+    (obj.firestate & 2) == 0
+      ? // transientId
+        DataSchema.pack(
+          [
+            {
+              name: "transientId",
+              type: "custom",
+              parser: readUnsignedIntWith2bitLengthValue,
+              packer: packUnsignedIntWith2bitLengthValue
+            }
+          ],
+          obj
+        ).data
+      : // floatvector4
+        DataSchema.pack(
+          [
+            {
+              name: "position",
+              type: "floatvector4",
+              defaultValue: [1, 1, 1, 1]
+            }
+          ],
+          obj
+        ).data;
+  const header = Buffer.allocUnsafe(1);
+  header.writeUInt8(obj.firestate, 0);
+  return Buffer.concat([header, fieldData]);
 }
 
 export function packRemoteWeaponPacket(obj: any): Buffer {
@@ -692,20 +684,19 @@ export function packRemoteWeaponPacket(obj: any): Buffer {
   if (!remoteWeaponPacketDescriptors[subType]) {
     throw "Unknown weapon packet type: " + subType;
   }
-  let subData = Buffer.allocUnsafe(6);
+  const header = Buffer.allocUnsafe(6);
   const subTypeData = writePacketType(subType);
-  subData.writeUInt32LE((obj.gameTime & 0xffffffff) >>> 0, 0);
-  subData.writeUInt8(0x15, 4); // "Weapon.RemoteWeapon" opcode
-  subData.writeUInt8(subTypeData[0], 5); // remoteweapon sub opcode
+  header.writeUInt32LE((obj.gameTime & 0xffffffff) >>> 0, 0);
+  header.writeUInt8(0x15, 4); // "Weapon.RemoteWeapon" opcode
+  header.writeUInt8(subTypeData[0], 5); // remoteweapon sub opcode
   const transientId = packUnsignedIntWith2bitLengthValue(
     obj["remoteWeaponPacket"]["transientId"]
   );
-  subData = Buffer.concat([subData, transientId]);
   const packetData = DataSchema.pack(
     remoteWeaponPacketDescriptors[subType].schema,
     subObj
   ).data;
-  return Buffer.concat([subData, packetData]);
+  return Buffer.concat([header, transientId, packetData]);
 }
 
 export function packRemoteWeaponUpdatePacket(obj: any): Buffer {
@@ -715,15 +706,14 @@ export function packRemoteWeaponUpdatePacket(obj: any): Buffer {
   if (!remoteWeaponUpdatePacketDescriptors[subType]) {
     throw "Unknown weapon packet type: " + subType;
   }
-  let subData = Buffer.allocUnsafe(6);
+  const header = Buffer.allocUnsafe(6);
   const subTypeData = writePacketType(subType);
-  subData.writeUInt32LE((obj.gameTime & 0xffffffff) >>> 0, 0);
-  subData.writeUInt8(0x15, 4); // "Weapon.RemoteWeapon" opcode
-  subData.writeUInt8(0x04, 5); // "RemoteWeapon.Update" opcode
+  header.writeUInt32LE((obj.gameTime & 0xffffffff) >>> 0, 0);
+  header.writeUInt8(0x15, 4); // "Weapon.RemoteWeapon" opcode
+  header.writeUInt8(0x04, 5); // "RemoteWeapon.Update" opcode
   const transientId = packUnsignedIntWith2bitLengthValue(
     obj["remoteWeaponPacket"]["transientId"]
   );
-  subData = Buffer.concat([subData, transientId]);
   const updateData = Buffer.allocUnsafe(9);
   updateData.writeUInt8(subTypeData[0], 0);
   for (let j = 0; j < 8; j++) {
@@ -737,12 +727,11 @@ export function packRemoteWeaponUpdatePacket(obj: any): Buffer {
       1 + j
     );
   }
-  subData = Buffer.concat([subData, updateData]);
   const packetData = DataSchema.pack(
     remoteWeaponUpdatePacketDescriptors[subType].schema,
     subObj
   ).data;
-  return Buffer.concat([subData, packetData]);
+  return Buffer.concat([header, transientId, updateData, packetData]);
 }
 
 const hitReportSchema = [
