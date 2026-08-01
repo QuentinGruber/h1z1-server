@@ -176,9 +176,11 @@ export class Crate extends BaseSimpleNpc {
       }
     );
 
-    for (const a in server._clients) {
-      const client = server._clients[a];
-      client.spawnedEntities.delete(server._crates[this.characterId]);
+    const observers = server._entityObservers.get(this.characterId);
+    if (observers) {
+      for (const client of Array.from(observers)) {
+        client.spawnedEntities.delete(server._crates[this.characterId]);
+      }
     }
     return true;
     // crates cannot get deleted from dictionarries, need separate function to despawn
