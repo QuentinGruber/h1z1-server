@@ -5712,31 +5712,23 @@ export class ZoneServer2016 extends EventEmitter {
     entityCharacterId: string = "",
     data: Buffer
   ) {
-    for (const a in this._clients) {
-      if (
-        client != this._clients[a] &&
-        this._clients[a].spawnedEntities.has(
-          this._characters[entityCharacterId]
-        )
-      ) {
-        this.sendRawDataReliable(this._clients[a], data);
-      }
+    const observers = this._entityObservers.get(entityCharacterId);
+    if (!observers) return;
+    for (const c of observers) {
+      if (c !== client) this.sendRawDataReliable(c, data);
     }
   }
 
   sendRawToAllOthersWithSpawnedEntity(
     client: Client,
-    dictionary: any,
+    _dictionary: any,
     entityCharacterId: string = "",
     data: Buffer
   ) {
-    for (const a in this._clients) {
-      if (
-        client != this._clients[a] &&
-        this._clients[a].spawnedEntities.has(dictionary[entityCharacterId])
-      ) {
-        this.sendRawDataReliable(this._clients[a], data);
-      }
+    const observers = this._entityObservers.get(entityCharacterId);
+    if (!observers) return;
+    for (const c of observers) {
+      if (c !== client) this.sendRawDataReliable(c, data);
     }
   }
 
