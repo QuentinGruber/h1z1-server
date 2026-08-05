@@ -755,6 +755,10 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
+    if (!server.navManager.crowdHealthy) {
+      server.sendChatText(client, "Navigation Crowd is unavailable");
+      return;
+    }
     for (const k in server._npcs) {
       const npc = server._npcs[k];
       if (npc.navAgent) {
@@ -789,6 +793,10 @@ const dev: any = {
       `[ZOMBIE-DEBUG] Creating nav agent at zombie state.position: [${zombie.state.position[0].toFixed(2)}, ${zombie.state.position[1].toFixed(2)}, ${zombie.state.position[2].toFixed(2)}]`
     );
     const a = server.navManager.createAgent(zombie.state.position);
+    if (!a) {
+      server.sendChatText(client, "Navigation Crowd is unavailable or full");
+      return;
+    }
     zombie.navAgent = a;
     // Sync zombie to its navmesh spawn point converted back to game coords
     const initialGamePos = NavManager.navToGame(a.position());
@@ -799,6 +807,10 @@ const dev: any = {
 
     await scheduler.wait(1000);
     const interval = setInterval(() => {
+      if (!server.navManager.crowdHealthy) {
+        clearInterval(interval);
+        return;
+      }
       server.navManager.updt();
       if (zombie.navAgent) {
         const playerPos = client.character.state.position;

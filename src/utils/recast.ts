@@ -38,8 +38,10 @@ const debug = require("debug")("nav");
 const MAX_OBSTACLE = 20000;
 const MAX_PENDING_OBSTACLE = 50;
 const MAX_TILE_CACHE_UPDATES_PER_TICK = 256;
+const DEGRADED_WARNING_INTERVAL_MS = 60_000;
 
 export class NavManager {
+  static readonly MAX_CROWD_AGENTS = 2000;
   navmesh!: NavMesh;
   tilecache!: TileCache;
   obstaclesRequestsPending: number = 0;
@@ -52,14 +54,44 @@ export class NavManager {
   private _monolithicResources?: MonolithicNavigation;
   private _crowdHealthy = true;
   private _obstacleUpdatesHealthy = true;
+  private _rejectedAgentCount = 0;
+  private _unreleasedAgentCount = 0;
+  private _obstacleStatusFailureCount = 0;
+  private _lastDegradedWarning = 0;
   constructor() {}
 
   get crowdHealthy(): boolean {
     return this._crowdHealthy;
   }
 
+  get crowdCapacity(): number {
+    return NavManager.MAX_CROWD_AGENTS;
+  }
+
   get obstacleUpdatesHealthy(): boolean {
     return this._obstacleUpdatesHealthy;
+  }
+
+  get rejectedAgentCount(): number {
+    return this._rejectedAgentCount;
+  }
+
+  get unreleasedAgentCount(): number {
+    return this._unreleasedAgentCount;
+  }
+
+  get obstacleStatusFailureCount(): number {
+    return this._obstacleStatusFailureCount;
+  }
+
+  get healthSummary(): string {
+    return (
+      `crowd=${this._crowdHealthy ? "healthy" : "disabled"} ` +
+      `obstacles=${this._obstacleUpdatesHealthy ? "healthy" : "disabled"} ` +
+      `obstacleStatusFailures=${this._obstacleStatusFailureCount} ` +
+      `rejectedAgents=${this._rejectedAgentCount} ` +
+      `unreleasedAgents=${this._unreleasedAgentCount}`
+    );
   }
   async loadNav() {
     const runtimeSelection = selectNavigationRuntime(
@@ -96,7 +128,7 @@ export class NavManager {
       this.tilecache = resources.tileCache;
       this.navMeshQuery = new R.NavMeshQuery(this.navmesh);
       this.crowd = new R.Crowd(this.navmesh, {
-        maxAgents: 2000,
+        maxAgents: NavManager.MAX_CROWD_AGENTS,
         maxAgentRadius: 2.0
       });
       const wasmBytes = Number(R.Raw.Module.HEAPU8?.byteLength ?? 0);
@@ -150,7 +182,7 @@ export class NavManager {
     const { tileCache } = R.importTileCache(tcData, tileCacheMeshProcess);
     this.navmesh = navMesh;
     this.tilecache = tileCache;
-    const maxAgents = 2000;
+    const maxAgents = NavManager.MAX_CROWD_AGENTS;
     const maxAgentRadius = 2.0;
     this.navMeshQuery = new R.NavMeshQuery(this.navmesh);
     this.crowd = new R.Crowd(navMesh, { maxAgents, maxAgentRadius });
@@ -165,11 +197,20 @@ export class NavManager {
   }
 
   removeObstacle(obstacle: BoxObstacle): boolean {
-    const result = this.tilecache.removeObstacle(obstacle);
-    if (!result.success) return false;
-    this.obstaclesRequestsPending++;
-    this.obstacleCount = Math.max(0, this.obstacleCount - 1);
-    return true;
+    if (!this._crowdHealthy || !this._obstacleUpdatesHealthy) return false;
+    try {
+      const result = this.tilecache.removeObstacle(obstacle);
+      if (!result.success) {
+        this.recordObstacleStatusFailure("removal", result.status);
+        return false;
+      }
+      this.obstaclesRequestsPending++;
+      this.obstacleCount = Math.max(0, this.obstacleCount - 1);
+      return true;
+    } catch (error) {
+      this.markNativeFault(error, "obstacle removal");
+      return false;
+    }
   }
 
   addObstacle(
@@ -177,41 +218,59 @@ export class NavManager {
     halfExtents: Vector3,
     yRotation: number = 0.0
   ) {
+    if (!this._crowdHealthy || !this._obstacleUpdatesHealthy) return null;
     if (this.obstacleCount >= MAX_OBSTACLE) {
       return null;
     }
     if (this.obstaclesRequestsPending >= MAX_PENDING_OBSTACLE) {
       this.processPendingObstacleRequests();
+      if (!this._crowdHealthy || !this._obstacleUpdatesHealthy) return null;
       if (this.obstaclesRequestsPending >= MAX_PENDING_OBSTACLE) return null;
     }
-    const { success, obstacle } = this.tilecache.addBoxObstacle(
-      NavManager.gameToNav(position),
-      halfExtents,
-      yRotation
-    );
-    if (success) {
-      this.obstaclesRequestsPending++;
-      this.obstacleCount++;
-      return obstacle;
+    try {
+      const result = this.tilecache.addBoxObstacle(
+        NavManager.gameToNav(position),
+        halfExtents,
+        yRotation
+      );
+      if (result.success) {
+        this.obstaclesRequestsPending++;
+        this.obstacleCount++;
+        return result.obstacle;
+      }
+      this.recordObstacleStatusFailure("creation", result.status);
+      return null;
+    } catch (error) {
+      this.markNativeFault(error, "obstacle creation");
+      return null;
     }
-    return null;
   }
 
   getClosestNavPoint(gamePos: Float32Array): any {
     const navInput = NavManager.gameToNav(gamePos);
-    const n = this.navMeshQuery.findClosestPoint(navInput);
-    return n;
+    if (!this._crowdHealthy) return null;
+    try {
+      return this.navMeshQuery.findClosestPoint(navInput);
+    } catch (error) {
+      this.markCrowdFault(error, "closest-point query");
+      return null;
+    }
   }
 
   raycast(origin: Float32Array, target: Float32Array) {
     const origin_data = this.getClosestNavPoint(origin);
+    if (!origin_data || !this._crowdHealthy) return null;
 
     const startPoly = origin_data.polyRef;
     const start = origin_data.point;
     const end = this.getClosestNavPointVec3(target);
-
-    const result = this.navMeshQuery.raycast(startPoly, start, end);
-    return result;
+    if (!this._crowdHealthy) return null;
+    try {
+      return this.navMeshQuery.raycast(startPoly, start, end);
+    } catch (error) {
+      this.markCrowdFault(error, "raycast query");
+      return null;
+    }
   }
 
   updt() {
@@ -222,7 +281,10 @@ export class NavManager {
       `requests: ${this.obstaclesRequestsPending}, total: ${this.tilecache.obstacles.size}`
     );
     this.lastTimeCall = now;
-    if (!this._crowdHealthy) return;
+    if (!this._crowdHealthy) {
+      this.warnIfDegraded();
+      return;
+    }
     try {
       this.crowd.update(this.updateFrequency, timeSinceLastCalled, 1);
     } catch (error) {
@@ -245,20 +307,14 @@ export class NavManager {
         const result = this.tilecache.update(this.navmesh);
         updates++;
         if (!result.success) {
-          this._obstacleUpdatesHealthy = false;
           this.obstaclesRequestsPending = 0;
-          console.error(
-            `[NAV] tilecache update failed: ${R.statusToReadableString(result.status)}; ` +
-              "dynamic obstacle updates disabled"
-          );
+          this.recordObstacleStatusFailure("update", result.status);
           return;
         }
         upToDate = result.upToDate;
       }
     } catch (error) {
-      this._obstacleUpdatesHealthy = false;
-      this.obstaclesRequestsPending = 0;
-      this.markCrowdFault(error, "tilecache update");
+      this.markNativeFault(error, "tilecache update");
       return;
     }
     if (upToDate) this.obstaclesRequestsPending = 0;
@@ -272,6 +328,50 @@ export class NavManager {
         error instanceof Error ? (error.stack ?? error.message) : String(error)
       }`
     );
+  }
+
+  private readableStatus(status: number): string {
+    try {
+      return R.statusToReadableString(status);
+    } catch {
+      return String(status);
+    }
+  }
+
+  private markNativeFault(error: unknown, operation: string): void {
+    this._obstacleUpdatesHealthy = false;
+    this.obstaclesRequestsPending = 0;
+    this.markCrowdFault(error, operation);
+  }
+
+  containExternalNativeFault(error: unknown, operation: string): boolean {
+    if (!(error instanceof WebAssembly.RuntimeError)) return false;
+    this.markNativeFault(error, operation);
+    return true;
+  }
+
+  private recordObstacleStatusFailure(operation: string, status: number): void {
+    this._obstacleStatusFailureCount++;
+    console.error(
+      `[NAV] tilecache ${operation} failed: ${this.readableStatus(status)}; ` +
+        "request abandoned, future updates remain enabled"
+    );
+  }
+
+  private warnIfDegraded(force = false): void {
+    const now = Date.now();
+    if (
+      !force &&
+      now - this._lastDegradedWarning < DEGRADED_WARNING_INTERVAL_MS
+    )
+      return;
+    this._lastDegradedWarning = now;
+    console.warn(`[NAV] navigation status: ${this.healthSummary}`);
+  }
+
+  recordUnreleasedAgent(): void {
+    this._unreleasedAgentCount++;
+    this.warnIfDegraded();
   }
 
   removeAgent(agent: CrowdAgent): boolean {
@@ -289,78 +389,124 @@ export class NavManager {
   // Uses large halfExtents so Y offset doesn't prevent finding a polygon.
   getClosestNavPointVec3(gamePos: Float32Array): Vector3 {
     const navInput = NavManager.gameToNav(gamePos);
-    const n = this.navMeshQuery.findNearestPoly(navInput, {
-      halfExtents: { x: 10, y: 10, z: 10 }
-    });
-    debug(
-      `getClosestNavPoint gameIn=[${gamePos[0].toFixed(2)}, ${gamePos[1].toFixed(2)}, ${gamePos[2].toFixed(2)}] navOut=[${n.nearestPoint.x.toFixed(2)}, ${n.nearestPoint.y.toFixed(2)}, ${n.nearestPoint.z.toFixed(2)}] polyRef=${n.nearestRef}`
-    );
-    return n.nearestPoint;
+    if (!this._crowdHealthy) return navInput;
+    try {
+      const n = this.navMeshQuery.findNearestPoly(navInput, {
+        halfExtents: { x: 10, y: 10, z: 10 }
+      });
+      debug(
+        `getClosestNavPoint gameIn=[${gamePos[0].toFixed(2)}, ${gamePos[1].toFixed(2)}, ${gamePos[2].toFixed(2)}] navOut=[${n.nearestPoint.x.toFixed(2)}, ${n.nearestPoint.y.toFixed(2)}, ${n.nearestPoint.z.toFixed(2)}] polyRef=${n.nearestRef}`
+      );
+      return n.nearestPoint;
+    } catch (error) {
+      this.markCrowdFault(error, "nearest-poly query");
+      return navInput;
+    }
   }
 
   // Nearest navmesh point at (x, z), searched from above with height ignored.
   // Returns null when the spot is off-mesh (water/void/gap)
   getNavGroundPoint(x: number, z: number): Float32Array | null {
-    if (!this.navMeshQuery) return null;
-    const n = this.navMeshQuery.findNearestPoly(
-      { x, y: 1000, z },
-      { halfExtents: { x: 10, y: 2000, z: 10 } }
-    );
-    if (!n.success || !n.nearestRef) return null;
-    return NavManager.navToGame(n.nearestPoint);
-  }
-
-  createAgent(gamePos: Float32Array): CrowdAgent {
-    const navPosition = this.getClosestNavPointVec3(gamePos);
-    debug(
-      `createAgent: navPos=[${navPosition.x.toFixed(2)}, ${navPosition.y.toFixed(2)}, ${navPosition.z.toFixed(2)}]`
-    );
-
-    const {
-      randomPoint: initialAgentPosition,
-      success,
-      status
-    } = this.navMeshQuery.findRandomPointAroundCircle(navPosition, 0.5);
-
-    if (!success) {
-      debug(
-        `createAgent: findRandomPointAroundCircle failed (${R.statusToReadableString(status)}), using navPosition directly`
+    if (!this.navMeshQuery || !this._crowdHealthy) return null;
+    try {
+      const n = this.navMeshQuery.findNearestPoly(
+        { x, y: 1000, z },
+        { halfExtents: { x: 10, y: 2000, z: 10 } }
       );
+      if (!n.success || !n.nearestRef) return null;
+      return NavManager.navToGame(n.nearestPoint);
+    } catch (error) {
+      this.markCrowdFault(error, "ground-point query");
+      return null;
     }
-
-    const spawnPoint = success ? initialAgentPosition : navPosition;
-    const agent = this.crowd.addAgent(spawnPoint, {
-      radius: 0.3,
-      height: 2,
-      maxAcceleration: 1.0,
-      maxSpeed: 1.0,
-      collisionQueryRange: 2.0,
-      pathOptimizationRange: 4.0,
-      separationWeight: 2.0
-    });
-    debug(
-      `createAgent: agentIdx=${agent.agentIndex} navPos=[${spawnPoint.x.toFixed(2)}, ${spawnPoint.y.toFixed(2)}, ${spawnPoint.z.toFixed(2)}]`
-    );
-    return agent;
   }
 
-  createPassiveAgent(gamePos: Float32Array, radius: number = 0.5): CrowdAgent {
-    const navPosition = this.getClosestNavPointVec3(gamePos);
-    const agent = this.crowd.addAgent(navPosition, {
-      radius,
-      height: 2,
-      maxAcceleration: 0,
-      maxSpeed: 0,
-      collisionQueryRange: radius * 2,
-      pathOptimizationRange: 0,
-      separationWeight: 1,
-      updateFlags: 0
-    });
-    return agent;
+  createAgent(gamePos: Float32Array): CrowdAgent | undefined {
+    if (!this._crowdHealthy) return undefined;
+    try {
+      const navPosition = this.getClosestNavPointVec3(gamePos);
+      debug(
+        `createAgent: navPos=[${navPosition.x.toFixed(2)}, ${navPosition.y.toFixed(2)}, ${navPosition.z.toFixed(2)}]`
+      );
+
+      const {
+        randomPoint: initialAgentPosition,
+        success,
+        status
+      } = this.navMeshQuery.findRandomPointAroundCircle(navPosition, 0.5);
+
+      if (!success) {
+        debug(
+          `createAgent: findRandomPointAroundCircle failed (${this.readableStatus(status)}), using navPosition directly`
+        );
+      }
+
+      const spawnPoint = success ? initialAgentPosition : navPosition;
+      const agent = this.crowd.addAgent(spawnPoint, {
+        radius: 0.3,
+        height: 2,
+        maxAcceleration: 1.0,
+        maxSpeed: 1.0,
+        collisionQueryRange: 2.0,
+        pathOptimizationRange: 4.0,
+        separationWeight: 2.0
+      });
+      debug(
+        `createAgent: agentIdx=${agent.agentIndex} navPos=[${spawnPoint.x.toFixed(2)}, ${spawnPoint.y.toFixed(2)}, ${spawnPoint.z.toFixed(2)}]`
+      );
+      if (agent.agentIndex < 0) {
+        delete this.crowd.agents[agent.agentIndex];
+        this._rejectedAgentCount++;
+        this.warnIfDegraded();
+        return undefined;
+      }
+      return agent;
+    } catch (error) {
+      this.markCrowdFault(error, "agent creation");
+      return undefined;
+    }
+  }
+
+  createPassiveAgent(
+    gamePos: Float32Array,
+    radius: number = 0.5
+  ): CrowdAgent | undefined {
+    if (!this._crowdHealthy) return undefined;
+    try {
+      const navPosition = this.getClosestNavPointVec3(gamePos);
+      const agent = this.crowd.addAgent(navPosition, {
+        radius,
+        height: 2,
+        maxAcceleration: 0,
+        maxSpeed: 0,
+        collisionQueryRange: radius * 2,
+        pathOptimizationRange: 0,
+        separationWeight: 1,
+        updateFlags: 0
+      });
+      if (agent.agentIndex < 0) {
+        delete this.crowd.agents[agent.agentIndex];
+        this._rejectedAgentCount++;
+        this.warnIfDegraded();
+        return undefined;
+      }
+      return agent;
+    } catch (error) {
+      this.markCrowdFault(error, "passive agent creation");
+      return undefined;
+    }
   }
 
   async dumpNavmesh() {
-    const [positions, indices] = R.getNavMeshPositionsAndIndices(this.navmesh);
+    if (!this._crowdHealthy) return;
+    let positions: number[];
+    let indices: number[];
+    try {
+      [positions, indices] = R.getNavMeshPositionsAndIndices(this.navmesh);
+    } catch (error) {
+      this.markCrowdFault(error, "navmesh dump");
+      return;
+    }
     const stream = createWriteStream("navMeshDump.obj");
 
     for (let i = 0; i < positions.length; i += 3) {

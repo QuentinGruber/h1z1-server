@@ -134,7 +134,7 @@ function moveToward(
   target: Float32Array,
   server: ZoneServer2016
 ): void {
-  if (!npc.navAgent) return;
+  if (!server.navManager.crowdHealthy || !npc.navAgent) return;
   const navTarget = server.navManager.getClosestNavPointVec3(target);
   npc.navAgent.requestMoveTarget(navTarget);
 }

@@ -134,7 +134,7 @@ export abstract class Npc extends BaseFullCharacter {
   }
 
   setSpeed(speed: number) {
-    if (this.navAgent) {
+    if (this.server.navManager.crowdHealthy && this.navAgent) {
       this.navAgent.maxSpeed = speed;
       this.navAgent.maxAcceleration = speed * 2.0;
     }
@@ -507,7 +507,7 @@ export abstract class Npc extends BaseFullCharacter {
   }
 
   stopMovement() {
-    if (!this.navAgent) return;
+    if (!this.server.navManager.crowdHealthy || !this.navAgent) return;
     this.navAgent.resetMoveTarget();
   }
 
@@ -537,7 +537,7 @@ export abstract class Npc extends BaseFullCharacter {
 
     let horizontalSpeed = horizontalDist;
     let verticalSpeed = Math.abs(dy);
-    if (this.navAgent) {
+    if (this.server.navManager.crowdHealthy && this.navAgent) {
       const vel = this.navAgent.velocity();
       horizontalSpeed = metersToFeet(Math.sqrt(vel.x * vel.x + vel.z * vel.z));
       verticalSpeed = metersToFeet(Math.abs(vel.y));

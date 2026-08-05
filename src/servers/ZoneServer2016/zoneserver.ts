@@ -4928,8 +4928,9 @@ export class ZoneServer2016 extends EventEmitter {
   private releaseNavAgent(entity: BaseEntity): void {
     if (!(entity instanceof BaseLightweightCharacter) || !entity.navAgent)
       return;
-    this.navManager.removeAgent(entity.navAgent);
+    const released = this.navManager.removeAgent(entity.navAgent);
     entity.navAgent = undefined;
+    if (!released) this.navManager.recordUnreleasedAgent();
   }
 
   batchDeleteEntities(
@@ -11204,49 +11205,69 @@ export class ZoneServer2016 extends EventEmitter {
     const dt = (now - this.lastFsmTick) / 1000;
     this.lastFsmTick = now;
     this._rebuildAiTargetMap();
-    this.tickNpcFsms(dt);
-    // reset sounds every AI tick
-    this.sounds = [];
+    try {
+      if (this.navManager.crowdHealthy) this.tickNpcFsms(dt);
+    } catch (error) {
+      if (!this.navManager.containExternalNativeFault(error, "NPC FSM tick")) {
+        throw error;
+      }
+    } finally {
+      // reset sounds every AI tick
+      this.sounds = [];
+    }
   }
 
   updatePathfindingPositions(): void {
     if (!this.navManager.crowdHealthy) return;
-    for (const k in this._npcs) {
-      const npc = this._npcs[k];
-      if (npc.navAgent) {
-        const navPos = npc.navAgent.interpolatedPosition;
-        const gamePos = NavManager.navToGame(navPos);
-        if (
-          gamePos[0] != npc.state.position[0] ||
-          gamePos[2] != npc.state.position[2]
-        ) {
-          npc.goTo(gamePos);
+    try {
+      for (const k in this._npcs) {
+        const npc = this._npcs[k];
+        if (npc.navAgent) {
+          const navPos = npc.navAgent.interpolatedPosition;
+          const gamePos = NavManager.navToGame(navPos);
+          if (
+            gamePos[0] != npc.state.position[0] ||
+            gamePos[2] != npc.state.position[2]
+          ) {
+            npc.goTo(gamePos);
+          }
         }
       }
-    }
 
-    for (const k in this._characters) {
-      const character = this._characters[k];
-      if (!character.navAgent) {
-        character.navAgent = this.navManager.createPassiveAgent(
-          character.state.position
-        );
-      } else {
-        character.navAgent.teleport(
-          NavManager.gameToNav(character.state.position)
-        );
+      for (const k in this._characters) {
+        const character = this._characters[k];
+        if (!character.navAgent) {
+          character.navAgent = this.navManager.createPassiveAgent(
+            character.state.position
+          );
+        } else {
+          character.navAgent.teleport(
+            NavManager.gameToNav(character.state.position)
+          );
+        }
       }
-    }
 
-    for (const k in this._vehicles) {
-      const vehicle = this._vehicles[k];
-      if (!vehicle.navAgent) {
-        vehicle.navAgent = this.navManager.createPassiveAgent(
-          vehicle.state.position,
-          2.0
-        );
-      } else {
-        vehicle.navAgent.teleport(NavManager.gameToNav(vehicle.state.position));
+      for (const k in this._vehicles) {
+        const vehicle = this._vehicles[k];
+        if (!vehicle.navAgent) {
+          vehicle.navAgent = this.navManager.createPassiveAgent(
+            vehicle.state.position,
+            2.0
+          );
+        } else {
+          vehicle.navAgent.teleport(
+            NavManager.gameToNav(vehicle.state.position)
+          );
+        }
+      }
+    } catch (error) {
+      if (
+        !this.navManager.containExternalNativeFault(
+          error,
+          "pathfinding position update"
+        )
+      ) {
+        throw error;
       }
     }
   }
