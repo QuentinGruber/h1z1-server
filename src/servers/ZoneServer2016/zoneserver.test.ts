@@ -18,6 +18,28 @@ test("ZoneServer2016", { timeout: 60000 }, async (t) => {
   await t.test("save", async () => {
     await zone.saveWorld();
   });
+  await t.test("batch deletion releases Crowd agents", () => {
+    const character = createFakeCharacter(zone);
+    const agent = {} as NonNullable<typeof character.navAgent>;
+    character.navAgent = agent;
+    let released = 0;
+    const originalRemoveAgent = zone.navManager.removeAgent.bind(
+      zone.navManager
+    );
+    zone.navManager.removeAgent = (candidate) => {
+      assert.equal(candidate, agent);
+      released++;
+      return true;
+    };
+    try {
+      zone.batchDeleteEntities([character.characterId], zone._characters);
+    } finally {
+      zone.navManager.removeAgent = originalRemoveAgent;
+    }
+    assert.equal(released, 1);
+    assert.equal(character.navAgent, undefined);
+    assert.equal(zone._characters[character.characterId], undefined);
+  });
   await t.test("character deletion", async () => {
     const character = createFakeCharacter(zone);
     createFakeZoneClient(zone, character);
