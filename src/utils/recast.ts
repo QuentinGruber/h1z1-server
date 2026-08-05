@@ -35,6 +35,7 @@ const debug = require("debug")("nav");
 
 const MAX_OBSTACLE = 20000;
 const MAX_PENDING_OBSTACLE = 50;
+const MAX_TILE_CACHE_UPDATES_PER_TICK = 256;
 
 export class NavManager {
   navmesh!: NavMesh;
@@ -47,7 +48,17 @@ export class NavManager {
   obstacleCount = 0;
   private _monolithic64 = false;
   private _monolithicResources?: MonolithicNavigation;
+  private _crowdHealthy = true;
+  private _obstacleUpdatesHealthy = true;
   constructor() {}
+
+  get crowdHealthy(): boolean {
+    return this._crowdHealthy;
+  }
+
+  get obstacleUpdatesHealthy(): boolean {
+    return this._obstacleUpdatesHealthy;
+  }
   async loadNav() {
     const runtimeSelection = selectNavigationRuntime(
       process.env.NAV_MONOLITHIC_64,
@@ -134,9 +145,12 @@ export class NavManager {
     return new Float32Array([v.x, v.y, v.z, 0]);
   }
 
-  removeObstacle(obstacle: BoxObstacle) {
-    this.tilecache.removeObstacle(obstacle);
+  removeObstacle(obstacle: BoxObstacle): boolean {
+    const result = this.tilecache.removeObstacle(obstacle);
+    if (!result.success) return false;
     this.obstaclesRequestsPending++;
+    this.obstacleCount = Math.max(0, this.obstacleCount - 1);
+    return true;
   }
 
   addObstacle(
@@ -148,12 +162,8 @@ export class NavManager {
       return null;
     }
     if (this.obstaclesRequestsPending >= MAX_PENDING_OBSTACLE) {
-      let upToDate = false;
-      // Should be only used at startup, but may be bad
-      while (!upToDate) {
-        ({ upToDate } = this.tilecache.update(this.navmesh));
-      }
-      this.obstaclesRequestsPending = 0;
+      this.processPendingObstacleRequests();
+      if (this.obstaclesRequestsPending >= MAX_PENDING_OBSTACLE) return null;
     }
     const { success, obstacle } = this.tilecache.addBoxObstacle(
       NavManager.gameToNav(position),
@@ -188,18 +198,72 @@ export class NavManager {
   updt() {
     const now = Date.now();
     const timeSinceLastCalled = (now - this.lastTimeCall) / 1000;
-    if (this.obstaclesRequestsPending) {
-      let upToDate = false;
-      while (!upToDate) {
-        ({ upToDate } = this.tilecache.update(this.navmesh));
-      }
-      this.obstaclesRequestsPending = 0;
-    }
+    this.processPendingObstacleRequests();
     debug(
       `requests: ${this.obstaclesRequestsPending}, total: ${this.tilecache.obstacles.size}`
     );
     this.lastTimeCall = now;
-    this.crowd.update(this.updateFrequency, timeSinceLastCalled, 1);
+    if (!this._crowdHealthy) return;
+    try {
+      this.crowd.update(this.updateFrequency, timeSinceLastCalled, 1);
+    } catch (error) {
+      this.markCrowdFault(error, "update");
+    }
+  }
+
+  private processPendingObstacleRequests(): void {
+    if (
+      !this.obstaclesRequestsPending ||
+      !this._obstacleUpdatesHealthy ||
+      !this._crowdHealthy
+    ) {
+      return;
+    }
+    let upToDate = false;
+    let updates = 0;
+    try {
+      while (!upToDate && updates < MAX_TILE_CACHE_UPDATES_PER_TICK) {
+        const result = this.tilecache.update(this.navmesh);
+        updates++;
+        if (!result.success) {
+          this._obstacleUpdatesHealthy = false;
+          this.obstaclesRequestsPending = 0;
+          console.error(
+            `[NAV] tilecache update failed: ${R.statusToReadableString(result.status)}; ` +
+              "dynamic obstacle updates disabled"
+          );
+          return;
+        }
+        upToDate = result.upToDate;
+      }
+    } catch (error) {
+      this._obstacleUpdatesHealthy = false;
+      this.obstaclesRequestsPending = 0;
+      this.markCrowdFault(error, "tilecache update");
+      return;
+    }
+    if (upToDate) this.obstaclesRequestsPending = 0;
+  }
+
+  private markCrowdFault(error: unknown, operation: string): void {
+    if (!this._crowdHealthy) return;
+    this._crowdHealthy = false;
+    console.error(
+      `[NAV] crowd disabled after ${operation}: ${
+        error instanceof Error ? (error.stack ?? error.message) : String(error)
+      }`
+    );
+  }
+
+  removeAgent(agent: CrowdAgent): boolean {
+    if (!this._crowdHealthy) return false;
+    try {
+      this.crowd.removeAgent(agent);
+      return true;
+    } catch (error) {
+      this.markCrowdFault(error, "agent removal");
+      return false;
+    }
   }
 
   // Returns nearest navmesh point (in nav coords) to the given game position.
