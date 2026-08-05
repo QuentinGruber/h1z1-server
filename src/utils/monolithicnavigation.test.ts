@@ -5,6 +5,8 @@ import { join } from "node:path";
 import test from "node:test";
 import {
   indexMonolithicCache,
+  loadNavigationTransitions,
+  resolveNavigationTransitionsPath,
   selectMonolithic64ReferenceCapacity,
   sortTileCacheParts
 } from "./monolithicnavigation";
@@ -84,6 +86,68 @@ test("64-bit reference capacity admits the complete fine cache", () => {
   });
   assert.throws(() => selectMonolithic64ReferenceCapacity(0));
   assert.throws(() => selectMonolithic64ReferenceCapacity(1.5));
+});
+
+test("authored transitions follow the selected cache bundle", () => {
+  assert.equal(
+    resolveNavigationTransitionsPath(
+      undefined,
+      "C:/bundle/collision",
+      "C:/out"
+    ),
+    join("C:/bundle/collision", "..", "navigationTransitions.json")
+  );
+  assert.equal(
+    resolveNavigationTransitionsPath(
+      "C:/override/transitions.json",
+      "C:/bundle/collision",
+      "C:/out"
+    ),
+    "C:/override/transitions.json"
+  );
+});
+
+test("authored transition files are validated and converted", () => {
+  const directory = mkdtempSync(join(tmpdir(), "h1emu-transitions-"));
+  const path = join(directory, "navigationTransitions.json");
+  try {
+    writeFileSync(
+      path,
+      JSON.stringify([
+        {
+          name: "front step",
+          start: [1, 2, 3],
+          end: [4, 5, 6],
+          radius: 0.35,
+          bidirectional: false
+        }
+      ])
+    );
+    assert.deepEqual(loadNavigationTransitions(path, true), [
+      {
+        name: "front step",
+        startPosition: { x: 1, y: 2, z: 3 },
+        endPosition: { x: 4, y: 5, z: 6 },
+        radius: 0.35,
+        bidirectional: false,
+        area: 0,
+        flags: 1,
+        userId: 0x48000000
+      }
+    ]);
+    writeFileSync(path, JSON.stringify([{ name: "bad", start: [1, 2] }]));
+    assert.throws(() => loadNavigationTransitions(path, true), /bad/);
+    assert.deepEqual(
+      loadNavigationTransitions(join(directory, "missing.json"), false),
+      []
+    );
+    assert.throws(
+      () => loadNavigationTransitions(join(directory, "missing.json"), true),
+      /is missing/
+    );
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
 });
 
 test("split TSET index preserves every layer and column", () => {

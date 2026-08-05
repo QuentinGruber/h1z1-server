@@ -6,8 +6,17 @@
 //
 // ======================================================================
 
-import { closeSync, openSync, readSync, readdirSync, statSync } from "node:fs";
+import {
+  closeSync,
+  existsSync,
+  openSync,
+  readFileSync,
+  readSync,
+  readdirSync,
+  statSync
+} from "node:fs";
 import { join } from "node:path";
+import type { OffMeshConnectionParams } from "recast-navigation";
 import type { NavigationRuntime } from "./navigationruntime";
 
 const TSET_HEADER_BYTES = 92;
@@ -26,6 +35,11 @@ type CachePart = {
 };
 
 export type TileCacheLayer = { offset: number; length: number };
+export type NavigationTransition = OffMeshConnectionParams & {
+  name: string;
+  userId: number;
+};
+type NavigationTransitionOwners = Map<string, NavigationTransition[]>;
 
 export type MonolithicCacheIndex = {
   store: SplitTileCacheStore;
@@ -63,6 +77,8 @@ export type MonolithicNavigation = {
   meshProcess: InstanceType<NavigationRuntime["TileCacheMeshProcess"]>;
   layerCount: number;
   columnCount: number;
+  transitionCount: number;
+  missingTransitions: string[];
   bytes: number;
 };
 
@@ -88,6 +104,74 @@ export function selectMonolithic64ReferenceCapacity(layerCount: number): {
     meshMaxPolys: 1 << 20,
     cacheMaxTiles: maxTiles
   };
+}
+
+export function resolveNavigationTransitionsPath(
+  overridePath: string | undefined,
+  cacheDirectory: string,
+  moduleDirectory: string
+): string {
+  return (
+    overridePath ??
+    join(
+      cacheDirectory || join(moduleDirectory, "../../data/2016/collision"),
+      "..",
+      "navigationTransitions.json"
+    )
+  );
+}
+
+export function loadNavigationTransitions(
+  path: string,
+  required: boolean
+): NavigationTransition[] {
+  if (!existsSync(path)) {
+    if (required) throw new Error(`[NAV] transition file is missing: ${path}`);
+    return [];
+  }
+  const entries = JSON.parse(readFileSync(path, "utf8")) as Array<{
+    name?: string;
+    start?: number[];
+    end?: number[];
+    radius?: number;
+    bidirectional?: boolean;
+  }>;
+  if (!Array.isArray(entries)) {
+    throw new Error("[NAV] transition file must contain an array");
+  }
+  return entries.map((entry, index) => {
+    if (
+      !entry.start ||
+      !entry.end ||
+      entry.start.length < 3 ||
+      entry.end.length < 3 ||
+      [...entry.start.slice(0, 3), ...entry.end.slice(0, 3)].some(
+        (value) => !Number.isFinite(value)
+      )
+    ) {
+      throw new Error(
+        `[NAV] invalid navigation transition ${entry.name ?? index}`
+      );
+    }
+    return {
+      name: entry.name ?? `transition-${index}`,
+      startPosition: {
+        x: entry.start[0],
+        y: entry.start[1],
+        z: entry.start[2]
+      },
+      endPosition: {
+        x: entry.end[0],
+        y: entry.end[1],
+        z: entry.end[2]
+      },
+      radius: entry.radius ?? 0.8,
+      bidirectional: entry.bidirectional ?? true,
+      area: 0,
+      flags: 1,
+      userId: 0x48000000 + index
+    };
+  });
 }
 
 export class SplitTileCacheStore {
@@ -271,25 +355,105 @@ export function indexMonolithicCache(directory: string): MonolithicCacheIndex {
   }
 }
 
-export function createDefaultMeshProcess(runtime: NavigationRuntime) {
+export function createDefaultMeshProcess(
+  runtime: NavigationRuntime,
+  transitionOwners: NavigationTransitionOwners = new Map()
+) {
   return new runtime.TileCacheMeshProcess((params, polyAreas, polyFlags) => {
     for (let index = 0; index < params.polyCount(); index++) {
       polyAreas.set(index, 0);
       polyFlags.set(index, 1);
     }
+    params.setOffMeshConnections(
+      transitionOwners.get(
+        `${params.tileX()},${params.tileY()},${params.tileLayer()}`
+      ) ?? []
+    );
   });
+}
+
+function assignNavigationTransitionOwners(
+  runtime: NavigationRuntime,
+  navMesh: InstanceType<NavigationRuntime["NavMesh"]>,
+  transitions: NavigationTransition[]
+): { owners: NavigationTransitionOwners; columns: Set<string> } {
+  const owners: NavigationTransitionOwners = new Map();
+  const columns = new Set<string>();
+  if (transitions.length === 0) return { owners, columns };
+
+  const query = new runtime.NavMeshQuery(navMesh);
+  try {
+    for (const transition of transitions) {
+      const extent = Math.max(transition.radius, 0.8);
+      const nearest = query.findNearestPoly(transition.startPosition, {
+        halfExtents: { x: extent, y: 2, z: extent }
+      });
+      if (!nearest.nearestRef) {
+        throw new Error(
+          `[NAV] transition start is outside the navmesh: ${transition.name}`
+        );
+      }
+      const tile = navMesh.getTileAndPolyByRef(nearest.nearestRef).tile;
+      const header = tile.header();
+      if (!header) {
+        throw new Error(
+          `[NAV] transition has no owning tile: ${transition.name}`
+        );
+      }
+      const column = `${header.x()},${header.y()}`;
+      const owner = `${column},${header.layer()}`;
+      const owned = owners.get(owner) ?? [];
+      owned.push(transition);
+      owners.set(owner, owned);
+      columns.add(column);
+    }
+    return { owners, columns };
+  } finally {
+    query.destroy();
+  }
+}
+
+function countInstalledNavigationTransitions(
+  navMesh: InstanceType<NavigationRuntime["NavMesh"]>,
+  transitions: NavigationTransition[]
+): { count: number; missing: string[] } {
+  const expected = new Map(
+    transitions.map((transition) => [transition.userId, transition.name])
+  );
+  const installed = new Set<number>();
+  for (let index = 0; index < navMesh.getMaxTiles(); index++) {
+    const tile = navMesh.getTile(index);
+    const header = tile.header();
+    if (!header) continue;
+    for (
+      let connection = 0;
+      connection < header.offMeshConCount();
+      connection++
+    ) {
+      const userId = tile.offMeshCons(connection).userId();
+      if (expected.has(userId)) installed.add(userId);
+    }
+  }
+  return {
+    count: installed.size,
+    missing: [...expected]
+      .filter(([userId]) => !installed.has(userId))
+      .map(([, name]) => name)
+  };
 }
 
 export function loadMonolithic64Navigation(
   runtime: NavigationRuntime,
   directory: string,
+  transitions: NavigationTransition[] = [],
   onProgress: (message: string) => void = console.log
 ): MonolithicNavigation {
   const indexed = indexMonolithicCache(directory);
   const { store } = indexed;
   const allocator = new (runtime.Raw as any).RecastLinearAllocator(1n << 20n);
   const compressor = new (runtime.Raw as any).RecastFastLZCompressor();
-  const meshProcess = createDefaultMeshProcess(runtime);
+  const transitionOwners: NavigationTransitionOwners = new Map();
+  const meshProcess = createDefaultMeshProcess(runtime, transitionOwners);
   const tileCache = new runtime.TileCache();
   const navMesh = new runtime.NavMesh();
   let initializedTileCache = false;
@@ -369,6 +533,39 @@ export function loadMonolithic64Navigation(
         );
       }
     }
+    const assigned = assignNavigationTransitionOwners(
+      runtime,
+      navMesh,
+      transitions
+    );
+    for (const [owner, owned] of assigned.owners) {
+      transitionOwners.set(owner, owned);
+    }
+    for (const column of assigned.columns) {
+      const [tx, ty] = column.split(",").map(Number);
+      const status = tileCache.buildNavMeshTilesAt(tx, ty, navMesh);
+      if (!runtime.statusSucceed(status)) {
+        throw new Error(
+          `[NAV] monolithic64 failed to install transitions for column ${column}: ` +
+            runtime.statusToReadableString(status)
+        );
+      }
+    }
+    const installed =
+      transitions.length > 0
+        ? countInstalledNavigationTransitions(navMesh, transitions)
+        : { count: 0, missing: [] };
+    if (transitions.length > 0) {
+      onProgress(
+        `[NAV] monolithic64 installed ${installed.count}/${transitions.length} transitions in ` +
+          `${assigned.columns.size} columns`
+      );
+      if (installed.missing.length > 0) {
+        onProgress(
+          `[NAV] monolithic64 skipped unattached transitions: ${installed.missing.join(", ")}`
+        );
+      }
+    }
     return {
       navMesh,
       tileCache,
@@ -377,6 +574,8 @@ export function loadMonolithic64Navigation(
       meshProcess,
       layerCount: imported,
       columnCount: built,
+      transitionCount: installed.count,
+      missingTransitions: installed.missing,
       bytes: indexed.bytes
     };
   } catch (error) {

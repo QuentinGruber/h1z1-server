@@ -23,7 +23,9 @@ import type {
 } from "recast-navigation";
 import { join } from "node:path";
 import {
+  loadNavigationTransitions,
   loadMonolithic64Navigation,
+  resolveNavigationTransitionsPath,
   type MonolithicNavigation
 } from "./monolithicnavigation";
 import {
@@ -72,7 +74,23 @@ export class NavManager {
       const cacheDirectory =
         process.env.NAV_CACHE_DIR ??
         join(__dirname, "../../data/2016/collision");
-      const resources = loadMonolithic64Navigation(R, cacheDirectory);
+      const transitionsPath = resolveNavigationTransitionsPath(
+        process.env.NAV_TRANSITIONS_PATH,
+        cacheDirectory,
+        __dirname
+      );
+      const transitions =
+        process.env.NAV_TRANSITIONS === "0"
+          ? []
+          : loadNavigationTransitions(
+              transitionsPath,
+              process.env.NAV_TRANSITIONS_PATH !== undefined
+            );
+      const resources = loadMonolithic64Navigation(
+        R,
+        cacheDirectory,
+        transitions
+      );
       this._monolithic64 = true;
       this._monolithicResources = resources;
       this.navmesh = resources.navMesh;
@@ -87,7 +105,9 @@ export class NavManager {
       console.log(
         `[NAV] monolithic64 tilecache ready (${resources.layerCount} layers, ` +
           `${resources.columnCount} columns, ${(resources.bytes / 1048576).toFixed(1)} MB source, ` +
-          `WASM heap=${(wasmBytes / 1048576).toFixed(1)} MB, complete-map mode)`
+          `${resources.transitionCount}/${transitions.length} transitions, ` +
+          `WASM heap=${(wasmBytes / 1048576).toFixed(1)} MB, ` +
+          "complete-map mode)"
       );
       return;
     }
