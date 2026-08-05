@@ -12,21 +12,25 @@
 // ======================================================================
 
 import { createWriteStream, existsSync, readFileSync } from "node:fs";
-import {
+import type {
   BoxObstacle,
   CrowdAgent,
-  getNavMeshPositionsAndIndices,
-  importNavMesh,
-  importTileCache,
-  init as initRecast,
+  Crowd,
   NavMesh,
-  statusToReadableString,
+  NavMeshQuery,
   TileCache,
   Vector3
 } from "recast-navigation";
-import { NavMeshQuery } from "recast-navigation";
-import { Crowd } from "recast-navigation";
-import { createDefaultTileCacheMeshProcess } from "recast-navigation/generators";
+import { join } from "node:path";
+import {
+  loadMonolithic64Navigation,
+  type MonolithicNavigation
+} from "./monolithicnavigation";
+import {
+  loadNavigationRuntime,
+  navigationRuntime as R,
+  selectNavigationRuntime
+} from "./navigationruntime";
 const debug = require("debug")("nav");
 
 const MAX_OBSTACLE = 20000;
@@ -41,8 +45,42 @@ export class NavManager {
   lastTimeCall: number = Date.now();
   updateFrequency = 1 / 5;
   obstacleCount = 0;
+  private _monolithic64 = false;
+  private _monolithicResources?: MonolithicNavigation;
   constructor() {}
   async loadNav() {
+    const runtimeSelection = selectNavigationRuntime(
+      process.env.NAV_MONOLITHIC_64,
+      process.env.NAV_64_CORE_MODULE,
+      process.env.NAV_64_WASM_MODULE
+    );
+    await loadNavigationRuntime(runtimeSelection);
+
+    if (runtimeSelection.mode === "monolithic64") {
+      console.time("[NAV] monolithic64 tilecache loaded");
+      const cacheDirectory =
+        process.env.NAV_CACHE_DIR ??
+        join(__dirname, "../../data/2016/collision");
+      const resources = loadMonolithic64Navigation(R, cacheDirectory);
+      this._monolithic64 = true;
+      this._monolithicResources = resources;
+      this.navmesh = resources.navMesh;
+      this.tilecache = resources.tileCache;
+      this.navMeshQuery = new R.NavMeshQuery(this.navmesh);
+      this.crowd = new R.Crowd(this.navmesh, {
+        maxAgents: 2000,
+        maxAgentRadius: 2.0
+      });
+      const wasmBytes = Number(R.Raw.Module.HEAPU8?.byteLength ?? 0);
+      console.timeEnd("[NAV] monolithic64 tilecache loaded");
+      console.log(
+        `[NAV] monolithic64 tilecache ready (${resources.layerCount} layers, ` +
+          `${resources.columnCount} columns, ${(resources.bytes / 1048576).toFixed(1)} MB source, ` +
+          `WASM heap=${(wasmBytes / 1048576).toFixed(1)} MB, complete-map mode)`
+      );
+      return;
+    }
+
     console.time("[NAV] Navmesh loaded");
     const mesh_parts: Buffer[] = [];
     const tc_parts: Buffer[] = [];
@@ -68,19 +106,24 @@ export class NavManager {
     } else {
       console.log(`"[NAV]" Empty navmesh loaded`);
     }
-    await initRecast();
-
     const navData = new Uint8Array(Buffer.concat(mesh_parts));
-    const { navMesh } = importNavMesh(navData);
+    const { navMesh } = R.importNavMesh(navData);
     const tcData = new Uint8Array(Buffer.concat(tc_parts));
-    const tileCacheMeshProcess = createDefaultTileCacheMeshProcess();
-    const { tileCache } = importTileCache(tcData, tileCacheMeshProcess);
+    const tileCacheMeshProcess = new R.TileCacheMeshProcess(
+      (params, polyAreas, polyFlags) => {
+        for (let index = 0; index < params.polyCount(); index++) {
+          polyAreas.set(index, 0);
+          polyFlags.set(index, 1);
+        }
+      }
+    );
+    const { tileCache } = R.importTileCache(tcData, tileCacheMeshProcess);
     this.navmesh = navMesh;
     this.tilecache = tileCache;
     const maxAgents = 2000;
     const maxAgentRadius = 2.0;
-    this.navMeshQuery = new NavMeshQuery(this.navmesh);
-    this.crowd = new Crowd(navMesh, { maxAgents, maxAgentRadius });
+    this.navMeshQuery = new R.NavMeshQuery(this.navmesh);
+    this.crowd = new R.Crowd(navMesh, { maxAgents, maxAgentRadius });
     console.timeEnd("[NAV] Navmesh loaded");
   }
 
@@ -198,7 +241,7 @@ export class NavManager {
 
     if (!success) {
       debug(
-        `createAgent: findRandomPointAroundCircle failed (${statusToReadableString(status)}), using navPosition directly`
+        `createAgent: findRandomPointAroundCircle failed (${R.statusToReadableString(status)}), using navPosition directly`
       );
     }
 
@@ -234,7 +277,7 @@ export class NavManager {
   }
 
   async dumpNavmesh() {
-    const [positions, indices] = getNavMeshPositionsAndIndices(this.navmesh);
+    const [positions, indices] = R.getNavMeshPositionsAndIndices(this.navmesh);
     const stream = createWriteStream("navMeshDump.obj");
 
     for (let i = 0; i < positions.length; i += 3) {
