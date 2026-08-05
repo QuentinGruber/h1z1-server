@@ -4925,6 +4925,13 @@ export class ZoneServer2016 extends EventEmitter {
   /**
    * Deletes multiple entities from the same dictionary in one optimised pass.
    */
+  private releaseNavAgent(entity: BaseEntity): void {
+    if (!(entity instanceof BaseLightweightCharacter) || !entity.navAgent)
+      return;
+    this.navManager.crowd.removeAgent(entity.navAgent);
+    entity.navAgent = undefined;
+  }
+
   batchDeleteEntities(
     characterIds: string[],
     dictionary: EntityDictionary<BaseEntity>
@@ -4937,6 +4944,10 @@ export class ZoneServer2016 extends EventEmitter {
       if (entity) entities.push({ id, entity });
     }
     if (entities.length === 0) return;
+
+    // WorldObjectManager uses this path for expired NPCs. Releasing only in
+    // deleteEntity() leaks native Crowd slots until the 2,000-agent pool fills.
+    for (const { entity } of entities) this.releaseNavAgent(entity);
 
     // 1. Pack + send Character.RemovePlayer once per entity
     for (const { id } of entities) {
@@ -4998,10 +5009,7 @@ export class ZoneServer2016 extends EventEmitter {
   ): boolean {
     const entity = dictionary[characterId];
     if (!entity) return false;
-    if (entity instanceof BaseLightweightCharacter && entity.navAgent) {
-      this.navManager.crowd.removeAgent(entity.navAgent);
-      entity.navAgent = undefined;
-    }
+    this.releaseNavAgent(entity);
     this.sendDataToAllWithSpawnedEntity<CharacterRemovePlayer>(
       dictionary,
       characterId,
