@@ -13,6 +13,7 @@
     "h1z1-server-demo-2016": "scripts/h1z1-server-demo-2016.js"
   },
   "dependencies": {
+    "@napi-rs/canvas": "1.0.2",
     "@types/js-yaml": "4.0.9",
     "@types/node": "25.9.1",
     "@types/ws": "8.18.1",
@@ -24,6 +25,8 @@
     "mongodb": "6.20.0",
     "recast-navigation": "0.43.1",
     "threads": "1.7.0",
+    "three": "^0.184.0",
+    "three-mesh-bvh": "^0.9.13",
     "typescript": "6.0.3",
     "ws": "8.21.0"
   },
@@ -31,6 +34,7 @@
     "src": "./src"
   },
   "devDependencies": {
+    "@types/three": "^0.184.1",
     "cross-env": "^10.1.0",
     "oxlint": "^1.67.0",
     "prettier": "^3.8.3",
