@@ -108,16 +108,10 @@ export function selectMonolithic64ReferenceCapacity(layerCount: number): {
 
 export function resolveNavigationTransitionsPath(
   overridePath: string | undefined,
-  cacheDirectory: string,
-  moduleDirectory: string
+  cacheDirectory: string
 ): string {
   return (
-    overridePath ??
-    join(
-      cacheDirectory || join(moduleDirectory, "../../data/2016/collision"),
-      "..",
-      "navigationTransitions.json"
-    )
+    overridePath ?? join(cacheDirectory, "..", "navigationTransitions.json")
   );
 }
 

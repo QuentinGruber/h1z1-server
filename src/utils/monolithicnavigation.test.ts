@@ -90,18 +90,13 @@ test("64-bit reference capacity admits the complete fine cache", () => {
 
 test("authored transitions follow the selected cache bundle", () => {
   assert.equal(
-    resolveNavigationTransitionsPath(
-      undefined,
-      "C:/bundle/collision",
-      "C:/out"
-    ),
+    resolveNavigationTransitionsPath(undefined, "C:/bundle/collision"),
     join("C:/bundle/collision", "..", "navigationTransitions.json")
   );
   assert.equal(
     resolveNavigationTransitionsPath(
       "C:/override/transitions.json",
-      "C:/bundle/collision",
-      "C:/out"
+      "C:/bundle/collision"
     ),
     "C:/override/transitions.json"
   );

@@ -76,8 +76,7 @@ export class NavManager {
         join(__dirname, "../../data/2016/collision");
       const transitionsPath = resolveNavigationTransitionsPath(
         process.env.NAV_TRANSITIONS_PATH,
-        cacheDirectory,
-        __dirname
+        cacheDirectory
       );
       const transitions =
         process.env.NAV_TRANSITIONS === "0"
