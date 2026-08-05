@@ -39,6 +39,7 @@ const MAX_OBSTACLE = 20000;
 const MAX_PENDING_OBSTACLE = 50;
 const MAX_TILE_CACHE_UPDATES_PER_TICK = 256;
 const DEGRADED_WARNING_INTERVAL_MS = 60_000;
+const MAX_ACTIVE_AGENT_VERTICAL_SNAP = 1.5;
 
 export class NavManager {
   static readonly MAX_CROWD_AGENTS = 2000;
@@ -386,14 +387,16 @@ export class NavManager {
   }
 
   // Returns nearest navmesh point (in nav coords) to the given game position.
-  // Uses large halfExtents so Y offset doesn't prevent finding a polygon.
+  // Restrict the vertical search to the entity's current story so layered
+  // buildings do not silently select the floor above or below.
   getClosestNavPointVec3(gamePos: Float32Array): Vector3 {
     const navInput = NavManager.gameToNav(gamePos);
     if (!this._crowdHealthy) return navInput;
     try {
       const n = this.navMeshQuery.findNearestPoly(navInput, {
-        halfExtents: { x: 10, y: 10, z: 10 }
+        halfExtents: { x: 10, y: MAX_ACTIVE_AGENT_VERTICAL_SNAP, z: 10 }
       });
+      if (!n.success || !n.nearestRef) return navInput;
       debug(
         `getClosestNavPoint gameIn=[${gamePos[0].toFixed(2)}, ${gamePos[1].toFixed(2)}, ${gamePos[2].toFixed(2)}] navOut=[${n.nearestPoint.x.toFixed(2)}, ${n.nearestPoint.y.toFixed(2)}, ${n.nearestPoint.z.toFixed(2)}] polyRef=${n.nearestRef}`
       );
@@ -421,28 +424,64 @@ export class NavManager {
     }
   }
 
+  // Return the nearest walkable surface on the entity's current vertical
+  // layer. The narrow Y extent avoids selecting another story in buildings.
+  getFloorY(gamePos: Float32Array): number | null {
+    if (!this.navMeshQuery || !this._crowdHealthy) return null;
+    try {
+      const result = this.navMeshQuery.findNearestPoly(
+        NavManager.gameToNav(gamePos),
+        {
+          halfExtents: {
+            x: 2,
+            y: MAX_ACTIVE_AGENT_VERTICAL_SNAP,
+            z: 2
+          }
+        }
+      );
+      if (!result.success || !result.nearestRef) return null;
+      const height = this.navMeshQuery.getPolyHeight(
+        result.nearestRef,
+        result.nearestPoint
+      );
+      return height.success && Number.isFinite(height.height)
+        ? height.height
+        : null;
+    } catch (error) {
+      this.markCrowdFault(error, "floor-height query");
+      return null;
+    }
+  }
+
   createAgent(gamePos: Float32Array): CrowdAgent | undefined {
     if (!this._crowdHealthy) return undefined;
     try {
-      const navPosition = this.getClosestNavPointVec3(gamePos);
+      const result = this.navMeshQuery.findNearestPoly(
+        NavManager.gameToNav(gamePos),
+        {
+          halfExtents: {
+            x: 10,
+            y: MAX_ACTIVE_AGENT_VERTICAL_SNAP,
+            z: 10
+          }
+        }
+      );
+      if (!result.success || !result.nearestRef) return undefined;
+      const navPosition = result.nearestPoint;
+      if (
+        !Number.isFinite(navPosition.x) ||
+        !Number.isFinite(navPosition.y) ||
+        !Number.isFinite(navPosition.z) ||
+        Math.abs(navPosition.y - gamePos[1]) > MAX_ACTIVE_AGENT_VERTICAL_SNAP
+      ) {
+        return undefined;
+      }
       debug(
         `createAgent: navPos=[${navPosition.x.toFixed(2)}, ${navPosition.y.toFixed(2)}, ${navPosition.z.toFixed(2)}]`
       );
-
-      const {
-        randomPoint: initialAgentPosition,
-        success,
-        status
-      } = this.navMeshQuery.findRandomPointAroundCircle(navPosition, 0.5);
-
-      if (!success) {
-        debug(
-          `createAgent: findRandomPointAroundCircle failed (${this.readableStatus(status)}), using navPosition directly`
-        );
-      }
-
-      const spawnPoint = success ? initialAgentPosition : navPosition;
-      const agent = this.crowd.addAgent(spawnPoint, {
+      // Preserve the exact polygon selected from the authored spawn Y. A
+      // random X/Z nudge can jump layers in multi-story interiors.
+      const agent = this.crowd.addAgent(navPosition, {
         radius: 0.3,
         height: 2,
         maxAcceleration: 1.0,
@@ -452,7 +491,7 @@ export class NavManager {
         separationWeight: 2.0
       });
       debug(
-        `createAgent: agentIdx=${agent.agentIndex} navPos=[${spawnPoint.x.toFixed(2)}, ${spawnPoint.y.toFixed(2)}, ${spawnPoint.z.toFixed(2)}]`
+        `createAgent: agentIdx=${agent.agentIndex} navPos=[${navPosition.x.toFixed(2)}, ${navPosition.y.toFixed(2)}, ${navPosition.z.toFixed(2)}]`
       );
       if (agent.agentIndex < 0) {
         delete this.crowd.agents[agent.agentIndex];

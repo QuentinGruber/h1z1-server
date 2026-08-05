@@ -23,6 +23,8 @@ import { LZConnectionClient } from "../LoginZoneConnection/shared/lzconnectioncl
 import { Resolver } from "node:dns";
 
 import { promisify } from "node:util";
+import { join } from "node:path";
+import { createCanvas, loadImage } from "@napi-rs/canvas";
 import { ZonePacketHandlers } from "./zonepackethandlers";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle, Vehicle2016 } from "./entities/vehicle";
@@ -261,6 +263,12 @@ import { RewardManager } from "./managers/rewardmanager";
 import { DynamicAppearance } from "types/zonedata";
 import { clearInterval, setInterval } from "node:timers";
 import { NavManager } from "../../utils/recast";
+import { CollisionManager } from "./managers/collisionmanager";
+import {
+  EXPECTED_HEIGHTMAP_SIZE,
+  sampleTerrainHeight,
+  selectGroundSurface
+} from "./managers/grounding";
 import { ProjectileEntity } from "./entities/projectileentity";
 import { ChallengeManager, ChallengeType } from "./managers/challengemanager";
 import { RandomEventsManager } from "./managers/randomeventsmanager";
@@ -593,6 +601,10 @@ export class ZoneServer2016 extends EventEmitter {
   disableBaseCheck!: boolean;
   /*                          */
   navManager: NavManager;
+  collisionManager: CollisionManager;
+  private _heightmapData?: Uint8ClampedArray;
+  private _heightmapW = 0;
+  private _heightmapH = 0;
   staticBuildings: AddSimpleNpc[] = PluginManager.loadServerData(
     "2016/sampleData/staticbuildings.json"
   );
@@ -646,6 +658,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.explosiveManager = new AiManager(this);
     this.airdropManager = new AirdropManager(this);
     this.navManager = new NavManager();
+    this.collisionManager = new CollisionManager();
     this.challengeManager = new ChallengeManager(this);
     this.randomEventsManager = new RandomEventsManager(this);
     this.explosionManager = new ExplosionManager(this);
@@ -2114,6 +2127,8 @@ export class ZoneServer2016 extends EventEmitter {
       await this.navManager.loadNav();
     }
     if (aiEnabled) {
+      await this.initHeightmap();
+      this.collisionManager.load();
       this.aiTickRoutine = setInterval(() => this.tickAi(), this.aiTickRate);
       this.pathfindingRoutine = setInterval(
         () => this.updatePathfindingPositions(),
@@ -11217,49 +11232,156 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  private async initHeightmap(): Promise<void> {
+    const heightmapPath = join(
+      __dirname,
+      "..",
+      "..",
+      "..",
+      "data",
+      "2016",
+      "zoneData",
+      "heightmap.png"
+    );
+    try {
+      const image = await loadImage(heightmapPath);
+      if (
+        image.width !== EXPECTED_HEIGHTMAP_SIZE ||
+        image.height !== EXPECTED_HEIGHTMAP_SIZE
+      ) {
+        throw new Error(
+          `expected ${EXPECTED_HEIGHTMAP_SIZE}x${EXPECTED_HEIGHTMAP_SIZE}, ` +
+            `got ${image.width}x${image.height}`
+        );
+      }
+      const canvas = createCanvas(image.width, image.height);
+      const context = canvas.getContext("2d");
+      context.drawImage(image, 0, 0);
+      this._heightmapW = image.width;
+      this._heightmapH = image.height;
+      this._heightmapData = context.getImageData(
+        0,
+        0,
+        image.width,
+        image.height
+      ).data;
+      console.log(`[Heightmap] loaded ${this._heightmapW}x${this._heightmapH}`);
+    } catch (error) {
+      console.log(
+        `[Heightmap] terrain height disabled: ${heightmapPath}: ` +
+          `${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+  }
+
+  getHeight(pos: Float32Array, referenceY?: number): number | null {
+    const data = this._heightmapData;
+    if (!data) return null;
+    return (
+      sampleTerrainHeight(
+        data,
+        this._heightmapW,
+        this._heightmapH,
+        pos[0],
+        pos[2],
+        referenceY
+      )?.height ?? null
+    );
+  }
+
+  getGroundInfo(
+    pos: Float32Array,
+    navY?: number | null,
+    currentY: number = pos[1]
+  ) {
+    const resolvedNavY =
+      navY === undefined ? this.navManager.getFloorY(pos) : navY;
+    const terrainSample = this._heightmapData
+      ? sampleTerrainHeight(
+          this._heightmapData,
+          this._heightmapW,
+          this._heightmapH,
+          pos[0],
+          pos[2],
+          resolvedNavY ?? pos[1]
+        )
+      : null;
+    const structureY = this.collisionManager.groundRaycast(
+      pos[0],
+      pos[2],
+      resolvedNavY ?? pos[1]
+    );
+    const selection = selectGroundSurface({
+      terrainY: terrainSample?.height ?? null,
+      structureY,
+      navY: resolvedNavY,
+      currentY
+    });
+    return { terrainSample, structureY, navY: resolvedNavY, selection };
+  }
+
+  private clearPathfindingAgentReferences(): void {
+    for (const k in this._npcs) this._npcs[k].navAgent = undefined;
+    for (const k in this._characters) {
+      this._characters[k].navAgent = undefined;
+    }
+    for (const k in this._vehicles) this._vehicles[k].navAgent = undefined;
+  }
+
+  private releaseAuthoritativeCrowdAgents(): void {
+    for (const k in this._characters) {
+      const character = this._characters[k];
+      if (character.navAgent) this.navManager.removeAgent(character.navAgent);
+      character.navAgent = undefined;
+    }
+    for (const k in this._vehicles) {
+      const vehicle = this._vehicles[k];
+      if (vehicle.navAgent) this.navManager.removeAgent(vehicle.navAgent);
+      vehicle.navAgent = undefined;
+    }
+  }
+
   updatePathfindingPositions(): void {
-    if (!this.navManager.crowdHealthy) return;
+    if (!this.navManager.crowdHealthy) {
+      this.clearPathfindingAgentReferences();
+      return;
+    }
     try {
       for (const k in this._npcs) {
         const npc = this._npcs[k];
         if (npc.navAgent) {
           const navPos = npc.navAgent.interpolatedPosition;
           const gamePos = NavManager.navToGame(navPos);
+          const navFloorY = Number.isFinite(gamePos[1]) ? gamePos[1] : null;
+          const ground = this.getGroundInfo(
+            gamePos,
+            navFloorY,
+            npc.state.position[1]
+          );
+          gamePos[1] = ground.selection.height;
           if (
             gamePos[0] != npc.state.position[0] ||
-            gamePos[2] != npc.state.position[2]
+            gamePos[2] != npc.state.position[2] ||
+            Math.abs(gamePos[1] - npc.state.position[1]) > 0.1
           ) {
+            if (
+              !Number.isFinite(gamePos[0]) ||
+              !Number.isFinite(gamePos[1]) ||
+              !Number.isFinite(gamePos[2]) ||
+              Math.abs(gamePos[0]) > 4096 ||
+              Math.abs(gamePos[2]) > 4096
+            ) {
+              continue;
+            }
             npc.goTo(gamePos);
           }
         }
       }
 
-      for (const k in this._characters) {
-        const character = this._characters[k];
-        if (!character.navAgent) {
-          character.navAgent = this.navManager.createPassiveAgent(
-            character.state.position
-          );
-        } else {
-          character.navAgent.teleport(
-            NavManager.gameToNav(character.state.position)
-          );
-        }
-      }
-
-      for (const k in this._vehicles) {
-        const vehicle = this._vehicles[k];
-        if (!vehicle.navAgent) {
-          vehicle.navAgent = this.navManager.createPassiveAgent(
-            vehicle.state.position,
-            2.0
-          );
-        } else {
-          vehicle.navAgent.teleport(
-            NavManager.gameToNav(vehicle.state.position)
-          );
-        }
-      }
+      // Players and vehicles are authoritative game entities, not Detour Crowd
+      // agents. Repeatedly teleporting passive Crowd agents to replicated game
+      // positions destabilizes native avoidance and can make nearby NPCs jitter.
+      this.releaseAuthoritativeCrowdAgents();
     } catch (error) {
       if (
         !this.navManager.containExternalNativeFault(

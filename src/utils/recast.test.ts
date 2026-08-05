@@ -154,6 +154,57 @@ test("negative Crowd agent indexes are rejected", () => {
   assert.deepEqual(agents, {});
 });
 
+test("active agents keep the exact polygon selected on their authored floor", () => {
+  const nav = new NavManager();
+  const nearestPoint = { x: 12, y: 20.5, z: 8 };
+  let randomQueries = 0;
+  let insertedPosition: object | undefined;
+  nav.navMeshQuery = {
+    findNearestPoly: () => ({
+      nearestPoint,
+      nearestRef: 42,
+      success: true
+    }),
+    findRandomPointAroundCircle: () => {
+      randomQueries++;
+      return { success: true, randomPoint: { x: 99, y: 99, z: 99 } };
+    }
+  } as never;
+  const agent = { agentIndex: 1 };
+  nav.crowd = {
+    agents: { "1": agent },
+    addAgent(position: object) {
+      insertedPosition = position;
+      return agent;
+    }
+  } as never;
+
+  assert.equal(nav.createAgent(new Float32Array([12, 20, 8, 1])), agent);
+  assert.equal(insertedPosition, nearestPoint);
+  assert.equal(randomQueries, 0);
+});
+
+test("active agents reject cross-floor nearest-poly results", () => {
+  const nav = new NavManager();
+  let additions = 0;
+  nav.navMeshQuery = {
+    findNearestPoly: () => ({
+      nearestPoint: { x: 12, y: 24, z: 8 },
+      nearestRef: 42,
+      success: true
+    })
+  } as never;
+  nav.crowd = {
+    addAgent: () => {
+      additions++;
+      return { agentIndex: 1 };
+    }
+  } as never;
+
+  assert.equal(nav.createAgent(new Float32Array([12, 20, 8, 1])), undefined);
+  assert.equal(additions, 0);
+});
+
 test("obstacle native calls stop after a thrown fault", () => {
   const nav = new NavManager();
   let removals = 0;
