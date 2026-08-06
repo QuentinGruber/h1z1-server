@@ -383,9 +383,10 @@ function assignNavigationTransitionOwners(
         halfExtents: { x: extent, y: 2, z: extent }
       });
       if (!nearest.nearestRef) {
-        throw new Error(
-          `[NAV] transition start is outside the navmesh: ${transition.name}`
-        );
+        // A sidecar can outlive a topology revision that makes a previously
+        // authored seam unnecessary. Leave it unowned so the installed-count
+        // audit reports the exact missing name without aborting all navigation.
+        continue;
       }
       const tile = navMesh.getTileAndPolyByRef(nearest.nearestRef).tile;
       const header = tile.header();
