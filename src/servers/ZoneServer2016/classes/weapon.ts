@@ -32,6 +32,9 @@ export class Weapon {
   /** Required for the reload packet to work every time (especially shotgun) */
   currentReloadCount = 0;
 
+  /** Index into the weapon definition's FIRE_GROUPS, selected via Weapon.SwitchFireModeRequest (e.g. crossbow projectile types) */
+  firegroupIndex = 0;
+
   constructor(item: BaseItem, ammoCount?: number) {
     this.itemGuid = item.itemGuid;
     this.itemDefinitionId = item.itemDefinitionId;
@@ -43,7 +46,7 @@ export class Weapon {
     client.character.lootItem(
       server,
       server.generateItem(
-        server.getWeaponAmmoId(this.itemDefinitionId),
+        server.getWeaponAmmoId(this.itemDefinitionId, this.firegroupIndex),
         this.ammoCount
       )
     );

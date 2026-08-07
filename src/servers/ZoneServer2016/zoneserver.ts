@@ -6673,13 +6673,17 @@ export class ZoneServer2016 extends EventEmitter {
    * Gets the ammoId for a given weapon.
    *
    * @param {number} itemDefinitionId - The itemDefinitionId of the weapon.
+   * @param {number} [firegroupIndex] - Index into the weapon's FIRE_GROUPS, e.g. the crossbow's selected projectile type.
    * @returns {number} The ammoId (0 if undefined).
    */
-  getWeaponAmmoId(itemDefinitionId: number): number {
+  getWeaponAmmoId(
+    itemDefinitionId: number,
+    firegroupIndex: number = 0
+  ): number {
     const itemDefinition = this.getItemDefinition(itemDefinitionId),
       weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1 || 0),
       firegroupDefinition = this.getFiregroupDefinition(
-        weaponDefinition?.FIRE_GROUPS[0]?.FIRE_GROUP_ID
+        weaponDefinition?.FIRE_GROUPS[firegroupIndex]?.FIRE_GROUP_ID
       ),
       firemodeDefinition = this.getFiremodeDefinition(
         firegroupDefinition?.FIRE_MODES[0]?.FIRE_MODE_ID
@@ -6692,19 +6696,36 @@ export class ZoneServer2016 extends EventEmitter {
    * Gets the reload time in milliseconds for a given weapon.
    *
    * @param {number} itemDefinitionId - The itemDefinitionId of the weapon.
+   * @param {number} [firegroupIndex] - Index into the weapon's FIRE_GROUPS, e.g. the crossbow's selected projectile type.
    * @returns {number} The reload time in milliseconds (0 if undefined).
    */
-  getWeaponReloadTime(itemDefinitionId: number): number {
+  getWeaponReloadTime(
+    itemDefinitionId: number,
+    firegroupIndex: number = 0
+  ): number {
     const itemDefinition = this.getItemDefinition(itemDefinitionId),
       weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1 || 0),
       firegroupDefinition = this.getFiregroupDefinition(
-        weaponDefinition?.FIRE_GROUPS[0]?.FIRE_GROUP_ID
+        weaponDefinition?.FIRE_GROUPS[firegroupIndex]?.FIRE_GROUP_ID
       ),
       firemodeDefinition = this.getFiremodeDefinition(
         firegroupDefinition?.FIRE_MODES[0]?.FIRE_MODE_ID
       );
 
     return firemodeDefinition?.RELOAD_TIME_MS || 0;
+  }
+
+  /**
+   * Gets the number of fire groups (e.g. selectable projectile types) a weapon has.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId of the weapon.
+   * @returns {number} The amount of fire groups (0 if undefined).
+   */
+  getWeaponFiregroupCount(itemDefinitionId: number): number {
+    const itemDefinition = this.getItemDefinition(itemDefinitionId),
+      weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1 || 0);
+
+    return weaponDefinition?.FIRE_GROUPS?.length || 0;
   }
 
   /**
@@ -9129,8 +9150,14 @@ export class ZoneServer2016 extends EventEmitter {
       "Update.Reload",
       {}
     );
-    const weaponAmmoId = this.getWeaponAmmoId(weaponItem.itemDefinitionId),
-      reloadTime = this.getWeaponReloadTime(weaponItem.itemDefinitionId);
+    const weaponAmmoId = this.getWeaponAmmoId(
+        weaponItem.itemDefinitionId,
+        weaponItem.weapon.firegroupIndex
+      ),
+      reloadTime = this.getWeaponReloadTime(
+        weaponItem.itemDefinitionId,
+        weaponItem.weapon.firegroupIndex
+      );
 
     const itemDefinition = this.getItemDefinition(weaponItem.itemDefinitionId);
     if (!itemDefinition) return;

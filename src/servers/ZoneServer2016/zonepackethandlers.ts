@@ -3191,12 +3191,37 @@ export class ZonePacketHandlers {
       case "Weapon.ReloadInterrupt":
         server.reloadInterrupt(client, weaponItem);
         break;
-      case "Weapon.SwitchFireModeRequest":
+      case "Weapon.SwitchFireModeRequest": {
+        const firegroupCount = server.getWeaponFiregroupCount(
+          weaponItem.itemDefinitionId
+        );
+
+        // Weapons with multiple fire groups (e.g. crossbow projectile types) cycle
+        // through them instead of just toggling a visual fire mode / ADS state.
+        if (firegroupCount > 1) {
+          weaponItem.weapon.firegroupIndex =
+            (weaponItem.weapon.firegroupIndex + 1) % firegroupCount;
+          // Loaded ammo no longer matches the newly selected projectile type
+          weaponItem.weapon.ammoCount = 0;
+          server.sendWeaponReload(client, weaponItem);
+          server.sendRemoteWeaponUpdateDataToAllOthers(
+            client,
+            client.character.transientId,
+            weaponItem.itemGuid,
+            "Update.SwitchFireMode",
+            {
+              firegroupIndex: weaponItem.weapon.firegroupIndex,
+              firemodeIndex: 0
+            }
+          );
+          break;
+        }
+
         // workaround so aiming in doesn't sometimes make the shooting sound
         if (!weaponItem.weapon?.ammoCount) return;
 
         // temp workaround to fix 308 sound while aiming
-        // this workaround applies to all weapons
+        // this workaround applies to all single-firegroup weapons
         if (packet.packet.firemodeIndex == 1) return;
         server.sendRemoteWeaponUpdateDataToAllOthers(
           client,
@@ -3209,6 +3234,7 @@ export class ZonePacketHandlers {
           }
         );
         break;
+      }
       case "Weapon.WeaponFireHint":
         debug("WeaponFireHint");
         break;
