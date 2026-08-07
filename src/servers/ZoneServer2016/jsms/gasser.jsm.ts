@@ -545,7 +545,7 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
 
         const attackTarget = getChaseTarget(gasser);
         if (attackTarget) {
-          gasser.npc.lookAt(attackTarget.position);
+          gasser.npc.lookAt(attackTarget.position, dt);
         }
 
         if (gasser.stateTimer >= 2) {

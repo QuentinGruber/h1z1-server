@@ -565,15 +565,29 @@ export abstract class Npc extends BaseFullCharacter {
     );
   }
 
-  lookAt(targetPosition: Float32Array) {
+  /**
+   * Turns the NPC to face a target, clamped to maxTurnRateRadPerSec so a
+   * stationary NPC (e.g. attacking a player it can't reach, like one on top
+   * of a car) doesn't snap its facing instantly every AI tick.
+   */
+  lookAt(
+    targetPosition: Float32Array,
+    dt: number = 0,
+    maxTurnRateRadPerSec: number = Math.PI
+  ) {
     const dx = targetPosition[0] - this.state.position[0];
     const dz = targetPosition[2] - this.state.position[2];
     const dy = targetPosition[1] - this.state.position[1];
     const horizontalDist = Math.sqrt(dx * dx + dz * dz);
-    const orientation = Math.atan2(dx, dz);
-    const prevOrientation = this.state.yaw ?? orientation;
-    let angleChange = orientation - prevOrientation;
+    const targetOrientation = Math.atan2(dx, dz);
+    const prevOrientation = this.state.yaw ?? targetOrientation;
+    let angleChange = targetOrientation - prevOrientation;
     angleChange = Math.atan2(Math.sin(angleChange), Math.cos(angleChange));
+    if (dt > 0) {
+      const maxStep = maxTurnRateRadPerSec * dt;
+      angleChange = Math.max(-maxStep, Math.min(maxStep, angleChange));
+    }
+    const orientation = prevOrientation + angleChange;
     this.state.yaw = orientation;
     const frontTilt = Math.atan2(dy, horizontalDist);
     const sinO = Math.sin(orientation);
