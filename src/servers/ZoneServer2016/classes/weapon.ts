@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { toHex } from "../../../utils/utils";
+import { Int64String } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseItem } from "./baseItem";
 import { ZoneClient2016 } from "./zoneclient";
@@ -55,7 +55,7 @@ export class Weapon {
         unknownDword1: 0,
         ammoCount: 0,
         unknownDword3: 0,
-        currentReloadCount: toHex(++this.currentReloadCount)
+        currentReloadCount: Int64String(++this.currentReloadCount)
       });
     }
   }

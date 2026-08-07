@@ -1241,16 +1241,6 @@ export const toBigHex = (bigInt: bigint): string => {
 };
 
 /**
- * Converts a number to a hexadecimal string.
- *
- * @param number - The number to convert.
- * @returns The hexadecimal string representation of the number.
- */
-export const toHex = (number: number): string => {
-  return `0x${number.toString(16)}`;
-};
-
-/**
  * Retrieves a random element from an array.
  *
  * @param array - The array from which to retrieve a random element.
