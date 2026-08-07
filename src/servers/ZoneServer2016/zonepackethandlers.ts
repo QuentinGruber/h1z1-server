@@ -16,6 +16,7 @@
 import { scheduler } from "node:timers/promises";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { ZoneServer2016 } from "./zoneserver";
+import { defaultEmotes } from "./data/emotes";
 const apm = require("elastic-apm-node");
 const debug = require("debug")("ZoneServer");
 
@@ -599,7 +600,7 @@ export class ZonePacketHandlers {
       {}
     );
   }
-  CommandPlayDialogEffect(
+  async CommandPlayDialogEffect(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<CommandPlayDialogEffect>
@@ -614,6 +615,30 @@ export class ZonePacketHandlers {
     if (equippedItem && equippedItem.itemDefinitionId !== Items.WEAPON_FISTS) {
       // Player has a weapon equipped that is not fists, don't allow emote
       return;
+    }
+
+    // effectId 0 just means "cancel emote", no ownership check needed
+    if (effectId > 0 && !defaultEmotes.includes(effectId)) {
+      // Non-default emotes must be owned as an account item (e.g. case rewards)
+      let hasEmote = false;
+      const accountItems =
+        await server.accountInventoriesManager.getAccountItems(
+          client.loginSessionId
+        );
+      for (const accountItem of accountItems) {
+        if (accountItem && accountItem.itemDefinitionId) {
+          const itemDef = server.getItemDefinition(
+            accountItem.itemDefinitionId
+          );
+          if (itemDef && itemDef.PARAM1 === effectId) {
+            hasEmote = true;
+            break;
+          }
+        }
+      }
+      if (!hasEmote) {
+        return;
+      }
     }
 
     // Track that the player is playing an emote
