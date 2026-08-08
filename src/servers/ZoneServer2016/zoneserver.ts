@@ -9759,6 +9759,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   firstRoutine(client: Client) {
     //this.constructionManager.spawnConstructionParentsInRange(this, client); // put into grid
+    this.vehicleManager(client);
     void this.updateClientSubscriptions(client);
     this.spawnCharacters(client);
     //this.constructionManager.worldConstructionManager(this, client);
