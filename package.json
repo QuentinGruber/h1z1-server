@@ -79,7 +79,8 @@
     "format": "npm run prettier_sources",
     "prettier_sources": "prettier --write ./src && prettier --write ./tests && prettier --write ./benchmarks",
     "tests": "npm run gen-packets-types && npm run gen-packets-interfaces && npm run prettier_sources",
-    "navmesh-dump": "tsx scripts/debugNavmesh.ts"
+    "navmesh-dump": "tsx scripts/debugNavmesh.ts",
+    "navmesh-model-crowd-routes-check": "tsx scripts/validateModelCrowdRoutes.ts"
   },
   "repository": {
     "type": "git",
