@@ -1545,6 +1545,7 @@ export interface CharacterDailyRepairMaterials {
 export interface CharacterUpdateTwitchInfo {
   characterId?: string;
   twitchName?: string;
+  unknownQword1?: string;
 }
 export interface CharacterUpdateSimpleProxyHealth {
   characterId?: string;

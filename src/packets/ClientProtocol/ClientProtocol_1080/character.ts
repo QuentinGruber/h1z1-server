@@ -1261,7 +1261,8 @@ export const characterPackets: PacketStructures = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "twitchName", type: "string", defaultValue: "" }
+        { name: "twitchName", type: "string", defaultValue: "" },
+        { name: "unknownQword1", type: "uint64string", defaultValue: "0" }
       ]
     }
   ],
