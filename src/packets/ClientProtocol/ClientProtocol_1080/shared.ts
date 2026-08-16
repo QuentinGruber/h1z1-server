@@ -1459,7 +1459,7 @@ export function packItemSubData(obj: any) {
   const v = Buffer.alloc(4);
   v.writeUInt32LE(obj["unknownDword1"], 0);
   data = Buffer.concat([data, v]);
-  if (obj.unknownDword1 <= 0) return data;
+  if (obj.unknownDword1 !== 1) return data; // client reads unknownData1 only when subType == 1
   const unknownData1Obj = DataSchema.pack(
     unknownData1Schema,
     obj["unknownData1"]
