@@ -24,7 +24,7 @@ export const loadoutPackets: PacketStructures = [
   ],
 
   [
-    "Loadout.Unk1",
+    "Loadout.SetCurrentLoadoutSlot",
     0x8703,
     {
       fields: [
