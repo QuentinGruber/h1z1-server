@@ -3630,10 +3630,7 @@ export interface ClientUpdateDamageInfo {
   unknownDword6?: number;
 }
 export interface ClientUpdateRespawnLocations {
-  unknownFlags?: number;
   locations?: unknown[];
-  unknownDword1?: number;
-  unknownDword2?: number;
   locations2?: unknown[];
 }
 export interface ClientUpdateModifyMovementSpeed {
