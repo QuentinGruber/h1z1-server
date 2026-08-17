@@ -1950,13 +1950,7 @@ export interface UiStartTimer {
   unknownDword1?: number;
 }
 export interface UiObjectiveTargetUpdate {
-  unknownBoolean1?: boolean;
-  unknownQword1?: string;
-  unknownDword1?: number;
-  unknownQword2?: string;
-  unknownDword2?: number;
-  unknownFloatVector1?: Float32Array;
-  unknownDword3?: number;
+  unknownBoolean1?: unknown;
 }
 export interface UiMessage {
   unknownByte1?: number;
@@ -2003,7 +1997,7 @@ export interface UiWarpgateRotateWarning {
   unknownDword1?: number;
   unknownDword2?: number;
   unknownDword3?: number;
-  unknownDword4?: number;
+  unknownArray1?: unknown[];
 }
 export interface UiConfirmHit {
   hitType:{
@@ -2516,18 +2510,23 @@ export interface VehicleSpawn {
 }
 export interface VehicleTint {
   characterId?: string;
-  unknownString1?: string;
+  unknownArray1?: unknown[];
 }
 export interface VehicleActiveWeapon {
   unknownDword1?: number;
 }
 export interface VehicleStats {
   characterId?: string;
-  unknownDword1?: number;
+  statData: unknown;
 }
 export interface VehicleDamageInfo {
   characterId?: string;
   unknownDword1?: number;
+  unknownDword2?: number;
+  unknownDword3?: number;
+  unknownBoolean1?: boolean;
+  unknownDword4?: number;
+  unknownDword5?: number;
 }
 export interface VehicleStatUpdate {
   characterId?: string;
@@ -2628,7 +2627,7 @@ export interface VehicleItemDefinitionRequest {
 }
 export interface VehicleItemDefinitionReply {
   unknownDword1?: number;
-  unknownDword2?: number;
+  dataBlob: unknown;
 }
 export interface VehicleInventoryItems {
   characterId?: string;
@@ -3072,6 +3071,7 @@ export interface ItemsReportNewRewardCrateAdded {
   itemDefinitionId?: number;
   unknownDword2?: number;
   itemCount?: number;
+  unknownByte1?: number;
 }
 export interface ItemsReportRewardCrateContents {
   winningRewards?: unknown[];
