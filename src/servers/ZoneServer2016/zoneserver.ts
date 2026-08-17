@@ -202,6 +202,7 @@ import {
   ReplicationCreateComponent,
   ReplicationCreateRepData,
   ResourceEvent,
+  ItemsSetEmoteItem,
   RewardAddNonRewardItem,
   SendSelfToClient,
   SendZoneDetails,
@@ -216,6 +217,7 @@ import {
   zone2016packets
 } from "types/zone2016packets";
 import { getCharacterModelData } from "../shared/functions";
+import { defaultEmotes } from "./data/emotes";
 import { HookManager } from "./managers/hookmanager";
 import { BaseItem } from "./classes/baseItem";
 import { LoadoutItem } from "./classes/loadoutItem";
@@ -1786,9 +1788,52 @@ export class ZoneServer2016 extends EventEmitter {
     );
     client.character.initialized = true;
     this.initializeContainerList(client);
+    this.sendDefaultEmoteHotkeys(client);
 
     this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
     this.hookManager.checkHook("OnSentCharacterData", client);
+  }
+
+  /**
+   * Binds the ownership-free default emotes into the client's F-key hotkey slots via
+   * Items.SetEmoteItem (0xad1f). The client only registers an emote hotkey when it receives this
+   * packet, so without it F1-Fn do nothing (defaults are server-pushed, not client-local). Once a
+   * slot is bound, pressing the F-key makes the client send Animation.Request { itemDefinitionId },
+   * which the existing animationRequest handler already resolves (PARAM1 -> animationId -> Animation.Play).
+   *
+   * Field mapping is TENTATIVE pending RE confirmation: unknownDword1 = hotkey slot id,
+   * unknownDword2 = emote itemDefinitionId. The slot-id base (0 vs 1) is likewise unconfirmed - flip
+   * EMOTE_HOTKEY_SLOT_BASE if the client turns out to be 1-based. Kept as a single populate site so the
+   * mapping is trivial to flip. Owned/unlocked emotes can be appended here later.
+   */
+  private sendDefaultEmoteHotkeys(client: Client) {
+    const EMOTE_HOTKEY_SLOT_BASE = 0, // TODO(RE): confirm 0- vs 1-based hotkey slot indexing
+      // Emote item definitions are ITEM_TYPE 53 and carry PARAM1 = animationId (the animationRequest
+      // handler resolves the same way). Type 54 emote entries have PARAM1 = 0 and are not bindable.
+      EMOTE_ITEM_TYPE = 53;
+
+    // Reverse-map animationId -> emote itemDefinitionId from the loaded item definitions (data-driven,
+    // no hardcoded ids). defaultEmotes holds animationIds; SetEmoteItem needs the emote's itemDefinitionId.
+    const emoteItemByAnimation: { [animationId: number]: number } = {};
+    for (const def of Object.values(this._itemDefinitions)) {
+      if (
+        def.ITEM_TYPE === EMOTE_ITEM_TYPE &&
+        emoteItemByAnimation[def.PARAM1] === undefined
+      ) {
+        emoteItemByAnimation[def.PARAM1] = def.ID;
+      }
+    }
+
+    let slotId = EMOTE_HOTKEY_SLOT_BASE;
+    for (const animationId of defaultEmotes) {
+      const itemDefinitionId = emoteItemByAnimation[animationId];
+      if (itemDefinitionId === undefined) continue; // no emote item for this animation (e.g. doublebird) - skip
+      this.sendData<ItemsSetEmoteItem>(client, "Items.SetEmoteItem", {
+        unknownDword1: slotId, // tentative: hotkey slot id
+        unknownDword2: itemDefinitionId // tentative: emote itemDefinitionId
+      });
+      slotId++;
+    }
   }
   /**
    * Caches item definitons so they aren't packed every time a client logs in.
