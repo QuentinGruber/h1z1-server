@@ -82,18 +82,29 @@ export const uiPackets: PacketStructures = [
     "Ui.ObjectiveTargetUpdate",
     0x1a0d,
     {
+      // client (Ui_ObjectiveTargetUpdateReadFromPacket @0x1409f43d0) reads the leading gate byte, then
+      // reads the rest of the body ONLY when it is 1. Model as a variabletype8 tag: 0 => no body, 1 => body.
       fields: [
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-        { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         {
-          name: "unknownFloatVector1",
-          type: "floatvector4",
-          defaultValue: [0, 0, 0, 0]
-        },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+          name: "unknownBoolean1",
+          type: "variabletype8",
+          defaultValue: 0,
+          types: {
+            0: [],
+            1: [
+              { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+              { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
+              { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+              {
+                name: "unknownFloatVector1",
+                type: "floatvector4",
+                defaultValue: [0, 0, 0, 0]
+              },
+              { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+            ]
+          }
+        }
       ]
     }
   ],
@@ -210,7 +221,17 @@ export const uiPackets: PacketStructures = [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword4", type: "uint32", defaultValue: 0 } // This reads 2 extra bytes if higher than 0
+        // client (Ui_WarpgateRotateWarningReadFromPacket @0x1409f4580) reads a count-prefixed array of
+        // {uint16, uint16} entries here, not a bare u32 (the old "reads 2 extra bytes" was the first element)
+        {
+          name: "unknownArray1",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "unknownWord1", type: "uint16", defaultValue: 0 },
+            { name: "unknownWord2", type: "uint16", defaultValue: 0 }
+          ]
+        }
       ]
     }
   ],

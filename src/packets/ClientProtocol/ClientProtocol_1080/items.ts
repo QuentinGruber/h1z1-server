@@ -380,7 +380,11 @@ export const itemsPackets: PacketStructures = [
     "Items.ReportNewRewardCrateAdded",
     0xad1d,
     {
-      fields: accountItemSchema
+      // client reads accountItemSchema + a trailing uint8 (@0x1405ab430), mirroring AddAccountItem/UpdateAccountItem
+      fields: [
+        ...accountItemSchema,
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+      ]
     }
   ],
   [
