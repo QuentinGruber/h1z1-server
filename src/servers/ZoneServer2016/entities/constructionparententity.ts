@@ -11,12 +11,11 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+const debug = require("debug")("Nav");
 import {
   ConstructionChildEntity,
   cascadeDestroyConstructionChild
 } from "./constructionchildentity";
-const debug = require("debug")("Nav");
-import { ConstructionChildEntity } from "./constructionchildentity";
 import { LootableConstructionEntity } from "./lootableconstructionentity";
 import { ConstructionDoor } from "./constructiondoor";
 import {
