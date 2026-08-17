@@ -32,7 +32,6 @@
   },
   "devDependencies": {
     "cross-env": "^10.1.0",
-    "globals": "^17.6.0",
     "oxlint": "^1.67.0",
     "prettier": "^3.8.3",
     "tsx": "^4.22.3",

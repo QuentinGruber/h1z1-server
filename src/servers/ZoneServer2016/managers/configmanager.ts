@@ -475,6 +475,7 @@ export class ConfigManager {
       npcSpawnCap,
       npcSpawnRadius,
       chanceNpc,
+      chanceRabbit,
       chanceScreamer,
       chanceGasser,
       chanceGasserPropagation,
@@ -505,6 +506,7 @@ export class ConfigManager {
     server.worldObjectManager.vehicleSpawnRadius = vehicleSpawnRadius;
     server.worldObjectManager.npcSpawnRadius = npcSpawnRadius;
     server.worldObjectManager.chanceNpc = chanceNpc;
+    server.worldObjectManager.chanceRabbit = chanceRabbit;
     server.worldObjectManager.chanceScreamer = chanceScreamer;
     server.worldObjectManager.chanceGasser = chanceGasser;
     server.worldObjectManager.chanceGasserPropagation = chanceGasserPropagation;

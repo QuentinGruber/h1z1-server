@@ -663,6 +663,30 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       );
       server.navManager.removeObstacle(this.obstacleRef);
     }
+
+    // Break down doors on shelter destruction BEFORE this entity is deleted,
+    // so each door can still resolve its parent (this) and clear its own
+    // slot. Doing this after deleteEntity leaves the door's getParent() call
+    // returning undefined, which skips clearSlot and leaves a dead door
+    // stuck in occupiedWallSlots.
+    switch (this.itemDefinitionId) {
+      case Items.SHELTER:
+      case Items.SHELTER_LARGE:
+      case Items.SHELTER_UPPER:
+      case Items.SHELTER_UPPER_LARGE:
+      case Items.STRUCTURE_STAIRS:
+      case Items.STRUCTURE_STAIRS_UPPER:
+      case Items.LOOKOUT_TOWER:
+        if (damageInfo?.explosive) {
+          Object.values(this.occupiedWallSlots).forEach((slot) => {
+            if (slot instanceof ConstructionDoor) {
+              slot.destroy(server, damageInfo, destructTime, slotCooldown);
+            }
+          });
+        }
+        break;
+    }
+
     const deleted = server.deleteEntity(
       this.characterId,
       server._constructionSimple[this.characterId]
@@ -703,14 +727,6 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       case Items.STRUCTURE_STAIRS:
       case Items.STRUCTURE_STAIRS_UPPER:
       case Items.LOOKOUT_TOWER:
-        // Also break down doors on shelter destruction
-        if (damageInfo?.explosive) {
-          Object.values(this.occupiedWallSlots).forEach((slot) => {
-            if (slot instanceof ConstructionDoor) {
-              slot.destroy(server, damageInfo, destructTime, slotCooldown);
-            }
-          });
-        }
         slotMap = parent.occupiedShelterSlots;
         parent.shelterSlotsPlacementTimer[this.getSlotNumber()] = slotCooldown;
         break;

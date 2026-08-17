@@ -17,6 +17,38 @@ import { BaseEntity } from "./baseentity";
 import { ModelIds, PositionUpdateType } from "../models/enums";
 import { CrowdAgent } from "recast-navigation";
 
+const FEMALE_ZOMBIE_HAIR_MODELS = [
+  "ZombieFemale_Hair_01.adr",
+  "SurvivorFemale_Hair_Afro.adr",
+  "SurvivorFemale_Hair_AfroMohawk.adr",
+  "SurvivorFemale_Hair_LongWavy.adr",
+  "SurvivorFemale_Hair_MediumMessy.adr",
+  "SurvivorFemale_Hair_MediumWavy.adr",
+  "SurvivorFemale_Hair_ShortBun.adr",
+  "SurvivorFemale_Hair_ShortMessy.adr",
+  "SurvivorFemale_Hair_SpikeMohawk.adr",
+  "SurvivorFemale_HatHair_Long.adr",
+  "SurvivorFemale_HatHair_Short.adr"
+];
+
+const MALE_ZOMBIE_HAIR_MODELS = [
+  "SurvivorMale_Hair_Afro.adr",
+  "SurvivorMale_Hair_AfroMohawk.adr",
+  "SurvivorMale_Hair_MediumMessy.adr",
+  "SurvivorMale_Hair_ShortBun.adr",
+  "SurvivorMale_Hair_ShortMessy.adr",
+  "SurvivorMale_Hair_SpikeMohawk.adr",
+  "SurvivorMale_HatHair_Long.adr",
+  "SurvivorMale_HatHair_Short.adr"
+];
+
+const ZOMBIE_BALD_CHANCE = 0.4;
+
+function getRandomHairModel(hairModels: string[]): string {
+  if (Math.random() < ZOMBIE_BALD_CHANCE) return "";
+  return hairModels[Math.floor(Math.random() * hairModels.length)];
+}
+
 function getHeadActor(modelId: number): string {
   switch (modelId) {
     case ModelIds.SURVIVOR_MALE_HEAD_01:
@@ -27,6 +59,19 @@ function getHeadActor(modelId: number): string {
       return `ZombieFemale_Head_0${Math.floor(Math.random() * 2) + 1}.adr`;
     case ModelIds.ZOMBIE_MALE_HEAD:
       return `ZombieMale_Head_0${Math.floor(Math.random() * 3) + 1}.adr`;
+    default:
+      return "";
+  }
+}
+
+function getHairModel(modelId: number): string {
+  switch (modelId) {
+    case ModelIds.ZOMBIE_FEMALE_WALKER:
+    case ModelIds.ZOMBIE_FEMALE_HEAD:
+      return getRandomHairModel(FEMALE_ZOMBIE_HAIR_MODELS);
+    case ModelIds.ZOMBIE_MALE_WALKER:
+    case ModelIds.ZOMBIE_MALE_HEAD:
+      return getRandomHairModel(MALE_ZOMBIE_HAIR_MODELS);
     default:
       return "";
   }
@@ -45,6 +90,15 @@ function getEyeActor(modelId: number): string {
     default:
       return "";
   }
+}
+
+function isZombieModel(modelId: number): boolean {
+  return (
+    modelId === ModelIds.ZOMBIE_FEMALE_WALKER ||
+    modelId === ModelIds.ZOMBIE_MALE_WALKER ||
+    modelId === ModelIds.ZOMBIE_FEMALE_HEAD ||
+    modelId === ModelIds.ZOMBIE_MALE_HEAD
+  );
 }
 
 export abstract class BaseLightweightCharacter extends BaseEntity {
@@ -102,6 +156,9 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
 
   /** Sets eyes for characters */
   eyeActor = getEyeActor(this.actorModelId);
+
+  /** Optional hair actor for characters that support separate hair models */
+  hairModel = getHairModel(this.actorModelId);
 
   /** Used for constructions */
   profileId: number = 0;
@@ -172,12 +229,15 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
    * Gets the lightweight npc/pc packet fields for use in sendself, addlightweightnpc, or addlightweightpc
    */
   pGetLightweight(): AddLightweightNpc {
+    const npcModelId = this.temporaryActorModelId
+      ? this.temporaryActorModelId
+      : this.actorModelId;
+    const zombieModel = isZombieModel(npcModelId);
+
     return {
       characterId: this.characterId,
       transientId: this.transientId,
-      actorModelId: this.temporaryActorModelId
-        ? this.temporaryActorModelId
-        : this.actorModelId,
+      actorModelId: npcModelId,
       position: this.state.position,
       rotation: this.state.rotation,
       scale: this.scale,
@@ -191,7 +251,8 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
       },
       movementVersion: this.movementVersion,
       headActor: this.headActor,
-      eyeActor: this.eyeActor,
+      eyeActor: zombieModel ? this.hairModel : this.eyeActor,
+      unknownString4: zombieModel ? this.eyeActor : this.hairModel,
       attachedObject: {
         // This doesn't do anything. I thought it could've been related to animations - Jason
         //targetObjectId: this.attachedObjectTargetId,

@@ -4008,6 +4008,18 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<any>
   ) {
     switch (packet.name) {
+      // Highest-frequency packet types are checked first — V8 doesn't build a
+      // jump table for a switch this large on arbitrary strings, so this is
+      // effectively a sequential comparison chain.
+      case "PlayerUpdatePosition":
+        this.PlayerUpdatePosition(server, client, packet);
+        break;
+      case "PlayerUpdateManagedPosition":
+        this.PlayerUpdateManagedPosition(server, client, packet);
+        break;
+      case "KeepAlive":
+        this.KeepAlive(server, client, packet);
+        break;
       case "ClientIsReady":
         this.ClientIsReady(server, client, packet);
         break;
@@ -4022,6 +4034,7 @@ export class ZonePacketHandlers {
         break;
       case "Command.SpawnVehicle":
         this.CommandSpawnVehicle(server, client, packet);
+        break;
       case "Command.FreeInteractionNpc":
         this.CommandFreeInteractionNpc(server, client, packet);
         break;
@@ -4039,9 +4052,6 @@ export class ZonePacketHandlers {
         break;
       case "LobbyGameDefinition.DefinitionsRequest":
         this.LobbyGameDefinitionDefinitionsRequest(server, client, packet);
-        break;
-      case "KeepAlive":
-        this.KeepAlive(server, client, packet);
         break;
       case "ClientUpdate.MonitorTimeDrift":
         this.ClientUpdateMonitorTimeDrift(server, client, packet);
@@ -4129,17 +4139,11 @@ export class ZonePacketHandlers {
       case "GetRewardBuffInfo":
         this.GetRewardBuffInfo(server, client, packet);
         break;
-      case "PlayerUpdateManagedPosition":
-        this.PlayerUpdateManagedPosition(server, client, packet);
-        break;
       case "Vehicle.StateData":
         this.VehicleStateData(server, client, packet);
         break;
       case "Vehicle.AccessType":
         this.VehicleAccessType(server, client, packet);
-        break;
-      case "PlayerUpdatePosition":
-        this.PlayerUpdatePosition(server, client, packet);
         break;
       case "Character.Respawn":
         this.CharacterRespawn(server, client, packet);

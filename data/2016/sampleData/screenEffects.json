@@ -391,18 +391,34 @@
   },
   {
     "id": 37,
-    "typeName": "SCREAM",
+    "typeName": "BANSHEE_CALL",
     "duration": 6000,
     "screenBrightness": 0,
     "colorGradingFilename": "",
     "colorGrading": 0,
     "screenCover": 0,
-    "transparency": 0,
+    "transparency": 0.85,
     "color": "91beb9",
     "unknownDword7": 1,
     "unknownDword16": 1,
     "unknownDword17": 1.5,
     "unknownDword18": 0.05,
     "unknownDword19": 1082130432
+  },
+  {
+    "id": 28,
+    "typeName": "SHOCK",
+    "duration": 10000,
+    "screenBrightness": 0,
+    "colorGradingFilename": "",
+    "colorGrading": 0,
+    "screenCover": 0,
+    "transparency": 0.75,
+    "color": "cccccc",
+    "unknownDword7": 1,
+    "unknownDword16": 1,
+    "unknownDword17": 0,
+    "unknownDword18": 0.1,
+    "unknownDword19": 0
   }
 ]

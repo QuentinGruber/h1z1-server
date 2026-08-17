@@ -522,7 +522,7 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
           if (
             attackDist <= MELEE_SLASH_RANGE &&
             gasser.ChargeGas >= 100 &&
-            Math.random() < 0.1
+            Math.random() < 0.3
           ) {
             gasser.event(ZombieEvents.ReleaseGas);
           } else if (attackDist <= MELEE_SLASH_RANGE) {

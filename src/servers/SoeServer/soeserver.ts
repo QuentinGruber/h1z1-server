@@ -159,26 +159,32 @@ export class SOEServer extends EventEmitter {
     const resends: LogicalPacket[] = [];
     const resendedSequences: Set<number> = new Set();
     for (const [sequence, time] of client.unAckData) {
+      // Map iteration order matches insertion order, which matches send order:
+      // entries are only ever appended fresh (_sendAndBuildPhysicalPacket /
+      // setupResendForQueuedPackets always run right after a delete() for any
+      // sequence being resent, never refresh a stale position in place), so
+      // once we reach an entry that isn't due yet, nothing after it is either.
+      if (time + this._resendTimeout + client.avgPing >= currentTime) {
+        break;
+      }
       // if the packet is too old then we resend it
-      if (time + this._resendTimeout + client.avgPing < currentTime) {
-        const dataCache = client.outputStream.getDataCache(sequence);
-        if (dataCache) {
-          if (dataCache.resendCounter >= this._maxResentTries) {
-            continue;
-          }
-          dataCache.resendCounter++;
-          client.stats.packetResend++;
-          const logicalPacket = this.createLogicalPacket(
-            dataCache.fragment ? SoeOpcode.DataFragment : SoeOpcode.Data,
-            { sequence: sequence, data: dataCache.data }
-          );
-          if (logicalPacket) {
-            resendedSequences.add(sequence);
-            resends.push(logicalPacket);
-          }
-        } else {
-          // If the data cache is not found it means that the packet has been acked
+      const dataCache = client.outputStream.getDataCache(sequence);
+      if (dataCache) {
+        if (dataCache.resendCounter >= this._maxResentTries) {
+          continue;
         }
+        dataCache.resendCounter++;
+        client.stats.packetResend++;
+        const logicalPacket = this.createLogicalPacket(
+          dataCache.fragment ? SoeOpcode.DataFragment : SoeOpcode.Data,
+          { sequence: sequence, data: dataCache.data }
+        );
+        if (logicalPacket) {
+          resendedSequences.add(sequence);
+          resends.push(logicalPacket);
+        }
+      } else {
+        // If the data cache is not found it means that the packet has been acked
       }
     }
 

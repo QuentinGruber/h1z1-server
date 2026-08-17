@@ -166,6 +166,12 @@
     "nameId": 1345,
     "descriptionId": 1346,
     "imageSetId": 166
+  },
+  {
+    "id": 25,
+    "typeName": "BANSHEE CALL",
+    "nameId": 12280,
+    "descriptionId": 12281,
+    "imageSetId": 177
   }
 ]
-
