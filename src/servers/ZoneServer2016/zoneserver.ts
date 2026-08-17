@@ -1801,13 +1801,12 @@ export class ZoneServer2016 extends EventEmitter {
    * slot is bound, pressing the F-key makes the client send Animation.Request { itemDefinitionId },
    * which the existing animationRequest handler already resolves (PARAM1 -> animationId -> Animation.Play).
    *
-   * Field mapping is TENTATIVE pending RE confirmation: unknownDword1 = hotkey slot id,
-   * unknownDword2 = emote itemDefinitionId. The slot-id base (0 vs 1) is likewise unconfirmed - flip
-   * EMOTE_HOTKEY_SLOT_BASE if the client turns out to be 1-based. Kept as a single populate site so the
-   * mapping is trivial to flip. Owned/unlocked emotes can be appended here later.
+   * Field mapping is RE-confirmed: unknownDword1 = hotkey slot id (1-based), unknownDword2 = emote
+   * itemDefinitionId, unknownDword3 = a required-but-value-ignored 3rd u32 (the client bounds-checks it
+   * and skips the bind entirely if the bytes are absent). Owned/unlocked emotes can be appended here later.
    */
   private sendDefaultEmoteHotkeys(client: Client) {
-    const EMOTE_HOTKEY_SLOT_BASE = 0, // TODO(RE): confirm 0- vs 1-based hotkey slot indexing
+    const EMOTE_HOTKEY_SLOT_BASE = 1, // RE-confirmed: client slot ids are 1-based (slot 1 = first emote)
       // Emote item definitions are ITEM_TYPE 53 and carry PARAM1 = animationId (the animationRequest
       // handler resolves the same way). Type 54 emote entries have PARAM1 = 0 and are not bindable.
       EMOTE_ITEM_TYPE = 53;
@@ -1829,8 +1828,9 @@ export class ZoneServer2016 extends EventEmitter {
       const itemDefinitionId = emoteItemByAnimation[animationId];
       if (itemDefinitionId === undefined) continue; // no emote item for this animation (e.g. doublebird) - skip
       this.sendData<ItemsSetEmoteItem>(client, "Items.SetEmoteItem", {
-        unknownDword1: slotId, // tentative: hotkey slot id
-        unknownDword2: itemDefinitionId // tentative: emote itemDefinitionId
+        unknownDword1: slotId, // hotkey slot id (1-based)
+        unknownDword2: itemDefinitionId, // emote itemDefinitionId
+        unknownDword3: 0 // required by the client (value ignored); omitting it skips the bind
       });
       slotId++;
     }
