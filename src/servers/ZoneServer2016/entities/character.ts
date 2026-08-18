@@ -1485,25 +1485,48 @@ export class Character2016 extends BaseFullCharacter {
   /**
    * 0xa105 ability grant entries for every emote the player can use (default wheel + owned) plus night
    * vision (only while its goggles are equipped - the /nv condition). Same entry shape as the weapon
-   * grant (pGetActivatableAbility); loadoutSlotId is a synthetic id well above real loadout slots
-   * (which top out at 41) so it can't collide.
+   * grant (pGetActivatableAbility).
+   *
+   * The client validates loadoutSlotId <= 43 (sub_1405671D0) and abilityLineId; an OUT-OF-RANGE slot
+   * leaves the ability's member list empty so it never activates (weapons work because they use real
+   * in-range slots). So each emote is assigned a FREE in-range slot (<= 43, not used by any real
+   * loadout slot) with a non-zero abilityLineId incrementing above the weapon grants (which use 1).
+   * Only the free slots that exist are used - overflow is skipped, not collided onto an occupied slot.
+   * NV uses its own real equipped slot (EYES/29).
    */
   pGetEmoteAbilities(server: ZoneServer2016): any[] {
     const NV_ITEM_DEFINITION_ID = 1700, // night vision (P key); ACTIVATABLE_ABILITY_ID 1111272
-      EMOTE_ABILITY_SLOT_BASE = 1000,
+      MAX_ABILITY_SLOT_ID = 43, // client rejects loadoutSlotId > 43 -> ability never wires
       emoteItemByAnimation = server.getEmoteItemDefinitionByAnimationId(),
       grants: any[] = [],
-      seen = new Set<number>();
-    let slotId = EMOTE_ABILITY_SLOT_BASE;
-    const grant = (itemDefinitionId: number | undefined) => {
-      if (itemDefinitionId === undefined || seen.has(itemDefinitionId)) return;
+      seen = new Set<number>(),
+      // real loadout slots (weapons/armor/attachments/goggles) the loadout grant already uses - emotes
+      // must not reuse these. Free = in-range slots not in this set.
+      occupiedSlots = new Set<number>(
+        Object.values(LoadoutSlots).filter(
+          (v): v is number => typeof v === "number"
+        )
+      ),
+      freeSlots: number[] = [];
+    for (let s = 1; s <= MAX_ABILITY_SLOT_ID; s++) {
+      if (!occupiedSlots.has(s)) freeSlots.push(s);
+    }
+
+    const grant = (
+      itemDefinitionId: number | undefined,
+      loadoutSlotId: number,
+      abilityLineId: number
+    ): boolean => {
+      if (itemDefinitionId === undefined || seen.has(itemDefinitionId)) {
+        return false;
+      }
       const abilityId =
         server.getItemDefinition(itemDefinitionId)?.ACTIVATABLE_ABILITY_ID;
-      if (!abilityId) return;
+      if (!abilityId) return false;
       seen.add(itemDefinitionId);
       grants.push({
-        loadoutSlotId: slotId++,
-        abilityLineId: 0,
+        loadoutSlotId: loadoutSlotId,
+        abilityLineId: abilityLineId,
         unknownArray1: [
           { unknownDword1: abilityId, unknownDword2: abilityId, unknownDword3: 0 }
         ],
@@ -1511,20 +1534,43 @@ export class Character2016 extends BaseFullCharacter {
         itemDefinitionId: itemDefinitionId,
         unknownByte: 64
       });
+      return true;
     };
-    // default wheel emotes
+
+    // Emote set: default wheel first, then owned (deduped, order preserved).
+    const emoteItemDefinitionIds: number[] = [];
     for (const animationId of Object.values(defaultEmoteHotkeys)) {
-      grant(emoteItemByAnimation[animationId]);
+      const id = emoteItemByAnimation[animationId];
+      if (id !== undefined && !emoteItemDefinitionIds.includes(id)) {
+        emoteItemDefinitionIds.push(id);
+      }
     }
-    // owned (account-gated) emotes
-    for (const itemDefinitionId of this.ownedEmoteItemDefinitionIds) {
-      grant(itemDefinitionId);
+    for (const id of this.ownedEmoteItemDefinitionIds) {
+      if (!emoteItemDefinitionIds.includes(id)) emoteItemDefinitionIds.push(id);
     }
-    // night vision - only while NV goggles are equipped in the EYES slot (the exact /nv condition), so
-    // the P key follows equip state. equipItem and removeLoadoutItem both re-send 0xa105 via
-    // updateLoadout after mutating _loadout[EYES], so this refreshes automatically on equip/unequip.
+
+    // Assign each emote a free in-range slot + a non-zero incrementing abilityLineId (starts at 2,
+    // above the weapon grants' abilityLineId 1). Cap at the free slots available.
+    let freeIndex = 0,
+      abilityLineId = 2;
+    for (const itemDefinitionId of emoteItemDefinitionIds) {
+      if (freeIndex >= freeSlots.length) {
+        console.log(
+          `[emotes] no free in-range ability slot left (<= ${MAX_ABILITY_SLOT_ID}); skipping emote itemDefinitionId ${itemDefinitionId}`
+        );
+        break;
+      }
+      if (grant(itemDefinitionId, freeSlots[freeIndex], abilityLineId)) {
+        freeIndex++;
+        abilityLineId++;
+      }
+    }
+
+    // Night vision - the goggle's own real equipped slot (EYES/29), only while equipped (== /nv
+    // condition). This mirrors the entry the loadout grant already emits for the equipped goggles, so
+    // P follows equip state (equipItem/removeLoadoutItem re-send 0xa105 via updateLoadout).
     if (this._loadout[LoadoutSlots.EYES]?.itemDefinitionId === Items.NV_GOGGLES) {
-      grant(NV_ITEM_DEFINITION_ID);
+      grant(NV_ITEM_DEFINITION_ID, LoadoutSlots.EYES, 1);
     }
     return grants;
   }
