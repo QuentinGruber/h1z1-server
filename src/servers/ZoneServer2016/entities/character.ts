@@ -1411,7 +1411,8 @@ export class Character2016 extends BaseFullCharacter {
   // --- Emote enable helpers (F-key emotes = activatable-ability activations) ------------------------
   // Emote items are ITEM_TYPE 53 (PARAM1 = animationId, ACTIVATABLE_ABILITY_ID = the emote ability).
   // Enable = 0xa105 ability GRANT (pGetEmoteAbilities) + availability (getEmoteAvailability -> the
-  // SendSelf.skinItems.emotes map). Night vision (P key, item 1700 / ability 1111272) is granted too.
+  // SendSelf.skinItems.emotes map). Night vision (P key, item 1700 / ability 1111272) is granted only
+  // while its goggles are equipped (EYES slot) - the same condition as the /nv command.
 
   /**
    * Reuses the /emote ownership rule: an account item is an owned emote when its item def's PARAM1 is
@@ -1483,8 +1484,9 @@ export class Character2016 extends BaseFullCharacter {
 
   /**
    * 0xa105 ability grant entries for every emote the player can use (default wheel + owned) plus night
-   * vision. Same entry shape as the weapon grant (pGetActivatableAbility); loadoutSlotId is a synthetic
-   * id well above real loadout slots (which top out at 41) so it can't collide.
+   * vision (only while its goggles are equipped - the /nv condition). Same entry shape as the weapon
+   * grant (pGetActivatableAbility); loadoutSlotId is a synthetic id well above real loadout slots
+   * (which top out at 41) so it can't collide.
    */
   pGetEmoteAbilities(server: ZoneServer2016): any[] {
     const NV_ITEM_DEFINITION_ID = 1700, // night vision (P key); ACTIVATABLE_ABILITY_ID 1111272
@@ -1518,8 +1520,12 @@ export class Character2016 extends BaseFullCharacter {
     for (const itemDefinitionId of this.ownedEmoteItemDefinitionIds) {
       grant(itemDefinitionId);
     }
-    // night vision
-    grant(NV_ITEM_DEFINITION_ID);
+    // night vision - only while NV goggles are equipped in the EYES slot (the exact /nv condition), so
+    // the P key follows equip state. equipItem and removeLoadoutItem both re-send 0xa105 via
+    // updateLoadout after mutating _loadout[EYES], so this refreshes automatically on equip/unequip.
+    if (this._loadout[LoadoutSlots.EYES]?.itemDefinitionId === Items.NV_GOGGLES) {
+      grant(NV_ITEM_DEFINITION_ID);
+    }
     return grants;
   }
 
