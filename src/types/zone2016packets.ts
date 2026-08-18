@@ -3080,7 +3080,6 @@ export interface ItemsReportRewardCrateContents {
 export interface ItemsSetEmoteItem {
   unknownDword1?: number;
   unknownDword2?: number;
-  unknownDword3?: number;
 }
 export interface ItemsRemoveEmoteItem {
   itemDefinitionId?: number;

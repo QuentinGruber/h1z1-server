@@ -415,9 +415,7 @@ export const itemsPackets: PacketStructures = [
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 1 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 3154 },
-        // client requires a 3rd u32 present (value ignored); if absent it skips the emote-slot bind
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+        { name: "unknownDword2", type: "uint32", defaultValue: 3154 }
       ]
     }
   ],

@@ -1165,6 +1165,16 @@ export class Character2016 extends BaseFullCharacter {
               }
             };
           })
+        },
+        skinItems: {
+          unknownDword1: 0,
+          unknownDword2: 0,
+          unknownString1: "",
+          items: [],
+          // Fills the client's F-key emote-availability map (built in getDefaultEmoteAvailability).
+          // Without this, emotes[] ships empty and pressing F1-Fn silently no-ops.
+          emotes: server.getDefaultEmoteAvailability(),
+          itemCollection: []
         }
         //profileId: 270,
         //unknownDword15: 165449,

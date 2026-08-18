@@ -202,7 +202,6 @@ import {
   ReplicationCreateComponent,
   ReplicationCreateRepData,
   ResourceEvent,
-  ItemsSetEmoteItem,
   RewardAddNonRewardItem,
   SendSelfToClient,
   SendZoneDetails,
@@ -217,7 +216,7 @@ import {
   zone2016packets
 } from "types/zone2016packets";
 import { getCharacterModelData } from "../shared/functions";
-import { defaultEmotes } from "./data/emotes";
+import { defaultEmoteHotkeys } from "./data/emotes";
 import { HookManager } from "./managers/hookmanager";
 import { BaseItem } from "./classes/baseItem";
 import { LoadoutItem } from "./classes/loadoutItem";
@@ -1788,52 +1787,52 @@ export class ZoneServer2016 extends EventEmitter {
     );
     client.character.initialized = true;
     this.initializeContainerList(client);
-    this.sendDefaultEmoteHotkeys(client);
 
     this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
     this.hookManager.checkHook("OnSentCharacterData", client);
   }
 
   /**
-   * Binds the ownership-free default emotes into the client's F-key hotkey slots via
-   * Items.SetEmoteItem (0xad1f). The client only registers an emote hotkey when it receives this
-   * packet, so without it F1-Fn do nothing (defaults are server-pushed, not client-local). Once a
-   * slot is bound, pressing the F-key makes the client send Animation.Request { itemDefinitionId },
+   * Builds the per-slot default emote availability list for SendSelfToClient.skinItems.emotes.
+   * The client fills its F-key emote-availability map ONLY from this array
+   * (EmoteAvailabilityMap_ReadFromPacket); if it ships empty, pressing F1-Fn silently no-ops. Once
+   * filled, F-key -> slotId -> this map -> itemDefinitionId -> Animation.Request { itemDefinitionId },
    * which the existing animationRequest handler already resolves (PARAM1 -> animationId -> Animation.Play).
    *
-   * Field mapping is RE-confirmed: unknownDword1 = hotkey slot id (1-based), unknownDword2 = emote
-   * itemDefinitionId, unknownDword3 = a required-but-value-ignored 3rd u32 (the client bounds-checks it
-   * and skips the bind entirely if the bytes are absent). Owned/unlocked emotes can be appended here later.
+   * Each entry is RE-confirmed 3 u32s: unknownDword1 = slotId (1-based F-key slot, the map key),
+   * unknownDword2 = 0 (not read by the play path), unknownDword3 = emote itemDefinitionId. Owned/unlocked
+   * emotes can be appended here later.
    */
-  private sendDefaultEmoteHotkeys(client: Client) {
-    const EMOTE_HOTKEY_SLOT_BASE = 1, // RE-confirmed: client slot ids are 1-based (slot 1 = first emote)
-      // Emote item definitions are ITEM_TYPE 53 and carry PARAM1 = animationId (the animationRequest
-      // handler resolves the same way). Type 54 emote entries have PARAM1 = 0 and are not bindable.
-      EMOTE_ITEM_TYPE = 53;
-
-    // Reverse-map animationId -> emote itemDefinitionId from the loaded item definitions (data-driven,
-    // no hardcoded ids). defaultEmotes holds animationIds; SetEmoteItem needs the emote's itemDefinitionId.
+  getDefaultEmoteAvailability(): {
+    unknownDword1: number;
+    unknownDword2: number;
+    unknownDword3: number;
+  }[] {
+    // Reverse-map animationId -> emote itemDefinitionId (emote items are ITEM_TYPE 53 with
+    // PARAM1 = animationId; the animationRequest handler resolves the same way). Data-driven, no
+    // hardcoded item def ids.
     const emoteItemByAnimation: { [animationId: number]: number } = {};
     for (const def of Object.values(this._itemDefinitions)) {
-      if (
-        def.ITEM_TYPE === EMOTE_ITEM_TYPE &&
-        emoteItemByAnimation[def.PARAM1] === undefined
-      ) {
+      if (def.ITEM_TYPE === 53 && emoteItemByAnimation[def.PARAM1] === undefined) {
         emoteItemByAnimation[def.PARAM1] = def.ID;
       }
     }
 
-    let slotId = EMOTE_HOTKEY_SLOT_BASE;
-    for (const animationId of defaultEmotes) {
+    const emotes: {
+      unknownDword1: number;
+      unknownDword2: number;
+      unknownDword3: number;
+    }[] = [];
+    for (const [slotId, animationId] of Object.entries(defaultEmoteHotkeys)) {
       const itemDefinitionId = emoteItemByAnimation[animationId];
-      if (itemDefinitionId === undefined) continue; // no emote item for this animation (e.g. doublebird) - skip
-      this.sendData<ItemsSetEmoteItem>(client, "Items.SetEmoteItem", {
-        unknownDword1: slotId, // hotkey slot id (1-based)
-        unknownDword2: itemDefinitionId, // emote itemDefinitionId
-        unknownDword3: 0 // required by the client (value ignored); omitting it skips the bind
+      if (itemDefinitionId === undefined) continue; // no emote item for this slot's animation - omit slot
+      emotes.push({
+        unknownDword1: Number(slotId), // F-key slot id (1-based) - the map key
+        unknownDword2: 0, // not read by the client play path
+        unknownDword3: itemDefinitionId // emote itemDefinitionId
       });
-      slotId++;
     }
+    return emotes;
   }
   /**
    * Caches item definitons so they aren't packed every time a client logs in.

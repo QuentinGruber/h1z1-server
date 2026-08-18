@@ -105,7 +105,25 @@ const emoteMap: { [Name: string]: number } = {
 // Default emotes that don't require ownership
 const defaultEmotes = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
+// Retail default emote hotkey layout: F-key slot id (1-based, 1..12) -> emote animationId.
+// The server binds each slot's default emote into SendSelfToClient.skinItems.emotes so F1-Fn work.
+// A slot whose animationId has no ITEM_TYPE-53 emote item is omitted (e.g. anim 4 / anim 14).
+const defaultEmoteHotkeys: { [slotId: number]: number } = {
+  1: 2,
+  2: 3,
+  3: 7,
+  4: 8,
+  5: 9,
+  6: 18,
+  7: 13,
+  8: 15,
+  9: 5,
+  10: 10,
+  11: 4,
+  12: 14
+};
+
 // Array of emote names for listing
 const emoteNames: string[] = Object.keys(emoteMap);
 
-export { emoteMap, emoteNames, defaultEmotes };
+export { emoteMap, emoteNames, defaultEmotes, defaultEmoteHotkeys };
