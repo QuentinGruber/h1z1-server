@@ -96,7 +96,8 @@ const AGITATION_DECAY_RATE = 1;
 const AGITATION_INITIAL = 50;
 const SCREAM_DURATION = 3;
 const SCREAM_RADIUS = 50;
-const PLAYER_DETECT_RADIUS = 20;
+const PLAYER_DETECT_RADIUS = 25;
+const BELOW_TOLERANCE = 1;
 const SCREAM_COOLDOWN = 20;
 const ATTRACT_RADIUS = 250;
 const ATTRACT_AGITATION = 60;
@@ -148,6 +149,7 @@ function tryDetectPlayer(screamer: ScreamerInstance): boolean {
       if (!bucket) continue;
       for (const entry of bucket) {
         if (entry.faction !== Factions.HUMAN) continue;
+        if (entry.position[1] < pos[1] - BELOW_TOLERANCE) continue;
         if (getDistance2d(pos, entry.position) < PLAYER_DETECT_RADIUS) {
           screamer.targetCharacterId = entry.id;
           screamer.event(Events.StartScreaming);
@@ -265,6 +267,7 @@ export function createScreamer(
             if (!bucket) continue;
             for (const entry of bucket) {
               if (entry.faction !== Factions.HUMAN) continue;
+              if (entry.position[1] < pos[1] - BELOW_TOLERANCE) continue;
               if (getDistance2d(pos, entry.position) < PLAYER_DETECT_RADIUS) {
                 screamer.targetCharacterId = entry.id;
                 screamer.event(Events.StartRising);
