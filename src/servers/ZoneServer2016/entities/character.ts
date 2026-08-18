@@ -29,6 +29,7 @@ import {
 } from "../models/enums";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
+import { defaultEmoteHotkeys, emoteMap } from "../data/emotes";
 import { BaseFullCharacter } from "./basefullcharacter";
 import {
   AccountItem,
@@ -304,6 +305,9 @@ export class Character2016 extends BaseFullCharacter {
 
   /** Screen effects applied to a player: bleeding, night vision, etc. (see ScreenEffects.json) */
   screenEffects: string[] = [];
+  /** Account-gated (owned) emote item def ids, cached from account items in pGetSendSelf so the
+   * synchronous 0xa105 ability grant (pGetEmoteAbilities) and availability list can include them. */
+  ownedEmoteItemDefinitionIds: number[] = [];
 
   /** The time (milliseconds) at which a user has sent a second melee hit */
   abilityInitTime: number = 0;
@@ -1123,6 +1127,12 @@ export class Character2016 extends BaseFullCharacter {
     client: ZoneClient2016,
     accountItems: AccountItem[]
   ): SendSelfToClient {
+    // Cache the player's owned (account-gated) emotes so the (synchronous) 0xa105 ability grant can
+    // include them alongside the defaults (see pGetEmoteAbilities / getEmoteAvailability).
+    this.ownedEmoteItemDefinitionIds = this.getOwnedEmoteItemDefinitionIds(
+      server,
+      accountItems
+    );
     return {
       data: {
         ...this.pGetLightweight(),
@@ -1171,9 +1181,11 @@ export class Character2016 extends BaseFullCharacter {
           unknownDword2: 0,
           unknownString1: "",
           items: [],
-          // Fills the client's F-key emote-availability map (built in getDefaultEmoteAvailability).
-          // Without this, emotes[] ships empty and pressing F1-Fn silently no-ops.
-          emotes: server.getDefaultEmoteAvailability(),
+          // Fills the client's F-key emote-availability map (built in getEmoteAvailability: default
+          // wheel emotes + owned). Without this, emotes[] ships empty and pressing F1-Fn silently no-ops.
+          // NOTE: real F-key emote enable = the 0xa105 ability grant (pGetEmoteAbilities) + this
+          // availability list; the client's legacy EmoteSlots/Items.SetEmoteItem 0xad1f slot path is inactive.
+          emotes: this.getEmoteAvailability(server),
           itemCollection: []
         }
         //profileId: 270,
@@ -1389,7 +1401,126 @@ export class Character2016 extends BaseFullCharacter {
         this.pGetActivatableAbility(slotId, itemDefinition, abilityLineId)
       );
     });
+    // Grant the emote + night-vision abilities. F-key emotes are activatable-ability activations; an
+    // ungranted emote ability = a dead key. This is the root-cause fix - loadout abilities alone left
+    // emotes/NV ungranted.
+    abilities.push(...this.pGetEmoteAbilities(server));
     return abilities;
+  }
+
+  // --- Emote enable helpers (F-key emotes = activatable-ability activations) ------------------------
+  // Emote items are ITEM_TYPE 53 (PARAM1 = animationId, ACTIVATABLE_ABILITY_ID = the emote ability).
+  // Enable = 0xa105 ability GRANT (pGetEmoteAbilities) + availability (getEmoteAvailability -> the
+  // SendSelf.skinItems.emotes map). Night vision (P key, item 1700 / ability 1111272) is granted too.
+
+  /**
+   * Reuses the /emote ownership rule: an account item is an owned emote when its item def's PARAM1 is
+   * an emote animationId (a value in emoteMap). Excludes the default-wheel animations (already covered).
+   */
+  getOwnedEmoteItemDefinitionIds(
+    server: ZoneServer2016,
+    accountItems: AccountItem[]
+  ): number[] {
+    const emoteAnimationIds = new Set<number>(Object.values(emoteMap)),
+      defaultAnimationIds = new Set<number>(Object.values(defaultEmoteHotkeys)),
+      seen = new Set<number>(),
+      ids: number[] = [];
+    for (const accountItem of accountItems) {
+      const def = server.getItemDefinition(accountItem?.itemDefinitionId);
+      if (!def) continue;
+      if (
+        emoteAnimationIds.has(def.PARAM1) &&
+        !defaultAnimationIds.has(def.PARAM1) &&
+        !seen.has(def.ID)
+      ) {
+        seen.add(def.ID);
+        ids.push(def.ID);
+      }
+    }
+    return ids;
+  }
+
+  /**
+   * Builds SendSelf.skinItems.emotes: default wheel emotes at their retail slot ids, then owned emotes
+   * at continuing slot ids - the same emote set that pGetEmoteAbilities grants. Each entry is 3 u32s:
+   * unknownDword1 = slotId, unknownDword2 = 0 (unread by play path), unknownDword3 = emote itemDefinitionId.
+   */
+  getEmoteAvailability(server: ZoneServer2016): {
+    unknownDword1: number;
+    unknownDword2: number;
+    unknownDword3: number;
+  }[] {
+    const emoteItemByAnimation = server.getEmoteItemDefinitionByAnimationId(),
+      emotes: {
+        unknownDword1: number;
+        unknownDword2: number;
+        unknownDword3: number;
+      }[] = [],
+      usedItemDefs = new Set<number>();
+    for (const [slotId, animationId] of Object.entries(defaultEmoteHotkeys)) {
+      const itemDefinitionId = emoteItemByAnimation[animationId];
+      if (itemDefinitionId === undefined) continue; // no emote item for this slot's animation - omit
+      usedItemDefs.add(itemDefinitionId);
+      emotes.push({
+        unknownDword1: Number(slotId),
+        unknownDword2: 0,
+        unknownDword3: itemDefinitionId
+      });
+    }
+    // owned emotes past the 12 default wheel slots (activatable via the grant regardless of slot)
+    let nextSlot = 13;
+    for (const itemDefinitionId of this.ownedEmoteItemDefinitionIds) {
+      if (usedItemDefs.has(itemDefinitionId)) continue;
+      usedItemDefs.add(itemDefinitionId);
+      emotes.push({
+        unknownDword1: nextSlot++,
+        unknownDword2: 0,
+        unknownDword3: itemDefinitionId
+      });
+    }
+    return emotes;
+  }
+
+  /**
+   * 0xa105 ability grant entries for every emote the player can use (default wheel + owned) plus night
+   * vision. Same entry shape as the weapon grant (pGetActivatableAbility); loadoutSlotId is a synthetic
+   * id well above real loadout slots (which top out at 41) so it can't collide.
+   */
+  pGetEmoteAbilities(server: ZoneServer2016): any[] {
+    const NV_ITEM_DEFINITION_ID = 1700, // night vision (P key); ACTIVATABLE_ABILITY_ID 1111272
+      EMOTE_ABILITY_SLOT_BASE = 1000,
+      emoteItemByAnimation = server.getEmoteItemDefinitionByAnimationId(),
+      grants: any[] = [],
+      seen = new Set<number>();
+    let slotId = EMOTE_ABILITY_SLOT_BASE;
+    const grant = (itemDefinitionId: number | undefined) => {
+      if (itemDefinitionId === undefined || seen.has(itemDefinitionId)) return;
+      const abilityId =
+        server.getItemDefinition(itemDefinitionId)?.ACTIVATABLE_ABILITY_ID;
+      if (!abilityId) return;
+      seen.add(itemDefinitionId);
+      grants.push({
+        loadoutSlotId: slotId++,
+        abilityLineId: 0,
+        unknownArray1: [
+          { unknownDword1: abilityId, unknownDword2: abilityId, unknownDword3: 0 }
+        ],
+        unknownDword3: 2,
+        itemDefinitionId: itemDefinitionId,
+        unknownByte: 64
+      });
+    };
+    // default wheel emotes
+    for (const animationId of Object.values(defaultEmoteHotkeys)) {
+      grant(emoteItemByAnimation[animationId]);
+    }
+    // owned (account-gated) emotes
+    for (const itemDefinitionId of this.ownedEmoteItemDefinitionIds) {
+      grant(itemDefinitionId);
+    }
+    // night vision
+    grant(NV_ITEM_DEFINITION_ID);
+    return grants;
   }
 
   resetMetrics() {

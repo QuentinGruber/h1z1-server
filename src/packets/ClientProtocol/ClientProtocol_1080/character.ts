@@ -1043,6 +1043,8 @@ export const characterPackets: PacketStructures = [
     }
   ],
   [
+    // DEPRECATED / misattributed - this is NOT the emote request path. The live emote play request is
+    // Animation.Request 0xf801 { itemDefinitionId } (base.ts), handled by animationRequest.
     "Character.AnimationRequest",
     0x0f41,
     {

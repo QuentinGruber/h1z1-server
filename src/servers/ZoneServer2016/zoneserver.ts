@@ -216,7 +216,6 @@ import {
   zone2016packets
 } from "types/zone2016packets";
 import { getCharacterModelData } from "../shared/functions";
-import { defaultEmoteHotkeys } from "./data/emotes";
 import { HookManager } from "./managers/hookmanager";
 import { BaseItem } from "./classes/baseItem";
 import { LoadoutItem } from "./classes/loadoutItem";
@@ -1793,46 +1792,20 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   /**
-   * Builds the per-slot default emote availability list for SendSelfToClient.skinItems.emotes.
-   * The client fills its F-key emote-availability map ONLY from this array
-   * (EmoteAvailabilityMap_ReadFromPacket); if it ships empty, pressing F1-Fn silently no-ops. Once
-   * filled, F-key -> slotId -> this map -> itemDefinitionId -> Animation.Request { itemDefinitionId },
-   * which the existing animationRequest handler already resolves (PARAM1 -> animationId -> Animation.Play).
-   *
-   * Each entry is RE-confirmed 3 u32s: unknownDword1 = slotId (1-based F-key slot, the map key),
-   * unknownDword2 = 0 (not read by the play path), unknownDword3 = emote itemDefinitionId. Owned/unlocked
-   * emotes can be appended here later.
+   * Reverse-maps emote animationId -> emote itemDefinitionId from the loaded item definitions.
+   * Emote items are ITEM_TYPE 53, carrying PARAM1 = animationId and ACTIVATABLE_ABILITY_ID = the
+   * emote's activatable ability. Shared primitive for emote availability (skinItems.emotes) and the
+   * 0xa105 ability grants (see Character.getEmoteAvailability / pGetEmoteAbilities). Data-driven, no
+   * hardcoded item def ids.
    */
-  getDefaultEmoteAvailability(): {
-    unknownDword1: number;
-    unknownDword2: number;
-    unknownDword3: number;
-  }[] {
-    // Reverse-map animationId -> emote itemDefinitionId (emote items are ITEM_TYPE 53 with
-    // PARAM1 = animationId; the animationRequest handler resolves the same way). Data-driven, no
-    // hardcoded item def ids.
-    const emoteItemByAnimation: { [animationId: number]: number } = {};
+  getEmoteItemDefinitionByAnimationId(): { [animationId: number]: number } {
+    const map: { [animationId: number]: number } = {};
     for (const def of Object.values(this._itemDefinitions)) {
-      if (def.ITEM_TYPE === 53 && emoteItemByAnimation[def.PARAM1] === undefined) {
-        emoteItemByAnimation[def.PARAM1] = def.ID;
+      if (def.ITEM_TYPE === 53 && map[def.PARAM1] === undefined) {
+        map[def.PARAM1] = def.ID;
       }
     }
-
-    const emotes: {
-      unknownDword1: number;
-      unknownDword2: number;
-      unknownDword3: number;
-    }[] = [];
-    for (const [slotId, animationId] of Object.entries(defaultEmoteHotkeys)) {
-      const itemDefinitionId = emoteItemByAnimation[animationId];
-      if (itemDefinitionId === undefined) continue; // no emote item for this slot's animation - omit slot
-      emotes.push({
-        unknownDword1: Number(slotId), // F-key slot id (1-based) - the map key
-        unknownDword2: 0, // not read by the client play path
-        unknownDword3: itemDefinitionId // emote itemDefinitionId
-      });
-    }
-    return emotes;
+    return map;
   }
   /**
    * Caches item definitons so they aren't packed every time a client logs in.
