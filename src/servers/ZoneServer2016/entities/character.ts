@@ -1487,15 +1487,13 @@ export class Character2016 extends BaseFullCharacter {
    * vision (only while its goggles are equipped - the /nv condition). Same entry shape as the weapon
    * grant (pGetActivatableAbility).
    *
-   * The client builds each granted ability's member list (iterated by Ability_ActivateAllMembers ->
-   * ActivateCore, which bails when a member id <= 0) from the client asset AbilitySets.txt, keyed by
-   * the grant's abilityLineId: member list = AbilitySets[abilityLineId], populated only with the
-   * abilities that are members of that set. So a grant's abilityLineId must reference the AbilitySet
-   * that actually CONTAINS its ability, or the member list stays empty and the ability never fires -
-   * e.g. weapons use set 1 = {1111157, 1111278}; NV uses set 19 = {1111532, 1111272}. (loadoutSlotId
-   * must also be in range, <= 43; emotes are assigned free in-range slots not used by a real loadout
-   * slot, capped to those available.) NOTE: emote abilities are in NO AbilitySet, so their member
-   * lists are a separate, independently-handled case - the emote loop's abilityLineIds are provisional.
+   * The client copies a granted ability's member list VERBATIM from the grant's unknownArray1[i].d1
+   * (0xa105 handler) - there is NO client-side AbilitySet expansion, so abilityLineId does NOT pick the
+   * members (it only needs to be a valid non-zero id). Ability_ActivateCore bails when a member id <= 0.
+   * Each grant must therefore use a FREE in-range loadoutSlotId (<= 43, not a real loadout slot): at a
+   * real occupied slot the entry collides with the loadout grant's own entry for that slot and is
+   * DROPPED, leaving member 0 -> BAIL-1a. So emotes AND night vision are assigned free in-range slots
+   * (capped to those available); NV is NOT placed on its EYES/29 loadout slot.
    */
   pGetEmoteAbilities(server: ZoneServer2016): any[] {
     const NV_ITEM_DEFINITION_ID = 1700, // night vision (P key); ACTIVATABLE_ABILITY_ID 1111272
@@ -1569,15 +1567,18 @@ export class Character2016 extends BaseFullCharacter {
       }
     }
 
-    // Night vision - the goggle's own real equipped slot (EYES/29), only while equipped (== /nv
-    // condition). This mirrors the entry the loadout grant already emits for the equipped goggles, so
-    // P follows equip state (equipItem/removeLoadoutItem re-send 0xa105 via updateLoadout).
-    if (this._loadout[LoadoutSlots.EYES]?.itemDefinitionId === Items.NV_GOGGLES) {
-      // abilityLineId = NV's AbilitySet id (19) from the client's AbilitySets.txt: the client builds
-      // the ability member list from AbilitySets[abilityLineId], so it must match the set that actually
-      // contains ability 1111272 (set 19 = {1111532, 1111272}). Set 1 (the weapon set) does not contain
-      // NV, which left the member list empty and P dead.
-      grant(NV_ITEM_DEFINITION_ID, LoadoutSlots.EYES, 19);
+    // Night vision - granted at a FREE in-range slot from the SAME pool as the emotes (next free slot +
+    // next abilityLineId), NOT its real EYES/29 loadout slot: EYES/29 is occupied by the loadout grant's
+    // own entry, so an NV entry there collides and is dropped (member 0 -> BAIL-1a). Its member list is
+    // unknownArray1 [{1111272,1111272,0}] (copied verbatim; abilityLineId does not pick members). Still
+    // gated on goggles equipped (== /nv condition), re-sent on equip/unequip via updateLoadout.
+    if (
+      this._loadout[LoadoutSlots.EYES]?.itemDefinitionId === Items.NV_GOGGLES &&
+      freeIndex < freeSlots.length &&
+      grant(NV_ITEM_DEFINITION_ID, freeSlots[freeIndex], abilityLineId)
+    ) {
+      freeIndex++;
+      abilityLineId++;
     }
     return grants;
   }
