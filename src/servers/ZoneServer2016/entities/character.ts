@@ -1181,10 +1181,12 @@ export class Character2016 extends BaseFullCharacter {
           unknownDword2: 0,
           unknownString1: "",
           items: [],
-          // Fills the client's F-key emote-availability map (built in getEmoteAvailability: default
-          // wheel emotes + owned). Without this, emotes[] ships empty and pressing F1-Fn silently no-ops.
-          // NOTE: real F-key emote enable = the 0xa105 ability grant (pGetEmoteAbilities) + this
-          // availability list; the client's legacy EmoteSlots/Items.SetEmoteItem 0xad1f slot path is inactive.
+          // Per-account emote availability (TABLE2: default wheel slots 1..12 + owned/account emotes at
+          // 13+) that the client's emote play path needs to resolve a slot -> itemDefinitionId. NOTE: the
+          // F-key emote TRIGGER itself is BROKEN on the Dec-2016 client (acknowledged in the Feb-14-2017
+          // patch - emotes "stopped working per account"), so this data alone doesn't fire an emote; the
+          // client-side dinput8 patch (h1emu-patch-2016) repairs the trigger by sending Animation.Request
+          // 0xf801 {itemDefinitionId} directly, which this availability data makes resolve to a real emote.
           emotes: this.getEmoteAvailability(server),
           itemCollection: []
         }
@@ -1396,10 +1398,6 @@ export class Character2016 extends BaseFullCharacter {
     Object.values(this._loadout).forEach((slot) => {
       const itemDefinition = server.getItemDefinition(slot.itemDefinitionId);
       if (!itemDefinition) return;
-      // Exclude the NV goggle: as equipment it has no ability-set, so an entry at its occupied EYES/29
-      // slot resolves member 0 and (the store is abilityId-keyed) SHADOWS the populated free-slot NV
-      // grant. NV (ability 1111272) is granted exactly once at a FREE slot in pGetEmoteAbilities.
-      if (slot.itemDefinitionId === Items.NV_GOGGLES) return;
       const { slotId } = slot;
       abilities.push(
         this.pGetActivatableAbility(slotId, itemDefinition, abilityLineId)
@@ -1487,17 +1485,19 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   /**
-   * 0xa105 ability grant entries for every emote the player can use (default wheel + owned) plus night
-   * vision (only while its goggles are equipped - the /nv condition). Same entry shape as the weapon
-   * grant (pGetActivatableAbility).
+   * 0xa105 activatable-ability grant entries for every emote the player can use (default wheel + owned) -
+   * the INTENDED design (as if the Dec-2016 emote hotkey worked). Same entry shape as the weapon grant
+   * (pGetActivatableAbility).
    *
    * The client copies a granted ability's member list VERBATIM from the grant's unknownArray1[i].d1
    * (0xa105 handler) - there is NO client-side AbilitySet expansion, so abilityLineId does NOT pick the
-   * members (it only needs to be a valid non-zero id). Ability_ActivateCore bails when a member id <= 0.
-   * Each grant must therefore use a FREE in-range loadoutSlotId (<= 43, not a real loadout slot): at a
-   * real occupied slot the entry collides with the loadout grant's own entry for that slot and is
-   * DROPPED, leaving member 0 -> BAIL-1a. So emotes AND night vision are assigned free in-range slots
-   * (capped to those available); NV is NOT placed on its EYES/29 loadout slot.
+   * members (it only needs to be a valid non-zero id). Ability_ActivateCore bails when a member id <= 0,
+   * and at an occupied real loadout slot the member resolves 0. So each emote is assigned a FREE in-range
+   * loadoutSlotId (<= 43, not a real loadout slot), capped to those available.
+   *
+   * NOTE: the emote HOTKEY itself is broken on the Dec-2016 client, so these grants don't fire on their
+   * own; the dinput8 patch (h1emu-patch-2016) drives the working Animation.Request 0xf801 send directly.
+   * NV is NOT granted here (see the note where the NV grant used to be).
    */
   pGetEmoteAbilities(server: ZoneServer2016): any[] {
     const MAX_ABILITY_SLOT_ID = 43, // client rejects loadoutSlotId > 43 -> ability never wires
@@ -1570,20 +1570,10 @@ export class Character2016 extends BaseFullCharacter {
       }
     }
 
-    // Night vision - granted EXACTLY ONCE here, at a FREE in-range slot (the same pool as the emotes),
-    // paired with excluding the NV goggle from the loadout grant loop above. At an OCCUPIED slot the
-    // client resolves the member from the equipped item's ability-set (the goggle has none -> member 0
-    // -> BAIL-1a); at a FREE slot it copies the member verbatim from unknownArray1 = [{1111272,
-    // 1111272,0}] (ability 1111272 = the goggle's ACTIVATABLE_ABILITY_ID). Equip-gated (only while NV
-    // goggles are in EYES == the /nv condition), re-sent on equip/unequip via updateLoadout.
-    if (
-      this._loadout[LoadoutSlots.EYES]?.itemDefinitionId === Items.NV_GOGGLES &&
-      freeIndex < freeSlots.length &&
-      grant(Items.NV_GOGGLES, freeSlots[freeIndex], abilityLineId)
-    ) {
-      freeIndex++;
-      abilityLineId++;
-    }
+    // NV hotkey (P) is broken on the Dec-2016 client (its activatable-ability member id resolves to 0 ->
+    // BAIL-1a, so the client never sends anything). NV is therefore NOT granted here as an activatable
+    // ability - the dinput8 patch (h1emu-patch-2016) sends Abilities.InitAbility 0xa101 {1111272} directly
+    // and the server runs the intended NV toggle (see AbilitiesInitAbility / toggleNightVision, == /nv).
     return grants;
   }
 

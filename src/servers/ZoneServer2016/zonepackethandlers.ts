@@ -3441,9 +3441,9 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<AbilitiesInitAbility>
   ) {
-    // Night vision (P key): the client sends 0xa101 with abilityId 1111272 when the NV ability
-    // activates. The server drives the effect (NV def is RUN_ON_SERVER) - mirror the /nv toggle,
-    // gated on NV goggles equipped. Repeated presses alternate via the shared screen-effect state.
+    // NV hotkey (P) is broken on the Dec-2016 client (ability member id 0 -> BAIL-1a, never sends). The
+    // dinput8 patch sends Abilities.InitAbility 0xa101{1111272} directly; this handler runs the intended
+    // NV toggle (== /nv). No activatable grant is needed.
     if (packet.data.abilityId === 1111272) {
       server.toggleNightVision(client);
       return;
@@ -3973,6 +3973,11 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<AnimationRequest>
   ) {
+    // Inbound emote play request (Animation.Request 0xf801): resolve the emote item's PARAM1 ->
+    // animationId and BROADCAST Animation.Play 0xf802 { characterId, animationId } to nearby clients so
+    // everyone sees the emote. The Dec-2016 emote HOTKEY is broken and never sends this 0xf801; the
+    // dinput8 patch (h1emu-patch-2016) supplies it directly (using SendSelf.skinItems.emotes to pick a
+    // real itemDefinitionId).
     const animationId =
       server.getItemDefinition(packet.data.itemDefinitionId)?.PARAM1 || 0;
     if (!animationId) return;
