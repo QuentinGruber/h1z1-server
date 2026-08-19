@@ -3441,11 +3441,13 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<AbilitiesInitAbility>
   ) {
-    // NV is a client TOGGLE ability broken on the Dec-2016 client (member id 0 -> never sends). The
-    // dinput8 patch forces the member so the client emits InitAbility 0xa101{1111272} on ACTIVATE (and
-    // UninitAbility 0xa103{1111272} on DEACTIVATE). Init -> NV ON. No activatable grant is needed.
+    // NV is a client toggle ability broken on the Dec-2016 client (member id 0 -> never sends); the
+    // dinput8 patch forces the member so P emits an ability packet. The client's toggle-state STICKS -
+    // after deactivating it keeps sending UninitAbility 0xa103 on re-press instead of alternating back
+    // to InitAbility 0xa101. So the server TOGGLES NV on BOTH Init and Uninit for 1111272, guaranteeing
+    // each P press flips NV regardless of which packet the client sends. No activatable grant is needed.
     if (packet.data.abilityId === 1111272) {
-      server.setNightVision(client, true);
+      server.toggleNightVision(client);
       return;
     }
     server.abilitiesManager.processAbilityInit(server, client, packet.data);
@@ -3455,10 +3457,11 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<AbilitiesUninitAbility>
   ) {
-    // NV deactivate (P again): the dinput8 patch emits UninitAbility 0xa103{1111272} on deactivate ->
-    // NV OFF (deterministic, so it can't get stuck on). Other abilityIds keep the vehicle-ability path.
+    // NV re-press: the Dec-2016 client's toggle-state sticks and keeps sending UninitAbility 0xa103
+    // {1111272} on every re-press (not alternating back to Init). So TOGGLE NV here too - each P press
+    // flips NV whether it arrives as Init or Uninit. Other abilityIds keep the vehicle-ability path.
     if (packet.data.abilityId === 1111272) {
-      server.setNightVision(client, false);
+      server.toggleNightVision(client);
       return;
     }
     if (!client.vehicle.mountedVehicle) return;
