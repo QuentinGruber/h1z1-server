@@ -3441,6 +3441,13 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<AbilitiesInitAbility>
   ) {
+    // Night vision (P key): the client sends 0xa101 with abilityId 1111272 when the NV ability
+    // activates. The server drives the effect (NV def is RUN_ON_SERVER) - mirror the /nv toggle,
+    // gated on NV goggles equipped. Repeated presses alternate via the shared screen-effect state.
+    if (packet.data.abilityId === 1111272) {
+      server.toggleNightVision(client);
+      return;
+    }
     server.abilitiesManager.processAbilityInit(server, client, packet.data);
   }
   AbilitiesUninitAbility(

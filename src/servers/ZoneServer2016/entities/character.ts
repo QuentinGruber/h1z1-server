@@ -1496,8 +1496,7 @@ export class Character2016 extends BaseFullCharacter {
    * (capped to those available); NV is NOT placed on its EYES/29 loadout slot.
    */
   pGetEmoteAbilities(server: ZoneServer2016): any[] {
-    const NV_ITEM_DEFINITION_ID = 1700, // night vision (P key); ACTIVATABLE_ABILITY_ID 1111272
-      MAX_ABILITY_SLOT_ID = 43, // client rejects loadoutSlotId > 43 -> ability never wires
+    const MAX_ABILITY_SLOT_ID = 43, // client rejects loadoutSlotId > 43 -> ability never wires
       emoteItemByAnimation = server.getEmoteItemDefinitionByAnimationId(),
       grants: any[] = [],
       seen = new Set<number>(),
@@ -1567,19 +1566,12 @@ export class Character2016 extends BaseFullCharacter {
       }
     }
 
-    // Night vision - granted at a FREE in-range slot from the SAME pool as the emotes (next free slot +
-    // next abilityLineId), NOT its real EYES/29 loadout slot: EYES/29 is occupied by the loadout grant's
-    // own entry, so an NV entry there collides and is dropped (member 0 -> BAIL-1a). Its member list is
-    // unknownArray1 [{1111272,1111272,0}] (copied verbatim; abilityLineId does not pick members). Still
-    // gated on goggles equipped (== /nv condition), re-sent on equip/unequip via updateLoadout.
-    if (
-      this._loadout[LoadoutSlots.EYES]?.itemDefinitionId === Items.NV_GOGGLES &&
-      freeIndex < freeSlots.length &&
-      grant(NV_ITEM_DEFINITION_ID, freeSlots[freeIndex], abilityLineId)
-    ) {
-      freeIndex++;
-      abilityLineId++;
-    }
+    // Night vision is NOT granted here. The client activatable-ability store is keyed by abilityId
+    // (exactly one instance per id), and NV's instance (ability 1111272) is owned by the goggle's own
+    // loadout ability entry - pGetActivatableAbility for the equipped Items.NV_GOGGLES (item 1700),
+    // which already carries its member via unknownArray1 = [{1111272,1111272,0}] (its
+    // ACTIVATABLE_ABILITY_ID). A separate free-slot NV grant is shadowed by that abilityId-keyed goggle
+    // instance and does nothing, so it was removed; NV is granted EXACTLY ONCE, on the goggle entry.
     return grants;
   }
 

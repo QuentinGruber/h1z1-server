@@ -10196,6 +10196,30 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData(client, "ScreenEffect.RemoveScreenEffect", effect);
   }
 
+  /**
+   * Toggles the player's night-vision screen effect (the /nv effect), gated on NV goggles equipped in
+   * the EYES loadout slot. State is the presence of "NIGHTVISION" in character.screenEffects, so
+   * repeated calls alternate on/off. Shared by the /nv command and the P-key path (Abilities.InitAbility
+   * 0xa101 for ability 1111272).
+   */
+  toggleNightVision(client: Client) {
+    const index = client.character.screenEffects.indexOf("NIGHTVISION");
+    if (index <= -1) {
+      if (
+        client.character._loadout[29] &&
+        client.character._loadout[29].itemDefinitionId == Items.NV_GOGGLES
+      ) {
+        client.character.screenEffects.push("NIGHTVISION");
+        this.addScreenEffect(client, this._screenEffects["NIGHTVISION"]);
+      } else {
+        this.sendChatText(client, `You dont have a NV Goggles equipped!`);
+      }
+    } else {
+      client.character.screenEffects.splice(index, 1);
+      this.removeScreenEffect(client, this._screenEffects["NIGHTVISION"]);
+    }
+  }
+
   private getColorKeyPeriod(time: number): string {
     if (time < 7200) return "NIGHT"; // midnight – 2 AM
     if (time < 18000) return "DEEP_BLUE"; // 2 AM – 5 AM
