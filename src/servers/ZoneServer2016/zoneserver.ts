@@ -10197,14 +10197,20 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   /**
-   * Toggles the player's night-vision screen effect (the /nv effect), gated on NV goggles equipped in
-   * the EYES loadout slot. State is the presence of "NIGHTVISION" in character.screenEffects, so
-   * repeated calls alternate on/off. Shared by the /nv command and the P-key path (Abilities.InitAbility
-   * 0xa101 for ability 1111272).
+   * Deterministically sets the player's night-vision screen effect. enabled -> add "NIGHTVISION" (only
+   * while NV goggles are equipped in the EYES slot, matching /nv); !enabled -> always remove it (so it
+   * can never get stuck on). State is the presence of "NIGHTVISION" in character.screenEffects.
+   *
+   * NV is a client TOGGLE ability, broken on the Dec-2016 build (its ability member is 0 -> the client
+   * never emits the packets). The dinput8 patch (h1emu-patch-2016) forces the member so the client emits
+   * Abilities.InitAbility 0xa101 on ACTIVATE and Abilities.UninitAbility 0xa103 on DEACTIVATE; the server
+   * maps InitAbility(1111272)->on and UninitAbility(1111272)->off, so P toggles NV correctly.
    */
-  toggleNightVision(client: Client) {
-    const index = client.character.screenEffects.indexOf("NIGHTVISION");
-    if (index <= -1) {
+  setNightVision(client: Client, enabled: boolean) {
+    const index = client.character.screenEffects.indexOf("NIGHTVISION"),
+      isOn = index > -1;
+    if (enabled) {
+      if (isOn) return; // already on
       if (
         client.character._loadout[29] &&
         client.character._loadout[29].itemDefinitionId == Items.NV_GOGGLES
@@ -10215,9 +10221,19 @@ export class ZoneServer2016 extends EventEmitter {
         this.sendChatText(client, `You dont have a NV Goggles equipped!`);
       }
     } else {
+      if (!isOn) return; // already off (OFF always removes regardless of equip state)
       client.character.screenEffects.splice(index, 1);
       this.removeScreenEffect(client, this._screenEffects["NIGHTVISION"]);
     }
+  }
+
+  /**
+   * Toggles night vision (the /nv effect): flips based on whether "NIGHTVISION" is currently active.
+   * Delegates to setNightVision. Used by the /nv command.
+   */
+  toggleNightVision(client: Client) {
+    const isOn = client.character.screenEffects.indexOf("NIGHTVISION") > -1;
+    this.setNightVision(client, !isOn);
   }
 
   private getColorKeyPeriod(time: number): string {

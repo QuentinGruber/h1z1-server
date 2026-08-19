@@ -3441,11 +3441,11 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<AbilitiesInitAbility>
   ) {
-    // NV hotkey (P) is broken on the Dec-2016 client (ability member id 0 -> BAIL-1a, never sends). The
-    // dinput8 patch sends Abilities.InitAbility 0xa101{1111272} directly; this handler runs the intended
-    // NV toggle (== /nv). No activatable grant is needed.
+    // NV is a client TOGGLE ability broken on the Dec-2016 client (member id 0 -> never sends). The
+    // dinput8 patch forces the member so the client emits InitAbility 0xa101{1111272} on ACTIVATE (and
+    // UninitAbility 0xa103{1111272} on DEACTIVATE). Init -> NV ON. No activatable grant is needed.
     if (packet.data.abilityId === 1111272) {
-      server.toggleNightVision(client);
+      server.setNightVision(client, true);
       return;
     }
     server.abilitiesManager.processAbilityInit(server, client, packet.data);
@@ -3455,6 +3455,12 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<AbilitiesUninitAbility>
   ) {
+    // NV deactivate (P again): the dinput8 patch emits UninitAbility 0xa103{1111272} on deactivate ->
+    // NV OFF (deterministic, so it can't get stuck on). Other abilityIds keep the vehicle-ability path.
+    if (packet.data.abilityId === 1111272) {
+      server.setNightVision(client, false);
+      return;
+    }
     if (!client.vehicle.mountedVehicle) return;
     const vehicle = server._vehicles[client.vehicle.mountedVehicle];
     if (!vehicle) return;
