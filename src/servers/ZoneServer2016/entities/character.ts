@@ -1532,7 +1532,11 @@ export class Character2016 extends BaseFullCharacter {
         loadoutSlotId: loadoutSlotId,
         abilityLineId: abilityLineId,
         unknownArray1: [
-          { unknownDword1: abilityId, unknownDword2: abilityId, unknownDword3: 0 }
+          {
+            unknownDword1: abilityId,
+            unknownDword2: abilityId,
+            unknownDword3: 0
+          }
         ],
         unknownDword3: 2,
         itemDefinitionId: itemDefinitionId,
