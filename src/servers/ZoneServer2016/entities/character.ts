@@ -1396,6 +1396,10 @@ export class Character2016 extends BaseFullCharacter {
     Object.values(this._loadout).forEach((slot) => {
       const itemDefinition = server.getItemDefinition(slot.itemDefinitionId);
       if (!itemDefinition) return;
+      // Exclude the NV goggle: as equipment it has no ability-set, so an entry at its occupied EYES/29
+      // slot resolves member 0 and (the store is abilityId-keyed) SHADOWS the populated free-slot NV
+      // grant. NV (ability 1111272) is granted exactly once at a FREE slot in pGetEmoteAbilities.
+      if (slot.itemDefinitionId === Items.NV_GOGGLES) return;
       const { slotId } = slot;
       abilities.push(
         this.pGetActivatableAbility(slotId, itemDefinition, abilityLineId)
@@ -1566,12 +1570,20 @@ export class Character2016 extends BaseFullCharacter {
       }
     }
 
-    // Night vision is NOT granted here. The client activatable-ability store is keyed by abilityId
-    // (exactly one instance per id), and NV's instance (ability 1111272) is owned by the goggle's own
-    // loadout ability entry - pGetActivatableAbility for the equipped Items.NV_GOGGLES (item 1700),
-    // which already carries its member via unknownArray1 = [{1111272,1111272,0}] (its
-    // ACTIVATABLE_ABILITY_ID). A separate free-slot NV grant is shadowed by that abilityId-keyed goggle
-    // instance and does nothing, so it was removed; NV is granted EXACTLY ONCE, on the goggle entry.
+    // Night vision - granted EXACTLY ONCE here, at a FREE in-range slot (the same pool as the emotes),
+    // paired with excluding the NV goggle from the loadout grant loop above. At an OCCUPIED slot the
+    // client resolves the member from the equipped item's ability-set (the goggle has none -> member 0
+    // -> BAIL-1a); at a FREE slot it copies the member verbatim from unknownArray1 = [{1111272,
+    // 1111272,0}] (ability 1111272 = the goggle's ACTIVATABLE_ABILITY_ID). Equip-gated (only while NV
+    // goggles are in EYES == the /nv condition), re-sent on equip/unequip via updateLoadout.
+    if (
+      this._loadout[LoadoutSlots.EYES]?.itemDefinitionId === Items.NV_GOGGLES &&
+      freeIndex < freeSlots.length &&
+      grant(Items.NV_GOGGLES, freeSlots[freeIndex], abilityLineId)
+    ) {
+      freeIndex++;
+      abilityLineId++;
+    }
     return grants;
   }
 
