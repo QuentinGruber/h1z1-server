@@ -1155,14 +1155,16 @@ export class ZoneServer2016 extends EventEmitter {
     if (currentTimeLeft < 0) {
       this.sendAlertToAll(`Server will shutdown now`);
       this.enableWorldSaves = false;
-      if (!this.worldSaveFailed) {
-        this._isSaving = false; // allow shutdown save even if periodic save just ran
-        try {
-          await this.saveWorld();
-        } catch (e) {
-          console.error(e);
-          console.error("saving world failed on reboot");
-        }
+      // #1467: always attempt one best-effort shutdown save, even if a periodic save
+      // failed earlier. worldSaveFailed must suppress periodic retry storms, NOT the
+      // final save — skipping it loses every base's changes since the last good save
+      // (the "rollback skips the final save" realization of the data-loss bug).
+      this._isSaving = false;
+      try {
+        await this.saveWorld();
+      } catch (e) {
+        console.error(e);
+        console.error("saving world failed on reboot");
       }
       Object.values(this._clients).forEach((client: Client) => {
         this.sendData<CharacterSelectSessionResponse>(
@@ -2211,6 +2213,11 @@ export class ZoneServer2016 extends EventEmitter {
     debug("Server ready");
   }
 
+  /** #1467 (H14): orphan backstop runs sampled — every Nth save — and only when the
+   * constructionOrphanCheck config flag is on, so it adds no cost at scale. */
+  private _orphanCheckSaveCounter = 0;
+  private readonly _orphanCheckSaveInterval = 6;
+
   async saveWorld() {
     if (this._isSaving) {
       this.sendChatTextToAdmins("A save is already in progress.");
@@ -2228,7 +2235,25 @@ export class ZoneServer2016 extends EventEmitter {
         Object.values(this._vehicles),
         this._worldId
       );
+      // #1467 (H14): orphan backstop — operator-gated + sampled so it costs nothing
+      // on most saves at scale. Decide ONCE here so the reachable-id set is gathered
+      // during the (already-yielding) build loops below — sharing their yield cadence —
+      // rather than in a separate post-build walk. (The per-foundation collection is
+      // still an additive recursive pass over each save-data subtree, just hoisted into
+      // the loop so it never blocks the tick on its own.)
+      let runOrphanCheck = false;
+      if (this.constructionManager.constructionOrphanCheck) {
+        runOrphanCheck =
+          this._orphanCheckSaveCounter % this._orphanCheckSaveInterval === 0;
+        this._orphanCheckSaveCounter++;
+      }
+      const reachableConstructionIds = runOrphanCheck
+        ? new Set<string>()
+        : undefined;
       const worldConstructions: LootableConstructionSaveData[] = [];
+      // #1467: ids that failed to serialize this pass are retained so deleteMany
+      // does not permanently prune their last-good docs.
+      const retainWorldConstructionIds: string[] = [];
       let saveI = 0;
       for (const entity of Object.values(this._worldLootableConstruction)) {
         if (++saveI % 100 === 0) await scheduler.yield();
@@ -2238,25 +2263,55 @@ export class ZoneServer2016 extends EventEmitter {
           (entity instanceof TrapEntity && entity?.worldOwned)
         )
           continue; // Don't save world spawned campfires / barbeques
-        const lootableConstructionSaveData =
-          WorldDataManager.getLootableConstructionSaveData(
-            entity,
-            this._worldId
+        try {
+          const lootableConstructionSaveData =
+            WorldDataManager.getLootableConstructionSaveData(
+              entity,
+              this._worldId
+            );
+          removeUntransferableFields(lootableConstructionSaveData);
+          worldConstructions.push(lootableConstructionSaveData);
+          reachableConstructionIds?.add(
+            lootableConstructionSaveData.characterId
           );
-        removeUntransferableFields(lootableConstructionSaveData);
-        worldConstructions.push(lootableConstructionSaveData);
+        } catch (e) {
+          console.error(
+            `[saveWorld] Failed to serialize world construction ${entity.characterId} (item ${entity.itemDefinitionId}) — skipping; its last save is retained`,
+            e
+          );
+          retainWorldConstructionIds.push(entity.characterId);
+        }
       }
       const constructions: ConstructionParentSaveData[] = [];
+      // #1467: a single foundation failing to serialize must NOT abort the entire
+      // world save (the outer catch rolls back and the shutdown then skips the final
+      // save, losing every base's recent changes). Skip only the bad foundation and
+      // retain its id so deleteMany keeps its last-good doc rather than erasing it.
+      const retainConstructionIds: string[] = [];
       saveI = 0;
       for (const entity of Object.values(this._constructionFoundations)) {
         if (++saveI % 100 === 0) await scheduler.yield();
         if (entity.itemDefinitionId != Items.FOUNDATION_EXPANSION) {
-          const construction = WorldDataManager.getConstructionParentSaveData(
-            entity,
-            this._worldId
-          );
-          // isTransferable(construction) too complex will run on max recursive call error
-          constructions.push(construction);
+          try {
+            const construction = WorldDataManager.getConstructionParentSaveData(
+              entity,
+              this._worldId
+            );
+            // isTransferable(construction) too complex will run on max recursive call error
+            constructions.push(construction);
+            if (reachableConstructionIds) {
+              this.addReachableConstructionIds(
+                construction,
+                reachableConstructionIds
+              );
+            }
+          } catch (e) {
+            console.error(
+              `[saveWorld] Failed to serialize construction foundation ${entity.characterId} (item ${entity.itemDefinitionId}) — skipping; its last save is retained`,
+              e
+            );
+            retainConstructionIds.push(entity.characterId);
+          }
         }
       }
       const crops: PlantingDiameterSaveData[] = [];
@@ -2281,6 +2336,44 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
 
+      // #1467 (H14): structural backstop — log any construction live in memory but
+      // UNREACHABLE from this save's construction graph, turning any future
+      // orphan-introducing regression into a loud warning. The reachable set was
+      // assembled (gated + sampled) during the build loops above; here we just scan,
+      // yielding so it never blocks the tick. Skipped on a partial save (a foundation
+      // was retained, so its children are legitimately absent). NOTE: the reachable set
+      // is a snapshot taken as each foundation was serialized, so an entity placed
+      // mid-save can appear here transiently — it is reachable via its live parent and
+      // persists on the next save. Only an entity that stays here across saves is a
+      // true orphan. The list is capped so a mass-orphan regression cannot build a
+      // multi-megabyte log line synchronously.
+      if (
+        reachableConstructionIds &&
+        !retainConstructionIds.length &&
+        !retainWorldConstructionIds.length
+      ) {
+        const orphans = await this.findSaveGraphOrphans(
+          reachableConstructionIds
+        );
+        if (orphans.length) {
+          const maxLogged = 50;
+          const sample = orphans
+            .slice(0, maxLogged)
+            .map(
+              (o) =>
+                `${o.dictionary}:${o.characterId}(item ${o.itemDefinitionId})`
+            )
+            .join(", ");
+          const more =
+            orphans.length > maxLogged
+              ? ` …and ${orphans.length - maxLogged} more`
+              : "";
+          console.error(
+            `[saveWorld] #1467 backstop: ${orphans.length} construction ${orphans.length === 1 ? "entity is" : "entities are"} live but UNREACHABLE from this save's construction graph (a persistent orphan will be dropped on save; an entity placed mid-save can appear transiently and persists next save): ${sample}${more}`
+          );
+        }
+      }
+
       console.timeEnd("ZONE: processing");
 
       await this.worldDataManager.saveWorld({
@@ -2290,7 +2383,9 @@ export class ZoneServer2016 extends EventEmitter {
         crops,
         traps,
         constructions,
-        vehicles
+        vehicles,
+        retainConstructionIds,
+        retainWorldConstructionIds
       });
       setTimeout(() => {
         this._isSaving = false;
@@ -2302,8 +2397,101 @@ export class ZoneServer2016 extends EventEmitter {
       console.error(e);
       this.worldSaveFailed = true;
       this.sendAlertToAll("World save failed!");
-      this.shutdown(20, "World saving failed, rollback");
+      // #1467: don't re-enter shutdown if one is already in progress (the shutdown
+      // path calls saveWorld itself) — that would recurse. A failed *periodic* save
+      // still triggers the rollback shutdown as before.
+      if (!this.shutdownStarted) {
+        this.shutdown(20, "World saving failed, rollback");
+      }
     }
+  }
+
+  /**
+   * #1467 (H14): collect every characterId reachable from the construction save
+   * graph — each top-level foundation recursed through its slot maps, freeplace, and
+   * expansions, plus world-lootable. Pure; used by tests and the orphan backstop.
+   * At runtime saveWorld instead calls {@link addReachableConstructionIds} per
+   * foundation inside its (already-yielding) build loops, so this additive recursive
+   * walk shares the loops' yield cadence rather than running as a separate pass.
+   */
+  collectReachableConstructionIds(
+    constructions: ConstructionParentSaveData[],
+    worldConstructions: LootableConstructionSaveData[]
+  ): Set<string> {
+    const reachable = new Set<string>();
+    for (const c of constructions) {
+      this.addReachableConstructionIds(c, reachable);
+    }
+    for (const w of worldConstructions) {
+      if (w?.characterId) reachable.add(w.characterId);
+    }
+    return reachable;
+  }
+
+  /**
+   * #1467 (H14): recursively add a construction parent save-data node's whole
+   * subtree of characterIds (slot maps + freeplace + expansions) to `reachable`.
+   * Called per-foundation from saveWorld's build loop so the reachable set is
+   * assembled incrementally rather than in a second synchronous walk.
+   */
+  addReachableConstructionIds(node: any, reachable: Set<string>) {
+    if (!node || !node.characterId) return;
+    reachable.add(node.characterId);
+    const maps = [
+      node.occupiedWallSlots,
+      node.occupiedUpperWallSlots,
+      node.occupiedShelterSlots,
+      node.occupiedRampSlots,
+      node.occupiedExpansionSlots,
+      node.freeplaceEntities
+    ];
+    for (const map of maps) {
+      if (map) {
+        for (const child of Object.values(map)) {
+          this.addReachableConstructionIds(child, reachable);
+        }
+      }
+    }
+  }
+
+  /**
+   * #1467 (H14): return every player-construction entity live in the world
+   * dictionaries but NOT reachable from the save graph (an orphan that will be
+   * dropped on the next save). World-spawned construction lives in separate
+   * dictionaries and is intentionally not scanned. Yields periodically so a large
+   * server's scan never blocks the game tick in one synchronous burst.
+   */
+  async findSaveGraphOrphans(
+    reachable: Set<string>
+  ): Promise<
+    Array<{ characterId: string; dictionary: string; itemDefinitionId: number }>
+  > {
+    const orphans: Array<{
+      characterId: string;
+      dictionary: string;
+      itemDefinitionId: number;
+    }> = [];
+    let scanned = 0;
+    const scan = async (
+      dict: { [characterId: string]: { itemDefinitionId?: number } },
+      label: string
+    ) => {
+      for (const characterId in dict) {
+        if (++scanned % 2000 === 0) await scheduler.yield();
+        if (!reachable.has(characterId)) {
+          orphans.push({
+            characterId,
+            dictionary: label,
+            itemDefinitionId: dict[characterId]?.itemDefinitionId ?? 0
+          });
+        }
+      }
+    };
+    await scan(this._constructionFoundations, "foundation");
+    await scan(this._constructionSimple, "simple");
+    await scan(this._constructionDoors, "door");
+    await scan(this._lootableConstruction, "lootable");
+    return orphans;
   }
 
   executeRconCommand(ws: WebSocket, payload: string) {
