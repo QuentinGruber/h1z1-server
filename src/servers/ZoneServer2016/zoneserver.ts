@@ -4979,6 +4979,11 @@ export class ZoneServer2016 extends EventEmitter {
     ) {
       return;
     }
+    // A dead npc waiting on the despawn sweep must not be spawned fresh: the
+    // client never saw its Character.StartMultiStateDeath transition, and
+    // sending flags.knockedOut=1 on the initial AddLightweightNpc packet
+    // makes the client render it as an invisible-but-collidable corpse.
+    if (object instanceof Npc && !object.isAlive) return;
     client.spawnedEntities.add(object);
     if (object instanceof BaseLightweightCharacter) {
       if (object.useSimpleStruct) {
