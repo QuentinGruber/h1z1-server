@@ -1238,8 +1238,8 @@ export class Character2016 extends BaseFullCharacter {
       firegroups = weaponDefinition.FIRE_GROUPS;
     return {
       guid: item.itemGuid,
-      unknownByte1: 0, // firegroupIndex (default 0)?
-      unknownByte2: 0, // MOST LIKELY firemodeIndex?
+      unknownByte1: item.weapon?.currentFiregroupIndex ?? 0, // firegroupIndex
+      unknownByte2: item.weapon?.currentFiremodeIndex ?? 0, // firemodeIndex
       unknownByte3: -1,
       unknownByte4: -1,
       unknownByte5: 1,
@@ -1949,8 +1949,8 @@ export class Character2016 extends BaseFullCharacter {
         item.itemGuid,
         "Update.SwitchFireMode",
         {
-          firegroupIndex: 0,
-          firemodeIndex: 0
+          firegroupIndex: item.weapon?.currentFiregroupIndex ?? 0,
+          firemodeIndex: item.weapon?.currentFiremodeIndex ?? 0
         }
       );
     });

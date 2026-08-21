@@ -3250,7 +3250,11 @@ export class ZoneServer2016 extends EventEmitter {
         // need to find a better way later, if out of bulk ammo will be outside of lootbag
         if (slot.weapon) {
           const ammo = this.generateItem(
-            this.getWeaponAmmoId(slot.itemDefinitionId),
+            this.getWeaponAmmoId(
+              slot.itemDefinitionId,
+              slot.weapon.currentFiregroupIndex,
+              slot.weapon.currentFiremodeIndex
+            ),
             slot.weapon.ammoCount
           );
           if (
@@ -3553,9 +3557,17 @@ export class ZoneServer2016 extends EventEmitter {
       case WeaponDefinitionIds.WEAPON_CROSSBOW:
       case WeaponDefinitionIds.WEAPON_BOW_WOOD:
         delete client.fireHints[data.projectileId];
+        // Recover the arrow that was actually loaded (crossbow: wooden/flaming/explosive), resolved
+        // through the weapon's selected firegroup/firemode. Falls back to AMMO_ARROW if unresolved.
         this.worldObjectManager.createLootEntity(
           this,
-          this.generateItem(Items.AMMO_ARROW),
+          this.generateItem(
+            this.getWeaponAmmoId(
+              itemDefId,
+              weaponItem.weapon?.currentFiregroupIndex ?? 0,
+              weaponItem.weapon?.currentFiremodeIndex ?? 0
+            ) || Items.AMMO_ARROW
+          ),
           data.position,
           data.rotation
         );
@@ -6670,20 +6682,35 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   /**
-   * Gets the ammoId for a given weapon.
+   * Gets the ammoId for a given weapon, resolved through the SELECTED firegroup/firemode. Multi-firegroup
+   * weapons (e.g. the crossbow) use different ammo per firegroup (0=wooden 112, 1=flaming 1434,
+   * 2=explosive 138); pass the weapon's current selection (weapon.currentFiregroupIndex/FiremodeIndex).
+   * Defaults to firegroup 0 / firemode 0, so single-firegroup weapons and generic callers behave exactly
+   * as before.
    *
    * @param {number} itemDefinitionId - The itemDefinitionId of the weapon.
+   * @param {number} firegroupIndex - Selected firegroup index into the weapon def's FIRE_GROUPS (default 0).
+   * @param {number} firemodeIndex - Selected firemode index into the firegroup's FIRE_MODES (default 0).
    * @returns {number} The ammoId (0 if undefined).
    */
-  getWeaponAmmoId(itemDefinitionId: number): number {
+  getWeaponAmmoId(
+    itemDefinitionId: number,
+    firegroupIndex: number = 0,
+    firemodeIndex: number = 0
+  ): number {
     const itemDefinition = this.getItemDefinition(itemDefinitionId),
       weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1 || 0),
       firegroupDefinition = this.getFiregroupDefinition(
-        weaponDefinition?.FIRE_GROUPS[0]?.FIRE_GROUP_ID
+        weaponDefinition?.FIRE_GROUPS[firegroupIndex]?.FIRE_GROUP_ID
       ),
-      firemodeDefinition = this.getFiremodeDefinition(
-        firegroupDefinition?.FIRE_MODES[0]?.FIRE_MODE_ID
-      );
+      // Ammo is a property of the firegroup - hip (firemode 0) and ADS (firemode 1) share the same
+      // ammo. Fall back to firemode 0 if the requested firemode index doesn't exist, so an ADS
+      // firemodeIndex (the client sends firemodeIndex==1 while aiming, for every weapon) never breaks
+      // ammo resolution for weapons that only define a single firemode.
+      firemode =
+        firegroupDefinition?.FIRE_MODES[firemodeIndex] ??
+        firegroupDefinition?.FIRE_MODES[0],
+      firemodeDefinition = this.getFiremodeDefinition(firemode?.FIRE_MODE_ID);
 
     return firemodeDefinition?.AMMO_ITEM_ID || 0;
   }
@@ -7123,8 +7150,8 @@ export class ZoneServer2016 extends EventEmitter {
         loadoutItem.itemGuid,
         "Update.SwitchFireMode",
         {
-          firegroupIndex: 0,
-          firemodeIndex: 0
+          firegroupIndex: loadoutItem.weapon?.currentFiregroupIndex ?? 0,
+          firemodeIndex: loadoutItem.weapon?.currentFiremodeIndex ?? 0
         }
       );
       span?.end();
@@ -7522,7 +7549,11 @@ export class ZoneServer2016 extends EventEmitter {
       itemDefinition.ITEM_CLASS != ItemClasses.WEAPON_THROWABLES
     ) {
       const ammo = this.generateItem(
-        this.getWeaponAmmoId(dropItem.itemDefinitionId),
+        this.getWeaponAmmoId(
+          dropItem.itemDefinitionId,
+          dropItem.weapon.currentFiregroupIndex,
+          dropItem.weapon.currentFiremodeIndex
+        ),
         dropItem.weapon.ammoCount
       );
       if (
@@ -9129,7 +9160,11 @@ export class ZoneServer2016 extends EventEmitter {
       "Update.Reload",
       {}
     );
-    const weaponAmmoId = this.getWeaponAmmoId(weaponItem.itemDefinitionId),
+    const weaponAmmoId = this.getWeaponAmmoId(
+        weaponItem.itemDefinitionId,
+        weaponItem.weapon.currentFiregroupIndex,
+        weaponItem.weapon.currentFiremodeIndex
+      ),
       reloadTime = this.getWeaponReloadTime(weaponItem.itemDefinitionId);
 
     const itemDefinition = this.getItemDefinition(weaponItem.itemDefinitionId);

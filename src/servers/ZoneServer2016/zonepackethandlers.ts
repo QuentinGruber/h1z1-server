@@ -2586,7 +2586,11 @@ export class ZonePacketHandlers {
             return;
           }
           if (item.weapon) {
-            const weaponAmmoId = server.getWeaponAmmoId(item.itemDefinitionId);
+            const weaponAmmoId = server.getWeaponAmmoId(
+              item.itemDefinitionId,
+              item.weapon.currentFiregroupIndex,
+              item.weapon.currentFiremodeIndex
+            );
             if (item.itemDefinitionId != weaponAmmoId) {
               const ammo = server.generateItem(
                 weaponAmmoId,
@@ -3192,6 +3196,19 @@ export class ZonePacketHandlers {
         server.reloadInterrupt(client, weaponItem);
         break;
       case "Weapon.SwitchFireModeRequest":
+        // Persist the client's firegroup/firemode selection FIRST, before any of the early-returns
+        // below. The client is authoritative for cycling firegroups (e.g. crossbow "B":
+        // wooden -> flaming -> explosive) and only notifies us here; if we bailed before recording it
+        // (empty clip, or the ADS firemodeIndex==1 workaround) the server would keep using the old
+        // arrow. The stored selection drives ammo/projectile resolution (getWeaponAmmoId,
+        // createProjectileNpc). Single-firegroup weapons simply keep {0, 0}.
+        if (weaponItem.weapon) {
+          weaponItem.weapon.currentFiregroupIndex =
+            packet.packet.firegroupIndex ?? 0;
+          weaponItem.weapon.currentFiremodeIndex =
+            packet.packet.firemodeIndex ?? 0;
+        }
+
         // workaround so aiming in doesn't sometimes make the shooting sound
         if (!weaponItem.weapon?.ammoCount) return;
 

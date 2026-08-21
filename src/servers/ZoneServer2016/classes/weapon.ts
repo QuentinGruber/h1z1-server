@@ -32,6 +32,17 @@ export class Weapon {
   /** Required for the reload packet to work every time (especially shotgun) */
   currentReloadCount = 0;
 
+  /**
+   * Selected firegroup - index into the weapon definition's FIRE_GROUPS array. For multi-firegroup
+   * weapons (e.g. the crossbow: 0=wooden, 1=flaming, 2=explosive arrow) the client cycles this with "B"
+   * and notifies the server via Weapon.SwitchFireModeRequest (0x830c); it drives which ammo/projectile is
+   * used. Single-firegroup weapons stay at 0 and behave exactly as before.
+   */
+  currentFiregroupIndex = 0;
+
+  /** Selected firemode within the current firegroup (hip 0 / ADS 1). Index into the firegroup's FIRE_MODES. */
+  currentFiremodeIndex = 0;
+
   constructor(item: BaseItem, ammoCount?: number) {
     this.itemGuid = item.itemGuid;
     this.itemDefinitionId = item.itemDefinitionId;
@@ -43,7 +54,11 @@ export class Weapon {
     client.character.lootItem(
       server,
       server.generateItem(
-        server.getWeaponAmmoId(this.itemDefinitionId),
+        server.getWeaponAmmoId(
+          this.itemDefinitionId,
+          this.currentFiregroupIndex,
+          this.currentFiremodeIndex
+        ),
         this.ammoCount
       )
     );

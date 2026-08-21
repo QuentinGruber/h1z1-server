@@ -417,8 +417,10 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         item.itemGuid,
         "Update.SwitchFireMode",
         {
-          firegroupIndex: 0,
-          firemodeIndex: 0
+          // Re-send the weapon's tracked selection rather than a hard 0/0, so a firegroup chosen
+          // before this (re-)equip survives. The Weapon runtime is carried across equip by LoadoutItem.
+          firegroupIndex: item.weapon?.currentFiregroupIndex ?? 0,
+          firemodeIndex: item.weapon?.currentFiremodeIndex ?? 0
         }
       );
     }
@@ -574,7 +576,11 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
 
     if (loadoutItem.weapon) {
       const ammo = server.generateItem(
-        server.getWeaponAmmoId(loadoutItem.itemDefinitionId),
+        server.getWeaponAmmoId(
+          loadoutItem.itemDefinitionId,
+          loadoutItem.weapon.currentFiregroupIndex,
+          loadoutItem.weapon.currentFiremodeIndex
+        ),
         loadoutItem.weapon.ammoCount
       );
       if (
@@ -1194,14 +1200,19 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           unknownBoolean1: false
         },
         unknownData2: {
-          ammoSlots: server.getWeaponAmmoId(slot.itemDefinitionId)
+          ammoSlots: server.getWeaponAmmoId(
+            slot.itemDefinitionId,
+            slot.weapon?.currentFiregroupIndex ?? 0,
+            slot.weapon?.currentFiremodeIndex ?? 0
+          )
             ? [{ ammoSlot: slot.weapon?.ammoCount }]
             : [],
           firegroups: [
             {
               firegroupId: server.getWeaponDefinition(
                 server.getItemDefinition(slot.itemDefinitionId)?.PARAM1 ?? 0
-              )?.FIRE_GROUPS[0]?.FIRE_GROUP_ID,
+              )?.FIRE_GROUPS[slot.weapon?.currentFiregroupIndex ?? 0]
+                ?.FIRE_GROUP_ID,
               unknownArray1: [
                 // maybe firemodes?
                 {
