@@ -29,7 +29,7 @@ import {
 } from "../models/enums";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
-import { defaultEmoteHotkeys, emoteMap } from "../data/emotes";
+import { bindableEmotes, defaultEmoteHotkeys, emoteMap } from "../data/emotes";
 import { BaseFullCharacter } from "./basefullcharacter";
 import {
   AccountItem,
@@ -45,6 +45,7 @@ import {
 } from "../../../types/zoneserver";
 import {
   calculateOrientation,
+  flhash,
   isFloat,
   isPosInRadius,
   randomIntFromInterval,
@@ -1181,13 +1182,13 @@ export class Character2016 extends BaseFullCharacter {
           unknownDword2: 0,
           unknownString1: "",
           items: [],
-          // Per-account emote availability (TABLE2: default wheel slots 1..12 + owned/account emotes at
-          // 13+) that the client's emote play path needs to resolve a slot -> itemDefinitionId. NOTE: the
-          // F-key emote TRIGGER itself is BROKEN on the Dec-2016 client (acknowledged in the Feb-14-2017
-          // patch - emotes "stopped working per account"), so this data alone doesn't fire an emote; the
-          // client-side dinput8 patch (h1emu-patch-2016) repairs the trigger by sending Animation.Request
-          // 0xf801 {itemDefinitionId} directly, which this availability data makes resolve to a real emote.
-          emotes: this.getEmoteAvailability(server),
+          // Emote availability (TABLE2): the full bindable-emote set, each tagged with its client
+          // nameHash in unknownDword2 for h1emu dynamic emote resolution (see getEmoteAvailability). The
+          // F-key emote TRIGGER is BROKEN on the Dec-2016 client (Feb-14-2017 patch: emotes "stopped
+          // working per account"), so this data alone doesn't fire an emote; the client-side dinput8 patch
+          // (h1emu-patch-2016) repairs the trigger by resolving nameHash -> itemDef here and sending
+          // Animation.Request 0xf801 {itemDefinitionId}, which the server broadcasts as Animation.Play.
+          emotes: this.getEmoteAvailability(),
           itemCollection: []
         }
         //profileId: 270,
@@ -1448,40 +1449,26 @@ export class Character2016 extends BaseFullCharacter {
    * at continuing slot ids - the same emote set that pGetEmoteAbilities grants. Each entry is 3 u32s:
    * unknownDword1 = slotId, unknownDword2 = 0 (unread by play path), unknownDword3 = emote itemDefinitionId.
    */
-  getEmoteAvailability(server: ZoneServer2016): {
+  getEmoteAvailability(): {
     unknownDword1: number;
     unknownDword2: number;
     unknownDword3: number;
   }[] {
-    const emoteItemByAnimation = server.getEmoteItemDefinitionByAnimationId(),
-      emotes: {
-        unknownDword1: number;
-        unknownDword2: number;
-        unknownDword3: number;
-      }[] = [],
-      usedItemDefs = new Set<number>();
-    for (const [slotId, animationId] of Object.entries(defaultEmoteHotkeys)) {
-      const itemDefinitionId = emoteItemByAnimation[animationId];
-      if (itemDefinitionId === undefined) continue; // no emote item for this slot's animation - omit
-      usedItemDefs.add(itemDefinitionId);
-      emotes.push({
-        unknownDword1: Number(slotId),
-        unknownDword2: 0,
-        unknownDword3: itemDefinitionId
-      });
-    }
-    // owned emotes past the 12 default wheel slots (activatable via the grant regardless of slot)
-    let nextSlot = 13;
-    for (const itemDefinitionId of this.ownedEmoteItemDefinitionIds) {
-      if (usedItemDefs.has(itemDefinitionId)) continue;
-      usedItemDefs.add(itemDefinitionId);
-      emotes.push({
-        unknownDword1: nextSlot++,
-        unknownDword2: 0,
-        unknownDword3: itemDefinitionId
-      });
-    }
-    return emotes;
+    // Dynamic emote resolution (h1emu Option B): emit one SendSelf.skinItems.emotes entry per bindable
+    // emote - the FULL set, no ownership gate on the 0xf801 play path. slotId (unknownDword1) is only the
+    // client's own availability/UI index; the h1emu dinput8 patch keys emotes by nameHash, not slot.
+    //
+    // CUSTOM h1emu / NON-VANILLA: unknownDword2 = the ForgeLight hash (flhash) of the emote's CASED client
+    // action name, computed at RUNTIME so a new/modded emote works by just adding its cased name + itemDef
+    // to `bindableEmotes` (no rebuilt hash table). The h1emu dinput8 patch reads unknownDword2 to map a
+    // pressed key -> emote itemDefinitionId dynamically. In the VANILLA Dec-2016 client unknownDword2 is
+    // UNUSED (the client ignores it; it is normally 0), so this does nothing on an unpatched client and
+    // breaks nothing.
+    return bindableEmotes.map((emote, i) => ({
+      unknownDword1: i + 1, // client availability/UI slot (1-based); patch keys by nameHash, not slot
+      unknownDword2: flhash(emote.casedName), // emote nameHash for the h1emu dinput8 patch (see note)
+      unknownDword3: emote.itemDef // emote itemDefinitionId
+    }));
   }
 
   /**
