@@ -3541,6 +3541,98 @@ export class ZoneServer2016 extends EventEmitter {
       await vehicle.OnExplosiveHit(this, sourceEntity);
     }
   }
+
+  igniteArrowTarget(target: BaseEntity) {
+    // reuse the molotov on-fire effect for players; NPCs have no character-effect loop so run a
+    // bounded burn mirroring it (same effect id + damage cadence)
+    if (target instanceof Character) {
+      this.applyCharacterEffect(
+        target,
+        Effects.PFX_Fire_Person_loop,
+        700,
+        10000
+      );
+      return;
+    }
+    if (!(target instanceof Npc)) return;
+    let ticks = 10;
+    const burn = setInterval(() => {
+      if (ticks-- <= 0 || !target.isAlive || !this._npcs[target.characterId]) {
+        clearInterval(burn);
+        return;
+      }
+      target.damage(this, {
+        entity: "Character.CharacterEffect",
+        damage: 700
+      });
+      this.sendDataToAllWithSpawnedEntity(
+        this._npcs,
+        target.characterId,
+        "Command.PlayDialogEffect",
+        {
+          characterId: target.characterId,
+          effectId: Effects.PFX_Fire_Person_loop
+        }
+      );
+    }, 1000);
+  }
+
+  explosiveArrowDetonate(target: BaseEntity, client: Client) {
+    const position = target.state.position;
+
+    // networked blast visual
+    this.sendCompositeEffectToAllInRange(
+      600,
+      target.characterId,
+      position,
+      Effects.PFX_Impact_Explosion_FragGrenade_Default_08m
+    );
+
+    // players (biofuel/ethanol-style AoE, radius 5) - reuse the explosive damage model
+    if (!this.isPvE) {
+      const [cx0, cx1, cz0, cz1] = ZoneServer2016._charGridRange(position, 5);
+      for (let cx = cx0; cx <= cx1; cx++) {
+        for (let cz = cz0; cz <= cz1; cz++) {
+          const bucket = this._charSpatialMap.get(`${cx},${cz}`);
+          if (!bucket) continue;
+          for (const c of bucket) {
+            if (isPosInRadiusWithY(5, c.character.state.position, position, 3))
+              c.character.OnExplosiveHit(this, target);
+          }
+        }
+      }
+    }
+
+    // zombies / npcs
+    for (const npcId in this._npcs) {
+      const npc = this._npcs[npcId];
+      if (isPosInRadius(5, npc.state.position, position))
+        npc.OnExplosiveHit(this, target);
+    }
+
+    // construction / structures the arrow hits
+    const explosiveArrowConstructionDamage = this.baseConstructionDamage / 22;
+    for (const gridCell of this.getGridCellsInRadius(position, 10)) {
+      for (const object of gridCell.objects) {
+        if (
+          !(
+            object instanceof ConstructionChildEntity ||
+            object instanceof ConstructionDoor ||
+            object instanceof LootableConstructionEntity
+          )
+        )
+          continue;
+        if (getDistance(object.state.position, position) > object.damageRange)
+          continue;
+        object.damage(this, {
+          entity: client.character.characterId,
+          damage: explosiveArrowConstructionDamage,
+          explosive: true
+        });
+      }
+    }
+  }
+
   createProjectileNpc(client: Client, data: any) {
     const fireHint = client.fireHints[data.projectileId];
     if (!fireHint) return;
@@ -4370,6 +4462,23 @@ export class ZoneServer2016 extends EventEmitter {
       hitReport: packet.hitReport,
       message: hitValidation.message
     });
+
+    if (!hitValidation.isValid) return;
+    // per-arrow on-hit effects for multi-firegroup weapons (crossbow flaming/explosive arrows)
+    switch (
+      this.getWeaponAmmoId(
+        weaponItem.itemDefinitionId,
+        weaponItem.weapon?.currentFiregroupIndex ?? 0,
+        weaponItem.weapon?.currentFiremodeIndex ?? 0
+      )
+    ) {
+      case Items.AMMO_ARROW_FLAMING:
+        this.igniteArrowTarget(entity);
+        break;
+      case Items.AMMO_ARROW_EXPLOSIVE:
+        this.explosiveArrowDetonate(entity, client);
+        break;
+    }
   }
 
   setGodMode(client: Client, godMode: boolean) {
