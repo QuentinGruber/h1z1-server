@@ -1194,6 +1194,10 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
 
   pGetItemWeaponData(server: ZoneServer2016, slot: BaseItem) {
     if (slot.weapon) {
+      const weaponDefinition = server.getWeaponDefinition(
+          server.getItemDefinition(slot.itemDefinitionId)?.PARAM1 ?? 0
+        ),
+        firegroups: Array<any> = weaponDefinition?.FIRE_GROUPS || [];
       return {
         isWeapon: true, // not sent to client, only used as a flag for pack function
         unknownData1: {
@@ -1207,29 +1211,30 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           )
             ? [{ ammoSlot: slot.weapon?.ammoCount }]
             : [],
-          firegroups: [
-            {
-              firegroupId: server.getWeaponDefinition(
-                server.getItemDefinition(slot.itemDefinitionId)?.PARAM1 ?? 0
-              )?.FIRE_GROUPS[slot.weapon?.currentFiregroupIndex ?? 0]
-                ?.FIRE_GROUP_ID,
-              unknownArray1: [
-                // maybe firemodes?
-                {
+          // Emit ONE entry per weapon-def firegroup (mirrors pGetRemoteWeaponData). The client reads this
+          // array8's LENGTH as weapon.arrayFireGroupLength; IsFireModeValid requires it >= 2 for "B"
+          // (SwitchFireGroup) to cycle to group 1/2 and send Weapon.SwitchFireModeRequest (0x830c). The
+          // previous length-1 array made every multi-firegroup weapon (crossbow: wooden/flaming/explosive)
+          // report a single firegroup, so B no-op'd. Single-firegroup weapons still emit exactly 1 entry ->
+          // no behavior change. Firemodes mirror the remote path (client also repopulates from ReferenceData
+          // by FIRE_MODE_ID).
+          firegroups: firegroups.map((firegroup: any) => {
+            const firegroupDef = server.getFiregroupDefinition(
+                firegroup.FIRE_GROUP_ID
+              ),
+              firemodes = firegroupDef?.FIRE_MODES || [];
+            return {
+              firegroupId: firegroup.FIRE_GROUP_ID,
+              unknownArray1: firemodes.map((firemode: any, j: number) => {
+                return {
                   unknownByte1: 0,
-                  unknownDword1: 0,
-                  unknownDword2: 0,
+                  unknownDword1: j,
+                  unknownDword2: firemode.FIRE_MODE_ID,
                   unknownDword3: 0
-                },
-                {
-                  unknownByte1: 0,
-                  unknownDword1: 0,
-                  unknownDword2: 0,
-                  unknownDword3: 0
-                }
-              ]
-            }
-          ],
+                };
+              })
+            };
+          }),
           equipmentSlotId: this.getActiveEquipmentSlot(slot),
           unknownByte2: 1,
           unknownDword1: 0,
