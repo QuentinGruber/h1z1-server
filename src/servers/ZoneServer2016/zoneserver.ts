@@ -9138,17 +9138,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!weaponItem.weapon) return;
     if (weaponItem.weapon.reloadTimer) return;
     const maxAmmo = this.getWeaponMaxAmmo(weaponItem.itemDefinitionId); // max clip size
-    // TEMP [crossbow-reload] remove after verifying multi-firegroup reload
-    console.log(
-      `[crossbow-reload] reload req item=${weaponItem.itemDefinitionId} fg=${weaponItem.weapon.currentFiregroupIndex} fm=${weaponItem.weapon.currentFiremodeIndex} ammoCount=${weaponItem.weapon.ammoCount} maxAmmo=${maxAmmo} ammoId=${this.getWeaponAmmoId(weaponItem.itemDefinitionId, weaponItem.weapon.currentFiregroupIndex, weaponItem.weapon.currentFiremodeIndex)}`
-    );
-    if (weaponItem.weapon.ammoCount >= maxAmmo) {
-      // TEMP [crossbow-reload] remove after verifying multi-firegroup reload
-      console.log(
-        `[crossbow-reload] EARLY RETURN: ammoCount ${weaponItem.weapon.ammoCount} >= maxAmmo ${maxAmmo} (magazine still holds old ammo type?)`
-      );
-      return;
-    }
+    if (weaponItem.weapon.ammoCount >= maxAmmo) return;
     // force 0 firestate so gun doesnt shoot randomly after reloading
     this.sendRemoteWeaponUpdateDataToAllOthers(
       client,
@@ -9293,24 +9283,11 @@ export class ZoneServer2016 extends EventEmitter {
         reloadAmount =
           reserveAmmo >= maxReloadAmount ? maxReloadAmount : reserveAmmo; // actual amount able to reload
 
-      // TEMP [crossbow-reload] remove after verifying multi-firegroup reload
-      console.log(
-        `[crossbow-reload] generic reload ammoId=${weaponAmmoId} reserve=${reserveAmmo} maxReload=${maxReloadAmount} reloadAmount=${reloadAmount}`
-      );
-
       if (
         !this.removeInventoryItems(client.character, weaponAmmoId, reloadAmount)
       ) {
-        // TEMP [crossbow-reload] remove after verifying multi-firegroup reload
-        console.log(
-          `[crossbow-reload] removeInventoryItems FAILED ammoId=${weaponAmmoId} amount=${reloadAmount}`
-        );
         return;
       }
-      // TEMP [crossbow-reload] remove after verifying multi-firegroup reload
-      console.log(
-        `[crossbow-reload] loaded ${reloadAmount} of ammoId=${weaponAmmoId}; new ammoCount=${weaponItem.weapon.ammoCount + reloadAmount}`
-      );
       this.sendWeaponReload(
         client,
         weaponItem,

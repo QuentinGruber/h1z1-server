@@ -3212,10 +3212,6 @@ export class ZonePacketHandlers {
             newFiregroupIndex !== weapon.currentFiregroupIndex &&
             weapon.ammoCount > 0
           ) {
-            // TEMP [crossbow-reload] remove after verifying multi-firegroup reload
-            console.log(
-              `[crossbow-reload] firegroup change ${weapon.currentFiregroupIndex}->${newFiregroupIndex}; unloading ${weapon.ammoCount} of ammoId=${server.getWeaponAmmoId(weaponItem.itemDefinitionId, weapon.currentFiregroupIndex, weapon.currentFiremodeIndex)}`
-            );
             weapon.unload(server, client);
           }
 
