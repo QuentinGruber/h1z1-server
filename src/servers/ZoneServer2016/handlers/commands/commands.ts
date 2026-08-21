@@ -24,7 +24,7 @@ import {
   _,
   getDifference,
   isPosInRadius,
-  toHex,
+  Int64String,
   randomIntFromInterval,
   getCurrentServerTimeWrapper,
   getDateString
@@ -1168,7 +1168,7 @@ export const commands: Array<Command> = [
       });
       client.isLoading = true;
       client.characterReleased = false;
-      client.character.lastLoginDate = toHex(Date.now());
+      client.character.lastLoginDate = Int64String(Date.now());
       server.dropAllManagedObjects(client);
       server.sendData(client, "ClientUpdate.UpdateLocation", {
         position,
@@ -1200,7 +1200,7 @@ export const commands: Array<Command> = [
       });
       targetClient.isLoading = true;
       targetClient.characterReleased = false;
-      targetClient.character.lastLoginDate = toHex(Date.now());
+      targetClient.character.lastLoginDate = Int64String(Date.now());
       server.dropAllManagedObjects(targetClient);
       const triggerLoadingScreen = !isPosInRadius(
         250,
@@ -1241,7 +1241,7 @@ export const commands: Array<Command> = [
       });
       client.isLoading = true;
       client.characterReleased = false;
-      client.character.lastLoginDate = toHex(Date.now());
+      client.character.lastLoginDate = Int64String(Date.now());
       server.dropAllManagedObjects(client);
       const triggerLoadingScreen = !isPosInRadius(
         250,

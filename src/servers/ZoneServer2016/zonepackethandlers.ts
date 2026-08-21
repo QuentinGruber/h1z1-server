@@ -22,7 +22,7 @@ const debug = require("debug")("ZoneServer");
 import {
   _,
   isPosInRadius,
-  toHex,
+  Int64String,
   quat2matrix,
   eul2quat,
   isPosInRadiusWithY,
@@ -481,7 +481,7 @@ export class ZonePacketHandlers {
     }
 
     if (client.firstLoading) {
-      client.character.lastLoginDate = toHex(Date.now());
+      client.character.lastLoginDate = Int64String(Date.now());
       server.setGodMode(client, false);
       if (client.banType != "") {
         server.sendChatTextToAdmins(
@@ -1110,7 +1110,7 @@ export class ZonePacketHandlers {
     }
     if (client.isSynced) return;
     client.isSynced = true;
-    client.character.lastLoginDate = toHex(Date.now());
+    client.character.lastLoginDate = Int64String(Date.now());
     server.constructionManager.constructionPermissionsManager(server, client);
   }
   CommandExecuteCommand(

@@ -97,7 +97,6 @@ import {
   getRandomFromArray,
   getRandomKeyFromAnObject,
   toBigHex,
-  toHex,
   calculate_falloff,
   resolveHostAddress,
   getDifference,
@@ -1367,8 +1366,8 @@ export class ZoneServer2016 extends EventEmitter {
       character = {
         ...character,
         serverId: characterData.serverId,
-        creationDate: toHex(Date.now()),
-        lastLoginDate: toHex(Date.now()),
+        creationDate: Int64String(Date.now()),
+        lastLoginDate: Int64String(Date.now()),
         characterId: characterData.characterId,
         ownerId: characterData.ownerId,
         characterName: characterData.payload.characterName,
@@ -3783,7 +3782,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.isLoading = true;
     client.characterReleased = false;
     client.blockedPositionUpdates = 0;
-    client.character.lastLoginDate = toHex(Date.now());
+    client.character.lastLoginDate = Int64String(Date.now());
     client.character.resetMetrics();
     client.character.isAlive = true;
     client.character.isRunning = false;
@@ -6559,7 +6558,7 @@ export class ZoneServer2016 extends EventEmitter {
       unknownDword1: weaponItem.weapon.ammoCount,
       ammoCount: weaponItem.weapon.ammoCount,
       unknownDword3: weaponItem.weapon.ammoCount,
-      currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount)
+      currentReloadCount: Int64String(++weaponItem.weapon.currentReloadCount)
     });
     this.sendRemoteWeaponUpdateDataToAllOthers(
       client,
@@ -7785,7 +7784,7 @@ export class ZoneServer2016 extends EventEmitter {
       unknownDword1: maxAmmo,
       ammoCount: ammoCount || weaponItem.weapon.ammoCount,
       unknownDword3: maxAmmo,
-      currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount)
+      currentReloadCount: Int64String(++weaponItem.weapon.currentReloadCount)
     });
   }
 
