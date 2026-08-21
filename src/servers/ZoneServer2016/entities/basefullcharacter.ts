@@ -1228,8 +1228,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
               unknownArray1: firemodes.map((firemode: any, j: number) => {
                 return {
                   unknownByte1: 0,
-                  unknownDword1: j,
-                  unknownDword2: firemode.FIRE_MODE_ID,
+                  firemodeIndex: j,
+                  firemodeId: firemode.FIRE_MODE_ID,
                   unknownDword3: 0
                 };
               })

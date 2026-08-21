@@ -1220,8 +1220,8 @@ export class Character2016 extends BaseFullCharacter {
           unknownArray1: firegroup
             ? firemodes.map((firemode: any, j: number) => {
                 return {
-                  unknownDword1: j,
-                  unknownDword2: firemode.FIRE_MODE_ID
+                  firemodeIndex: j,
+                  firemodeId: firemode.FIRE_MODE_ID
                 };
               })
             : [] // probably firemodes
@@ -1238,8 +1238,8 @@ export class Character2016 extends BaseFullCharacter {
       firegroups = weaponDefinition.FIRE_GROUPS;
     return {
       guid: item.itemGuid,
-      unknownByte1: item.weapon?.currentFiregroupIndex ?? 0, // firegroupIndex
-      unknownByte2: item.weapon?.currentFiremodeIndex ?? 0, // firemodeIndex
+      firegroupIndex: item.weapon?.currentFiregroupIndex ?? 0,
+      firemodeIndex: item.weapon?.currentFiremodeIndex ?? 0,
       unknownByte3: -1,
       unknownByte4: -1,
       unknownByte5: 1,
