@@ -11,7 +11,6 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { Int64String } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseItem } from "./baseItem";
 import { ZoneClient2016 } from "./zoneclient";
@@ -30,7 +29,7 @@ export class Weapon {
   reloadTimer?: NodeJS.Timeout;
 
   /** Required for the reload packet to work every time (especially shotgun) */
-  currentReloadCount = 0;
+  currentReloadCount: bigint = 0n;
 
   constructor(item: BaseItem, ammoCount?: number) {
     this.itemGuid = item.itemGuid;
@@ -55,7 +54,7 @@ export class Weapon {
         unknownDword1: 0,
         ammoCount: 0,
         unknownDword3: 0,
-        currentReloadCount: Int64String(++this.currentReloadCount)
+        currentReloadCount: (this.currentReloadCount += 1n)
       });
     }
   }

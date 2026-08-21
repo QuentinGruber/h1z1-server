@@ -77,7 +77,7 @@ const weaponPackets: PacketStructures = [
         { name: "weaponProjectileCount", type: "uint32", defaultValue: 0 },
         { name: "ammoCount", type: "uint32", defaultValue: 0 },
         { name: "inventoryAmmoCount", type: "uint32", defaultValue: 0 },
-        { name: "currentReloadCount", type: "uint64string", defaultValue: "0" }
+        { name: "currentReloadCount", type: "uint64", defaultValue: 0n }
       ]
     }
   ],

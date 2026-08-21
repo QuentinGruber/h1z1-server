@@ -6558,7 +6558,7 @@ export class ZoneServer2016 extends EventEmitter {
       unknownDword1: weaponItem.weapon.ammoCount,
       ammoCount: weaponItem.weapon.ammoCount,
       unknownDword3: weaponItem.weapon.ammoCount,
-      currentReloadCount: Int64String(++weaponItem.weapon.currentReloadCount)
+      currentReloadCount: (weaponItem.weapon.currentReloadCount += 1n)
     });
     this.sendRemoteWeaponUpdateDataToAllOthers(
       client,
@@ -7296,7 +7296,7 @@ export class ZoneServer2016 extends EventEmitter {
       oldLoadoutSlot
     );
     span?.end();
-    if (loadoutItem.weapon) loadoutItem.weapon.currentReloadCount = 0;
+    if (loadoutItem.weapon) loadoutItem.weapon.currentReloadCount = 0n;
     if (this.isWeapon(loadoutItem.itemDefinitionId)) {
       const itemDefinition = this.getItemDefinition(
         loadoutItem.itemDefinitionId
@@ -7784,7 +7784,7 @@ export class ZoneServer2016 extends EventEmitter {
       unknownDword1: maxAmmo,
       ammoCount: ammoCount || weaponItem.weapon.ammoCount,
       unknownDword3: maxAmmo,
-      currentReloadCount: Int64String(++weaponItem.weapon.currentReloadCount)
+      currentReloadCount: (weaponItem.weapon.currentReloadCount += 1n)
     });
   }
 
