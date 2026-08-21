@@ -27,10 +27,11 @@ import {
 export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
   const obj: any = {},
     startOffset = offset;
-  obj["unknownBoolean1"] = data.readUInt8(offset);
+  // 1 = sub-data omitted; 0 = sub-data follows (OPEN_CRATE: 1=preview, 0=open)
+  obj["noSubData"] = data.readUInt8(offset);
   offset += 1;
 
-  if (!obj["unknownBoolean1"]) {
+  if (!obj["noSubData"]) {
     obj["unknownDword1"] = data.readUInt32LE(offset);
     offset += 4;
     obj["unknownDword2"] = data.readUInt32LE(offset);
@@ -79,10 +80,11 @@ export function parseAccountItemRequestSubData(
 ) {
   const obj: any = {},
     startOffset = offset;
-  obj["unknownBoolean1"] = data.readUInt8(offset);
+  // 1 = sub-data omitted; 0 = sub-data follows (OPEN_CRATE: 1=preview, 0=open)
+  obj["noSubData"] = data.readUInt8(offset);
   offset += 1;
 
-  if (!obj["unknownBoolean1"]) {
+  if (!obj["noSubData"]) {
     obj["unknownDword1"] = data.readUInt32LE(offset);
     offset += 4;
     obj["unknownDword2"] = data.readUInt32LE(offset);
