@@ -1950,7 +1950,7 @@ export interface UiStartTimer {
   unknownDword1?: number;
 }
 export interface UiObjectiveTargetUpdate {
-  unknownBoolean1?: unknown;
+  hasTarget?: unknown;
 }
 export interface UiMessage {
   unknownByte1?: number;

@@ -86,7 +86,7 @@ export const uiPackets: PacketStructures = [
       // reads the rest of the body ONLY when it is 1. Model as a variabletype8 tag: 0 => no body, 1 => body.
       fields: [
         {
-          name: "unknownBoolean1",
+          name: "hasTarget",
           type: "variabletype8",
           defaultValue: 0,
           types: {
