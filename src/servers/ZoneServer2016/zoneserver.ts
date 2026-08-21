@@ -3611,7 +3611,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     // construction / structures the arrow hits
-    const explosiveArrowConstructionDamage = this.baseConstructionDamage / 22;
+    const explosiveArrowConstructionDamage = this.baseConstructionDamage / 18; // /22 previous value
     for (const gridCell of this.getGridCellsInRadius(position, 10)) {
       for (const object of gridCell.objects) {
         if (
