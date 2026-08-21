@@ -3195,37 +3195,56 @@ export class ZonePacketHandlers {
       case "Weapon.ReloadInterrupt":
         server.reloadInterrupt(client, weaponItem);
         break;
-      case "Weapon.SwitchFireModeRequest":
-        // Persist the client's firegroup/firemode selection FIRST, before any of the early-returns
-        // below. The client is authoritative for cycling firegroups (e.g. crossbow "B":
-        // wooden -> flaming -> explosive) and only notifies us here; if we bailed before recording it
-        // (empty clip, or the ADS firemodeIndex==1 workaround) the server would keep using the old
-        // arrow. The stored selection drives ammo/projectile resolution (getWeaponAmmoId,
-        // createProjectileNpc). Single-firegroup weapons simply keep {0, 0}.
-        if (weaponItem.weapon) {
-          weaponItem.weapon.currentFiregroupIndex =
-            packet.packet.firegroupIndex ?? 0;
-          weaponItem.weapon.currentFiremodeIndex =
-            packet.packet.firemodeIndex ?? 0;
+      case "Weapon.SwitchFireModeRequest": {
+        const weapon = weaponItem.weapon,
+          newFiregroupIndex = packet.packet.firegroupIndex ?? 0,
+          newFiremodeIndex = packet.packet.firemodeIndex ?? 0;
+
+        if (weapon) {
+          // A multi-firegroup weapon (e.g. crossbow) changes the LOADED ammo TYPE when the client cycles
+          // to a different firegroup (wooden -> flaming -> explosive). The already-loaded arrow must be
+          // unloaded first: unload() refunds it to inventory (resolved via the weapon's CURRENT/old
+          // firegroup index) and resets the magazine to 0 + re-syncs the client. Without this the magazine
+          // still counts the old arrow, so the follow-up reload hits `ammoCount >= clipSize` and
+          // early-returns in handleWeaponReload, leaving the new type stuck at 0/clip. Do it BEFORE
+          // overwriting the index (unload resolves the refund ammo from the current selection).
+          if (
+            newFiregroupIndex !== weapon.currentFiregroupIndex &&
+            weapon.ammoCount > 0
+          ) {
+            // TEMP [crossbow-reload] remove after verifying multi-firegroup reload
+            console.log(
+              `[crossbow-reload] firegroup change ${weapon.currentFiregroupIndex}->${newFiregroupIndex}; unloading ${weapon.ammoCount} of ammoId=${server.getWeaponAmmoId(weaponItem.itemDefinitionId, weapon.currentFiregroupIndex, weapon.currentFiremodeIndex)}`
+            );
+            weapon.unload(server, client);
+          }
+
+          // Persist the client's firegroup/firemode selection (before the early-returns below) so
+          // ammo/projectile resolution always reflects the client's choice, even on an empty clip or ADS.
+          // Single-firegroup weapons simply keep {0, 0}.
+          weapon.currentFiregroupIndex = newFiregroupIndex;
+          weapon.currentFiremodeIndex = newFiremodeIndex;
         }
 
         // workaround so aiming in doesn't sometimes make the shooting sound
-        if (!weaponItem.weapon?.ammoCount) return;
+        // (also skips the broadcast right after an ammo-type unload, when the weapon is momentarily empty)
+        if (!weapon?.ammoCount) return;
 
         // temp workaround to fix 308 sound while aiming
         // this workaround applies to all weapons
-        if (packet.packet.firemodeIndex == 1) return;
+        if (newFiremodeIndex == 1) return;
         server.sendRemoteWeaponUpdateDataToAllOthers(
           client,
           client.character.transientId,
           weaponItem.itemGuid,
           "Update.SwitchFireMode",
           {
-            firegroupIndex: packet.packet.firegroupIndex,
-            firemodeIndex: packet.packet.firemodeIndex
+            firegroupIndex: newFiregroupIndex,
+            firemodeIndex: newFiremodeIndex
           }
         );
         break;
+      }
       case "Weapon.WeaponFireHint":
         debug("WeaponFireHint");
         break;
