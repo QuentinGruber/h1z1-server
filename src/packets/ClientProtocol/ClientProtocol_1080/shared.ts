@@ -1457,9 +1457,9 @@ export function packItemSubData(obj: any) {
   data.writeUInt8(obj["hasSubData"] ? 1 : 0, 0);
   if (!obj.hasSubData) return data;
   const v = Buffer.alloc(4);
-  v.writeUInt32LE(obj["unknownDword1"], 0);
+  v.writeUInt32LE(obj["subDataType"], 0);
   data = Buffer.concat([data, v]);
-  if (obj.unknownDword1 <= 0) return data;
+  if (obj.subDataType !== 1) return data; // client reads unknownData1 only when subDataType == 1
   const unknownData1Obj = DataSchema.pack(
     unknownData1Schema,
     obj["unknownData1"]
@@ -2641,8 +2641,6 @@ export const respawnLocationSchema: PacketFields = [
   { name: "iconId2", type: "uint32", defaultValue: 0 },
   { name: "respawnTotalTime", type: "uint32", defaultValue: 0 },
   { name: "respawnTimeMs", type: "uint32", defaultValue: 0 },
-  { name: "nameId", type: "uint32", defaultValue: 0 },
-  { name: "distance", type: "float", defaultValue: 0.0 },
   { name: "unknownByte1", type: "uint8", defaultValue: 0 },
   { name: "unknownByte2", type: "uint8", defaultValue: 0 },
   {

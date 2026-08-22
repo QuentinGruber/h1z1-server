@@ -143,7 +143,7 @@ const weaponPackets: PacketStructures = [
       fields: [
         { name: "guid", type: "uint64string", defaultValue: "0" },
         { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+        { name: "unknownData1", type: "byteswithlength" }
       ]
     }
   ],
@@ -166,7 +166,7 @@ const weaponPackets: PacketStructures = [
         { name: "guid", type: "uint64string", defaultValue: "0" },
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },
         { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+        { name: "unknownData1", type: "byteswithlength" }
       ]
     }
   ],
