@@ -33,7 +33,13 @@ import {
 import { ZombieWalker } from "../../entities/zombiewalker";
 import { ZoneClient2016 as Client } from "../../classes/zoneclient";
 import { ZoneServer2016 } from "../../zoneserver";
-import { Effects, Items, ModelIds, VehicleIds } from "../../models/enums";
+import {
+  AbilityIds,
+  Effects,
+  Items,
+  ModelIds,
+  VehicleIds
+} from "../../models/enums";
 import { LootableConstructionEntity } from "../../entities/lootableconstructionentity";
 import { ConstructionChildEntity } from "../../entities/constructionchildentity";
 import { ConstructionDoor } from "../../entities/constructiondoor";
@@ -820,8 +826,8 @@ const dev: any = {
           abilityId2: 1111157
         },
         {
-          abilityId: 1111272,
-          abilityId2: 1111272
+          abilityId: AbilityIds.NV_GOGGLES,
+          abilityId2: AbilityIds.NV_GOGGLES
         },
         {
           abilityId: 1111278,

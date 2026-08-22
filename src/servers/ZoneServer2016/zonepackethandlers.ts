@@ -47,7 +47,8 @@ import {
   Effects,
   VehicleIds,
   UIElements,
-  ReplicationPropertyHash
+  ReplicationPropertyHash,
+  AbilityIds
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
@@ -3446,7 +3447,7 @@ export class ZonePacketHandlers {
     // after deactivating it keeps sending UninitAbility 0xa103 on re-press instead of alternating back
     // to InitAbility 0xa101. So the server TOGGLES NV on BOTH Init and Uninit for 1111272, guaranteeing
     // each P press flips NV regardless of which packet the client sends. No activatable grant is needed.
-    if (packet.data.abilityId === 1111272) {
+    if (packet.data.abilityId === AbilityIds.NV_GOGGLES) {
       server.toggleNightVision(client);
       return;
     }
@@ -3460,7 +3461,7 @@ export class ZonePacketHandlers {
     // NV re-press: the Dec-2016 client's toggle-state sticks and keeps sending UninitAbility 0xa103
     // {1111272} on every re-press (not alternating back to Init). So TOGGLE NV here too - each P press
     // flips NV whether it arrives as Init or Uninit. Other abilityIds keep the vehicle-ability path.
-    if (packet.data.abilityId === 1111272) {
+    if (packet.data.abilityId === AbilityIds.NV_GOGGLES) {
       server.toggleNightVision(client);
       return;
     }
