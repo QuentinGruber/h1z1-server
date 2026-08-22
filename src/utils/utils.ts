@@ -753,6 +753,22 @@ export function getDistance(p1: Float32Array, p2: Float32Array) {
 }
 
 /**
+ * Squared 3D Euclidean distance between two points — use with a squared
+ * threshold (`getDistanceSquared(a, b) < r * r`) to avoid a sqrt call when
+ * only a threshold comparison is needed, not the actual distance value.
+ *
+ * @param p1 - The position of the first point.
+ * @param p2 - The position of the second point.
+ * @returns The squared Euclidean distance between the two points.
+ */
+export function getDistanceSquared(p1: Float32Array, p2: Float32Array) {
+  const a = p1[0] - p2[0];
+  const b = p1[1] - p2[1];
+  const c = p1[2] - p2[2];
+  return a * a + b * b + c * c;
+}
+
+/**
  * Calculates the Euclidean distance between two 2D points (ignoring the y-axis).
  *
  * @param p1 - The position of the first point.

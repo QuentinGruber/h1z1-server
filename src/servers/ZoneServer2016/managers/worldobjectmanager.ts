@@ -430,10 +430,7 @@ export class WorldObjectManager {
       Object.values(server._clients).forEach((client: ZoneClient2016) => {
         updatedProps.forEach((characterId) => {
           const prop = server._lootableProps[characterId] as LootableProp;
-          const index = client.searchedProps.indexOf(prop);
-          if (index > -1) {
-            client.searchedProps.splice(index, 1);
-          }
+          client.searchedProps.delete(prop);
         });
       });
     } catch (error) {
@@ -1417,22 +1414,19 @@ export class WorldObjectManager {
       for (let x = 0; x < respawnAmount; x++) {
         const dataVehicle =
           Z1_vehicles[randomIntFromInterval(0, Z1_vehicles.length - 1)];
-        let spawn = true;
-        Object.values(server._vehicles).forEach(
-          (spawnedVehicle: Vehicle2016) => {
-            if (!spawn) return;
-            if (
-              isPosInRadius(
-                this.vehicleSpawnRadius,
-                dataVehicle.position,
-                spawnedVehicle.state.position
-              )
-            ) {
-              spawn = false;
-            }
-          }
+        // .some() short-circuits on the first collision instead of checking
+        // every existing vehicle regardless (re-reads server._vehicles live
+        // each iteration since vehicles spawned earlier in this same batch
+        // must also count as collision candidates for later iterations).
+        const collides = Object.values(server._vehicles).some(
+          (spawnedVehicle: Vehicle2016) =>
+            isPosInRadius(
+              this.vehicleSpawnRadius,
+              dataVehicle.position,
+              spawnedVehicle.state.position
+            )
         );
-        if (!spawn) {
+        if (collides) {
           continue;
         }
         const characterId = generateRandomGuid(),
@@ -1997,10 +1991,7 @@ export class WorldObjectManager {
       }
       if (Object.keys(container.items).length != 0) {
         Object.values(server._clients).forEach((client: ZoneClient2016) => {
-          const index = client.searchedProps.indexOf(prop);
-          if (index > -1) {
-            client.searchedProps.splice(index, 1);
-          }
+          client.searchedProps.delete(prop);
         });
       }
     }

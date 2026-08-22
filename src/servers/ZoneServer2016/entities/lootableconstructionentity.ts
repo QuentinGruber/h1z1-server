@@ -227,9 +227,9 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     const container = this.getContainer();
     if (container) {
       container.items = {};
-      for (const a in server._characters) {
-        const character = server._characters[a];
-        if (character.mountedContainer == this) {
+      if (this.mountedCharacter) {
+        const character = server._characters[this.mountedCharacter];
+        if (character?.mountedContainer == this) {
           character.dismountContainer(server);
         }
       }

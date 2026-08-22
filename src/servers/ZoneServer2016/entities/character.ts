@@ -1575,7 +1575,7 @@ export class Character2016 extends BaseFullCharacter {
     });
     server.sendChatText(client, `Received ${damage} damage`);
 
-    const damageRecord = await server.generateDamageRecord(
+    const damageRecord = server.generateDamageRecord(
       this.characterId,
       damageInfo,
       oldHealth

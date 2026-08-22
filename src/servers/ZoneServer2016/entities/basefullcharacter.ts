@@ -59,6 +59,37 @@ const loadoutSlots = PluginManager.loadServerData(
     "2016/dataSources/EquipSlotItemClasses.json"
   );
 
+// Precomputed lookups over the static data sources above (loaded once at
+// startup and never mutated afterwards) so the equip/loot hot paths below
+// don't linear-scan these lists on every call.
+const loadoutSlotsByLoadoutId = new Map<number, number[]>();
+loadoutSlots.forEach((slot: any) => {
+  let arr = loadoutSlotsByLoadoutId.get(slot.LOADOUT_ID);
+  if (!arr) {
+    arr = [];
+    loadoutSlotsByLoadoutId.set(slot.LOADOUT_ID, arr);
+  }
+  arr.push(slot.SLOT_ID);
+});
+
+const loadoutSlotItemClassByKey = new Map<string, any>();
+loadoutSlotItemClasses.forEach((slot: any) => {
+  const key = `${slot.ITEM_CLASS}:${slot.LOADOUT_ID}`;
+  if (!loadoutSlotItemClassByKey.has(key)) {
+    loadoutSlotItemClassByKey.set(key, slot);
+  }
+});
+
+const equipSlotItemClassesByItemClass = new Map<number, any[]>();
+equipSlotItemClasses.forEach((slot: any) => {
+  let arr = equipSlotItemClassesByItemClass.get(slot.ITEM_CLASS);
+  if (!arr) {
+    arr = [];
+    equipSlotItemClassesByItemClass.set(slot.ITEM_CLASS, arr);
+  }
+  arr.push(slot);
+});
+
 function getGender(actorModelId: number): number {
   switch (actorModelId) {
     case ModelIds.ZOMBIE_MALE_WALKER:
@@ -1053,11 +1084,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   }
 
   getLoadoutSlots() {
-    const slots: Array<number> = [];
-    loadoutSlots.forEach((slot: any) => {
-      if (slot.LOADOUT_ID == this.loadoutId) slots.push(slot.SLOT_ID);
-    });
-    return slots;
+    return loadoutSlotsByLoadoutId.get(this.loadoutId) ?? [];
   }
 
   /**
@@ -1069,11 +1096,11 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   getAvailableLoadoutSlot(server: ZoneServer2016, itemDefId: number): number {
     // gets an open loadoutslot for a specified itemDefinitionId
     const itemDef = server.getItemDefinition(itemDefId),
-      loadoutSlotItemClass = loadoutSlotItemClasses.find(
-        (slot: any) =>
-          slot.ITEM_CLASS == itemDef?.ITEM_CLASS &&
-          this.loadoutId == slot.LOADOUT_ID
-      );
+      loadoutSlotItemClass = itemDef
+        ? loadoutSlotItemClassByKey.get(
+            `${itemDef.ITEM_CLASS}:${this.loadoutId}`
+          )
+        : undefined;
     let slot = loadoutSlotItemClass?.SLOT;
     if (!slot) return 0;
     switch (itemDef?.ITEM_CLASS) {
@@ -1132,11 +1159,10 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     const itemDef = server.getItemDefinition(itemDefId),
       itemClass = itemDef?.ITEM_CLASS;
     if (!itemDef || !itemClass || !server.isWeapon(itemDefId)) return 0;
-    for (const slot of equipSlotItemClasses) {
-      if (
-        slot.ITEM_CLASS == itemDef.ITEM_CLASS &&
-        !this._equipment[slot.EQUIP_SLOT_ID]
-      ) {
+    const candidates = equipSlotItemClassesByItemClass.get(itemDef.ITEM_CLASS);
+    if (!candidates) return 0;
+    for (const slot of candidates) {
+      if (!this._equipment[slot.EQUIP_SLOT_ID]) {
         return slot.EQUIP_SLOT_ID;
       }
     }

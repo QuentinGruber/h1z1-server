@@ -75,7 +75,7 @@ export class ZoneClient2016 {
     ConstructionParentEntity | ConstructionChildEntity
   > = new Set();
   sentInteractionCounter: number = 1;
-  searchedProps: (LootableProp | Lootbag)[] = [];
+  searchedProps: Set<LootableProp | Lootbag> = new Set();
   managedObjects: string[] = [];
   vehicle: {
     mountedVehicle?: string;
@@ -104,6 +104,11 @@ export class ZoneClient2016 {
   startLoc: number = 0;
   fairPlayFoundationCheckResult: boolean = false;
   fairPlayFoundationCheckTime: number = 0;
+  /** Cached gateway (SOE-layer) ping, refreshed out-of-band so combat-log
+   *  generation doesn't await a cross-thread IPC round trip on every hit. */
+  cachedGatewayPing: number = 0;
+  gatewayPingCacheTime: number = 0;
+  gatewayPingRefreshing: boolean = false;
   subscribedCells: Set<import("./gridcell").GridCell> = new Set();
   posAtLastCellUpdate: Float32Array = new Float32Array([0, 0, 0, 1]);
   lastKnownChunkRenderDistance: number = 400;

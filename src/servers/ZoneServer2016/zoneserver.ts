@@ -1660,7 +1660,7 @@ export class ZoneServer2016 extends EventEmitter {
             object.state.position,
             1
           ) &&
-          client.searchedProps.includes(object)
+          client.searchedProps.has(object)
         ) {
           const container = object.getContainer();
           if (container) {
@@ -3129,11 +3129,47 @@ export class ZoneServer2016 extends EventEmitter {
     this.airdropManager.sendDeliveryStatus();
   }
 
-  async generateDamageRecord(
+  /** Cache TTL for generateDamageRecord's gateway ping lookups — the ping is only
+   *  informational (combat log), so it's refreshed out-of-band instead of being
+   *  awaited on every hit (see getCachedGatewayPing). */
+  private static readonly GATEWAY_PING_CACHE_TTL = 3000;
+
+  /** Returns a client's last-known SOE-layer ping immediately, kicking off an
+   *  out-of-band refresh (via the gateway IPC round trip) if the cached value
+   *  is stale, instead of blocking the caller on that round trip. */
+  private getCachedGatewayPing(client: Client): number {
+    const now = Date.now();
+    if (
+      now - client.gatewayPingCacheTime >
+        ZoneServer2016.GATEWAY_PING_CACHE_TTL &&
+      !client.gatewayPingRefreshing
+    ) {
+      client.gatewayPingRefreshing = true;
+      // _gatewayServer is GatewayServer | GatewayServerThreaded — the former
+      // returns the ping synchronously, the latter returns a Promise (IPC
+      // round trip); Promise.resolve() normalizes both to the async path.
+      Promise.resolve(
+        this._gatewayServer.getSoeClientAvgPing(client.soeClientId)
+      )
+        .then((ping) => {
+          client.cachedGatewayPing = ping ?? 0;
+          client.gatewayPingCacheTime = Date.now();
+        })
+        .catch(() => {
+          // keep the last known value on failure
+        })
+        .finally(() => {
+          client.gatewayPingRefreshing = false;
+        });
+    }
+    return client.cachedGatewayPing;
+  }
+
+  generateDamageRecord(
     targetCharacterId: string,
     damageInfo: DamageInfo,
     oldHealth: number
-  ): Promise<DamageRecord> {
+  ): DamageRecord {
     const targetEntity = this.getEntity(targetCharacterId),
       sourceEntity = this.getEntity(damageInfo.entity),
       targetClient = this.getClientByCharId(targetCharacterId),
@@ -3145,23 +3181,15 @@ export class ZoneServer2016 extends EventEmitter {
       targetPing = 0;
     if (sourceClient && !targetClient) {
       sourceName = sourceClient.character.name || "Unknown";
-      const sourceSOEClientAvgPing =
-        await this._gatewayServer.getSoeClientAvgPing(sourceClient.soeClientId);
-      sourcePing = sourceSOEClientAvgPing ?? 0;
+      sourcePing = this.getCachedGatewayPing(sourceClient);
     } else if (!sourceClient && targetClient) {
       targetName = targetClient.character.name || "Unknown";
-      const targetSOEClientAvgPing =
-        await this._gatewayServer.getSoeClientAvgPing(targetClient.soeClientId);
-      targetPing = targetSOEClientAvgPing ?? 0;
+      targetPing = this.getCachedGatewayPing(targetClient);
     } else if (sourceClient && targetClient) {
-      const sourceSOEClientAvgPing =
-        await this._gatewayServer.getSoeClientAvgPing(sourceClient.soeClientId);
-      const targetSOEClientAvgPing =
-        await this._gatewayServer.getSoeClientAvgPing(targetClient.soeClientId);
-      sourcePing = sourceSOEClientAvgPing ?? 0;
+      sourcePing = this.getCachedGatewayPing(sourceClient);
       sourceName = sourceClient.character.name || "Unknown";
       targetName = targetClient.character.name || "Unknown";
-      targetPing = targetSOEClientAvgPing ?? 0;
+      targetPing = this.getCachedGatewayPing(targetClient);
     }
     return {
       source: {
