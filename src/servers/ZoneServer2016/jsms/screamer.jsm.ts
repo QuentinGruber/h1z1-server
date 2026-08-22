@@ -241,7 +241,8 @@ function screamAtNearbyPlayers(screamer: ScreamerInstance): void {
         if (entry.faction !== Factions.HUMAN) continue;
         if (getDistance2d(pos, entry.position) > SCREAM_RADIUS) continue;
         const client = screamer.server.getClientByCharId(entry.id);
-        if (!client) continue;
+        if (!client || client.character.isVanished || client.character.isHidden)
+          continue;
         screamer.server.applyMovementModifier(client, MovementModifiers.SCREAM);
       }
     }
