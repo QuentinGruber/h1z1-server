@@ -26,6 +26,8 @@ const debug = require("debug")("SOEServer");
 
 const MAX_PACKETS_PER_IP_PER_SEC = 500;
 const MAX_SESSIONS_PER_IP_PER_MIN = 5;
+const MIN_UDP_LENGTH = 512;
+const MAX_UDP_LENGTH = 65535;
 
 interface RateWindow {
   count: number;
@@ -279,8 +281,19 @@ export class SOEServer extends EventEmitter {
 
   private _createClient(remote: RemoteInfo) {
     const client = new SOEClient(remote, this._crcSeed, this._cryptoKey);
+    // Armed here rather than in the SessionRequest handler: a client that never
+    // completes a session request must still expire. We delete it ourselves
+    // because the gateway/zone disconnect path can only find clients by
+    // sessionId, which a half-open client never sets.
+    client.lastKeepAliveTimer = this.keepAliveTimeoutTime
+      ? setTimeout(() => {
+          debug("Client keep alive timeout");
+          this.deleteClient(client);
+          this.emit("disconnect", client);
+        }, this.keepAliveTimeoutTime)
+      : null;
     // Start a persistent sending loop for this client
-    (client as any).sendingInterval = setInterval(() => {
+    client.sendingInterval = setInterval(() => {
       this.sendingProcess(client);
     }, this._waitTimeMs);
     client.inputStream.on("appdata", (data: Buffer) => {
@@ -329,7 +342,12 @@ export class SOEServer extends EventEmitter {
           "Received session request from " + client.address + ":" + client.port
         );
         client.sessionId = packet.session_id;
-        client.clientUdpLength = packet.udp_length;
+        // udp_length is attacker controlled. An unclamped value makes the
+        // derived fragment size <= 0, which hangs writeReliable() forever.
+        client.clientUdpLength = Math.min(
+          Math.max(packet.udp_length >>> 0, MIN_UDP_LENGTH),
+          MAX_UDP_LENGTH
+        );
         client.protocolName = packet.protocol;
         client.serverUdpLength = this._udpLength;
         client.crcSeed = this._crcSeed;
@@ -340,14 +358,6 @@ export class SOEServer extends EventEmitter {
         client.outputStream.setFragmentSize(
           client.clientUdpLength - (4 + this._crcLength)
         );
-        // setup the keep alive timer
-        client.lastKeepAliveTimer = this.keepAliveTimeoutTime
-          ? setTimeout(() => {
-              debug("Client keep alive timeout");
-              this.emit("disconnect", client);
-            }, this.keepAliveTimeoutTime)
-          : null;
-
         const sessionReply = this.createLogicalPacket(SoeOpcode.SessionReply, {
           session_id: client.sessionId,
           crc_seed: client.crcSeed,
@@ -467,37 +477,15 @@ export class SOEServer extends EventEmitter {
     try {
       if (!this._checkIpRateLimit(remote.address)) return;
 
-      let client: SOEClient;
       const clientId = SOEClient.getClientId(remote);
       debug(data.length + " bytes from ", clientId);
-      // if doesn't know the client
-      if (!this._clients.has(clientId)) {
-        // if it's not a session request then we ignore it
-        if (data[1] !== 1) {
-          return;
-        }
-        if (!this._checkSessionRateLimit(remote.address)) return;
-        client = this._createClient(remote);
-      } else {
-        client = this._clients.get(clientId) as SOEClient;
-      }
-      if (data[0] === 0x00) {
-        const raw_parsed_data: string = this._protocol.parse(data);
-        if (raw_parsed_data) {
-          const parsed_data = JSON.parse(raw_parsed_data);
-          if (parsed_data.name === "Error") {
-            debug("parsing error " + parsed_data.error);
-            debug(parsed_data);
-          } else {
-            if (client.lastKeepAliveTimer) {
-              client.lastKeepAliveTimer.refresh();
-            }
-            this.handlePacket(client, parsed_data);
-          }
-        } else {
-          debug("Unmanaged packet from client", clientId, data);
-        }
-      } else {
+
+      let client = this._clients.get(clientId);
+
+      // Non-SOE data is only ever valid for an established client and must
+      // never be able to create one.
+      if (data[0] !== 0x00) {
+        if (!client) return;
         if (this._allowRawDataReception) {
           debug("Raw data received from client", clientId, data);
           this.emit("appdata", client, data, true); // Unreliable + Unordered
@@ -508,10 +496,46 @@ export class SOEServer extends EventEmitter {
             data
           );
         }
+        return;
       }
+
+      // Cheap pre-filter so a junk flood never reaches the protocol parser
+      if (!client && data[1] !== 1) return;
+
+      const raw_parsed_data: string = this._protocol.parse(data);
+      if (!raw_parsed_data) {
+        debug("Unmanaged packet from client", clientId, data);
+        return;
+      }
+
+      let parsed_data;
+      try {
+        parsed_data = JSON.parse(raw_parsed_data);
+      } catch {
+        // h1emu-core can emit malformed JSON for hostile input, drop the packet
+        debug("Failed to parse packet JSON from " + clientId);
+        return;
+      }
+
+      if (parsed_data.name === "Error") {
+        debug("parsing error " + parsed_data.error);
+        debug(parsed_data);
+        return;
+      }
+
+      if (!client) {
+        // An unknown client may only ever open a session, nothing else.
+        if (parsed_data.name !== "SessionRequest") return;
+        if (!this._checkSessionRateLimit(remote.address)) return;
+        client = this._createClient(remote);
+      }
+
+      if (client.lastKeepAliveTimer) {
+        client.lastKeepAliveTimer.refresh();
+      }
+      this.handlePacket(client, parsed_data);
     } catch (e) {
       console.log(e);
-      process.exitCode = 1;
     }
   }
 
@@ -523,7 +547,9 @@ export class SOEServer extends EventEmitter {
     if (udpLength !== undefined) {
       this._udpLength = udpLength;
     }
-    setInterval(() => {
+    // Swept at a cadence matching the entry TTLs, otherwise a spoofed source
+    // flood grows these maps unbounded between sweeps.
+    this._packetResetInterval = setInterval(() => {
       const now = Date.now();
       for (const [ip, entry] of this._ipRateMap) {
         if (now - entry.windowStart > 2000) this._ipRateMap.delete(ip);
@@ -531,7 +557,7 @@ export class SOEServer extends EventEmitter {
       for (const [ip, entry] of this._sessionRequestMap) {
         if (now - entry.windowStart > 62000) this._sessionRequestMap.delete(ip);
       }
-    }, 60000);
+    }, 5000);
 
     this._connection.on("message", (data, remote) => {
       this.onMessage(data, remote);
@@ -812,10 +838,7 @@ export class SOEServer extends EventEmitter {
 
   deleteClient(client: SOEClient): void {
     client.isDeleted = true;
-    if ((client as any).sendingInterval) {
-      clearInterval((client as any).sendingInterval);
-      (client as any).sendingInterval = null;
-    }
+    client.closeTimers();
     this._clients.delete(client.soeClientId);
     debug("client connection from port : ", client.port, " deleted");
   }
