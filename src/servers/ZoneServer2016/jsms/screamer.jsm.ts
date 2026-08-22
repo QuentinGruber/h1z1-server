@@ -16,7 +16,11 @@ import type { Npc } from "../entities/npc";
 import type { ZoneServer2016 } from "../zoneserver";
 import { NavManager } from "../../../utils/recast";
 const debug = require("debug")("ai");
-import { getDistance2d, getDistance } from "../../../utils/utils";
+import {
+  getDistance2d,
+  getDistance,
+  isFacingTarget
+} from "../../../utils/utils";
 import { ZombieWalker } from "../entities/zombiewalker";
 import { MovementModifiers } from "../models/enums";
 import { Factions } from "./factions";
@@ -419,7 +423,12 @@ export function createScreamer(
               screamer.npc.state.position,
               attackTarget.state.position
             );
-            if (attackDist <= 2) {
+            const facingTarget = isFacingTarget(
+              screamer.npc.state.position,
+              screamer.npc.state.yaw ?? 0,
+              attackTarget.state.position
+            );
+            if (attackDist <= 2 && facingTarget) {
               screamer.npc.applyDamage(screamer.targetCharacterId!);
             }
           }

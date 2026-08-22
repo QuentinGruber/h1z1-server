@@ -16,7 +16,11 @@ import type { Npc } from "../entities/npc";
 import type { ZoneServer2016 } from "../zoneserver";
 import { NavManager } from "../../../utils/recast";
 const debug = require("debug")("ai");
-import { getDistance2d, getDistance } from "../../../utils/utils";
+import {
+  getDistance2d,
+  getDistance,
+  isFacingTarget
+} from "../../../utils/utils";
 import { Factions, isHostile } from "./factions";
 
 export const enum AnimalsAnimation {
@@ -309,7 +313,12 @@ export function createWolf(npc: Npc, server: ZoneServer2016): WolfInstance {
         if (wolf.stateTimer >= 2) {
           if (target) {
             const dist = getDistance(wolf.npc.state.position, target.position);
-            if (dist <= ATTACK_RANGE) {
+            const facingTarget = isFacingTarget(
+              wolf.npc.state.position,
+              wolf.npc.state.yaw ?? 0,
+              target.position
+            );
+            if (dist <= ATTACK_RANGE && facingTarget) {
               applyDamageToTarget(wolf);
             }
           }

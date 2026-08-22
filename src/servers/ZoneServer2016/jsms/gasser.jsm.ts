@@ -17,7 +17,11 @@ import type { ZoneServer2016 } from "../zoneserver";
 import type { Sound } from "../../../types/zoneserver";
 import { NavManager } from "../../../utils/recast";
 const debug = require("debug")("ai");
-import { getDistance2d, getDistance } from "../../../utils/utils";
+import {
+  getDistance2d,
+  getDistance,
+  isFacingTarget
+} from "../../../utils/utils";
 import { Effects, NpcIds } from "../models/enums";
 import { Factions, isHostile } from "./factions";
 import {
@@ -550,9 +554,15 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
 
         if (gasser.stateTimer >= 2) {
           if (attackTarget) {
+            const facingTarget = isFacingTarget(
+              gasser.npc.state.position,
+              gasser.npc.state.yaw ?? 0,
+              attackTarget.position
+            );
             if (
               getDistance(gasser.npc.state.position, attackTarget.position) <=
-              MELEE_SLASH_RANGE
+                MELEE_SLASH_RANGE &&
+              facingTarget
             ) {
               applyDamageToTarget(gasser);
             }
