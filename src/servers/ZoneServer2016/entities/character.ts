@@ -1579,6 +1579,8 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   resetResources(server: ZoneServer2016) {
+    // Full resource resync: clear the change-gate cache so every value below is (re)sent.
+    this._lastSentResources = {};
     this._resources[ResourceIds.HEALTH] = 10000;
     this._resources[ResourceIds.STAMINA] = 600;
     this._resources[ResourceIds.BLEEDING] = 0;

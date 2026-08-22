@@ -331,6 +331,11 @@ const spawnLocations2 = PluginManager.loadServerData(
     "2016/sampleData/equipmentModelTexturesMapping.json"
   );
 
+// A player resource is only re-sent to clients when it crosses one of these fractions of its MAX_VALUE
+// (permille), so continuously-decaying resources no longer emit a ResourceEvent every tick for a change
+// the client cannot render. TODO: RE-confirm the client's actual resource-bar granularity.
+const RESOURCE_SEND_STEPS = 1000;
+
 export class ZoneServer2016 extends EventEmitter {
   /** Networking layer - allows sending game data to the game client,
    * lays on top of the H1Z1 protocol (on top of the actual H1Z1 packets)
@@ -4024,6 +4029,39 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  /**
+   * Change-gate for ResourceEvent sends. Returns true (and updates the character's last-sent cache) only
+   * when the value differs from the last value sent by enough to change what the client displays - killing
+   * per-tick spam for continuously-decaying resources whose raw value ticks by a client-imperceptible
+   * amount. The client renders resources as a fraction of MAX_VALUE, so the value is quantized to
+   * RESOURCE_SEND_STEPS. Non-player entities (vehicles/doors/etc., not in _characters) are never gated, so
+   * their existing behavior is unchanged.
+   */
+  private _shouldSendResourceEvent(
+    entityId: string,
+    resourceId: number,
+    value: number
+  ): boolean {
+    const character = this._characters[entityId];
+    if (!character) return true; // non-player resource - preserve existing behavior
+    const v = value >= 0 ? value : 0;
+    const last = character._lastSentResources[resourceId];
+    const max = this.getResourceMaxValue(resourceId as ResourceIds);
+    let changed: boolean;
+    if (last === undefined || max <= 0) {
+      changed = last !== v;
+    } else {
+      const quantum = (n: number) =>
+        Math.round((n / max) * RESOURCE_SEND_STEPS);
+      changed =
+        quantum(v) !== quantum(last) ||
+        // always emit exact empty/full transitions (drive starving/dehydrated/full states)
+        ((v <= 0 || v >= max) && v !== last);
+    }
+    if (changed) character._lastSentResources[resourceId] = v;
+    return changed;
+  }
+
   updateResource(
     client: Client,
     entityId: string,
@@ -4031,6 +4069,7 @@ export class ZoneServer2016 extends EventEmitter {
     resourceId: ResourceIds,
     resourceType?: number // most resources have the same id and type
   ) {
+    if (!this._shouldSendResourceEvent(entityId, resourceId, value)) return;
     this.sendData<ResourceEvent>(client, "ResourceEvent", {
       eventData: {
         type: 3,
@@ -4051,6 +4090,7 @@ export class ZoneServer2016 extends EventEmitter {
     resourceType: number,
     dictionary: EntityDictionary<BaseEntity>
   ) {
+    if (!this._shouldSendResourceEvent(entityId, resourceId, value)) return;
     this.sendDataToAllWithSpawnedEntity<ResourceEvent>(
       dictionary,
       entityId,
