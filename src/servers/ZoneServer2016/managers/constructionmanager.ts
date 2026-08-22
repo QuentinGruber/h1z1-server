@@ -280,6 +280,9 @@ export class ConstructionManager {
       !Number(parentObjectCharacterId) &&
       !this.overridePlacementItems.includes(itemDefinitionId)
     ) {
+      // anti-stack must see just-placed constructions, so rebuild from the live dicts
+      // (the cached hash is fine for the proximity readers, but stale here bypasses the check)
+      this._stackedPlacementHash = undefined;
       const hash = this.getStackedPlacementHash(server);
       for (const c of ConstructionManager._entitiesNear(
         hash.worldSimple,
