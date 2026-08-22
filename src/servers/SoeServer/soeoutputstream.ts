@@ -168,11 +168,18 @@ export class SOEOutputStream extends EventEmitter {
     const distance =
       (wrappedSequence - this.lastAck.get() + SEQUENCE_SPACE) % SEQUENCE_SPACE;
 
-    // We never have more than maxSequenceAvailable packets in flight, so an ack
-    // further ahead than that is bogus. Without this bound a single crafted ack
-    // costs up to 65535 cache lookups, and a sequence that wrap() cannot bring
-    // back into range would loop forever.
-    if (distance > 0 && distance <= this.maxSequenceAvailable) {
+    // Max distance a client could legitimately ack = up to the last sequence we
+    // actually made available/sent. The in-flight window can exceed
+    // maxSequenceAvailable, so bounding by that constant wrongly rejects valid
+    // cumulative acks and stalls the outbound window forever (zone-in never
+    // completes). Bounding by the real sent range still stops a crafted far-ahead
+    // ack from driving the cumulative-delete loop past what exists.
+    const availableDistance =
+      (this._last_available_reliable_sequence.get() -
+        this.lastAck.get() +
+        SEQUENCE_SPACE) %
+      SEQUENCE_SPACE;
+    if (distance > 0 && distance <= availableDistance) {
       while (this.lastAck.get() !== wrappedSequence) {
         this.removeFromCache(this.lastAck.get());
         unAckData.delete(this.lastAck.get());
