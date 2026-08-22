@@ -502,7 +502,7 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
 
         const attackTarget = getChaseTarget(zombie);
         if (attackTarget) {
-          zombie.npc.lookAt(attackTarget.position);
+          zombie.npc.lookAt(attackTarget.position, dt);
         }
 
         if (zombie.stateTimer >= 2) {

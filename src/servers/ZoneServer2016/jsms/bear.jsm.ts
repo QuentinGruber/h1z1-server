@@ -260,7 +260,7 @@ export function createBear(npc: Npc, server: ZoneServer2016): BearInstance {
 
         const target = getTarget(bear);
         if (target) {
-          bear.npc.lookAt(target.position);
+          bear.npc.lookAt(target.position, dt);
         }
 
         if (bear.stateTimer >= 2) {

@@ -413,7 +413,7 @@ export function createScreamer(
 
         const attackTarget = getChaseTarget(screamer);
         if (attackTarget) {
-          screamer.npc.lookAt(attackTarget.state.position);
+          screamer.npc.lookAt(attackTarget.state.position, dt);
         }
 
         if (screamer.stateTimer >= 2) {

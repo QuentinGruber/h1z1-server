@@ -303,7 +303,7 @@ export function createWolf(npc: Npc, server: ZoneServer2016): WolfInstance {
 
         const target = getTarget(wolf);
         if (target) {
-          wolf.npc.lookAt(target.position);
+          wolf.npc.lookAt(target.position, dt);
         }
 
         if (wolf.stateTimer >= 2) {
