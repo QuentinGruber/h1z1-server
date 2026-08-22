@@ -16,7 +16,11 @@ import type { Npc } from "../entities/npc";
 import type { ZoneServer2016 } from "../zoneserver";
 import { NavManager } from "../../../utils/recast";
 const debug = require("debug")("ai");
-import { getDistance2d, getDistance } from "../../../utils/utils";
+import {
+  getDistance2d,
+  getDistance,
+  isFacingTarget
+} from "../../../utils/utils";
 import { isHostile } from "./factions";
 import { AnimalsAnimation } from "./wolf.jsm";
 
@@ -266,7 +270,12 @@ export function createBear(npc: Npc, server: ZoneServer2016): BearInstance {
         if (bear.stateTimer >= 2) {
           if (target) {
             const dist = getDistance(bear.npc.state.position, target.position);
-            if (dist <= ATTACK_RANGE) {
+            const facingTarget = isFacingTarget(
+              bear.npc.state.position,
+              bear.npc.state.yaw ?? 0,
+              target.position
+            );
+            if (dist <= ATTACK_RANGE && facingTarget) {
               applyDamageToTarget(bear);
             }
           }

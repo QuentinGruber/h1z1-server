@@ -17,7 +17,11 @@ import type { ZoneServer2016 } from "../zoneserver";
 import type { Sound } from "../../../types/zoneserver";
 import { NavManager } from "../../../utils/recast";
 const debug = require("debug")("ai");
-import { getDistance2d, getDistance } from "../../../utils/utils";
+import {
+  getDistance2d,
+  getDistance,
+  isFacingTarget
+} from "../../../utils/utils";
 import { isHostile } from "./factions";
 
 export const enum ZombieLoopingAnim {
@@ -511,7 +515,12 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
               zombie.npc.state.position,
               attackTarget.position
             );
-            if (attackDist <= 2) {
+            const facingTarget = isFacingTarget(
+              zombie.npc.state.position,
+              zombie.npc.state.yaw ?? 0,
+              attackTarget.position
+            );
+            if (attackDist <= 2 && facingTarget) {
               applyDamageToTarget(zombie);
             }
           }

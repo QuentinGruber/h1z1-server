@@ -1745,3 +1745,21 @@ export function requireFresh(path: string) {
   delete require.cache[require.resolve(path)];
   return require(path);
 }
+
+export function isFacingTarget(
+  position: Float32Array,
+  yaw: number,
+  targetPosition: Float32Array,
+  toleranceRad: number = Math.PI / 6 // 30 degrees
+): boolean {
+  const dx = targetPosition[0] - position[0];
+  const dz = targetPosition[2] - position[2];
+
+  if (dx * dx + dz * dz < 1e-6) return true;
+
+  const bearingToTarget = Math.atan2(dx, dz);
+  let angleDiff = bearingToTarget - yaw;
+  angleDiff = Math.atan2(Math.sin(angleDiff), Math.cos(angleDiff));
+
+  return Math.abs(angleDiff) <= toleranceRad;
+}
