@@ -3465,7 +3465,11 @@ export class ZoneServer2016 extends EventEmitter {
         // need to find a better way later, if out of bulk ammo will be outside of lootbag
         if (slot.weapon) {
           const ammo = this.generateItem(
-            this.getWeaponAmmoId(slot.itemDefinitionId),
+            this.getWeaponAmmoId(
+              slot.itemDefinitionId,
+              slot.weapon.currentFiregroupIndex,
+              slot.weapon.currentFiremodeIndex
+            ),
             slot.weapon.ammoCount
           );
           if (
@@ -3752,6 +3756,98 @@ export class ZoneServer2016 extends EventEmitter {
       await vehicle.OnExplosiveHit(this, sourceEntity);
     }
   }
+
+  igniteArrowTarget(target: BaseEntity) {
+    // reuse the molotov on-fire effect for players; NPCs have no character-effect loop so run a
+    // bounded burn mirroring it (same effect id + damage cadence)
+    if (target instanceof Character) {
+      this.applyCharacterEffect(
+        target,
+        Effects.PFX_Fire_Person_loop,
+        700,
+        10000
+      );
+      return;
+    }
+    if (!(target instanceof Npc)) return;
+    let ticks = 10;
+    const burn = setInterval(() => {
+      if (ticks-- <= 0 || !target.isAlive || !this._npcs[target.characterId]) {
+        clearInterval(burn);
+        return;
+      }
+      target.damage(this, {
+        entity: "Character.CharacterEffect",
+        damage: 700
+      });
+      this.sendDataToAllWithSpawnedEntity(
+        this._npcs,
+        target.characterId,
+        "Command.PlayDialogEffect",
+        {
+          characterId: target.characterId,
+          effectId: Effects.PFX_Fire_Person_loop
+        }
+      );
+    }, 1000);
+  }
+
+  explosiveArrowDetonate(target: BaseEntity, client: Client) {
+    const position = target.state.position;
+
+    // networked blast visual
+    this.sendCompositeEffectToAllInRange(
+      600,
+      target.characterId,
+      position,
+      Effects.PFX_Impact_Explosion_FragGrenade_Default_08m
+    );
+
+    // players (biofuel/ethanol-style AoE, radius 5) - reuse the explosive damage model
+    if (!this.isPvE) {
+      const [cx0, cx1, cz0, cz1] = ZoneServer2016._charGridRange(position, 5);
+      for (let cx = cx0; cx <= cx1; cx++) {
+        for (let cz = cz0; cz <= cz1; cz++) {
+          const bucket = this._charSpatialMap.get(`${cx},${cz}`);
+          if (!bucket) continue;
+          for (const c of bucket) {
+            if (isPosInRadiusWithY(5, c.character.state.position, position, 3))
+              c.character.OnExplosiveHit(this, target);
+          }
+        }
+      }
+    }
+
+    // zombies / npcs
+    for (const npcId in this._npcs) {
+      const npc = this._npcs[npcId];
+      if (isPosInRadius(5, npc.state.position, position))
+        npc.OnExplosiveHit(this, target);
+    }
+
+    // construction / structures the arrow hits
+    const explosiveArrowConstructionDamage = this.baseConstructionDamage / 18; // /22 previous value
+    for (const gridCell of this.getGridCellsInRadius(position, 10)) {
+      for (const object of gridCell.objects) {
+        if (
+          !(
+            object instanceof ConstructionChildEntity ||
+            object instanceof ConstructionDoor ||
+            object instanceof LootableConstructionEntity
+          )
+        )
+          continue;
+        if (getDistance(object.state.position, position) > object.damageRange)
+          continue;
+        object.damage(this, {
+          entity: client.character.characterId,
+          damage: explosiveArrowConstructionDamage,
+          explosive: true
+        });
+      }
+    }
+  }
+
   createProjectileNpc(client: Client, data: any) {
     const fireHint = client.fireHints[data.projectileId];
     if (!fireHint) return;
@@ -3768,9 +3864,17 @@ export class ZoneServer2016 extends EventEmitter {
       case WeaponDefinitionIds.WEAPON_CROSSBOW:
       case WeaponDefinitionIds.WEAPON_BOW_WOOD:
         delete client.fireHints[data.projectileId];
+        // Recover the arrow that was actually loaded (crossbow: wooden/flaming/explosive), resolved
+        // through the weapon's selected firegroup/firemode. Falls back to AMMO_ARROW if unresolved.
         this.worldObjectManager.createLootEntity(
           this,
-          this.generateItem(Items.AMMO_ARROW),
+          this.generateItem(
+            this.getWeaponAmmoId(
+              itemDefId,
+              weaponItem.weapon?.currentFiregroupIndex ?? 0,
+              weaponItem.weapon?.currentFiremodeIndex ?? 0
+            ) || Items.AMMO_ARROW
+          ),
           data.position,
           data.rotation
         );
@@ -4573,6 +4677,23 @@ export class ZoneServer2016 extends EventEmitter {
       hitReport: packet.hitReport,
       message: hitValidation.message
     });
+
+    if (!hitValidation.isValid) return;
+    // per-arrow on-hit effects for multi-firegroup weapons (crossbow flaming/explosive arrows)
+    switch (
+      this.getWeaponAmmoId(
+        weaponItem.itemDefinitionId,
+        weaponItem.weapon?.currentFiregroupIndex ?? 0,
+        weaponItem.weapon?.currentFiremodeIndex ?? 0
+      )
+    ) {
+      case Items.AMMO_ARROW_FLAMING:
+        this.igniteArrowTarget(entity);
+        break;
+      case Items.AMMO_ARROW_EXPLOSIVE:
+        this.explosiveArrowDetonate(entity, client);
+        break;
+    }
   }
 
   setGodMode(client: Client, godMode: boolean) {
@@ -6916,20 +7037,35 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   /**
-   * Gets the ammoId for a given weapon.
+   * Gets the ammoId for a given weapon, resolved through the SELECTED firegroup/firemode. Multi-firegroup
+   * weapons (e.g. the crossbow) use different ammo per firegroup (0=wooden 112, 1=flaming 1434,
+   * 2=explosive 138); pass the weapon's current selection (weapon.currentFiregroupIndex/FiremodeIndex).
+   * Defaults to firegroup 0 / firemode 0, so single-firegroup weapons and generic callers behave exactly
+   * as before.
    *
    * @param {number} itemDefinitionId - The itemDefinitionId of the weapon.
+   * @param {number} firegroupIndex - Selected firegroup index into the weapon def's FIRE_GROUPS (default 0).
+   * @param {number} firemodeIndex - Selected firemode index into the firegroup's FIRE_MODES (default 0).
    * @returns {number} The ammoId (0 if undefined).
    */
-  getWeaponAmmoId(itemDefinitionId: number): number {
+  getWeaponAmmoId(
+    itemDefinitionId: number,
+    firegroupIndex: number = 0,
+    firemodeIndex: number = 0
+  ): number {
     const itemDefinition = this.getItemDefinition(itemDefinitionId),
       weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1 || 0),
       firegroupDefinition = this.getFiregroupDefinition(
-        weaponDefinition?.FIRE_GROUPS[0]?.FIRE_GROUP_ID
+        weaponDefinition?.FIRE_GROUPS[firegroupIndex]?.FIRE_GROUP_ID
       ),
-      firemodeDefinition = this.getFiremodeDefinition(
-        firegroupDefinition?.FIRE_MODES[0]?.FIRE_MODE_ID
-      );
+      // Ammo is a property of the firegroup - hip (firemode 0) and ADS (firemode 1) share the same
+      // ammo. Fall back to firemode 0 if the requested firemode index doesn't exist, so an ADS
+      // firemodeIndex (the client sends firemodeIndex==1 while aiming, for every weapon) never breaks
+      // ammo resolution for weapons that only define a single firemode.
+      firemode =
+        firegroupDefinition?.FIRE_MODES[firemodeIndex] ??
+        firegroupDefinition?.FIRE_MODES[0],
+      firemodeDefinition = this.getFiremodeDefinition(firemode?.FIRE_MODE_ID);
 
     return firemodeDefinition?.AMMO_ITEM_ID || 0;
   }
@@ -7369,8 +7505,8 @@ export class ZoneServer2016 extends EventEmitter {
         loadoutItem.itemGuid,
         "Update.SwitchFireMode",
         {
-          firegroupIndex: 0,
-          firemodeIndex: 0
+          firegroupIndex: loadoutItem.weapon?.currentFiregroupIndex ?? 0,
+          firemodeIndex: loadoutItem.weapon?.currentFiremodeIndex ?? 0
         }
       );
       span?.end();
@@ -7768,7 +7904,11 @@ export class ZoneServer2016 extends EventEmitter {
       itemDefinition.ITEM_CLASS != ItemClasses.WEAPON_THROWABLES
     ) {
       const ammo = this.generateItem(
-        this.getWeaponAmmoId(dropItem.itemDefinitionId),
+        this.getWeaponAmmoId(
+          dropItem.itemDefinitionId,
+          dropItem.weapon.currentFiregroupIndex,
+          dropItem.weapon.currentFiremodeIndex
+        ),
         dropItem.weapon.ammoCount
       );
       if (
@@ -9375,7 +9515,11 @@ export class ZoneServer2016 extends EventEmitter {
       "Update.Reload",
       {}
     );
-    const weaponAmmoId = this.getWeaponAmmoId(weaponItem.itemDefinitionId),
+    const weaponAmmoId = this.getWeaponAmmoId(
+        weaponItem.itemDefinitionId,
+        weaponItem.weapon.currentFiregroupIndex,
+        weaponItem.weapon.currentFiremodeIndex
+      ),
       reloadTime = this.getWeaponReloadTime(weaponItem.itemDefinitionId);
 
     const itemDefinition = this.getItemDefinition(weaponItem.itemDefinitionId);

@@ -1221,8 +1221,8 @@ export class Character2016 extends BaseFullCharacter {
           unknownArray1: firegroup
             ? firemodes.map((firemode: any, j: number) => {
                 return {
-                  unknownDword1: j,
-                  unknownDword2: firemode.FIRE_MODE_ID
+                  firemodeIndex: j,
+                  firemodeId: firemode.FIRE_MODE_ID
                 };
               })
             : [] // probably firemodes
@@ -1239,8 +1239,8 @@ export class Character2016 extends BaseFullCharacter {
       firegroups = weaponDefinition.FIRE_GROUPS;
     return {
       guid: item.itemGuid,
-      unknownByte1: 0, // firegroupIndex (default 0)?
-      unknownByte2: 0, // MOST LIKELY firemodeIndex?
+      firegroupIndex: item.weapon?.currentFiregroupIndex ?? 0,
+      firemodeIndex: item.weapon?.currentFiremodeIndex ?? 0,
       unknownByte3: -1,
       unknownByte4: -1,
       unknownByte5: 1,
@@ -1950,8 +1950,8 @@ export class Character2016 extends BaseFullCharacter {
         item.itemGuid,
         "Update.SwitchFireMode",
         {
-          firegroupIndex: 0,
-          firemodeIndex: 0
+          firegroupIndex: item.weapon?.currentFiregroupIndex ?? 0,
+          firemodeIndex: item.weapon?.currentFiremodeIndex ?? 0
         }
       );
     });

@@ -1500,8 +1500,8 @@ export function packItemWeaponData(obj: any) {
               defaultValue: [],
               fields: [
                 { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                { name: "firemodeIndex", type: "uint32", defaultValue: 0 },
+                { name: "firemodeId", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword3", type: "uint32", defaultValue: 0 }
               ]
             }
@@ -1828,12 +1828,12 @@ export const remoteWeaponSchema: PacketFields = [
         defaultValue: [],
         fields: [
           {
-            name: "unknownDword1",
+            name: "firemodeIndex",
             type: "uint32",
             defaultValue: 0
           },
           {
-            name: "unknownDword2",
+            name: "firemodeId",
             type: "uint32",
             defaultValue: 0
           }
@@ -1892,8 +1892,8 @@ export const remoteWeaponSchema: PacketFields = [
 ];
 
 export const remoteWeaponExtraSchema: PacketFields = [
-  { name: "unknownByte1", type: "int8", defaultValue: 0 },
-  { name: "unknownByte2", type: "int8", defaultValue: 0 },
+  { name: "firegroupIndex", type: "int8", defaultValue: 0 },
+  { name: "firemodeIndex", type: "int8", defaultValue: 0 },
   { name: "unknownByte3", type: "int8", defaultValue: 0 },
   { name: "unknownByte4", type: "int8", defaultValue: 0 },
   { name: "unknownByte5", type: "uint8", defaultValue: 0 },
