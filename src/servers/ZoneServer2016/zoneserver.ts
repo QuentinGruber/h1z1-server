@@ -6319,18 +6319,21 @@ export class ZoneServer2016 extends EventEmitter {
     obj: ZonePacket
   ) {
     if (!entityCharacterId) return;
+    // Resolve recipients before packing/logging so a broadcast with no recipients
+    // (e.g. server-spawned entities while no clients are connected) is a no-op.
+    const observers = this._entityObservers.get(entityCharacterId);
+    const ownerClient = this.getClientByCharId(entityCharacterId);
+    if (!observers?.size && !ownerClient) return;
     const data = this._protocol.pack(packetName, obj);
     if (!data) return;
     this.debugSendData(packetName);
     // Send to all clients who have this entity spawned.
-    const observers = this._entityObservers.get(entityCharacterId);
     if (observers) {
       for (const client of observers) {
         this.sendRawDataReliable(client, data);
       }
     }
     // Also send to the entity's own client (they don't spawn themselves).
-    const ownerClient = this.getClientByCharId(entityCharacterId);
     if (ownerClient) this.sendRawDataReliable(ownerClient, data);
   }
 
@@ -6340,9 +6343,9 @@ export class ZoneServer2016 extends EventEmitter {
     packetName: h1z1PacketsType2016,
     obj: ZonePacket
   ) {
-    const data = this._protocol.pack(packetName, obj);
-    if (!data) return;
-    this.debugSendData(packetName);
+    // Resolve recipients before packing/logging so a broadcast with nobody in
+    // range (e.g. while no clients are connected) is a no-op.
+    const recipients: Client[] = [];
     const [cx0, cx1, cz0, cz1] = ZoneServer2016._charGridRange(position, range);
     for (let cx = cx0; cx <= cx1; cx++) {
       for (let cz = cz0; cz <= cz1; cz++) {
@@ -6350,9 +6353,16 @@ export class ZoneServer2016 extends EventEmitter {
         if (!bucket) continue;
         for (const client of bucket) {
           if (isPosInRadius(range, client.character.state.position, position))
-            this.sendRawDataReliable(client, data);
+            recipients.push(client);
         }
       }
+    }
+    if (!recipients.length) return;
+    const data = this._protocol.pack(packetName, obj);
+    if (!data) return;
+    this.debugSendData(packetName);
+    for (const client of recipients) {
+      this.sendRawDataReliable(client, data);
     }
   }
 
@@ -6364,11 +6374,13 @@ export class ZoneServer2016 extends EventEmitter {
     obj: ZonePacket
   ) {
     if (!entityCharacterId) return;
+    // Resolve recipients before packing/logging so a broadcast with no observers
+    // (e.g. while no clients are connected) is a no-op.
+    const observers = this._entityObservers.get(entityCharacterId);
+    if (!observers?.size) return;
     const data = this._protocol.pack(packetName, obj);
     if (!data) return;
     this.debugSendData(packetName);
-    const observers = this._entityObservers.get(entityCharacterId);
-    if (!observers) return;
     for (const c of observers) {
       if (c !== client) this.sendRawDataReliable(c, data);
     }
