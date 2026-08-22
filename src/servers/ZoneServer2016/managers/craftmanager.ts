@@ -14,7 +14,6 @@
 import { ContainerErrors, FilterIds, Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
-import { checkConstructionInRange } from "../../../utils/utils";
 import { Recipe } from "types/zoneserver";
 import { Character2016 } from "../entities/character";
 import { BaseItem } from "../classes/baseItem";
@@ -484,14 +483,16 @@ export class CraftManager {
     }
     if (recipe.requireWorkbench) {
       if (
-        !checkConstructionInRange(
-          server._constructionSimple,
+        !server.constructionManager.isConstructionInRange(
+          server,
+          "simple",
           client.character.state.position,
           3,
           Items.WORKBENCH
         ) &&
-        !checkConstructionInRange(
-          server._worldSimpleConstruction,
+        !server.constructionManager.isConstructionInRange(
+          server,
+          "worldSimple",
           client.character.state.position,
           3,
           Items.WORKBENCH
@@ -506,14 +507,16 @@ export class CraftManager {
     }
     if (recipe.requireWeaponWorkbench) {
       if (
-        !checkConstructionInRange(
-          server._constructionSimple,
+        !server.constructionManager.isConstructionInRange(
+          server,
+          "simple",
           client.character.state.position,
           3,
           Items.WORKBENCH_WEAPON
         ) &&
-        !checkConstructionInRange(
-          server._worldSimpleConstruction,
+        !server.constructionManager.isConstructionInRange(
+          server,
+          "worldSimple",
           client.character.state.position,
           3,
           Items.WORKBENCH_WEAPON

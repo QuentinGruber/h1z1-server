@@ -6264,20 +6264,46 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  getClientsInRange(range: number, position: Float32Array): Client[] {
-    const clients: Client[] = [];
-    const [cx0, cx1, cz0, cz1] = ZoneServer2016._charGridRange(position, range);
+  /** Returns clients within `radius` of `position` using the char spatial map
+   *  (rebuilt every world tick) instead of scanning every character on the server. */
+  getClientsInRange(position: Float32Array, radius: number): Client[] {
+    const result: Client[] = [];
+    const [cx0, cx1, cz0, cz1] = ZoneServer2016._charGridRange(
+      position,
+      radius
+    );
     for (let cx = cx0; cx <= cx1; cx++) {
       for (let cz = cz0; cz <= cz1; cz++) {
         const bucket = this._charSpatialMap.get(`${cx},${cz}`);
         if (!bucket) continue;
         for (const client of bucket) {
-          if (isPosInRadius(range, client.character.state.position, position))
-            clients.push(client);
+          if (isPosInRadius(radius, client.character.state.position, position))
+            result.push(client);
         }
       }
     }
-    return clients;
+    return result;
+  }
+
+  /** Returns vehicles within `radius` of `position` using the vehicle spatial map
+   *  (rebuilt every world tick) instead of scanning every vehicle on the server. */
+  getVehiclesInRange(position: Float32Array, radius: number): Vehicle[] {
+    const result: Vehicle[] = [];
+    const [cx0, cx1, cz0, cz1] = ZoneServer2016._charGridRange(
+      position,
+      radius
+    );
+    for (let cx = cx0; cx <= cx1; cx++) {
+      for (let cz = cz0; cz <= cz1; cz++) {
+        const bucket = this._vehicleSpatialMap.get(`${cx},${cz}`);
+        if (!bucket) continue;
+        for (const vehicle of bucket) {
+          if (isPosInRadius(radius, vehicle.state.position, position))
+            result.push(vehicle);
+        }
+      }
+    }
+    return result;
   }
 
   mountVehicle(client: Client, vehicleGuid: string) {
@@ -9036,7 +9062,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
     this._throwableProjectiles[npc.characterId] = npc;
     if (!createNpc) return;
-    this.getClientsInRange(200, packet.packet.position).forEach((c: Client) => {
+    this.getClientsInRange(packet.packet.position, 200).forEach((c: Client) => {
       this.addLightweightNpc(c, npc);
       c.spawnedEntities.add(npc);
     });

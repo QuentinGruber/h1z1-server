@@ -179,8 +179,7 @@ export class TrapEntity extends BaseSimpleNpc {
         if (!server._traps[this.characterId]) {
           return;
         }
-        for (const a in server._clients) {
-          const client = server._clients[a];
+        for (const client of server.getClientsInRange(this.state.position, 1)) {
           if (
             getDistance(client.character.state.position, this.state.position) <
             1
@@ -230,8 +229,8 @@ export class TrapEntity extends BaseSimpleNpc {
         if (!server._traps[this.characterId]) {
           return;
         }
-        for (const a in server._clients) {
-          const client = server._clients[a];
+        // cubebounds half-extents are 7.05 x 2.15, so radius 8 safely covers isInside()
+        for (const client of server.getClientsInRange(this.state.position, 8)) {
           if (
             this.isInside(client.character.state.position) &&
             client.character.isAlive &&
@@ -249,7 +248,7 @@ export class TrapEntity extends BaseSimpleNpc {
               {
                 characterId: "0x0",
                 effectId: Effects.PFX_Impact_PunjiSticks_Blood,
-                position: server._clients[a].character.state.position
+                position: client.character.state.position
               }
             );
 
@@ -307,11 +306,9 @@ export class TrapEntity extends BaseSimpleNpc {
         this.isTriggered = true;
       }
     }
-    for (const a in server._vehicles) {
-      if (
-        getDistance(server._vehicles[a].state.position, this.state.position) < 2
-      ) {
-        server._vehicles[a].getPassengerList().map((passenger) => {
+    for (const vehicle of server.getVehiclesInRange(this.state.position, 2)) {
+      if (getDistance(vehicle.state.position, this.state.position) < 2) {
+        vehicle.getPassengerList().map((passenger) => {
           this.detonateTrap(server, { entity: passenger, damage: 0 });
           this.isTriggered = true;
         });

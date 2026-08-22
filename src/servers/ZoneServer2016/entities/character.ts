@@ -48,7 +48,6 @@ import {
   isPosInRadius,
   randomIntFromInterval,
   _,
-  checkConstructionInRange,
   getCurrentServerTimeWrapper,
   getDistance
 } from "../../../utils/utils";
@@ -653,14 +652,16 @@ export class Character2016 extends BaseFullCharacter {
     if (
       client.character.isSitting &&
       server.isSurvival() &&
-      (checkConstructionInRange(
-        server._lootableConstruction,
+      (server.constructionManager.isConstructionInRange(
+        server,
+        "lootable",
         client.character.state.position,
         4,
         Items.CAMPFIRE
       ) ||
-        checkConstructionInRange(
-          server._worldLootableConstruction,
+        server.constructionManager.isConstructionInRange(
+          server,
+          "worldLootable",
           client.character.state.position,
           4,
           Items.CAMPFIRE
