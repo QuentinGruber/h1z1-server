@@ -47,7 +47,8 @@ import {
   Effects,
   VehicleIds,
   UIElements,
-  ReplicationPropertyHash
+  ReplicationPropertyHash,
+  AbilityIds
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
@@ -3473,6 +3474,15 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<AbilitiesInitAbility>
   ) {
+    // NV is a client toggle ability broken on the Dec-2016 client (member id 0 -> never sends); the
+    // dinput8 patch forces the member so P emits an ability packet. The client's toggle-state STICKS -
+    // after deactivating it keeps sending UninitAbility 0xa103 on re-press instead of alternating back
+    // to InitAbility 0xa101. So the server TOGGLES NV on BOTH Init and Uninit for 1111272, guaranteeing
+    // each P press flips NV regardless of which packet the client sends. No activatable grant is needed.
+    if (packet.data.abilityId === AbilityIds.NV_GOGGLES) {
+      server.toggleNightVision(client);
+      return;
+    }
     server.abilitiesManager.processAbilityInit(server, client, packet.data);
   }
   AbilitiesUninitAbility(
@@ -3480,6 +3490,13 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<AbilitiesUninitAbility>
   ) {
+    // NV re-press: the Dec-2016 client's toggle-state sticks and keeps sending UninitAbility 0xa103
+    // {1111272} on every re-press (not alternating back to Init). So TOGGLE NV here too - each P press
+    // flips NV whether it arrives as Init or Uninit. Other abilityIds keep the vehicle-ability path.
+    if (packet.data.abilityId === AbilityIds.NV_GOGGLES) {
+      server.toggleNightVision(client);
+      return;
+    }
     if (!client.vehicle.mountedVehicle) return;
     const vehicle = server._vehicles[client.vehicle.mountedVehicle];
     if (!vehicle) return;
@@ -3998,6 +4015,11 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<AnimationRequest>
   ) {
+    // Inbound emote play request (Animation.Request 0xf801): resolve the emote item's PARAM1 ->
+    // animationId and BROADCAST Animation.Play 0xf802 { characterId, animationId } to nearby clients so
+    // everyone sees the emote. The Dec-2016 emote HOTKEY is broken and never sends this 0xf801; the
+    // dinput8 patch (h1emu-patch-2016) supplies it directly (using SendSelf.skinItems.emotes to pick a
+    // real itemDefinitionId).
     const animationId =
       server.getItemDefinition(packet.data.itemDefinitionId)?.PARAM1 || 0;
     if (!animationId) return;

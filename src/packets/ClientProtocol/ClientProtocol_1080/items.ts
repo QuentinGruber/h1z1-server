@@ -416,12 +416,17 @@ export const itemsPackets: PacketStructures = [
     }
   ],
   [
+    // DEPRECATED / not the F-key emote path: this writes the client's LoadoutSlotInputAction
+    // subsystem, NOT the emote play path. F-key emotes are enabled by the 0xa105 ability grant
+    // (pGetEmoteAbilities) + availability (SendSelf.skinItems.emotes); this packet does not make
+    // hotkeys fire. Schema is RE-confirmed 3 x uint32 (kept correct for record/future use).
     "Items.SetEmoteItem",
     0xad1f,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 1 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 3154 }
+        { name: "unknownDword2", type: "uint32", defaultValue: 3154 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 }
       ]
     }
   ],

@@ -3423,6 +3423,9 @@ export const basePackets: PacketStructures = [
   ["CrateOpeningBase", 0xf6, {}],
   ["PlayerHeatWarning", 0xf7, {}],
   [
+    // The LIVE F-key emote play request: client sends this on emote activation; server's
+    // animationRequest handler resolves getItemDefinition(itemDefinitionId).PARAM1 -> animationId ->
+    // broadcasts Animation.Play 0xf802. (Not Character.AnimationRequest 0x0f41 - see that packet.)
     "Animation.Request",
     0xf801,
     {
