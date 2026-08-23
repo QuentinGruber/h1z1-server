@@ -1980,16 +1980,17 @@ export class ZonePacketHandlers {
   ) {
     if (
       !packet.data.itemDefinitionId ||
-      !packet.data.rotation1 ||
-      !packet.data.rotation2 ||
+      !packet.data.placementForward ||
       !packet.data.position2
     ) {
       return;
     }
 
-    const y = packet.data.rotation1[1],
-      w = packet.data.rotation1[3],
-      yaw = Math.atan2(-w, y),
+    // world-up is Y; yaw is the heading of the placement forward (Z) basis row
+    const yaw = Math.atan2(
+        packet.data.placementForward[0],
+        packet.data.placementForward[2]
+      ),
       final = new Float32Array([yaw, 0, 0, 0]);
 
     const modelId = server.getItemDefinition(
