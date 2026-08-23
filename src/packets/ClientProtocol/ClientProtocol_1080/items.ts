@@ -507,7 +507,7 @@ export const itemsPackets: PacketStructures = [
       fields: [
         { name: "itemCount", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "itemUseOption", type: "uint32", defaultValue: 0 },
         { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
         {
           name: "itemSubData",

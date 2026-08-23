@@ -2426,7 +2426,7 @@ export interface LoadoutSetLoadoutSlot {
 export interface LoadoutSelectSlot {
   unknownDword1?: number;
   slotId?: number;
-  unknownDword2?: number;
+  gameTime?: number;
 }
 export interface LoadoutCreateCustomLoadout {
   slotId?: number;
@@ -3120,7 +3120,7 @@ export interface ItemsRequestUseItem {
 export interface ItemsRequestUseAccountItem {
   itemCount?: number;
   unknownDword2?: number;
-  unknownDword3?: number;
+  itemUseOption?: number;
   itemDefinitionId?: number;
   itemSubData?: unknown;
 }

@@ -3581,7 +3581,7 @@ export class ZonePacketHandlers {
 
     const itemSubData: any = packet.data.itemSubData;
 
-    switch (packet.data.unknownDword3) {
+    switch (packet.data.itemUseOption) {
       case ItemUseOptions.OPEN_CRATE:
         const rewards = server.getCrateRewards(packet.data.itemDefinitionId),
           rewardResult = server.getRandomCrateReward(
