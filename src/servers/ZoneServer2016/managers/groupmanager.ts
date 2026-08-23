@@ -308,13 +308,16 @@ export class GroupManager {
           identity: {
             characterFirstName: source.character.name,
             characterName: source.character.name
-          }
+          },
+          // gates the client's native Group.Join send (client requires 1, 2, or 3)
+          unknownByte1: 1
         },
         targetCharacter: {
           characterId: target.character.characterId,
           identity: {
             characterName: target.character.name
-          }
+          },
+          unknownByte1: 1
         }
       }
     });
