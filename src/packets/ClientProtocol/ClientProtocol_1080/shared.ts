@@ -2800,7 +2800,7 @@ export const itemDefinitionSchema: PacketFields = [
       { bit: 1, name: "FLAG_QUICK_USE", defaultValue: 0 }, // does nothing
       { bit: 2, name: "FLAG_NO_DRAG_DROP", defaultValue: 0 },
       { bit: 3, name: "FLAG_ACCOUNT_SCOPE", defaultValue: 0 }, // does nothing
-      { bit: 4, name: "FLAG_CAN_EQUIP", defaultValue: 0 }, // does nothing
+      { bit: 4, name: "FLAG_CAN_EQUIP", defaultValue: 0 }, // client-dead: READ-BUT-IGNORED — equip eligibility is driven by ACTIVE/PASSIVE_EQUIP_SLOT_ID, NOT this bit (per RE)
       { bit: 5, name: "bit5", defaultValue: 0 }, // does nothing
       { bit: 6, name: "bit6", defaultValue: 0 }, // does nothing
       { bit: 7, name: "bit7", defaultValue: 0 } // does nothing
@@ -2812,8 +2812,8 @@ export const itemDefinitionSchema: PacketFields = [
   { name: "IMAGE_SET_ID", type: "uint32", defaultValue: 0 },
   { name: "TINT_ID", type: "uint32", defaultValue: 0 },
   { name: "HUD_IMAGE_SET_ID", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword8", type: "uint32", defaultValue: 921 },
-  { name: "unknownDword9", type: "uint32", defaultValue: 922 },
+  { name: "unknownDword8", type: "uint32", defaultValue: 921 }, // client-dead: READ-BUT-IGNORED (Planetside/ForgeLight-inherited); kept for wire order
+  { name: "unknownDword9", type: "uint32", defaultValue: 922 }, // client-dead: READ-BUT-IGNORED (constructor-only); kept for wire order
   { name: "COST", type: "uint32", defaultValue: 0 },
   { name: "ITEM_CLASS", type: "uint32", defaultValue: 0 },
   { name: "PROFILE_OVERRIDE", type: "uint32", defaultValue: 0 },
@@ -2852,18 +2852,18 @@ export const itemDefinitionSchema: PacketFields = [
   { name: "CLIENT_USE_REQUIREMENT_ID", type: "uint32", defaultValue: 0 },
   { name: "OVERRIDE_APPEARANCE", type: "string", defaultValue: "" },
   { name: "OVERRIDE_CAMERA_ID", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword42", type: "uint32", defaultValue: 28 },
-  { name: "unknownDword43", type: "uint32", defaultValue: 28 },
-  { name: "unknownDword44", type: "uint32", defaultValue: 28 },
+  { name: "unknownDword42", type: "uint32", defaultValue: 28 }, // client-dead: READ-BUT-IGNORED (constructor-only); kept for wire order
+  { name: "unknownDword43", type: "uint32", defaultValue: 28 }, // client-dead: READ-BUT-IGNORED (Planetside/ForgeLight-inherited); kept for wire order
+  { name: "unknownDword44", type: "uint32", defaultValue: 28 }, // client-dead: READ-BUT-IGNORED (constructor-only); kept for wire order
   { name: "BULK", type: "uint32", defaultValue: 0 },
   { name: "ACTIVE_EQUIP_SLOT_ID", type: "uint32", defaultValue: 0 },
   { name: "PASSIVE_EQUIP_SLOT_ID", type: "uint32", defaultValue: 0 },
   { name: "PASSIVE_EQUIP_SLOT_GROUP_ID", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword49", type: "uint32", defaultValue: 927 },
+  { name: "unknownDword49", type: "uint32", defaultValue: 927 }, // client-dead: READ-BUT-IGNORED (constructor-only); kept for wire order
   { name: "GRINDER_REWARD_SET_ID", type: "uint32", defaultValue: 0 },
   { name: "BUILD_BAR_GROUP_ID", type: "uint32", defaultValue: 0 },
-  { name: "unknownString7", type: "string", defaultValue: "testStringAAA" },
-  { name: "unknownBoolean1", type: "boolean", defaultValue: true },
+  { name: "unknownString7", type: "string", defaultValue: "testStringAAA" }, // client-dead: READ-BUT-IGNORED (constructor-only); kept for wire order
+  { name: "unknownBoolean1", type: "boolean", defaultValue: true }, // client-dead: READ-BUT-IGNORED (def-level, constructor-only; distinct from ItemInstance.unknownBoolean1); kept for wire order
   { name: "IS_ARMOR", type: "boolean", defaultValue: false },
   { name: "unknownDword52", type: "uint32", defaultValue: 28 },
   { name: "PARAM1", type: "uint32", defaultValue: 0 },
@@ -2871,7 +2871,8 @@ export const itemDefinitionSchema: PacketFields = [
   { name: "PARAM3", type: "uint32", defaultValue: 0 },
   { name: "STRING_PARAM1", type: "string", defaultValue: "" },
   { name: "UI_MODEL_CAMERA_ID", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword57", type: "uint32", defaultValue: 932 },
+  { name: "unknownDword57", type: "uint32", defaultValue: 932 }, // client USES this (UI-column value with ITEM_CLASS fallback) per RE — NOT dead; kept as-is
+
   { name: "SCRAP_VALUE_OVERRIDE", type: "int32", defaultValue: 0 }, // can be -1
   {
     name: "stats",

@@ -3574,14 +3574,14 @@ export class ZonePacketHandlers {
         if (!rewards || !reward) return;
 
         if (
-          itemSubData?.unknownBoolean1 == 0 &&
+          itemSubData?.noSubData == 0 &&
           !server.removeInventoryItem(client.character, item)
         ) {
           return;
         }
         server.sendData(client, "Items.ReportRewardCrateContents", {
           winningRewards:
-            reward > 0 && itemSubData?.unknownBoolean1 == 0
+            reward > 0 && itemSubData?.noSubData == 0
               ? [{ itemDefinitionId: reward }]
               : [],
           possibleRewards: Object.values(rewards).map((rew) => {
@@ -3591,7 +3591,7 @@ export class ZonePacketHandlers {
           })
         });
 
-        if (reward > 0 && itemSubData.unknownBoolean1 == 0) {
+        if (reward > 0 && itemSubData.noSubData == 0) {
           setTimeout(() => {
             if (rewardResult.isRare) {
               server.sendAlertToAll(
