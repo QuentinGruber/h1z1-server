@@ -1545,6 +1545,7 @@ export class ConstructionManager {
     server.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnConstructionDoor(server, client, door);
     }, door);
+    this.reevalShelterEntityVisibility(server, parent);
     return true;
   }
 
@@ -2500,12 +2501,58 @@ export class ConstructionManager {
         client.character.characterId,
         ConstructionPermissionIds.VISIT
       ),
-      isInside = parent.isInside(entity.state.position);
+      entityInside = parent.isInside(entity.state.position),
+      // a client standing inside the shelter/shack sees its contents regardless of permission
+      viewerInside = parent.isInside(client.character.state.position);
 
     return (
-      !client.isDebugMode && parentSecured && isInside && !hasVisitPermission
+      !client.isDebugMode &&
+      parentSecured &&
+      entityInside &&
+      !hasVisitPermission &&
+      !viewerInside
     );
-    // TODO: check if character is in secured shelter / shack
+  }
+
+  /**
+   * Immediately re-applies the shelter/shack hide gate to the entities contained inside `shelter`
+   * for every ready client, so a door open/close/place/destroy reveals or culls contained
+   * containers/workbenches without waiting for the periodic spawn/cull sweep. Uses the same
+   * shouldHideEntity gate, so the result matches the sweep (no flapping). Never removes a client's
+   * own character.
+   */
+  reevalShelterEntityVisibility(
+    server: ZoneServer2016,
+    shelter: ConstructionParentEntity | ConstructionChildEntity
+  ) {
+    const contained = Object.values(shelter.freeplaceEntities).filter(
+      (e) =>
+        (e instanceof LootableConstructionEntity ||
+          e instanceof ConstructionChildEntity) &&
+        shelter.isInside(e.state.position)
+    );
+    if (!contained.length) return;
+    for (const key in server._clients) {
+      const client = server._clients[key];
+      for (const entity of contained) {
+        if (
+          client.spawnedEntities.has(entity) &&
+          this.shouldHideEntity(server, client, entity)
+        ) {
+          if (entity.characterId !== client.character.characterId) {
+            server.sendData<CharacterRemovePlayer>(
+              client,
+              "Character.RemovePlayer",
+              { characterId: entity.characterId }
+            );
+            client.spawnedEntities.delete(entity);
+          }
+        } else {
+          // spawnEntityForClient self-guards range, the hide gate, and double-spawn
+          server.spawnEntityForClient(client, entity);
+        }
+      }
+    }
   }
 
   private spawnConstructionFreeplace(

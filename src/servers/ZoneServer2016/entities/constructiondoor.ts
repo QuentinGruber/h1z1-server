@@ -201,7 +201,10 @@ export class ConstructionDoor extends DoorEntity {
         break;
     }
     if (slotMap) parent.clearSlot(this.getSlotNumber(), slotMap);
-    if (updateSecured) parent.updateSecuredState(server);
+    if (updateSecured) {
+      parent.updateSecuredState(server);
+      server.constructionManager.reevalShelterEntityVisibility(server, parent);
+    }
     return deleted;
   }
 
@@ -321,6 +324,10 @@ export class ConstructionDoor extends DoorEntity {
         const parent = this.getParent(server);
         if (parent) {
           parent.updateSecuredState(server);
+          server.constructionManager.reevalShelterEntityVisibility(
+            server,
+            parent
+          );
           // spawn hidden characters immediately after door opens
           const allowedConstruction = [
             Items.SHELTER,

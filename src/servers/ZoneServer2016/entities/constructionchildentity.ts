@@ -599,7 +599,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
           client,
           "Character.UpdateSimpleProxyHealth",
           shouldHideHealthBar(server, client, this)
-            ? 100
+            ? { characterId: this.characterId, healthPercentage: 100 }
             : this.pGetSimpleProxyHealth()
         );
       }
