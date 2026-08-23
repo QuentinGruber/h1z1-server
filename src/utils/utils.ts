@@ -1774,7 +1774,7 @@ export function shouldHideHealthBar(
   server: ZoneServer2016,
   client: ZoneClient2016,
   entity: ConstructionChildEntity | LootableConstructionEntity
-): Boolean {
+): boolean {
   const hiddenEntities =
     entity.actorModelId == ModelIds.METAL_STORAGE_CHEST ||
     entity.actorModelId == ModelIds.FURNACE ||
