@@ -5110,7 +5110,11 @@ export class ZoneServer2016 extends EventEmitter {
             characterObj.isAlive &&
             !characterObj.isSpectator &&
             !characterObj.isVanished &&
-            (characterObj.isHidden === client.character.isHidden ||
+            (!this.constructionManager.shouldHidePlayer(
+              this,
+              client,
+              characterObj
+            ) ||
               client.character.isSpectator)
           ) {
             this.sendData<AddLightweightPc>(
@@ -5144,7 +5148,8 @@ export class ZoneServer2016 extends EventEmitter {
           if (
             c.character !== character &&
             !c.spawnedEntities.has(character) &&
-            isPosInRadius(renderDist, pos, c.character.state.position)
+            isPosInRadius(renderDist, pos, c.character.state.position) &&
+            !this.constructionManager.shouldHidePlayer(this, c, character)
           ) {
             this.sendData<AddLightweightPc>(c, "AddLightweightPc", pcData);
             c.spawnedEntities.add(character);
