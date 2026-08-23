@@ -100,7 +100,7 @@ const AGITATION_DECAY_RATE = 1;
 const AGITATION_INITIAL = 50;
 const SCREAM_DURATION = 3;
 const SCREAM_RADIUS = 50;
-const PLAYER_DETECT_RADIUS = 20;
+const PLAYER_DETECT_RADIUS = 25;
 const SCREAM_COOLDOWN = 20;
 const ATTRACT_RADIUS = 250;
 const ATTRACT_AGITATION = 60;
@@ -139,6 +139,15 @@ function moveToward(
   npc.navAgent.requestMoveTarget(navTarget);
 }
 
+function hasLineOfSight(
+  server: ZoneServer2016,
+  from: Float32Array,
+  to: Float32Array
+): boolean {
+  const result = server.navManager.raycast(from, to);
+  return result.t >= 1;
+}
+
 function tryDetectPlayer(screamer: ScreamerInstance): boolean {
   const sz = 50;
   const pos = screamer.npc.state.position;
@@ -152,11 +161,12 @@ function tryDetectPlayer(screamer: ScreamerInstance): boolean {
       if (!bucket) continue;
       for (const entry of bucket) {
         if (entry.faction !== Factions.HUMAN) continue;
-        if (getDistance2d(pos, entry.position) < PLAYER_DETECT_RADIUS) {
-          screamer.targetCharacterId = entry.id;
-          screamer.event(Events.StartScreaming);
-          return true;
-        }
+        if (getDistance2d(pos, entry.position) >= PLAYER_DETECT_RADIUS)
+          continue;
+        if (!hasLineOfSight(screamer.server, pos, entry.position)) continue;
+        screamer.targetCharacterId = entry.id;
+        screamer.event(Events.StartScreaming);
+        return true;
       }
     }
   }
@@ -272,11 +282,13 @@ export function createScreamer(
             if (!bucket) continue;
             for (const entry of bucket) {
               if (entry.faction !== Factions.HUMAN) continue;
-              if (getDistance2d(pos, entry.position) < PLAYER_DETECT_RADIUS) {
-                screamer.targetCharacterId = entry.id;
-                screamer.event(Events.StartRising);
-                return;
-              }
+              if (getDistance2d(pos, entry.position) >= PLAYER_DETECT_RADIUS)
+                continue;
+              if (!hasLineOfSight(screamer.server, pos, entry.position))
+                continue;
+              screamer.targetCharacterId = entry.id;
+              screamer.event(Events.StartRising);
+              return;
             }
           }
         }
