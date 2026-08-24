@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { h1z1PacketsType2016 } from "types/packets";
-import { GroupUnknown12, zone2016packets } from "types/zone2016packets";
+import { GroupRoster, zone2016packets } from "types/zone2016packets";
 import { Group } from "types/zoneserver";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
@@ -95,10 +95,10 @@ export class GroupManager {
       members
     };
 
-    this.sendDataToGroup<GroupUnknown12>(
+    this.sendDataToGroup<GroupRoster>(
       server,
       group.groupId,
-      "Group.Unknown12",
+      "Group.Roster",
       sendData
     );
   }
@@ -299,31 +299,28 @@ export class GroupManager {
       source.character.groupId;
 
     server.sendData(target, "Group.Invite", {
-      unknownDword1: 1, // should be 1
+      inviteType: 1,
       unknownDword2: 5,
       unknownDword3: 5,
       inviteData: {
-        // client stores this in groupRelated1GlobalVar and only sends Group.Join when it is not the
-        // -1 "no active group" sentinel; the inviter's characterId is always a real 64-bit id, and the
-        // value is echoed back and ignored by the join handler
-        unknownQword1: source.character.characterId,
-        // hasRaidError - must be 0
-        unknownDword1: 0,
+        // the inviter's characterId is always a real 64-bit id, so this is never the -1 "no active group"
+        // sentinel the client rejects; the value is echoed back and ignored by the join handler
+        groupId: source.character.characterId,
+        hasRaidError: 0,
         sourceCharacter: {
           characterId: source.character.characterId,
           identity: {
             characterFirstName: source.character.name,
             characterName: source.character.name
           },
-          // gates the client's native Group.Join send (client requires 1, 2, or 3)
-          unknownByte1: 1
+          memberRole: 1
         },
         targetCharacter: {
           characterId: target.character.characterId,
           identity: {
             characterName: target.character.name
           },
-          unknownByte1: 1
+          memberRole: 1
         }
       }
     });
@@ -335,18 +332,9 @@ export class GroupManager {
     target: Client,
     joinState: boolean
   ) {
-    console.log(
-      `[grpjoin-dbg] handleGroupJoin source=${source.character.name} target=${target.character.name} joinState=${joinState} pending=${this.pendingInvites[target.character.characterId]} sourceGroupId=${source.character.groupId}`
-    );
-    if (server.isBattleRoyale() || !this.enabled) {
-      console.log(`[grpjoin-dbg] bail: battleRoyale/disabled`);
-      return;
-    }
+    if (server.isBattleRoyale() || !this.enabled) return;
     const pendingInvite = this.pendingInvites[target.character.characterId];
     if (pendingInvite != source.character.groupId) {
-      console.log(
-        `[grpjoin-dbg] bail: pending mismatch pending=${pendingInvite} sourceGroupId=${source.character.groupId}`
-      );
       server.sendAlert(target, "You have no pending invites!");
       return;
     }
@@ -354,19 +342,16 @@ export class GroupManager {
     let group = await this.getGroup(server, source.character.groupId);
 
     if (group && group.members.length >= this.playerLimit) {
-      console.log(`[grpjoin-dbg] bail: group limit reached`);
       server.sendAlert(target, "Group limit reached");
       delete this.pendingInvites[target.character.characterId];
       return;
     }
 
     if (group && source.character.characterId != group.leader) {
-      console.log(`[grpjoin-dbg] bail: source is not group leader`);
       return;
     }
 
     if (!joinState) {
-      console.log(`[grpjoin-dbg] decline branch (joinState falsy)`);
       server.sendAlert(
         source,
         `${target.character.name} declined your invite.`
@@ -376,12 +361,10 @@ export class GroupManager {
       return;
     }
     if (!group) {
-      console.log(`[grpjoin-dbg] no existing group, creating`);
       await this.createGroup(server, source);
     }
     group = await this.getGroup(server, source.character.groupId);
     if (!group) {
-      console.log(`[grpjoin-dbg] bail: group still null after createGroup`);
       server.sendAlert(source, "FAILED TO CREATE GROUP - PLEASE REPORT");
       return;
     }
@@ -410,17 +393,9 @@ export class GroupManager {
     delete this.pendingInvites[target.character.characterId];
 
     const leaderClient = server.getClientByCharId(group.leader);
-    if (!leaderClient) {
-      console.log(
-        `[grpjoin-dbg] bail: leaderClient not found for ${group.leader}`
-      );
-      return;
-    }
+    if (!leaderClient) return;
     const members = await this.getGroupMembers(group, server);
-    console.log(
-      `[grpjoin-dbg] SUCCESS group=${group.groupId} leader=${group.leader} members=${JSON.stringify(group.members)} sending Group.Unknown12`
-    );
-    this.sendDataToGroup(server, group.groupId, "Group.Unknown12", {
+    this.sendDataToGroup(server, group.groupId, "Group.Roster", {
       unknownDword1: group.groupId,
       unknownData1: {
         groupId: group.groupId,
