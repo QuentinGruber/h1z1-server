@@ -324,18 +324,25 @@ export const groupPackets: PacketStructures = [
     0x1312,
     {
       fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 2 },
+        // redundant leading copy of the group id; the client skips it but it stays on the wire
+        { name: "groupId", type: "uint32", defaultValue: 2 },
         {
-          name: "unknownData1",
+          name: "groupHeader",
           type: "schema",
           fields: [
             { name: "groupId", type: "uint32", defaultValue: 0 },
-            { name: "characterId", type: "uint64string", defaultValue: "" },
+            // group owner/leader
+            {
+              name: "ownerCharacterId",
+              type: "uint64string",
+              defaultValue: ""
+            },
             { name: "unknownByte1", type: "uint8", defaultValue: 0 }
           ]
         },
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-        { name: "unknownString1", type: "string", defaultValue: "" },
+        // group display name
+        { name: "groupName", type: "string", defaultValue: "" },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         {
           name: "members",

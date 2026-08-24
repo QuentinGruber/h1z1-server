@@ -87,10 +87,10 @@ export class GroupManager {
 
     const members = await this.getGroupMembers(group, server);
     const sendData = {
-      unknownDword1: group.groupId,
-      unknownData1: {
+      groupId: group.groupId,
+      groupHeader: {
         groupId: group.groupId,
-        characterId: group.leader
+        ownerCharacterId: group.leader
       },
       members
     };
@@ -396,12 +396,12 @@ export class GroupManager {
     if (!leaderClient) return;
     const members = await this.getGroupMembers(group, server);
     this.sendDataToGroup(server, group.groupId, "Group.Roster", {
-      unknownDword1: group.groupId,
-      unknownData1: {
+      groupId: group.groupId,
+      groupHeader: {
         groupId: group.groupId,
-        characterId: leaderClient.character.characterId
+        ownerCharacterId: leaderClient.character.characterId
       },
-      unknownString1: leaderClient.character.name,
+      groupName: leaderClient.character.name,
       members
     });
   }

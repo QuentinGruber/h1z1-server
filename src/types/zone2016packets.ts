@@ -1708,14 +1708,14 @@ export interface GroupToggleSquadLeaderChat {
   leaveState?: boolean;
 }
 export interface GroupRoster {
-  unknownDword1?: number;
-  unknownData1 :{
   groupId?: number;
-  characterId?: string;
+  groupHeader :{
+  groupId?: number;
+  ownerCharacterId?: string;
   unknownByte1?: number;
 };
   unknownByte1?: number;
-  unknownString1?: string;
+  groupName?: string;
   unknownDword2?: number;
   members: unknown[];
   unknownDword3?: number;
