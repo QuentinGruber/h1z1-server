@@ -145,7 +145,7 @@ function hasLineOfSight(
   to: Float32Array
 ): boolean {
   const result = server.navManager.raycast(from, to);
-  return result.t >= 1;
+  return result !== null && result.t >= 1;
 }
 
 function tryDetectPlayer(screamer: ScreamerInstance): boolean {
