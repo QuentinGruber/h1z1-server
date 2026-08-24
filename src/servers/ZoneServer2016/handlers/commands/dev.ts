@@ -1451,7 +1451,7 @@ const dev: any = {
     args: Array<string>
   ) {
     server.sendData(client, "Group.Invite", {
-      unknownDword1: Number(args[1]),
+      inviteType: Number(args[1]),
       unknownDword2: Number(args[2]),
       unknownDword3: Number(args[3]),
       inviteData: {

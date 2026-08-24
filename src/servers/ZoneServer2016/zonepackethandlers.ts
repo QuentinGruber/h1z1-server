@@ -3419,13 +3419,15 @@ export class ZonePacketHandlers {
     const characterName =
         packet.data.inviteData?.sourceCharacter?.identity?.characterName || "",
       source = server.getClientByNameOrLoginSession(characterName);
+    const joinState = packet.data.joinState ?? 0;
     if (!(source instanceof Client)) return;
 
+    // accept is signalled in the low byte; the client can send it inside a larger word
     server.groupManager.handleGroupJoin(
       server,
       source,
       client,
-      packet.data.joinState == 1
+      (joinState & 0xff) == 1
     );
   }
 
