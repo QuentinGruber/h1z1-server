@@ -334,9 +334,18 @@ export class GroupManager {
     target: Client,
     joinState: boolean
   ) {
-    if (server.isBattleRoyale() || !this.enabled) return;
+    console.log(
+      `[grpjoin-dbg] handleGroupJoin source=${source.character.name} target=${target.character.name} joinState=${joinState} pending=${this.pendingInvites[target.character.characterId]} sourceGroupId=${source.character.groupId}`
+    );
+    if (server.isBattleRoyale() || !this.enabled) {
+      console.log(`[grpjoin-dbg] bail: battleRoyale/disabled`);
+      return;
+    }
     const pendingInvite = this.pendingInvites[target.character.characterId];
     if (pendingInvite != source.character.groupId) {
+      console.log(
+        `[grpjoin-dbg] bail: pending mismatch pending=${pendingInvite} sourceGroupId=${source.character.groupId}`
+      );
       server.sendAlert(target, "You have no pending invites!");
       return;
     }
@@ -344,16 +353,19 @@ export class GroupManager {
     let group = await this.getGroup(server, source.character.groupId);
 
     if (group && group.members.length >= this.playerLimit) {
+      console.log(`[grpjoin-dbg] bail: group limit reached`);
       server.sendAlert(target, "Group limit reached");
       delete this.pendingInvites[target.character.characterId];
       return;
     }
 
     if (group && source.character.characterId != group.leader) {
+      console.log(`[grpjoin-dbg] bail: source is not group leader`);
       return;
     }
 
     if (!joinState) {
+      console.log(`[grpjoin-dbg] decline branch (joinState falsy)`);
       server.sendAlert(
         source,
         `${target.character.name} declined your invite.`
@@ -363,10 +375,12 @@ export class GroupManager {
       return;
     }
     if (!group) {
+      console.log(`[grpjoin-dbg] no existing group, creating`);
       await this.createGroup(server, source);
     }
     group = await this.getGroup(server, source.character.groupId);
     if (!group) {
+      console.log(`[grpjoin-dbg] bail: group still null after createGroup`);
       server.sendAlert(source, "FAILED TO CREATE GROUP - PLEASE REPORT");
       return;
     }
@@ -395,8 +409,16 @@ export class GroupManager {
     delete this.pendingInvites[target.character.characterId];
 
     const leaderClient = server.getClientByCharId(group.leader);
-    if (!leaderClient) return;
+    if (!leaderClient) {
+      console.log(
+        `[grpjoin-dbg] bail: leaderClient not found for ${group.leader}`
+      );
+      return;
+    }
     const members = await this.getGroupMembers(group, server);
+    console.log(
+      `[grpjoin-dbg] SUCCESS group=${group.groupId} leader=${group.leader} members=${JSON.stringify(group.members)} sending Group.Unknown12`
+    );
     this.sendDataToGroup(server, group.groupId, "Group.Unknown12", {
       unknownDword1: group.groupId,
       unknownData1: {

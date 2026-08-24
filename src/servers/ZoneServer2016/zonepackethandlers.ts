@@ -3419,13 +3419,18 @@ export class ZonePacketHandlers {
     const characterName =
         packet.data.inviteData?.sourceCharacter?.identity?.characterName || "",
       source = server.getClientByNameOrLoginSession(characterName);
+    const joinState = packet.data.joinState ?? 0;
+    console.log(
+      `[grpjoin-dbg] Group.Join from ${client.character.name} joinState=${joinState} (0x${(joinState >>> 0).toString(16)}) sourceName="${characterName}" sourceFound=${source instanceof Client}`
+    );
     if (!(source instanceof Client)) return;
 
+    // accept is signalled in the low byte; the client can send it inside a larger word
     server.groupManager.handleGroupJoin(
       server,
       source,
       client,
-      packet.data.joinState == 1
+      (joinState & 0xff) == 1
     );
   }
 
