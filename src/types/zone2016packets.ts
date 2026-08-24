@@ -4119,12 +4119,12 @@ export interface ConstructionPlacementFinalizeRequest {
   scale?: Float32Array;
   parentObjectCharacterId?: string;
   BuildingSlot?: string;
-  unkByte1?: number;
-  unk1?: number;
-  rotation1?: Float32Array;
-  rotation2?: Float32Array;
-  rotation3?: Float32Array;
-  unk6?: number;
+  unknownDword1?: number;
+  unknownFloat1?: number;
+  unknownByte1?: number;
+  placementRight?: Float32Array;
+  placementUp?: Float32Array;
+  placementForward?: Float32Array;
   position2?: Float32Array;
 }
 export interface ConstructionPlacementFinalizeResponse {
