@@ -1778,8 +1778,8 @@ export function shouldHideHealthBar(
   const hiddenEntities =
     entity.actorModelId == ModelIds.METAL_STORAGE_CHEST ||
     entity.actorModelId == ModelIds.FURNACE ||
-    entity.actorModelId == 9406 || //workbench
-    entity.actorModelId == 10065; //weapon workbench
+    entity.actorModelId == ModelIds.WORKBENCH ||
+    entity.actorModelId == ModelIds.WEAPON_WORKBENCH;
 
   if (!hiddenEntities) return false;
 
