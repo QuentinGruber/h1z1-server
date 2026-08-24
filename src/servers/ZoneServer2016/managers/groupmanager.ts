@@ -304,8 +304,9 @@ export class GroupManager {
       unknownDword3: 5,
       inviteData: {
         // client stores this in groupRelated1GlobalVar and only sends Group.Join when it is not the
-        // -1 "no active group" sentinel; the value is echoed back and ignored by the join handler
-        unknownQword1: source.character.groupId.toString(),
+        // -1 "no active group" sentinel; the inviter's characterId is always a real 64-bit id, and the
+        // value is echoed back and ignored by the join handler
+        unknownQword1: source.character.characterId,
         // hasRaidError - must be 0
         unknownDword1: 0,
         sourceCharacter: {
