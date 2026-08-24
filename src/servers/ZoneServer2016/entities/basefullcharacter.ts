@@ -150,6 +150,9 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
 
   /** BaseFullCharacter loadout values */
   _resources: { [resourceId: number]: number } = {};
+  /** Last resource value actually sent to clients, per resourceId - used to change-gate ResourceEvent
+   *  spam so a resource is only re-sent when the client-displayed value changes. Reset on respawn/resync. */
+  _lastSentResources: { [resourceId: number]: number } = {};
   _loadout: { [loadoutSlotId: number]: LoadoutItem } = {};
   _equipment: { [equipmentSlotId: number]: CharacterEquipment } = {};
   _containers: { [loadoutSlotId: number]: LoadoutContainer } = {};
