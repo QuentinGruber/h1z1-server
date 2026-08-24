@@ -1545,6 +1545,7 @@ export class ConstructionManager {
     server.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnConstructionDoor(server, client, door);
     }, door);
+    this.reevalShelterEntityVisibility(server, parent);
     return true;
   }
 
@@ -2221,30 +2222,11 @@ export class ConstructionManager {
         client.character.isHidden = constructionGuid;
         for (const a in server._clients) {
           const iteratedClient = server._clients[a];
-
-          const constructionEntity =
-            server.getConstructionEntity(constructionGuid);
-
-          let hasVisitPermission = false;
-          if (constructionEntity) {
-            hasVisitPermission = constructionEntity.getHasPermission(
-              server,
-              iteratedClient.character.characterId,
-              ConstructionPermissionIds.VISIT
-            );
-          }
-
-          const isSameGroup =
-            client.character.groupId != 0 &&
-            iteratedClient.character.groupId != 0 &&
-            client.character.groupId === iteratedClient.character.groupId;
-
-          const hasPermission = isSameGroup && hasVisitPermission;
-
           if (
             iteratedClient.spawnedEntities.has(client.character) &&
-            iteratedClient.character.isHidden != client.character.isHidden &&
-            !hasPermission
+            iteratedClient.character.characterId !==
+              client.character.characterId &&
+            this.shouldHidePlayer(server, iteratedClient, client.character)
           ) {
             server.sendData<CharacterRemovePlayer>(
               iteratedClient,
@@ -2500,12 +2482,114 @@ export class ConstructionManager {
         client.character.characterId,
         ConstructionPermissionIds.VISIT
       ),
-      isInside = parent.isInside(entity.state.position);
+      entityInside = parent.isInside(entity.state.position),
+      // a client standing inside the shelter/shack sees its contents regardless of permission
+      viewerInside = parent.isInside(client.character.state.position);
 
     return (
-      !client.isDebugMode && parentSecured && isInside && !hasVisitPermission
+      !client.isDebugMode &&
+      parentSecured &&
+      entityInside &&
+      !hasVisitPermission &&
+      !viewerInside
     );
-    // TODO: check if character is in secured shelter / shack
+  }
+
+  /**
+   * Immediately re-applies the shelter/shack hide gate to the entities contained inside `shelter`
+   * for every ready client, so a door open/close/place/destroy reveals or culls contained
+   * containers/workbenches without waiting for the periodic spawn/cull sweep. Uses the same
+   * shouldHideEntity gate, so the result matches the sweep (no flapping). Never removes a client's
+   * own character.
+   */
+  reevalShelterEntityVisibility(
+    server: ZoneServer2016,
+    shelter: ConstructionParentEntity | ConstructionChildEntity
+  ) {
+    const contained = Object.values(shelter.freeplaceEntities).filter(
+      (e) =>
+        (e instanceof LootableConstructionEntity ||
+          e instanceof ConstructionChildEntity) &&
+        shelter.isInside(e.state.position)
+    );
+    if (!contained.length) return;
+    for (const key in server._clients) {
+      const client = server._clients[key];
+      for (const entity of contained) {
+        if (
+          client.spawnedEntities.has(entity) &&
+          this.shouldHideEntity(server, client, entity)
+        ) {
+          if (entity.characterId !== client.character.characterId) {
+            server.sendData<CharacterRemovePlayer>(
+              client,
+              "Character.RemovePlayer",
+              { characterId: entity.characterId }
+            );
+            client.spawnedEntities.delete(entity);
+          }
+        } else {
+          // spawnEntityForClient self-guards range, the hide gate, and double-spawn
+          server.spawnEntityForClient(client, entity);
+        }
+      }
+    }
+    // re-eval player visibility for players standing inside this shelter/shack: a secured shelter
+    // hides them from non-permitted outsiders, an unsecured one reveals them again
+    for (const key in server._clients) {
+      const insideClient = server._clients[key];
+      if (!shelter.isInside(insideClient.character.state.position)) continue;
+      if (shelter.isSecured) {
+        this.constructionHidePlayer(
+          server,
+          insideClient,
+          shelter.characterId,
+          true
+        );
+      } else {
+        this.constructionHidePlayer(
+          server,
+          insideClient,
+          shelter.characterId,
+          false
+        );
+        server.spawnCharacterToOtherClients(insideClient.character);
+      }
+    }
+  }
+
+  /**
+   * Stable per-viewer decision for hiding a player standing inside a secured shelter/shack. Computed
+   * from the same inputs as the entity gate (isSecured + isInside + permission), so it does not flap:
+   * hides the target only when they are inside a secured shelter/shack, the viewer is not inside it,
+   * and the viewer is not a group member with VISIT permission. target.isHidden holds the shelter id.
+   */
+  shouldHidePlayer(
+    server: ZoneServer2016,
+    viewer: Client,
+    target: Client["character"]
+  ): boolean {
+    const shelter = server.getConstructionEntity(target.isHidden);
+    if (
+      !(
+        shelter instanceof ConstructionParentEntity ||
+        shelter instanceof ConstructionChildEntity
+      )
+    )
+      return false;
+    if (!shelter.isSecured) return false;
+    if (!shelter.isInside(target.state.position)) return false;
+    if (shelter.isInside(viewer.character.state.position)) return false;
+    const hasVisit = shelter.getHasPermission(
+      server,
+      viewer.character.characterId,
+      ConstructionPermissionIds.VISIT
+    );
+    const sameGroup =
+      target.groupId != 0 &&
+      viewer.character.groupId != 0 &&
+      target.groupId === viewer.character.groupId;
+    return !(sameGroup && hasVisit);
   }
 
   private spawnConstructionFreeplace(

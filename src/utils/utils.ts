@@ -34,6 +34,12 @@ import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
 import * as crypto from "crypto";
 import { ZoneClient } from "servers/ZoneServer2015/classes/zoneclient";
 import { ConstructionDoor } from "../servers/ZoneServer2016/entities/constructiondoor";
+import {
+  ConstructionPermissionIds,
+  ModelIds
+} from "../servers/ZoneServer2016/models/enums";
+import { LootableConstructionEntity } from "../servers/ZoneServer2016/entities/lootableconstructionentity";
+import { AddSimpleNpc } from "../types/zone2016packets";
 
 const startTime = Date.now();
 
@@ -1762,4 +1768,48 @@ export function isFacingTarget(
   angleDiff = Math.atan2(Math.sin(angleDiff), Math.cos(angleDiff));
 
   return Math.abs(angleDiff) <= toleranceRad;
+}
+
+export function shouldHideHealthBar(
+  server: ZoneServer2016,
+  client: ZoneClient2016,
+  entity: ConstructionChildEntity | LootableConstructionEntity
+): boolean {
+  const hiddenEntities =
+    entity.actorModelId == ModelIds.METAL_STORAGE_CHEST ||
+    entity.actorModelId == ModelIds.FURNACE ||
+    entity.actorModelId == ModelIds.WORKBENCH ||
+    entity.actorModelId == ModelIds.WEAPON_WORKBENCH;
+
+  if (!hiddenEntities) return false;
+
+  const foundation = entity.getParentFoundation(server);
+
+  if (!foundation) return false;
+
+  return !foundation.getHasPermission(
+    server,
+    client.character.characterId,
+    ConstructionPermissionIds.CONTAINERS
+  );
+}
+
+export function getSimpleNpcCheckHidden(
+  server: ZoneServer2016,
+  client: ZoneClient2016,
+  entity: ConstructionChildEntity | LootableConstructionEntity
+): AddSimpleNpc {
+  const simpleNpc = {
+    characterId: entity.characterId,
+    transientId: entity.transientId,
+    position: entity.state.position,
+    rotation: entity.state.rotation,
+    modelId: entity.actorModelId,
+    scale: entity.scale,
+    health: (entity.health / entity.maxHealth) * 100
+  };
+
+  if (shouldHideHealthBar(server, client, entity)) simpleNpc.health = 100;
+
+  return simpleNpc;
 }

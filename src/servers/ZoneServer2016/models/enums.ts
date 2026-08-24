@@ -279,7 +279,8 @@ export enum ModelIds {
   STREET_SIGNS_STREET_NAMES_SIGN = 9943,
   STREET_SIGN_POLE = 9944,
   WORKBENCH = 9406,
-  BEE_BOX = 9428
+  BEE_BOX = 9428,
+  WEAPON_WORKBENCH = 10065
 }
 
 export enum StringIds {

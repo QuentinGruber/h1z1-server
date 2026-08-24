@@ -109,7 +109,8 @@ import {
   getDateString,
   chance,
   quat2heading,
-  isInsideSquare
+  isInsideSquare,
+  getSimpleNpcCheckHidden
 } from "../../utils/utils";
 
 import { Db, MongoClient, WithId } from "mongodb";
@@ -5073,7 +5074,14 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendReplicationData(client, entity);
   }
   addSimpleNpc(client: Client, entity: BaseSimpleNpc) {
-    this.sendData<AddSimpleNpc>(client, "AddSimpleNpc", entity.pGetSimpleNpc());
+    // Mask the health bar at spawn for entities the client isn't permitted to see damaged
+    // (containers/workbenches inside a secured shelter/shack), matching the damage-path gate.
+    const simpleNpc =
+      entity instanceof ConstructionChildEntity ||
+      entity instanceof LootableConstructionEntity
+        ? getSimpleNpcCheckHidden(this, client, entity)
+        : entity.pGetSimpleNpc();
+    this.sendData<AddSimpleNpc>(client, "AddSimpleNpc", simpleNpc);
     this.sendReplicationData(client, entity);
   }
 
@@ -5142,7 +5150,11 @@ export class ZoneServer2016 extends EventEmitter {
             characterObj.isAlive &&
             !characterObj.isSpectator &&
             !characterObj.isVanished &&
-            (characterObj.isHidden === client.character.isHidden ||
+            (!this.constructionManager.shouldHidePlayer(
+              this,
+              client,
+              characterObj
+            ) ||
               client.character.isSpectator)
           ) {
             this.sendData<AddLightweightPc>(
@@ -5176,7 +5188,8 @@ export class ZoneServer2016 extends EventEmitter {
           if (
             c.character !== character &&
             !c.spawnedEntities.has(character) &&
-            isPosInRadius(renderDist, pos, c.character.state.position)
+            isPosInRadius(renderDist, pos, c.character.state.position) &&
+            !this.constructionManager.shouldHidePlayer(this, c, character)
           ) {
             this.sendData<AddLightweightPc>(c, "AddLightweightPc", pcData);
             c.spawnedEntities.add(character);
@@ -5308,7 +5321,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   /** Spawns a single grid entity for a client if not already spawned and within range */
-  private spawnEntityForClient(client: Client, object: BaseEntity): void {
+  spawnEntityForClient(client: Client, object: BaseEntity): void {
     const position = client.character.state.position;
     const anchor =
       object instanceof ConstructionParentEntity ||
