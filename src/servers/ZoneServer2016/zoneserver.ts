@@ -8403,7 +8403,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, animationId, () => {
-      this.useComsumablePass(
+      this.useConsumablePass(
         client,
         character,
         item,
@@ -8885,7 +8885,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  async useComsumablePass(
+  async useConsumablePass(
     client: Client,
     character: Character | BaseLootableEntity,
     item: BaseItem,
