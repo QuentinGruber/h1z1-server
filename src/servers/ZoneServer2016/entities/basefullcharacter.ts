@@ -1453,6 +1453,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         resourceType = 0;
       }
       return {
+        // outer resourceId mirrors resourceData.resourceId so the packed entry is labelled
+        resourceId: resourceId,
         resourceType: resourceType,
         resourceData: {
           resourceId: resourceId,

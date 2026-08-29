@@ -2126,7 +2126,7 @@ export class Character2016 extends BaseFullCharacter {
       stats: this.getStats().map((stat: any) => {
         return stat.statData;
       }),
-      remoteWeaponsExtra: this.pGetRemoteWeaponsExtraData(server)
+      remoteWeaponExtra: this.pGetRemoteWeaponsExtraData(server)
     });
 
     // needed so all weapons replicate reload and projectile impact
