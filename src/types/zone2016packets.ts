@@ -2244,7 +2244,7 @@ export interface MountMountResponse {
   characterId?: string;
   vehicleGuid?: string;
   seatId?: number;
-  unknownDword2?: number;
+  mountAcceptFlag?: number;
   isDriver?: number;
   debugStuff?: number;
   identity :{
@@ -2293,8 +2293,8 @@ export interface MountSeatChangeResponse {
   unknownQword1?: string;
 };
   seatId?: number;
-  unknownDword1?: number;
-  unknownDword2?: number;
+  acceptFlag?: number;
+  driveAccess?: number;
 }
 export interface MountSeatSwapRequest {
   characterId?: string;
