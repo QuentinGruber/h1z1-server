@@ -2466,7 +2466,7 @@ export const commands: Array<Command> = [
             stats: client.character.getStats().map((stat: any) => {
               return stat.statData;
             }),
-            remoteWeaponExtra:
+            remoteWeaponsExtra:
               client.character.pGetRemoteWeaponsExtraData(server)
           });
         }

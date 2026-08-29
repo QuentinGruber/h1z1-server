@@ -1597,7 +1597,7 @@ function packFullNPCRemoteWeaponsData(obj: any) {
           ]
         },
         {
-          name: "remoteWeaponExtra",
+          name: "remoteWeaponsExtra",
           type: "array",
           defaultValue: {},
           fields: [
@@ -2621,7 +2621,7 @@ export const fullPcSchema: PacketFields = [
     fields: statSchema
   },
   {
-    name: "remoteWeaponExtra",
+    name: "remoteWeaponsExtra",
     type: "array",
     defaultValue: {},
     fields: [

@@ -837,7 +837,7 @@ export interface LightweightToFullPc {
   unknownByte2?: number;
   unknownQword1?: string;
   stats?: unknown[];
-  remoteWeaponExtra?: unknown[];
+  remoteWeaponsExtra?: unknown[];
 }
 export interface LightweightToFullNpc {
   transientId: unknown;
