@@ -392,6 +392,10 @@ export class GroupManager {
     server.sendAlert(target, "Group joined.");
     delete this.pendingInvites[target.character.characterId];
 
+    // a membership change flips shelter VISIT sharing, so re-eval the hide gate around every member
+    // (group.members now includes the joiner) instead of waiting for the periodic sweep
+    this.reevalShelterVisibilityForMembers(server, group.members);
+
     const leaderClient = server.getClientByCharId(group.leader);
     if (!leaderClient) return;
     const members = await this.getGroupMembers(group, server);
