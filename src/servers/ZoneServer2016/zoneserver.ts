@@ -4654,7 +4654,7 @@ export class ZoneServer2016 extends EventEmitter {
         (p) => p.projectileUniqueId === fireHint.projectileUniqueId
       );
       if (projectile) {
-        projectile.applyPostion(packet.hitReport.position);
+        projectile.applyPosition(packet.hitReport.position);
         projectile.onTrigger(this);
       }
       return;
@@ -4667,16 +4667,6 @@ export class ZoneServer2016 extends EventEmitter {
     )
       return;
     const targetClient = this.getClientByCharId(entity.characterId);
-    if (!fireHint) {
-      if (targetClient) {
-        this.sendChatText(targetClient, message, false);
-        this.sendChatTextToAdmins(
-          `FairPlay: ${client.character.name} has hit ${targetClient.character.name} with non existing projectile`,
-          false
-        );
-      }
-      return;
-    }
     if (fireHint.hitNumber > 0) {
       if (targetClient) {
         this.sendChatTextToAdmins(
