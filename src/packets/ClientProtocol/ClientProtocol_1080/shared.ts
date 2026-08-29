@@ -392,16 +392,16 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
 
   if (obj.flags & 0x100) {
     // either the previous one i meantioned is rotation delta or this one cause rotation is almost neved sent by client
-    const unknown12_float = [];
+    const unknownVector1 = [];
     v = readSignedIntWith2bitLengthValue(data, offset);
-    unknown12_float[0] = v.value / 100;
+    unknownVector1[0] = v.value / 100;
     offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
-    unknown12_float[1] = v.value / 100;
+    unknownVector1[1] = v.value / 100;
     offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
-    unknown12_float[2] = v.value / 100;
-    obj["unknown12_float"] = unknown12_float;
+    unknownVector1[2] = v.value / 100;
+    obj["unknownVector1"] = unknownVector1;
     offset += v.length;
   }
 
@@ -461,7 +461,7 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
     v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[7] = v.value / 10000;
     offset += v.length;
-    obj["PosAndRot"] = rotationEul;
+    obj["posAndRot"] = rotationEul;
   }
   return {
     value: obj,
@@ -550,16 +550,16 @@ export function readPositionUpdateDataAndCheckLength(
 
   if (obj.flags & 0x100) {
     // either the previous one i meantioned is rotation delta or this one cause rotation is almost neved sent by client
-    const unknown12_float = [];
+    const unknownVector1 = [];
     v = readSignedIntWith2bitLengthValue(data, offset);
-    unknown12_float[0] = v.value / 100;
+    unknownVector1[0] = v.value / 100;
     offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
-    unknown12_float[1] = v.value / 100;
+    unknownVector1[1] = v.value / 100;
     offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
-    unknown12_float[2] = v.value / 100;
-    obj["unknown12_float"] = unknown12_float;
+    unknownVector1[2] = v.value / 100;
+    obj["unknownVector1"] = unknownVector1;
     offset += v.length;
   }
 
@@ -621,7 +621,7 @@ export function readPositionUpdateDataAndCheckLength(
     offset += v.length;
     rotationEul[8] = data.readUint8(offset);
     offset += 1;
-    obj["PosAndRot"] = rotationEul;
+    obj["posAndRot"] = rotationEul;
   }
   if (offset != data.length) {
     console.error("Wrong positionUpdate buffer", obj);
@@ -688,16 +688,16 @@ export function packPositionUpdateData(obj: any) {
     chunks.push(packSignedIntWith2bitLengthValue(obj["horizontalSpeed"] * 10));
   }
 
-  if ("unknown12_float" in obj) {
+  if ("unknownVector1" in obj) {
     flags |= 0x100;
     chunks.push(
-      packSignedIntWith2bitLengthValue(obj["unknown12_float"][0] * 100)
+      packSignedIntWith2bitLengthValue(obj["unknownVector1"][0] * 100)
     );
     chunks.push(
-      packSignedIntWith2bitLengthValue(obj["unknown12_float"][1] * 100)
+      packSignedIntWith2bitLengthValue(obj["unknownVector1"][1] * 100)
     );
     chunks.push(
-      packSignedIntWith2bitLengthValue(obj["unknown12_float"][2] * 100)
+      packSignedIntWith2bitLengthValue(obj["unknownVector1"][2] * 100)
     );
   }
 
@@ -719,16 +719,16 @@ export function packPositionUpdateData(obj: any) {
     chunks.push(packSignedIntWith2bitLengthValue(obj["engineRPM"] * 10));
   }
 
-  if ("PosAndRot" in obj) {
+  if ("posAndRot" in obj) {
     flags |= 0x1000;
-    chunks.push(packSignedIntWith2bitLengthValue(obj["PosAndRot"][0] * 10000));
-    chunks.push(packSignedIntWith2bitLengthValue(obj["PosAndRot"][1] * 10000));
-    chunks.push(packSignedIntWith2bitLengthValue(obj["PosAndRot"][2] * 10000));
-    chunks.push(packSignedIntWith2bitLengthValue(obj["PosAndRot"][3] * 10000));
-    chunks.push(packSignedIntWith2bitLengthValue(obj["PosAndRot"][4] * 10000));
-    chunks.push(packSignedIntWith2bitLengthValue(obj["PosAndRot"][5] * 10000));
-    chunks.push(packSignedIntWith2bitLengthValue(obj["PosAndRot"][6] * 10000));
-    chunks.push(packSignedIntWith2bitLengthValue(obj["PosAndRot"][7] * 10000));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["posAndRot"][0] * 10000));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["posAndRot"][1] * 10000));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["posAndRot"][2] * 10000));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["posAndRot"][3] * 10000));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["posAndRot"][4] * 10000));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["posAndRot"][5] * 10000));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["posAndRot"][6] * 10000));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["posAndRot"][7] * 10000));
   }
 
   const header = Buffer.allocUnsafe(7);
