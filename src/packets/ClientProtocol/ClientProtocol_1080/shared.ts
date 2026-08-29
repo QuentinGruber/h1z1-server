@@ -448,7 +448,7 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
     offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[3] = v.value / 10000;
-
+    offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[4] = v.value / 10000;
     offset += v.length;
@@ -606,7 +606,7 @@ export function readPositionUpdateDataAndCheckLength(
     offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[3] = v.value / 10000;
-
+    offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[4] = v.value / 10000;
     offset += v.length;
