@@ -93,6 +93,7 @@ import {
   ConstructionPlacementFinalizeRequest,
   ConstructionPlacementRequest,
   ConstructionPlacementResponse,
+  ContainerMoveItem,
   ContinentBattleInfo,
   DtoHitSpeedTreeReport,
   EffectAddEffect,
@@ -2538,7 +2539,7 @@ export class ZonePacketHandlers {
   ContainerMoveItem(
     server: ZoneServer2016,
     client: Client,
-    packet: ReceivedPacket</*ContainerMoveItem*/ any>
+    packet: ReceivedPacket<ContainerMoveItem>
   ) {
     const {
       containerGuid,
@@ -2547,7 +2548,7 @@ export class ZonePacketHandlers {
       targetCharacterId,
       count,
       newSlotId
-    } = packet.data;
+    } = packet.data as Required<ContainerMoveItem>;
     if (client.hudTimer) {
       client.clearHudTimer();
     }
