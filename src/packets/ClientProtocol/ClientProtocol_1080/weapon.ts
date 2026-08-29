@@ -753,7 +753,7 @@ function parseHitReportPacket(data: Buffer, offset: number) {
   obj.unknownBytes = DataSchema.parse(
     [{ name: "unknownBytes", type: "bytes", length: byteLen }],
     data,
-    0
+    offset
   ).result;
   offset += byteLen;
 
