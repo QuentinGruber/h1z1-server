@@ -406,6 +406,20 @@ export class GroupManager {
     });
   }
 
+  private reevalShelterVisibilityForMembers(
+    server: ZoneServer2016,
+    memberIds: string[]
+  ) {
+    for (const memberId of memberIds) {
+      const memberClient = server.getClientByCharId(memberId);
+      if (!memberClient) continue;
+      server.constructionManager.reevalGroupMemberShelterVisibility(
+        server,
+        memberClient
+      );
+    }
+  }
+
   async handlePlayerDisconnect(server: ZoneServer2016, client: Client) {
     delete this.pendingInvites[client.character.characterId];
     const groupId = client.character.groupId;
@@ -415,6 +429,14 @@ export class GroupManager {
       groupId,
       `${client.character.name} has disconnected from the game.`
     );
+    // the disconnecting player leaves shelter VISIT sharing, so re-eval the hide gate around them
+    // and their group members now instead of waiting for the periodic sweep
+    const memberIds = new Set<string>([client.character.characterId]);
+    if (groupId) {
+      const group = await this.getGroup(server, groupId);
+      if (group) group.members.forEach((memberId) => memberIds.add(memberId));
+    }
+    this.reevalShelterVisibilityForMembers(server, [...memberIds]);
   }
 
   async removeGroupMember(
@@ -442,6 +464,9 @@ export class GroupManager {
         groupId: group.groupId
       });
     }
+    // a membership change flips shelter VISIT sharing, so re-eval the hide gate around every member
+    // (group.members still includes the leaver here) instead of waiting for the periodic sweep
+    this.reevalShelterVisibilityForMembers(server, group.members);
     if (client) {
       for (const a of group.members) {
         setTimeout(() => {

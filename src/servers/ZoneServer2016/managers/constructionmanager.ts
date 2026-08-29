@@ -2559,6 +2559,28 @@ export class ConstructionManager {
   }
 
   /**
+   * Re-applies the shelter/shack hide gate around a character whose group membership just changed,
+   * so a revoked visitor is culled and a member who kept VISIT access is revealed without waiting for
+   * the periodic sweep. Re-evals every foundation and shelter/shack the character stands inside via
+   * reevalShelterEntityVisibility, which keeps the Character.RemovePlayer own-character guard.
+   */
+  reevalGroupMemberShelterVisibility(server: ZoneServer2016, client: Client) {
+    const position = client.character.state.position;
+    for (const key in server._constructionFoundations) {
+      const foundation = server._constructionFoundations[key];
+      if (foundation.isInside(position)) {
+        this.reevalShelterEntityVisibility(server, foundation);
+      }
+    }
+    for (const key in server._constructionSimple) {
+      const shelter = server._constructionSimple[key];
+      if (shelter.isInside(position)) {
+        this.reevalShelterEntityVisibility(server, shelter);
+      }
+    }
+  }
+
+  /**
    * Stable per-viewer decision for hiding a player standing inside a secured shelter/shack. Computed
    * from the same inputs as the entity gate (isSecured + isInside + permission), so it does not flap:
    * hides the target only when they are inside a secured shelter/shack, the viewer is not inside it,
