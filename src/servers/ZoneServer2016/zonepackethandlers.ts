@@ -3522,9 +3522,9 @@ export class ZonePacketHandlers {
       collides with an object. -Meme
     */
     const hitLocation = (packet.data.abilityData as any)?.hitLocation;
+    // the melee target id is the packet's targetCharacterId, not the hitLocation bone string
     const characterId =
-      (packet.data.abilityData as any)?.hitLocation ??
-      client.character.currentInteractionGuid;
+      packet.data.targetCharacterId ?? client.character.currentInteractionGuid;
 
     if (hitLocation) {
       // Cancel emote when player starts melee attack

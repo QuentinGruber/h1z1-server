@@ -1361,7 +1361,7 @@ export class Character2016 extends BaseFullCharacter {
     return {
       loadoutSlotId: slotId,
       abilityLineId: abilityLineId,
-      unknownArray1:
+      memberIds:
         itemDefinitionId == WEAPON_FISTS
           ? [
               {
@@ -1374,7 +1374,7 @@ export class Character2016 extends BaseFullCharacter {
           : [abilityEntry],
       unknownDword3: 2,
       itemDefinitionId: itemDefinitionId,
-      unknownByte: 64
+      abilityFlags: 64
     };
   }
 
@@ -1383,7 +1383,7 @@ export class Character2016 extends BaseFullCharacter {
       {
         loadoutSlotId: 1,
         abilityLineId: 1,
-        unknownArray1: [
+        memberIds: [
           {
             unknownDword1: 1111164,
             unknownDword2: 1111164,
@@ -1392,7 +1392,7 @@ export class Character2016 extends BaseFullCharacter {
         ],
         unknownDword3: 2,
         itemDefinitionId: 83,
-        unknownByte: 64
+        abilityFlags: 64
       }
       // hardcoded one weapon ability to fix fists after respawning
     ];
@@ -1519,7 +1519,7 @@ export class Character2016 extends BaseFullCharacter {
       grants.push({
         loadoutSlotId: loadoutSlotId,
         abilityLineId: abilityLineId,
-        unknownArray1: [
+        memberIds: [
           {
             unknownDword1: abilityId,
             unknownDword2: abilityId,
@@ -1528,7 +1528,7 @@ export class Character2016 extends BaseFullCharacter {
         ],
         unknownDword3: 2,
         itemDefinitionId: itemDefinitionId,
-        unknownByte: 64
+        abilityFlags: 64
       });
       return true;
     };
