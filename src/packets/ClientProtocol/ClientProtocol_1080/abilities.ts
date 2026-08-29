@@ -98,7 +98,8 @@ export const abilitiesPackets: PacketStructures = [
             { name: "loadoutSlotId", type: "uint32", defaultValue: 0 },
             { name: "abilityLineId", type: "uint32", defaultValue: 0 },
             {
-              name: "unknownArray1",
+              // the client copies this member list verbatim; each entry is { abilityId, abilityId, 0 }
+              name: "memberIds",
               type: "array",
               defaultValue: [],
               fields: [
@@ -109,7 +110,7 @@ export const abilitiesPackets: PacketStructures = [
             },
             { name: "unknownDword3", type: "uint32", defaultValue: 0 },
             { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
-            { name: "unknownByte", type: "uint8", defaultValue: 0 }
+            { name: "abilityFlags", type: "uint8", defaultValue: 0 }
           ]
         }
       ]
