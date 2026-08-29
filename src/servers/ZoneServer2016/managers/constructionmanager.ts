@@ -2216,16 +2216,19 @@ export class ConstructionManager {
     state: boolean
   ) {
     if (state) {
-      // set the shelter-membership flag once, but reconcile the viewer set on every re-eval: even when
-      // the target is already hidden, a membership/permission change must re-cull revoked viewers and
-      // reveal newly-permitted ones
-      client.character.isHidden = constructionGuid;
+      // set the shelter-membership flag once (keep the active shelter id for overlapping shelters), but
+      // reconcile the viewer set on every re-eval: even when the target is already hidden, a membership/
+      // permission change must re-cull revoked viewers and reveal newly-permitted ones
+      if (!client.character.isHidden)
+        client.character.isHidden = constructionGuid;
       for (const a in server._clients) {
         const iteratedClient = server._clients[a];
         if (
           iteratedClient.spawnedEntities.has(client.character) &&
           iteratedClient.character.characterId !==
             client.character.characterId &&
+          // a spectator legitimately sees hidden players (mirrors the spawnCharacters sweep), so never cull one
+          !iteratedClient.character.isSpectator &&
           this.shouldHidePlayer(server, iteratedClient, client.character)
         ) {
           server.sendData<CharacterRemovePlayer>(
@@ -2239,7 +2242,8 @@ export class ConstructionManager {
         }
       }
       // reveal the target to viewers who are now permitted but do not yet see them;
-      // spawnCharacterToOtherClients self-guards range, the hide gate, double-spawn, and own character
+      // spawnCharacterToOtherClients self-guards range, the hide gate, double-spawn, own character, and
+      // skips ineligible (vanished/spectator/dead) targets
       server.spawnCharacterToOtherClients(client.character);
     } else if (client.character.isHidden) client.character.isHidden = "";
   }

@@ -5164,6 +5164,9 @@ export class ZoneServer2016 extends EventEmitter {
   spawnCharacterToOtherClients(character: Character) {
     const client = this.getClientByCharId(character.characterId);
     if (!client) return;
+    // never broadcast a vanished, spectating, or dead character (mirrors the spawnCharacters sweep)
+    if (character.isVanished || character.isSpectator || !character.isAlive)
+      return;
     const pos = character.state.position;
     const renderDist =
       character.npcRenderDistance || this.charactersRenderDistance;
