@@ -1216,12 +1216,15 @@ export const lightWeightPcSchema: PacketFields = [
     type: "schema",
     fields: identitySchema
   },
-  { name: "unknownByte1", type: "uint8", defaultValue: /*2*/ 2 }, // one of these messes with fullcharacter packet
+  // required lightweight-spawn init value the LightweightToFullPc (0xDA) full-data applier reconciles; do not zero
+  { name: "unknownByte1", type: "uint8", defaultValue: 2 },
   { name: "actorModelId", type: "uint32", defaultValue: 9469 },
-  { name: "unknownDword1", type: "uint32", defaultValue: /*270*/ 270 }, // one of these messes with fullcharacter packet
+  // required lightweight-spawn init value passed to a ProxiedCharacter init virtual, reconciled by LightweightToFullPc (0xDA); do not zero
+  { name: "unknownDword1", type: "uint32", defaultValue: 270 },
   { name: "position", type: "floatvector3", defaultValue: [0, 80, 0] },
   { name: "rotation", type: "floatvector4", defaultValue: [0, 80, 0, 1] },
-  { name: "unknownFloat1", type: "float", defaultValue: /*4.7*/ 4.7 }, // one of these messes with fullcharacter packet
+  // required lightweight-spawn init value the LightweightToFullPc (0xDA) full-data applier reconciles; do not zero
+  { name: "unknownFloat1", type: "float", defaultValue: 4.7 },
   {
     name: "mountGuid",
     type: "uint64string",
@@ -1233,7 +1236,8 @@ export const lightWeightPcSchema: PacketFields = [
   { name: "effectId", type: "uint32", defaultValue: 0 },
   { name: "unknownDword4", type: "uint32", defaultValue: 0 },
   {
-    name: "unknownQword1", // characterstate?
+    // client copies this into the ProxiedCharacter spawn descriptor as the initial character state
+    name: "initialCharacterState",
     type: "uint64string",
     defaultValue: "0x0100000000100000"
   },

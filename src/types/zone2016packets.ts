@@ -612,7 +612,7 @@ export interface AddLightweightPc {
   movementVersion?: number;
   effectId?: number;
   unknownDword4?: number;
-  unknownQword1?: string;
+  initialCharacterState?: string;
   shaderGroupId?: number;
   flags1:{
      flag0?: number,
