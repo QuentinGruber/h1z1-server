@@ -1942,11 +1942,6 @@ export class ZonePacketHandlers {
       entity = server.getEntity(guid);
 
     if (!entity) return;
-    if (entity instanceof Crate) {
-      client.character.currentInteractionGuid = guid;
-      client.character.lastInteractionStringTime = Date.now();
-      return;
-    }
     const isConstruction =
       entity instanceof ConstructionParentEntity ||
       entity instanceof ConstructionChildEntity ||
@@ -1964,6 +1959,8 @@ export class ZonePacketHandlers {
     }
     client.character.currentInteractionGuid = guid;
     client.character.lastInteractionStringTime = Date.now();
+    // a crate only records the interaction guid; it has no OnInteractionString handler
+    if (entity instanceof Crate) return;
     entity.OnInteractionString(server, client);
   }
   MountSeatChangeRequest(

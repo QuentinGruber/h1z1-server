@@ -54,7 +54,6 @@ function getCraftComponentsDataSource(
 } {
   // ignoring proximity container items for now
 
-  // todo: include other datasources when they are available ex. proximity items, accessed container
   const inventory: { [itemDefinitionId: number]: CraftComponentDSEntry } = {};
   Object.keys(client.character._containers).forEach((loadoutSlotId) => {
     const container = client.character._containers[Number(loadoutSlotId)];
