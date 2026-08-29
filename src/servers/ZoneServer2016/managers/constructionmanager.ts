@@ -2216,29 +2216,31 @@ export class ConstructionManager {
     state: boolean
   ) {
     if (state) {
-      //TODO: Leaving a group will not remove the player because the client already has the isHidden flag.
-      //To reproduce: Create a group and give the other player visitor perm, before disbanding the group remove other players' perms.
-      if (!client.character.isHidden) {
-        client.character.isHidden = constructionGuid;
-        for (const a in server._clients) {
-          const iteratedClient = server._clients[a];
-          if (
-            iteratedClient.spawnedEntities.has(client.character) &&
-            iteratedClient.character.characterId !==
-              client.character.characterId &&
-            this.shouldHidePlayer(server, iteratedClient, client.character)
-          ) {
-            server.sendData<CharacterRemovePlayer>(
-              iteratedClient,
-              "Character.RemovePlayer",
-              {
-                characterId: client.character.characterId
-              }
-            );
-            iteratedClient.spawnedEntities.delete(client.character);
-          }
+      // set the shelter-membership flag once, but reconcile the viewer set on every re-eval: even when
+      // the target is already hidden, a membership/permission change must re-cull revoked viewers and
+      // reveal newly-permitted ones
+      client.character.isHidden = constructionGuid;
+      for (const a in server._clients) {
+        const iteratedClient = server._clients[a];
+        if (
+          iteratedClient.spawnedEntities.has(client.character) &&
+          iteratedClient.character.characterId !==
+            client.character.characterId &&
+          this.shouldHidePlayer(server, iteratedClient, client.character)
+        ) {
+          server.sendData<CharacterRemovePlayer>(
+            iteratedClient,
+            "Character.RemovePlayer",
+            {
+              characterId: client.character.characterId
+            }
+          );
+          iteratedClient.spawnedEntities.delete(client.character);
         }
-      } else return;
+      }
+      // reveal the target to viewers who are now permitted but do not yet see them;
+      // spawnCharacterToOtherClients self-guards range, the hide gate, double-spawn, and own character
+      server.spawnCharacterToOtherClients(client.character);
     } else if (client.character.isHidden) client.character.isHidden = "";
   }
 
