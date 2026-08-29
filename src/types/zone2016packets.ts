@@ -602,7 +602,7 @@ export interface AddLightweightPc {
 };
   unknownByte1?: number;
   actorModelId?: number;
-  unknownDword1?: number;
+  profileId?: number;
   position?: Float32Array;
   rotation?: Float32Array;
   unknownFloat1?: number;

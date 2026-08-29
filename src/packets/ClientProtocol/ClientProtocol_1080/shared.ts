@@ -1219,8 +1219,8 @@ export const lightWeightPcSchema: PacketFields = [
   // required lightweight-spawn init value the LightweightToFullPc (0xDA) full-data applier reconciles; do not zero
   { name: "unknownByte1", type: "uint8", defaultValue: 2 },
   { name: "actorModelId", type: "uint32", defaultValue: 9469 },
-  // required lightweight-spawn init value passed to a ProxiedCharacter init virtual, reconciled by LightweightToFullPc (0xDA); do not zero
-  { name: "unknownDword1", type: "uint32", defaultValue: 270 },
+  // the character's active profile id (ClientPcData.activeProfileId); the client passes it to ProxiedObject::SetProfileId (vtable slot 32)
+  { name: "profileId", type: "uint32", defaultValue: 270 },
   { name: "position", type: "floatvector3", defaultValue: [0, 80, 0] },
   { name: "rotation", type: "floatvector4", defaultValue: [0, 80, 0, 1] },
   // required lightweight-spawn init value the LightweightToFullPc (0xDA) full-data applier reconciles; do not zero
