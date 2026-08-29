@@ -276,7 +276,7 @@ export interface ClientBeginZoning {
   windDirectionY?: number;
   windDirectionZ?: number;
   wind?: number;
-  rainminStrength?: number;
+  rainMinStrength?: number;
   rainRampupTimeSeconds?: number;
   cloudFile?: string;
   stratusCloudTiling?: number;
@@ -340,7 +340,7 @@ export interface SendZoneDetails {
   windDirectionY?: number;
   windDirectionZ?: number;
   wind?: number;
-  rainminStrength?: number;
+  rainMinStrength?: number;
   rainRampupTimeSeconds?: number;
   cloudFile?: string;
   stratusCloudTiling?: number;
@@ -571,7 +571,7 @@ export interface UpdateWeatherData {
   windDirectionY?: number;
   windDirectionZ?: number;
   wind?: number;
-  rainminStrength?: number;
+  rainMinStrength?: number;
   rainRampupTimeSeconds?: number;
   cloudFile?: string;
   stratusCloudTiling?: number;

@@ -2710,7 +2710,7 @@ export const skyData: PacketFields = [
   { name: "windDirectionY", type: "float", defaultValue: 0 },
   { name: "windDirectionZ", type: "float", defaultValue: 0 },
   { name: "wind", type: "float", defaultValue: 0 },
-  { name: "rainminStrength", type: "float", defaultValue: 0 },
+  { name: "rainMinStrength", type: "float", defaultValue: 0 },
   { name: "rainRampupTimeSeconds", type: "float", defaultValue: 0 },
   { name: "cloudFile", type: "string", defaultValue: "" },
   { name: "stratusCloudTiling", type: "float", defaultValue: 0 },
