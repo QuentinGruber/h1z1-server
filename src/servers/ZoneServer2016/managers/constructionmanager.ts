@@ -2446,12 +2446,10 @@ export class ConstructionManager {
     client: Client,
     entity: BaseEntity
   ): boolean {
-    if (
-      !(
-        entity instanceof LootableConstructionEntity ||
-        entity instanceof ConstructionChildEntity
-      )
-    ) {
+    if (!(
+      entity instanceof LootableConstructionEntity ||
+      entity instanceof ConstructionChildEntity
+    )) {
       return false;
     }
 
@@ -2570,12 +2568,10 @@ export class ConstructionManager {
     target: Client["character"]
   ): boolean {
     const shelter = server.getConstructionEntity(target.isHidden);
-    if (
-      !(
-        shelter instanceof ConstructionParentEntity ||
-        shelter instanceof ConstructionChildEntity
-      )
-    )
+    if (!(
+      shelter instanceof ConstructionParentEntity ||
+      shelter instanceof ConstructionChildEntity
+    ))
       return false;
     if (!shelter.isSecured) return false;
     if (!shelter.isInside(target.state.position)) return false;
@@ -2805,9 +2801,7 @@ export class ConstructionManager {
   public repairConstruction(
     server: ZoneServer2016,
     entity:
-      | ConstructionChildEntity
-      | ConstructionDoor
-      | LootableConstructionEntity,
+      ConstructionChildEntity | ConstructionDoor | LootableConstructionEntity,
     amount: number
   ) {
     const damage =
@@ -2824,9 +2818,7 @@ export class ConstructionManager {
   public fullyRepairConstruction(
     server: ZoneServer2016,
     entity:
-      | ConstructionChildEntity
-      | ConstructionDoor
-      | LootableConstructionEntity
+      ConstructionChildEntity | ConstructionDoor | LootableConstructionEntity
   ) {
     entity.health = entity.maxHealth;
     server.sendDataToAllWithSpawnedEntity<CharacterUpdateSimpleProxyHealth>(

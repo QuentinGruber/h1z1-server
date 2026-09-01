@@ -349,8 +349,7 @@ export class ZoneServer2016 extends EventEmitter {
   readonly _mongoAddress: string;
   private _clientProtocol: string;
   protected _loginConnectionManager!:
-    | LoginConnectionManager
-    | WsLoginConnectionManager;
+    LoginConnectionManager | WsLoginConnectionManager;
   _serverGuid = generateRandomGuid();
   _worldId = 0;
   _grid: GridCell[] = [];
@@ -3852,13 +3851,11 @@ export class ZoneServer2016 extends EventEmitter {
     const explosiveArrowConstructionDamage = this.baseConstructionDamage / 18; // /22 previous value
     for (const gridCell of this.getGridCellsInRadius(position, 10)) {
       for (const object of gridCell.objects) {
-        if (
-          !(
-            object instanceof ConstructionChildEntity ||
-            object instanceof ConstructionDoor ||
-            object instanceof LootableConstructionEntity
-          )
-        )
+        if (!(
+          object instanceof ConstructionChildEntity ||
+          object instanceof ConstructionDoor ||
+          object instanceof LootableConstructionEntity
+        ))
           continue;
         if (getDistance(object.state.position, position) > object.damageRange)
           continue;
@@ -5693,14 +5690,12 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     //TODO: This is temporary until we fix the ReplicationData correctly for construction Objects.
-    if (
-      !(
-        entity instanceof ConstructionDoor ||
-        entity instanceof ConstructionParentEntity ||
-        entity instanceof ConstructionChildEntity ||
-        entity instanceof LootableConstructionEntity
-      )
-    ) {
+    if (!(
+      entity instanceof ConstructionDoor ||
+      entity instanceof ConstructionParentEntity ||
+      entity instanceof ConstructionChildEntity ||
+      entity instanceof LootableConstructionEntity
+    )) {
       this.sendData<ReplicationCreateComponent>(
         client,
         "Replication.CreateComponent",
