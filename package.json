@@ -14,10 +14,10 @@
   },
   "dependencies": {
     "@types/js-yaml": "4.0.9",
-    "@types/node": "25.9.1",
+    "@types/node": "26.4.0",
     "@types/ws": "8.18.1",
     "debug": "4.4.3",
-    "elastic-apm-node": "4.15.0",
+    "elastic-apm-node": "4.18.0",
     "h1emu-core": "1.3.2",
     "h1z1-dataschema": "1.9.4",
     "js-yaml": "4.1.1",
@@ -25,17 +25,17 @@
     "recast-navigation": "0.43.1",
     "threads": "1.7.0",
     "typescript": "6.0.3",
-    "ws": "8.21.0"
+    "ws": "8.21.3"
   },
   "directories": {
     "src": "./src"
   },
   "devDependencies": {
     "cross-env": "^10.1.0",
-    "oxlint": "^1.67.0",
+    "oxlint": "^1.80.0",
     "prettier": "^3.9.6",
-    "tsx": "^4.22.3",
-    "typedoc": "^0.28.19"
+    "tsx": "^4.23.13",
+    "typedoc": "^0.28.20"
   },
   "scripts": {
     "gen-packets-types": "tsx ./scripts/genPacketsNames.ts",
