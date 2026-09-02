@@ -84,6 +84,12 @@ function setObstacle(
 ): BoxObstacle | null {
   const yaw = rotation[1];
   switch (actorModelId) {
+    case ModelIds.GROUND_TAMPER:
+      return server.navManager.addObstacle(
+        position,
+        vec3.fromArray([10.0, 2.0, 10.0]),
+        yaw
+      );
     case ModelIds.DECK_FOUNDATION:
       return server.navManager.addObstacle(
         position,
