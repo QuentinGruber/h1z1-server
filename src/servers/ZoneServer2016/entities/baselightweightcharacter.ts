@@ -251,6 +251,8 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
       },
       movementVersion: this.movementVersion,
       headActor: this.headActor,
+      // zombie models render hair from the eyeActor slot, so for zombies the hair goes in eyeActor and
+      // the real eye actor moves to unknownString4; non-zombies use each slot as named
       eyeActor: zombieModel ? this.hairModel : this.eyeActor,
       unknownString4: zombieModel ? this.eyeActor : this.hairModel,
       attachedObject: {

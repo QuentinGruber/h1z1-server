@@ -276,7 +276,7 @@ export interface ClientBeginZoning {
   windDirectionY?: number;
   windDirectionZ?: number;
   wind?: number;
-  rainminStrength?: number;
+  rainMinStrength?: number;
   rainRampupTimeSeconds?: number;
   cloudFile?: string;
   stratusCloudTiling?: number;
@@ -340,7 +340,7 @@ export interface SendZoneDetails {
   windDirectionY?: number;
   windDirectionZ?: number;
   wind?: number;
-  rainminStrength?: number;
+  rainMinStrength?: number;
   rainRampupTimeSeconds?: number;
   cloudFile?: string;
   stratusCloudTiling?: number;
@@ -571,7 +571,7 @@ export interface UpdateWeatherData {
   windDirectionY?: number;
   windDirectionZ?: number;
   wind?: number;
-  rainminStrength?: number;
+  rainMinStrength?: number;
   rainRampupTimeSeconds?: number;
   cloudFile?: string;
   stratusCloudTiling?: number;
@@ -837,7 +837,7 @@ export interface LightweightToFullPc {
   unknownByte2?: number;
   unknownQword1?: string;
   stats?: unknown[];
-  remoteWeaponExtra?: unknown[];
+  remoteWeaponsExtra?: unknown[];
 }
 export interface LightweightToFullNpc {
   transientId: unknown;
@@ -2244,7 +2244,7 @@ export interface MountMountResponse {
   characterId?: string;
   vehicleGuid?: string;
   seatId?: number;
-  unknownDword2?: number;
+  mountAcceptFlag?: number;
   isDriver?: number;
   debugStuff?: number;
   identity :{
@@ -2293,8 +2293,8 @@ export interface MountSeatChangeResponse {
   unknownQword1?: string;
 };
   seatId?: number;
-  unknownDword1?: number;
-  unknownDword2?: number;
+  acceptFlag?: number;
+  driveAccess?: number;
 }
 export interface MountSeatSwapRequest {
   characterId?: string;

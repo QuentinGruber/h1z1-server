@@ -24,7 +24,8 @@ export const mountPackets: PacketStructures = [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
         { name: "vehicleGuid", type: "uint64string", defaultValue: "0" },
         { name: "seatId", type: "uint32", defaultValue: 0 }, // seat 0-3
-        { name: "unknownDword2", type: "uint32", defaultValue: 1 }, // must be 1 or we dont get into vehicle?
+        // the client requires this to be 1 or it will not enter the vehicle
+        { name: "mountAcceptFlag", type: "uint32", defaultValue: 1 },
         { name: "isDriver", type: "uint32", defaultValue: 0 }, // is driver? (you can be on seat 3 and still have control)
         { name: "debugStuff", type: "uint32", defaultValue: 0 }, // colored lines on screen
         { name: "identity", type: "schema", fields: identitySchema },
@@ -100,8 +101,10 @@ export const mountPackets: PacketStructures = [
         { name: "vehicleGuid", type: "uint64string", defaultValue: "0" },
         { name: "identity", type: "schema", fields: identitySchema },
         { name: "seatId", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword1", type: "uint32", defaultValue: 1 }, // needs to be 1
-        { name: "unknownDword2", type: "uint32", defaultValue: 1 } // needs to be 1
+        // paired accept flag; the client requires this to be 1
+        { name: "acceptFlag", type: "uint32", defaultValue: 1 },
+        // whether the seat has drive control (seatId == 0 ? 1 : 0)
+        { name: "driveAccess", type: "uint32", defaultValue: 1 }
       ]
     }
   ],

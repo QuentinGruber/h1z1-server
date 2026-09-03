@@ -1932,6 +1932,8 @@ export const basePackets: PacketStructures = [
                 }
               ]
             },
+            // the client reads the self packet to the end and requires it to consume the buffer
+            // exactly, so these trailing fields must stay in place and must not be trimmed
             { name: "quizComplete", type: "boolean", defaultValue: false },
             { name: "unknownQword1", type: "uint64string", defaultValue: "" },
             { name: "unknownDword38", type: "uint32", defaultValue: 0 },

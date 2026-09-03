@@ -2216,29 +2216,35 @@ export class ConstructionManager {
     state: boolean
   ) {
     if (state) {
-      //TODO: Leaving a group will not remove the player because the client already has the isHidden flag.
-      //To reproduce: Create a group and give the other player visitor perm, before disbanding the group remove other players' perms.
-      if (!client.character.isHidden) {
+      // set the shelter-membership flag once (keep the active shelter id for overlapping shelters), but
+      // reconcile the viewer set on every re-eval: even when the target is already hidden, a membership/
+      // permission change must re-cull revoked viewers and reveal newly-permitted ones
+      if (!client.character.isHidden)
         client.character.isHidden = constructionGuid;
-        for (const a in server._clients) {
-          const iteratedClient = server._clients[a];
-          if (
-            iteratedClient.spawnedEntities.has(client.character) &&
-            iteratedClient.character.characterId !==
-              client.character.characterId &&
-            this.shouldHidePlayer(server, iteratedClient, client.character)
-          ) {
-            server.sendData<CharacterRemovePlayer>(
-              iteratedClient,
-              "Character.RemovePlayer",
-              {
-                characterId: client.character.characterId
-              }
-            );
-            iteratedClient.spawnedEntities.delete(client.character);
-          }
+      for (const a in server._clients) {
+        const iteratedClient = server._clients[a];
+        if (
+          iteratedClient.spawnedEntities.has(client.character) &&
+          iteratedClient.character.characterId !==
+            client.character.characterId &&
+          // a spectator legitimately sees hidden players (mirrors the spawnCharacters sweep), so never cull one
+          !iteratedClient.character.isSpectator &&
+          this.shouldHidePlayer(server, iteratedClient, client.character)
+        ) {
+          server.sendData<CharacterRemovePlayer>(
+            iteratedClient,
+            "Character.RemovePlayer",
+            {
+              characterId: client.character.characterId
+            }
+          );
+          iteratedClient.spawnedEntities.delete(client.character);
         }
-      } else return;
+      }
+      // reveal the target to viewers who are now permitted but do not yet see them;
+      // spawnCharacterToOtherClients self-guards range, the hide gate, double-spawn, own character, and
+      // skips ineligible (vanished/spectator/dead) targets
+      server.spawnCharacterToOtherClients(client.character);
     } else if (client.character.isHidden) client.character.isHidden = "";
   }
 
@@ -2554,6 +2560,28 @@ export class ConstructionManager {
           false
         );
         server.spawnCharacterToOtherClients(insideClient.character);
+      }
+    }
+  }
+
+  /**
+   * Re-applies the shelter/shack hide gate around a character whose group membership just changed,
+   * so a revoked visitor is culled and a member who kept VISIT access is revealed without waiting for
+   * the periodic sweep. Re-evals every foundation and shelter/shack the character stands inside via
+   * reevalShelterEntityVisibility, which keeps the Character.RemovePlayer own-character guard.
+   */
+  reevalGroupMemberShelterVisibility(server: ZoneServer2016, client: Client) {
+    const position = client.character.state.position;
+    for (const key in server._constructionFoundations) {
+      const foundation = server._constructionFoundations[key];
+      if (foundation.isInside(position)) {
+        this.reevalShelterEntityVisibility(server, foundation);
+      }
+    }
+    for (const key in server._constructionSimple) {
+      const shelter = server._constructionSimple[key];
+      if (shelter.isInside(position)) {
+        this.reevalShelterEntityVisibility(server, shelter);
       }
     }
   }

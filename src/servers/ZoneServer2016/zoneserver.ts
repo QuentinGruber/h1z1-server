@@ -4654,7 +4654,7 @@ export class ZoneServer2016 extends EventEmitter {
         (p) => p.projectileUniqueId === fireHint.projectileUniqueId
       );
       if (projectile) {
-        projectile.applyPostion(packet.hitReport.position);
+        projectile.applyPosition(packet.hitReport.position);
         projectile.onTrigger(this);
       }
       return;
@@ -4667,16 +4667,6 @@ export class ZoneServer2016 extends EventEmitter {
     )
       return;
     const targetClient = this.getClientByCharId(entity.characterId);
-    if (!fireHint) {
-      if (targetClient) {
-        this.sendChatText(targetClient, message, false);
-        this.sendChatTextToAdmins(
-          `FairPlay: ${client.character.name} has hit ${targetClient.character.name} with non existing projectile`,
-          false
-        );
-      }
-      return;
-    }
     if (fireHint.hitNumber > 0) {
       if (targetClient) {
         this.sendChatTextToAdmins(
@@ -5174,6 +5164,9 @@ export class ZoneServer2016 extends EventEmitter {
   spawnCharacterToOtherClients(character: Character) {
     const client = this.getClientByCharId(character.characterId);
     if (!client) return;
+    // never broadcast a vanished, spectating, or dead character (mirrors the spawnCharacters sweep)
+    if (character.isVanished || character.isSpectator || !character.isAlive)
+      return;
     const pos = character.state.position;
     const renderDist =
       character.npcRenderDistance || this.charactersRenderDistance;
@@ -6624,7 +6617,7 @@ export class ZoneServer2016 extends EventEmitter {
           vehicleGuid: vehicle.characterId,
           identity: {},
           seatId: seatId,
-          unknownDword2: 0 // if set to 1 the selected character will have drive access
+          driveAccess: 0 // if set to 1 the selected character will have drive access
         }
       );
     }
@@ -6756,7 +6749,7 @@ export class ZoneServer2016 extends EventEmitter {
           vehicleGuid: vehicle.characterId,
           identity: {},
           seatId: packet.data.seatId,
-          unknownDword2: packet.data.seatId === 0 ? 1 : 0 // if set to 1 the select character will have drive access
+          driveAccess: packet.data.seatId === 0 ? 1 : 0 // if set to 1 the select character will have drive access
         }
       );
       vehicle.seats[oldSeatId] = "";
@@ -8413,7 +8406,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, animationId, () => {
-      this.useComsumablePass(
+      this.useConsumablePass(
         client,
         character,
         item,
@@ -8895,7 +8888,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  async useComsumablePass(
+  async useConsumablePass(
     client: Client,
     character: Character | BaseLootableEntity,
     item: BaseItem,

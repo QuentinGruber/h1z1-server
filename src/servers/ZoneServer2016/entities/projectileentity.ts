@@ -143,7 +143,7 @@ export class ProjectileEntity extends BaseLightweightCharacter {
     };
   }
 
-  applyPostion(position: Float32Array) {
+  applyPosition(position: Float32Array) {
     this.state.position = position;
   }
 

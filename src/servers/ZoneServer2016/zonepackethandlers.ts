@@ -93,6 +93,7 @@ import {
   ConstructionPlacementFinalizeRequest,
   ConstructionPlacementRequest,
   ConstructionPlacementResponse,
+  ContainerMoveItem,
   ContinentBattleInfo,
   DtoHitSpeedTreeReport,
   EffectAddEffect,
@@ -1942,11 +1943,6 @@ export class ZonePacketHandlers {
       entity = server.getEntity(guid);
 
     if (!entity) return;
-    if (entity instanceof Crate) {
-      client.character.currentInteractionGuid = guid;
-      client.character.lastInteractionStringTime = Date.now();
-      return;
-    }
     const isConstruction =
       entity instanceof ConstructionParentEntity ||
       entity instanceof ConstructionChildEntity ||
@@ -1964,6 +1960,8 @@ export class ZonePacketHandlers {
     }
     client.character.currentInteractionGuid = guid;
     client.character.lastInteractionStringTime = Date.now();
+    // a crate only records the interaction guid; it has no OnInteractionString handler
+    if (entity instanceof Crate) return;
     entity.OnInteractionString(server, client);
   }
   MountSeatChangeRequest(
@@ -2538,7 +2536,7 @@ export class ZonePacketHandlers {
   ContainerMoveItem(
     server: ZoneServer2016,
     client: Client,
-    packet: ReceivedPacket</*ContainerMoveItem*/ any>
+    packet: ReceivedPacket<ContainerMoveItem>
   ) {
     const {
       containerGuid,
@@ -2547,7 +2545,7 @@ export class ZonePacketHandlers {
       targetCharacterId,
       count,
       newSlotId
-    } = packet.data;
+    } = packet.data as Required<ContainerMoveItem>;
     if (client.hudTimer) {
       client.clearHudTimer();
     }
@@ -3522,9 +3520,9 @@ export class ZonePacketHandlers {
       collides with an object. -Meme
     */
     const hitLocation = (packet.data.abilityData as any)?.hitLocation;
+    // the melee target id is the packet's targetCharacterId, not the hitLocation bone string
     const characterId =
-      (packet.data.abilityData as any)?.hitLocation ??
-      client.character.currentInteractionGuid;
+      packet.data.targetCharacterId ?? client.character.currentInteractionGuid;
 
     if (hitLocation) {
       // Cancel emote when player starts melee attack
