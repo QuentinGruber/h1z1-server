@@ -218,9 +218,7 @@ export class DecayManager {
   private decayDamage(
     server: ZoneServer2016,
     entity:
-      | LootableConstructionEntity
-      | ConstructionDoor
-      | ConstructionChildEntity,
+      LootableConstructionEntity | ConstructionDoor | ConstructionChildEntity,
     freeplaceDecayMultiplier: number = 1
   ) {
     if (entity.isDecayProtected) {
