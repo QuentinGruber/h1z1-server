@@ -602,7 +602,7 @@ export interface AddLightweightPc {
 };
   unknownByte1?: number;
   actorModelId?: number;
-  unknownDword1?: number;
+  profileId?: number;
   position?: Float32Array;
   rotation?: Float32Array;
   unknownFloat1?: number;
@@ -612,7 +612,7 @@ export interface AddLightweightPc {
   movementVersion?: number;
   effectId?: number;
   unknownDword4?: number;
-  unknownQword1?: string;
+  initialCharacterState?: string;
   shaderGroupId?: number;
   flags1:{
      flag0?: number,

@@ -2438,6 +2438,8 @@ export const commands: Array<Command> = [
         ) {
           server.sendData(c, "AddLightweightPc", {
             ...mimic,
+            // send the lightweight-spawn placeholder profile id, not the pGetLightweight profileId
+            profileId: 270,
             mountGuid: "",
             mountSeatId: 0,
             mountRelatedDword1: 0

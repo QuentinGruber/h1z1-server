@@ -392,16 +392,16 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
 
   if (obj.flags & 0x100) {
     // either the previous one i meantioned is rotation delta or this one cause rotation is almost neved sent by client
-    const unknown12_float = [];
+    const unknownVector1 = [];
     v = readSignedIntWith2bitLengthValue(data, offset);
-    unknown12_float[0] = v.value / 100;
+    unknownVector1[0] = v.value / 100;
     offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
-    unknown12_float[1] = v.value / 100;
+    unknownVector1[1] = v.value / 100;
     offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
-    unknown12_float[2] = v.value / 100;
-    obj["unknown12_float"] = unknown12_float;
+    unknownVector1[2] = v.value / 100;
+    obj["unknownVector1"] = unknownVector1;
     offset += v.length;
   }
 
@@ -448,7 +448,7 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
     offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[3] = v.value / 10000;
-
+    offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[4] = v.value / 10000;
     offset += v.length;
@@ -461,7 +461,7 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
     v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[7] = v.value / 10000;
     offset += v.length;
-    obj["PosAndRot"] = rotationEul;
+    obj["posAndRot"] = rotationEul;
   }
   return {
     value: obj,
@@ -550,16 +550,16 @@ export function readPositionUpdateDataAndCheckLength(
 
   if (obj.flags & 0x100) {
     // either the previous one i meantioned is rotation delta or this one cause rotation is almost neved sent by client
-    const unknown12_float = [];
+    const unknownVector1 = [];
     v = readSignedIntWith2bitLengthValue(data, offset);
-    unknown12_float[0] = v.value / 100;
+    unknownVector1[0] = v.value / 100;
     offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
-    unknown12_float[1] = v.value / 100;
+    unknownVector1[1] = v.value / 100;
     offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
-    unknown12_float[2] = v.value / 100;
-    obj["unknown12_float"] = unknown12_float;
+    unknownVector1[2] = v.value / 100;
+    obj["unknownVector1"] = unknownVector1;
     offset += v.length;
   }
 
@@ -606,7 +606,7 @@ export function readPositionUpdateDataAndCheckLength(
     offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[3] = v.value / 10000;
-
+    offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[4] = v.value / 10000;
     offset += v.length;
@@ -621,7 +621,7 @@ export function readPositionUpdateDataAndCheckLength(
     offset += v.length;
     rotationEul[8] = data.readUint8(offset);
     offset += 1;
-    obj["PosAndRot"] = rotationEul;
+    obj["posAndRot"] = rotationEul;
   }
   if (offset != data.length) {
     console.error("Wrong positionUpdate buffer", obj);
@@ -688,16 +688,16 @@ export function packPositionUpdateData(obj: any) {
     chunks.push(packSignedIntWith2bitLengthValue(obj["horizontalSpeed"] * 10));
   }
 
-  if ("unknown12_float" in obj) {
+  if ("unknownVector1" in obj) {
     flags |= 0x100;
     chunks.push(
-      packSignedIntWith2bitLengthValue(obj["unknown12_float"][0] * 100)
+      packSignedIntWith2bitLengthValue(obj["unknownVector1"][0] * 100)
     );
     chunks.push(
-      packSignedIntWith2bitLengthValue(obj["unknown12_float"][1] * 100)
+      packSignedIntWith2bitLengthValue(obj["unknownVector1"][1] * 100)
     );
     chunks.push(
-      packSignedIntWith2bitLengthValue(obj["unknown12_float"][2] * 100)
+      packSignedIntWith2bitLengthValue(obj["unknownVector1"][2] * 100)
     );
   }
 
@@ -719,16 +719,16 @@ export function packPositionUpdateData(obj: any) {
     chunks.push(packSignedIntWith2bitLengthValue(obj["engineRPM"] * 10));
   }
 
-  if ("PosAndRot" in obj) {
+  if ("posAndRot" in obj) {
     flags |= 0x1000;
-    chunks.push(packSignedIntWith2bitLengthValue(obj["PosAndRot"][0] * 10000));
-    chunks.push(packSignedIntWith2bitLengthValue(obj["PosAndRot"][1] * 10000));
-    chunks.push(packSignedIntWith2bitLengthValue(obj["PosAndRot"][2] * 10000));
-    chunks.push(packSignedIntWith2bitLengthValue(obj["PosAndRot"][3] * 10000));
-    chunks.push(packSignedIntWith2bitLengthValue(obj["PosAndRot"][4] * 10000));
-    chunks.push(packSignedIntWith2bitLengthValue(obj["PosAndRot"][5] * 10000));
-    chunks.push(packSignedIntWith2bitLengthValue(obj["PosAndRot"][6] * 10000));
-    chunks.push(packSignedIntWith2bitLengthValue(obj["PosAndRot"][7] * 10000));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["posAndRot"][0] * 10000));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["posAndRot"][1] * 10000));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["posAndRot"][2] * 10000));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["posAndRot"][3] * 10000));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["posAndRot"][4] * 10000));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["posAndRot"][5] * 10000));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["posAndRot"][6] * 10000));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["posAndRot"][7] * 10000));
   }
 
   const header = Buffer.allocUnsafe(7);
@@ -1216,12 +1216,15 @@ export const lightWeightPcSchema: PacketFields = [
     type: "schema",
     fields: identitySchema
   },
-  { name: "unknownByte1", type: "uint8", defaultValue: /*2*/ 2 }, // one of these messes with fullcharacter packet
+  // required lightweight-spawn init value the LightweightToFullPc (0xDA) full-data applier reconciles; do not zero
+  { name: "unknownByte1", type: "uint8", defaultValue: 2 },
   { name: "actorModelId", type: "uint32", defaultValue: 9469 },
-  { name: "unknownDword1", type: "uint32", defaultValue: /*270*/ 270 }, // one of these messes with fullcharacter packet
+  // the character's active profile id (ClientPcData.activeProfileId); the client passes it to ProxiedObject::SetProfileId (vtable slot 32)
+  { name: "profileId", type: "uint32", defaultValue: 270 },
   { name: "position", type: "floatvector3", defaultValue: [0, 80, 0] },
   { name: "rotation", type: "floatvector4", defaultValue: [0, 80, 0, 1] },
-  { name: "unknownFloat1", type: "float", defaultValue: /*4.7*/ 4.7 }, // one of these messes with fullcharacter packet
+  // required lightweight-spawn init value the LightweightToFullPc (0xDA) full-data applier reconciles; do not zero
+  { name: "unknownFloat1", type: "float", defaultValue: 4.7 },
   {
     name: "mountGuid",
     type: "uint64string",
@@ -1233,7 +1236,8 @@ export const lightWeightPcSchema: PacketFields = [
   { name: "effectId", type: "uint32", defaultValue: 0 },
   { name: "unknownDword4", type: "uint32", defaultValue: 0 },
   {
-    name: "unknownQword1", // characterstate?
+    // client copies this into the ProxiedCharacter spawn descriptor as the initial character state
+    name: "initialCharacterState",
     type: "uint64string",
     defaultValue: "0x0100000000100000"
   },

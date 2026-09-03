@@ -1115,6 +1115,8 @@ export class Character2016 extends BaseFullCharacter {
       mountSeatId = vehicle?.getCharacterSeat(this.characterId);
     return {
       ...this.pGetLightweight(),
+      // send the lightweight-spawn placeholder profile id, not the (npc-oriented) pGetLightweight profileId
+      profileId: 270,
       mountGuid: vehicleId || "",
       mountSeatId: mountSeatId == -1 ? 0 : mountSeatId,
       mountRelatedDword1: vehicle ? 1 : 0,
