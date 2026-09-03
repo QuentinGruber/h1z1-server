@@ -49,6 +49,12 @@ function setObstacle(
         vec3.fromArray([0.5, 2.0, 0.5]),
         yaw
       );
+    case ModelIds.CAMPFIRE:
+      return server.navManager.addObstacle(
+        position,
+        vec3.fromArray([0.5, 0.5, 0.5]),
+        yaw
+      );
     default:
       return null;
   }
