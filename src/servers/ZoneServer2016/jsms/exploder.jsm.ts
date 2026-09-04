@@ -52,7 +52,7 @@ function moveToward(
   target: Float32Array,
   server: ZoneServer2016
 ): void {
-  if (!npc.navAgent) return;
+  if (!server.navManager.crowdHealthy || !npc.navAgent) return;
   const navTarget = server.navManager.getClosestNavPointVec3(target);
   npc.navAgent.requestMoveTarget(navTarget);
 }
@@ -405,7 +405,9 @@ export function createExploder(
         }
 
         if (!exploder.isEatingCorpse) {
-          const vel = exploder.npc.navAgent?.velocity();
+          const vel = exploder.server.navManager.crowdHealthy
+            ? exploder.npc.navAgent?.velocity()
+            : undefined;
           const speed = vel ? Math.sqrt(vel.x * vel.x + vel.z * vel.z) : 0;
           if (speed > 0.0) return;
           exploder.npc.setAnimation(ZombieLoopingAnim.Eating);

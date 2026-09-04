@@ -134,7 +134,7 @@ function moveToward(
   target: Float32Array,
   server: ZoneServer2016
 ): void {
-  if (!npc.navAgent) return;
+  if (!server.navManager.crowdHealthy || !npc.navAgent) return;
   const navTarget = server.navManager.getClosestNavPointVec3(target);
   npc.navAgent.requestMoveTarget(navTarget);
 }
@@ -145,7 +145,7 @@ function hasLineOfSight(
   to: Float32Array
 ): boolean {
   const result = server.navManager.raycast(from, to);
-  return result.t >= 1;
+  return result !== null && result.t >= 1;
 }
 
 function tryDetectPlayer(screamer: ScreamerInstance): boolean {

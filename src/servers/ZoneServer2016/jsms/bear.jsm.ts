@@ -80,7 +80,7 @@ function moveToward(
   target: Float32Array,
   server: ZoneServer2016
 ): void {
-  if (!npc.navAgent) return;
+  if (!server.navManager.crowdHealthy || !npc.navAgent) return;
   const navTarget = server.navManager.getClosestNavPointVec3(target);
   npc.navAgent.requestMoveTarget(navTarget);
 }
@@ -199,7 +199,9 @@ export function createBear(npc: Npc, server: ZoneServer2016): BearInstance {
         }
 
         if (!bear.isStandingUp) {
-          const vel = bear.npc.navAgent?.velocity();
+          const vel = bear.server.navManager.crowdHealthy
+            ? bear.npc.navAgent?.velocity()
+            : undefined;
           const speed = vel ? Math.sqrt(vel.x * vel.x + vel.z * vel.z) : 0;
           if (speed > 0.0) return;
           bear.npc.playAnimation(AnimalsAnimation.StandUp);

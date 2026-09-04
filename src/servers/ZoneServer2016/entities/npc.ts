@@ -134,7 +134,7 @@ export abstract class Npc extends BaseFullCharacter {
   }
 
   setSpeed(speed: number) {
-    if (this.navAgent) {
+    if (this.server.navManager.crowdHealthy && this.navAgent) {
       this.navAgent.maxSpeed = speed;
       this.navAgent.maxAcceleration = speed * 2.0;
     }
@@ -168,6 +168,23 @@ export abstract class Npc extends BaseFullCharacter {
   applyDamage(characterId: string) {
     const client = this.server.getClientByCharId(characterId);
     if (client?.isLoading === false) {
+      const attackOrigin = new Float32Array([
+          this.state.position[0],
+          this.state.position[1] + 1,
+          this.state.position[2],
+          1
+        ]),
+        targetChest = new Float32Array([
+          client.character.state.position[0],
+          client.character.state.position[1] + 1,
+          client.character.state.position[2],
+          1
+        ]);
+      if (
+        this.server.collisionManager.segmentBlocked(attackOrigin, targetChest)
+      ) {
+        return;
+      }
       const damageInfo: DamageInfo = {
         entity: this.characterId,
         weapon: Items.WEAPON_MACHETE01,
@@ -507,7 +524,7 @@ export abstract class Npc extends BaseFullCharacter {
   }
 
   stopMovement() {
-    if (!this.navAgent) return;
+    if (!this.server.navManager.crowdHealthy || !this.navAgent) return;
     this.navAgent.resetMoveTarget();
   }
 
@@ -537,7 +554,7 @@ export abstract class Npc extends BaseFullCharacter {
 
     let horizontalSpeed = horizontalDist;
     let verticalSpeed = Math.abs(dy);
-    if (this.navAgent) {
+    if (this.server.navManager.crowdHealthy && this.navAgent) {
       const vel = this.navAgent.velocity();
       horizontalSpeed = metersToFeet(Math.sqrt(vel.x * vel.x + vel.z * vel.z));
       verticalSpeed = metersToFeet(Math.abs(vel.y));

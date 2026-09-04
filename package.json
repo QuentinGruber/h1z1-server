@@ -13,6 +13,7 @@
     "h1z1-server-demo-2016": "scripts/h1z1-server-demo-2016.js"
   },
   "dependencies": {
+    "@napi-rs/canvas": "1.0.2",
     "@types/js-yaml": "4.0.9",
     "@types/node": "25.9.1",
     "@types/ws": "8.18.1",
@@ -24,6 +25,8 @@
     "mongodb": "6.20.0",
     "recast-navigation": "0.43.1",
     "threads": "1.7.0",
+    "three": "^0.184.0",
+    "three-mesh-bvh": "^0.9.13",
     "typescript": "6.0.3",
     "ws": "8.21.0"
   },
@@ -31,6 +34,7 @@
     "src": "./src"
   },
   "devDependencies": {
+    "@types/three": "^0.184.1",
     "cross-env": "^10.1.0",
     "oxlint": "^1.67.0",
     "prettier": "^3.8.3",
@@ -75,7 +79,8 @@
     "format": "npm run prettier_sources",
     "prettier_sources": "prettier --write ./src && prettier --write ./tests && prettier --write ./benchmarks",
     "tests": "npm run gen-packets-types && npm run gen-packets-interfaces && npm run prettier_sources",
-    "navmesh-dump": "tsx scripts/debugNavmesh.ts"
+    "navmesh-dump": "tsx scripts/debugNavmesh.ts",
+    "navmesh-model-crowd-routes-check": "tsx scripts/validateModelCrowdRoutes.ts"
   },
   "repository": {
     "type": "git",
