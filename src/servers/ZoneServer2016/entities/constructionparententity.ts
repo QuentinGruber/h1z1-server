@@ -105,7 +105,7 @@ function setObstacle(
     case ModelIds.WOOD_SHACK:
       return server.navManager.addObstacle(
         position,
-        vec3.fromArray([2.35, 2.0, 2.5]),
+        vec3.fromArray([0.8, 2.0, 0.8]),
         yaw
       );
     case ModelIds.METAL_SHACK:
