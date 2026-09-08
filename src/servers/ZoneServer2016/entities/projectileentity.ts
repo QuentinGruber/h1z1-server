@@ -238,10 +238,10 @@ export class ProjectileEntity extends BaseLightweightCharacter {
 
     if (
       this.itemDefinitionId == Items.GRENADE_HE ||
-      Items.WEAPON_BOW_MAKESHIFT ||
-      Items.WEAPON_BOW_RECURVE ||
-      Items.WEAPON_CROSSBOW ||
-      Items.WEAPON_BOW_WOOD
+      this.itemDefinitionId == Items.WEAPON_BOW_MAKESHIFT ||
+      this.itemDefinitionId == Items.WEAPON_BOW_RECURVE ||
+      this.itemDefinitionId == Items.WEAPON_CROSSBOW ||
+      this.itemDefinitionId == Items.WEAPON_BOW_WOOD
     )
       server.explosionManager.queueExplosion(this);
     if (this.itemDefinitionId == Items.GRENADE_GAS) {
