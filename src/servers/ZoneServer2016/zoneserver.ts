@@ -4649,15 +4649,23 @@ export class ZoneServer2016 extends EventEmitter {
     const weaponItem = fireHint.weaponItem;
     if (!weaponItem) return;
     const entity = this.getEntity(hitReport.characterId);
-    if (weaponItem.itemDefinitionId == Items.WEAPON_BOW_RECURVE) {
-      const projectile = Object.values(this._throwableProjectiles).find(
-        (p) => p.projectileUniqueId === fireHint.projectileUniqueId
-      );
-      if (projectile) {
-        projectile.applyPosition(packet.hitReport.position);
-        projectile.onTrigger(this);
+    const hitWeaponDefinitionId = this.getItemDefinition(
+      weaponItem.itemDefinitionId
+    )?.PARAM1;
+    switch (hitWeaponDefinitionId) {
+      case WeaponDefinitionIds.WEAPON_BOW_MAKESHIFT:
+      case WeaponDefinitionIds.WEAPON_BOW_RECURVE:
+      case WeaponDefinitionIds.WEAPON_CROSSBOW:
+      case WeaponDefinitionIds.WEAPON_BOW_WOOD: {
+        const projectile = Object.values(this._throwableProjectiles).find(
+          (p) => p.projectileUniqueId === fireHint.projectileUniqueId
+        );
+        if (projectile) {
+          projectile.applyPosition(packet.hitReport.position);
+          projectile.onTrigger(this);
+        }
+        return;
       }
-      return;
     }
     if (!entity) return;
     // Don't allow hits registering over 350 as this is the render distance for NPC's
@@ -9549,7 +9557,12 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
       return;
-    } else if (itemDefinition.ID == Items.WEAPON_BOW_RECURVE) {
+    } else if (
+      weaponDefinitionId == WeaponDefinitionIds.WEAPON_BOW_MAKESHIFT ||
+      weaponDefinitionId == WeaponDefinitionIds.WEAPON_BOW_RECURVE ||
+      weaponDefinitionId == WeaponDefinitionIds.WEAPON_CROSSBOW ||
+      weaponDefinitionId == WeaponDefinitionIds.WEAPON_BOW_WOOD
+    ) {
       this.createThrowableProjectile(
         client,
         packet,

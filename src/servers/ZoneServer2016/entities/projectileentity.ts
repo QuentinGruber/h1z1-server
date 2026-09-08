@@ -105,7 +105,10 @@ export class ProjectileEntity extends BaseLightweightCharacter {
         this.actorModelId = 9440;
         triggerTimeoutDelay = 0;
         break;
+      case Items.WEAPON_BOW_MAKESHIFT:
       case Items.WEAPON_BOW_RECURVE:
+      case Items.WEAPON_CROSSBOW:
+      case Items.WEAPON_BOW_WOOD:
         this.actorModelId = 0;
         triggerTimeoutDelay = 0;
         break;
@@ -184,7 +187,10 @@ export class ProjectileEntity extends BaseLightweightCharacter {
         effectId = 5308;
         effectType = 1;
         break;
+      case Items.WEAPON_BOW_MAKESHIFT:
       case Items.WEAPON_BOW_RECURVE:
+      case Items.WEAPON_CROSSBOW:
+      case Items.WEAPON_BOW_WOOD:
         effectId = 0;
         effectType = 0;
         break;
@@ -230,9 +236,13 @@ export class ProjectileEntity extends BaseLightweightCharacter {
         break;
     }
 
-    if (this.itemDefinitionId == Items.GRENADE_HE)
-      server.explosionManager.queueExplosion(this);
-    if (this.itemDefinitionId == Items.WEAPON_BOW_RECURVE)
+    if (
+      this.itemDefinitionId == Items.GRENADE_HE ||
+      Items.WEAPON_BOW_MAKESHIFT ||
+      Items.WEAPON_BOW_RECURVE ||
+      Items.WEAPON_CROSSBOW ||
+      Items.WEAPON_BOW_WOOD
+    )
       server.explosionManager.queueExplosion(this);
     if (this.itemDefinitionId == Items.GRENADE_GAS) {
       if (server.isPvE) return;
@@ -282,6 +292,9 @@ export class ProjectileEntity extends BaseLightweightCharacter {
       case Items.GRENADE_HE:
       case Items.WEAPON_MOLOTOV:
       case Items.WEAPON_BOW_RECURVE:
+      case Items.WEAPON_BOW_MAKESHIFT:
+      case Items.WEAPON_CROSSBOW:
+      case Items.WEAPON_BOW_WOOD:
         this.destroy(server);
         break;
     }
