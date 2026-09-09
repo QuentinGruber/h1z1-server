@@ -5722,6 +5722,7 @@ export class ZoneServer2016 extends EventEmitter {
             disableInteractionGlow:
               entity instanceof ConstructionChildEntity ||
               entity instanceof ConstructionParentEntity ||
+              entity instanceof ConstructionDoor ||
               entity instanceof TemporaryEntity
           }
         }
