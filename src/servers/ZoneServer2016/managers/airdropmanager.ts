@@ -198,7 +198,7 @@ export class AirdropManager {
         );
 
         if (this.spawnZombiesOnLanding) {
-  console.log("[AIRDROP] About to spawn zombies");
+  debug("[AIRDROP] About to spawn zombies");
   this.spawnAirdropZombies(position);
   console.log("[AIRDROP] Finished spawning zombies");
 }
