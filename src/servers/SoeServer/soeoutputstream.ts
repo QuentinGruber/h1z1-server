@@ -96,6 +96,12 @@ export class SOEOutputStream extends EventEmitter {
   }
 
   writeReliable(data: Uint8Array): void {
+    if (this._fragmentSize < 1) {
+      // Would make the fragmentation loop below never terminate
+      throw new Error(
+        `Cannot fragment data with fragment size ${this._fragmentSize}`
+      );
+    }
     if (data.length <= this._fragmentSize) {
       this._reliable_sequence.increment();
       this.addToCache(this._reliable_sequence.get(), data, false);
@@ -156,16 +162,24 @@ export class SOEOutputStream extends EventEmitter {
 
   ack(sequence: number, unAckData: Map<number, number>): void {
     const wrappedSequence = wrappedUint16.wrap(sequence);
-    const wrapThreshold = MAX_UINT16 / 2;
+    const SEQUENCE_SPACE = MAX_UINT16 + 1;
 
-    // Determine if wrappedSequence is ahead of lastAck, including wrap-around handling
-    const isSequenceAhead =
-      wrappedSequence > this.lastAck.get() ||
-      (wrappedSequence < this.lastAck.get() &&
-        this.lastAck.get() - wrappedSequence > wrapThreshold);
+    // Forward distance from lastAck to the acked sequence, in sequence space.
+    const distance =
+      (wrappedSequence - this.lastAck.get() + SEQUENCE_SPACE) % SEQUENCE_SPACE;
 
-    // If the sequence is ahead, delete all cached data/timers up to the given ack sequence
-    if (isSequenceAhead) {
+    // Max distance a client could legitimately ack = up to the last sequence we
+    // actually made available/sent. The in-flight window can exceed
+    // maxSequenceAvailable, so bounding by that constant wrongly rejects valid
+    // cumulative acks and stalls the outbound window forever (zone-in never
+    // completes). Bounding by the real sent range still stops a crafted far-ahead
+    // ack from driving the cumulative-delete loop past what exists.
+    const availableDistance =
+      (this._last_available_reliable_sequence.get() -
+        this.lastAck.get() +
+        SEQUENCE_SPACE) %
+      SEQUENCE_SPACE;
+    if (distance > 0 && distance <= availableDistance) {
       while (this.lastAck.get() !== wrappedSequence) {
         this.removeFromCache(this.lastAck.get());
         unAckData.delete(this.lastAck.get());
@@ -176,7 +190,7 @@ export class SOEOutputStream extends EventEmitter {
         }
       }
     } else {
-      // If an out-of-order ack is received, delete that specific entry if it exists
+      // Out of order or bogus ack, delete that specific entry if it exists
       if (unAckData.has(wrappedSequence)) {
         this.removeFromCache(wrappedSequence);
         unAckData.delete(wrappedSequence);
@@ -217,6 +231,9 @@ export class SOEOutputStream extends EventEmitter {
   }
 
   setFragmentSize(value: number): void {
+    if (!Number.isInteger(value) || value < 1) {
+      throw new Error(`Invalid fragment size: ${value}`);
+    }
     this._fragmentSize = value;
   }
 }

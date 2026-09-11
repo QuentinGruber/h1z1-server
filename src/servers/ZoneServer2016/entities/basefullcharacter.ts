@@ -15,7 +15,8 @@ import {
   AudioSetSwitch,
   EquipmentSetCharacterEquipment,
   EquipmentSetCharacterEquipmentSlot,
-  LightweightToFullNpc
+  LightweightToFullNpc,
+  RagdollStop
 } from "types/zone2016packets";
 import { CharacterEquipment, DamageInfo } from "../../../types/zoneserver";
 import { LoadoutKit } from "../data/loadouts";
@@ -57,6 +58,37 @@ const loadoutSlots = PluginManager.loadServerData(
   equipSlotItemClasses = PluginManager.loadServerData(
     "2016/dataSources/EquipSlotItemClasses.json"
   );
+
+// Precomputed lookups over the static data sources above (loaded once at
+// startup and never mutated afterwards) so the equip/loot hot paths below
+// don't linear-scan these lists on every call.
+const loadoutSlotsByLoadoutId = new Map<number, number[]>();
+loadoutSlots.forEach((slot: any) => {
+  let arr = loadoutSlotsByLoadoutId.get(slot.LOADOUT_ID);
+  if (!arr) {
+    arr = [];
+    loadoutSlotsByLoadoutId.set(slot.LOADOUT_ID, arr);
+  }
+  arr.push(slot.SLOT_ID);
+});
+
+const loadoutSlotItemClassByKey = new Map<string, any>();
+loadoutSlotItemClasses.forEach((slot: any) => {
+  const key = `${slot.ITEM_CLASS}:${slot.LOADOUT_ID}`;
+  if (!loadoutSlotItemClassByKey.has(key)) {
+    loadoutSlotItemClassByKey.set(key, slot);
+  }
+});
+
+const equipSlotItemClassesByItemClass = new Map<number, any[]>();
+equipSlotItemClasses.forEach((slot: any) => {
+  let arr = equipSlotItemClassesByItemClass.get(slot.ITEM_CLASS);
+  if (!arr) {
+    arr = [];
+    equipSlotItemClassesByItemClass.set(slot.ITEM_CLASS, arr);
+  }
+  arr.push(slot);
+});
 
 function getGender(actorModelId: number): number {
   switch (actorModelId) {
@@ -118,6 +150,9 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
 
   /** BaseFullCharacter loadout values */
   _resources: { [resourceId: number]: number } = {};
+  /** Last resource value actually sent to clients, per resourceId - used to change-gate ResourceEvent
+   *  spam so a resource is only re-sent when the client-displayed value changes. Reset on respawn/resync. */
+  _lastSentResources: { [resourceId: number]: number } = {};
   _loadout: { [loadoutSlotId: number]: LoadoutItem } = {};
   _equipment: { [equipmentSlotId: number]: CharacterEquipment } = {};
   _containers: { [loadoutSlotId: number]: LoadoutContainer } = {};
@@ -416,8 +451,10 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         item.itemGuid,
         "Update.SwitchFireMode",
         {
-          firegroupIndex: 0,
-          firemodeIndex: 0
+          // Re-send the weapon's tracked selection rather than a hard 0/0, so a firegroup chosen
+          // before this (re-)equip survives. The Weapon runtime is carried across equip by LoadoutItem.
+          firegroupIndex: item.weapon?.currentFiregroupIndex ?? 0,
+          firemodeIndex: item.weapon?.currentFiremodeIndex ?? 0
         }
       );
     }
@@ -573,7 +610,11 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
 
     if (loadoutItem.weapon) {
       const ammo = server.generateItem(
-        server.getWeaponAmmoId(loadoutItem.itemDefinitionId),
+        server.getWeaponAmmoId(
+          loadoutItem.itemDefinitionId,
+          loadoutItem.weapon.currentFiregroupIndex,
+          loadoutItem.weapon.currentFiremodeIndex
+        ),
         loadoutItem.weapon.ammoCount
       );
       if (
@@ -645,13 +686,6 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       availableContainer = this.getAvailableContainer(server, itemDefId, count);
 
     if (!availableContainer) {
-      // container error full
-      if (client) {
-        server.sendData(client, "Character.NoSpaceNotification", {
-          characterId: client.character.characterId
-        });
-      }
-
       this.getSortedContainers().forEach((c) => {
         if (item.stackCount <= 0) return;
         if (array.includes(c)) return;
@@ -674,12 +708,46 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         }
       });
       if (item.stackCount > 0) {
-        server.worldObjectManager.createLootEntity(
-          server,
-          item,
-          this.state.position,
-          new Float32Array([0, Number(Math.random() * 10 - 5), 0, 1])
-        );
+        if (client?.character.mountedContainer) {
+          const mountedContainer =
+            client.character.mountedContainer.getContainer();
+          if (mountedContainer) {
+            const itemStack = mountedContainer.getAvailableItemStack(
+              server,
+              item.itemDefinitionId,
+              item.stackCount
+            );
+            if (itemStack) {
+              const targetItem = mountedContainer.items[itemStack];
+              targetItem.stackCount += item.stackCount;
+              server.updateContainerItem(
+                client.character.mountedContainer,
+                targetItem,
+                mountedContainer
+              );
+            } else
+              server.addContainerItem(
+                client.character.mountedContainer,
+                item,
+                mountedContainer,
+                true
+              );
+          }
+        } else {
+          // container error full
+          if (client) {
+            server.sendData(client, "Character.NoSpaceNotification", {
+              characterId: client.character.characterId
+            });
+          }
+
+          server.worldObjectManager.createLootEntity(
+            server,
+            item,
+            this.state.position,
+            new Float32Array([0, Number(Math.random() * 10 - 5), 0, 1])
+          );
+        }
       }
       return;
     }
@@ -1052,11 +1120,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   }
 
   getLoadoutSlots() {
-    const slots: Array<number> = [];
-    loadoutSlots.forEach((slot: any) => {
-      if (slot.LOADOUT_ID == this.loadoutId) slots.push(slot.SLOT_ID);
-    });
-    return slots;
+    return loadoutSlotsByLoadoutId.get(this.loadoutId) ?? [];
   }
 
   /**
@@ -1068,11 +1132,11 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   getAvailableLoadoutSlot(server: ZoneServer2016, itemDefId: number): number {
     // gets an open loadoutslot for a specified itemDefinitionId
     const itemDef = server.getItemDefinition(itemDefId),
-      loadoutSlotItemClass = loadoutSlotItemClasses.find(
-        (slot: any) =>
-          slot.ITEM_CLASS == itemDef?.ITEM_CLASS &&
-          this.loadoutId == slot.LOADOUT_ID
-      );
+      loadoutSlotItemClass = itemDef
+        ? loadoutSlotItemClassByKey.get(
+            `${itemDef.ITEM_CLASS}:${this.loadoutId}`
+          )
+        : undefined;
     let slot = loadoutSlotItemClass?.SLOT;
     if (!slot) return 0;
     switch (itemDef?.ITEM_CLASS) {
@@ -1131,11 +1195,10 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     const itemDef = server.getItemDefinition(itemDefId),
       itemClass = itemDef?.ITEM_CLASS;
     if (!itemDef || !itemClass || !server.isWeapon(itemDefId)) return 0;
-    for (const slot of equipSlotItemClasses) {
-      if (
-        slot.ITEM_CLASS == itemDef.ITEM_CLASS &&
-        !this._equipment[slot.EQUIP_SLOT_ID]
-      ) {
+    const candidates = equipSlotItemClassesByItemClass.get(itemDef.ITEM_CLASS);
+    if (!candidates) return 0;
+    for (const slot of candidates) {
+      if (!this._equipment[slot.EQUIP_SLOT_ID]) {
         return slot.EQUIP_SLOT_ID;
       }
     }
@@ -1187,37 +1250,47 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
 
   pGetItemWeaponData(server: ZoneServer2016, slot: BaseItem) {
     if (slot.weapon) {
+      const weaponDefinition = server.getWeaponDefinition(
+          server.getItemDefinition(slot.itemDefinitionId)?.PARAM1 ?? 0
+        ),
+        firegroups: Array<any> = weaponDefinition?.FIRE_GROUPS || [];
       return {
         isWeapon: true, // not sent to client, only used as a flag for pack function
         unknownData1: {
           unknownBoolean1: false
         },
         unknownData2: {
-          ammoSlots: server.getWeaponAmmoId(slot.itemDefinitionId)
+          ammoSlots: server.getWeaponAmmoId(
+            slot.itemDefinitionId,
+            slot.weapon?.currentFiregroupIndex ?? 0,
+            slot.weapon?.currentFiremodeIndex ?? 0
+          )
             ? [{ ammoSlot: slot.weapon?.ammoCount }]
             : [],
-          firegroups: [
-            {
-              firegroupId: server.getWeaponDefinition(
-                server.getItemDefinition(slot.itemDefinitionId)?.PARAM1 ?? 0
-              )?.FIRE_GROUPS[0]?.FIRE_GROUP_ID,
-              unknownArray1: [
-                // maybe firemodes?
-                {
+          // Emit ONE entry per weapon-def firegroup (mirrors pGetRemoteWeaponData). The client reads this
+          // array8's LENGTH as weapon.arrayFireGroupLength; IsFireModeValid requires it >= 2 for "B"
+          // (SwitchFireGroup) to cycle to group 1/2 and send Weapon.SwitchFireModeRequest (0x830c). The
+          // previous length-1 array made every multi-firegroup weapon (crossbow: wooden/flaming/explosive)
+          // report a single firegroup, so B no-op'd. Single-firegroup weapons still emit exactly 1 entry ->
+          // no behavior change. Firemodes mirror the remote path (client also repopulates from ReferenceData
+          // by FIRE_MODE_ID).
+          firegroups: firegroups.map((firegroup: any) => {
+            const firegroupDef = server.getFiregroupDefinition(
+                firegroup.FIRE_GROUP_ID
+              ),
+              firemodes = firegroupDef?.FIRE_MODES || [];
+            return {
+              firegroupId: firegroup.FIRE_GROUP_ID,
+              unknownArray1: firemodes.map((firemode: any, j: number) => {
+                return {
                   unknownByte1: 0,
-                  unknownDword1: 0,
-                  unknownDword2: 0,
+                  firemodeIndex: j,
+                  firemodeId: firemode.FIRE_MODE_ID,
                   unknownDword3: 0
-                },
-                {
-                  unknownByte1: 0,
-                  unknownDword1: 0,
-                  unknownDword2: 0,
-                  unknownDword3: 0
-                }
-              ]
-            }
-          ],
+                };
+              })
+            };
+          }),
           equipmentSlotId: this.getActiveEquipmentSlot(slot),
           unknownByte2: 1,
           unknownDword1: 0,
@@ -1380,6 +1453,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         resourceType = 0;
       }
       return {
+        // outer resourceId mirrors resourceData.resourceId so the packed entry is labelled
+        resourceId: resourceId,
         resourceType: resourceType,
         resourceData: {
           resourceId: resourceId,
@@ -1437,6 +1512,14 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     console.log(
       `[ERROR] Unhandled FullCharacterDataRequest from client ${client.guid}!`
     );
+  }
+
+  OnRagdollStop(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: RagdollStop
+  ) {
+    console.log(`[ERROR] Unhandled RagdollStop from client ${client.guid}!`);
   }
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {

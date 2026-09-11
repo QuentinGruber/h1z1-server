@@ -23,13 +23,16 @@ const groupCharacterSchema: Array<PacketField> = [
     fields: identitySchema,
     defaultValue: {}
   },
-  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+  // group role of this character; the client requires a value in [1, 3] to accept an invite
+  { name: "memberRole", type: "uint8", defaultValue: 0 },
   { name: "unknownString1", type: "string", defaultValue: "" }
 ];
 
 const inviteDataSchema: Array<PacketField> = [
-  { name: "unknownQword1", type: "uint64string", defaultValue: "" },
-  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  // active group id of the inviter; the client discards the invite when this is the -1 "no active group" sentinel
+  { name: "groupId", type: "uint64string", defaultValue: "" },
+  // the client requires this to be 0 to accept the invite
+  { name: "hasRaidError", type: "uint32", defaultValue: 0 },
   {
     name: "sourceCharacter",
     type: "schema",
@@ -114,7 +117,8 @@ export const groupPackets: PacketStructures = [
     0x1301,
     {
       fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        // the client requires this to be 1 to accept the invite
+        { name: "inviteType", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         { name: "unknownDword3", type: "uint32", defaultValue: 0 },
         {
@@ -251,7 +255,7 @@ export const groupPackets: PacketStructures = [
     }
   ],
   [
-    "Group.MapPingRelated",
+    "Group.MapPing",
     0x130b,
     {
       fields: [
@@ -316,22 +320,29 @@ export const groupPackets: PacketStructures = [
     }
   ],
   [
-    "Group.Unknown12",
+    "Group.Roster",
     0x1312,
     {
       fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 2 },
+        // redundant leading copy of the group id; the client skips it but it stays on the wire
+        { name: "groupId", type: "uint32", defaultValue: 2 },
         {
-          name: "unknownData1",
+          name: "groupHeader",
           type: "schema",
           fields: [
             { name: "groupId", type: "uint32", defaultValue: 0 },
-            { name: "characterId", type: "uint64string", defaultValue: "" },
+            // group owner/leader
+            {
+              name: "ownerCharacterId",
+              type: "uint64string",
+              defaultValue: ""
+            },
             { name: "unknownByte1", type: "uint8", defaultValue: 0 }
           ]
         },
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-        { name: "unknownString1", type: "string", defaultValue: "" },
+        // group display name
+        { name: "groupName", type: "string", defaultValue: "" },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         {
           name: "members",
@@ -362,7 +373,7 @@ export const groupPackets: PacketStructures = [
     }
   ],
   [
-    "Group.Unknown14",
+    "Group.CreateGroup",
     0x1314,
     {
       fields: [

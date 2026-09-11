@@ -15,9 +15,21 @@ import { AccountItem } from "types/zoneserver";
 import { BaseItem } from "../classes/baseItem";
 import { ZoneServer2016 } from "../zoneserver";
 import { Collection } from "mongodb";
-import { getAppDataFolderPath } from "../../../utils/utils";
+import { generateRandomGuid, getAppDataFolderPath } from "../../../utils/utils";
 import fs from "node:fs";
 import { LEGACY_CRATE_CONVERSION } from "../data/accountCrates";
+import { AccountItems } from "../models/enums";
+
+const TWIN_GALAXIES_SKINS = [
+  2888, // Twin Galaxies Hoodie
+  3876, // Twin Galaxies Warmup Pants
+  5057, // White Twin Galaxies Hoodie
+  5058, // Pink Twin Galaxies Hoodie
+  5059, // Camo Twin Galaxies Hoodie
+  5060, // White Twin Galaxies Warmup Pants
+  5061, // Pink Twin Galaxies Warmup Pants
+  5062 // Camo Twin Galaxies Warmup Pants
+];
 
 export class AccountInventoryManager {
   isInSoloMode: boolean;
@@ -45,11 +57,42 @@ export class AccountInventoryManager {
     await fs.promises.writeFile(this._soloDataPath, JSON.stringify(items));
   }
 
+  private _generateDefaultSoloItems(loginSessionId: string): AccountItem[] {
+    const items: AccountItem[] = [];
+    for (const key in AccountItems) {
+      const itemDefinitionId = Number(
+        AccountItems[key as keyof typeof AccountItems]
+      );
+      if (isNaN(itemDefinitionId)) continue;
+      if (!key.startsWith("REWARD_CRATE")) continue;
+      const item = new BaseItem(
+        itemDefinitionId,
+        generateRandomGuid(),
+        100,
+        100
+      );
+      items.push({ loginSessionId, ...item } as AccountItem);
+    }
+    for (const itemDefinitionId of TWIN_GALAXIES_SKINS) {
+      const item = new BaseItem(itemDefinitionId, generateRandomGuid(), 100, 1);
+      items.push({ loginSessionId, ...item } as AccountItem);
+    }
+    return items;
+  }
+
   async getAccountItems(loginSessionId: string): Promise<AccountItem[]> {
     let accountItems: AccountItem[],
       soloUpdate = false;
     if (this.isInSoloMode) {
       accountItems = await this._getSoloAccountItems(loginSessionId);
+      // Seed a fresh solo inventory with every crates.
+      if (
+        accountItems.length === 0 &&
+        process.env.DISABLE_DEFAULT_SOLO_ITEMS !== "true"
+      ) {
+        accountItems = this._generateDefaultSoloItems(loginSessionId);
+        await this._saveSoloAccountItems(accountItems);
+      }
     } else {
       accountItems = await this.mongodbCollection
         .find<AccountItem>({ loginSessionId })

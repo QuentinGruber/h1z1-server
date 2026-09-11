@@ -33,10 +33,17 @@ import {
 import { ZombieWalker } from "../../entities/zombiewalker";
 import { ZoneClient2016 as Client } from "../../classes/zoneclient";
 import { ZoneServer2016 } from "../../zoneserver";
-import { Effects, Items, ModelIds, VehicleIds } from "../../models/enums";
+import {
+  AbilityIds,
+  Effects,
+  Items,
+  ModelIds,
+  VehicleIds
+} from "../../models/enums";
 import { LootableConstructionEntity } from "../../entities/lootableconstructionentity";
 import { ConstructionChildEntity } from "../../entities/constructionchildentity";
 import { ConstructionDoor } from "../../entities/constructiondoor";
+import { ConstructionParentEntity } from "../../entities/constructionparententity";
 import {
   generateRandomGuid,
   getCurrentServerTimeWrapper,
@@ -820,8 +827,8 @@ const dev: any = {
           abilityId2: 1111157
         },
         {
-          abilityId: 1111272,
-          abilityId2: 1111272
+          abilityId: AbilityIds.NV_GOGGLES,
+          abilityId2: AbilityIds.NV_GOGGLES
         },
         {
           abilityId: 1111278,
@@ -929,6 +936,69 @@ const dev: any = {
       }
     }
     server.sendChatText(client, `Deleted ${counter} small shacks`);
+  },
+  // stress test for #(small shack client crash) - mass spawn then staggered despawn,
+  // mirrors avcio's original repro (mass despawn during a DB import)
+  spawnsmallshackstresstest: async function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    const count = Number(args[1]) || 200;
+    const despawnDelayMs = Number(args[2]) || 250;
+    const spacing = 6;
+    const gridSize = Math.ceil(Math.sqrt(count));
+    const centerPos = client.character.state.position;
+    const rotation = client.character.state.rotation;
+
+    const spawned: Array<ConstructionParentEntity> = [];
+    for (let i = 0; i < count; i++) {
+      const col = i % gridSize;
+      const row = Math.floor(i / gridSize);
+      const position = new Float32Array([
+        centerPos[0] + (col - gridSize / 2) * spacing,
+        centerPos[1],
+        centerPos[2] + (row - gridSize / 2) * spacing,
+        1
+      ]);
+      const characterId = server.generateGuid();
+      const transientId = server.getTransientId(characterId);
+      const npc = new ConstructionParentEntity(
+        characterId,
+        transientId,
+        ModelIds.SMALL_SHACK,
+        position,
+        rotation,
+        server,
+        Items.SHACK_SMALL,
+        client.character.characterId,
+        client.character.name,
+        "",
+        undefined
+      );
+      server._constructionFoundations[characterId] = npc;
+      server.executeFuncForAllReadyClientsInRange((rangeClient) => {
+        server.constructionManager.spawnConstructionParent(
+          server,
+          rangeClient,
+          npc
+        );
+      }, npc);
+      spawned.push(npc);
+    }
+    server.sendChatText(
+      client,
+      `Spawned ${spawned.length} small shacks (1hp), despawning 1 every ${despawnDelayMs}ms...`
+    );
+
+    for (const npc of spawned) {
+      await scheduler.wait(despawnDelayMs);
+      npc.destroy(server);
+    }
+    server.sendChatText(
+      client,
+      `Small shack stress test complete: ${spawned.length} spawned & despawned.`
+    );
   },
   testanimall: function (
     server: ZoneServer2016,
@@ -1445,7 +1515,7 @@ const dev: any = {
     args: Array<string>
   ) {
     server.sendData(client, "Group.Invite", {
-      unknownDword1: Number(args[1]),
+      inviteType: Number(args[1]),
       unknownDword2: Number(args[2]),
       unknownDword3: Number(args[3]),
       inviteData: {
@@ -1912,6 +1982,19 @@ const dev: any = {
         Effects.PFX_Impact_Explosion_AirdropBomb_Default_10m
       );
     }, 61874);
+  },
+  bombingrun: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.airdropManager.spawnAirdrop(
+      client.character.state.position,
+      "",
+      true,
+      client.character.characterId,
+      "bombing"
+    );
   },
   updatecharacter: function (
     server: ZoneServer2016,

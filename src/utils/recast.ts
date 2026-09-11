@@ -47,22 +47,26 @@ export class NavManager {
     const mesh_parts: Buffer[] = [];
     const tc_parts: Buffer[] = [];
     let part = 0;
-    while (true) {
-      const partPath = __dirname + `/../../data/2016/navData/z1_${part}.bin`;
-      if (!existsSync(partPath)) break;
-      mesh_parts.push(readFileSync(partPath));
-      console.log(`[NAV] loaded nav part ${part}`);
-      part++;
-    }
-    part = 0;
+    if (!process.env.FAKE_NAVMESH) {
+      while (true) {
+        const partPath = __dirname + `/../../data/2016/navData/z1_${part}.bin`;
+        if (!existsSync(partPath)) break;
+        mesh_parts.push(readFileSync(partPath));
+        console.log(`[NAV] loaded nav part ${part}`);
+        part++;
+      }
+      part = 0;
 
-    while (true) {
-      const partPath =
-        __dirname + `/../../data/2016/navData/z1_cache_${part}.bin`;
-      if (!existsSync(partPath)) break;
-      tc_parts.push(readFileSync(partPath));
-      console.log(`[NAV] loaded nav cache part ${part}`);
-      part++;
+      while (true) {
+        const partPath =
+          __dirname + `/../../data/2016/navData/z1_cache_${part}.bin`;
+        if (!existsSync(partPath)) break;
+        tc_parts.push(readFileSync(partPath));
+        console.log(`[NAV] loaded nav cache part ${part}`);
+        part++;
+      }
+    } else {
+      console.log(`"[NAV]" Empty navmesh loaded`);
     }
     await initRecast();
 
@@ -166,6 +170,18 @@ export class NavManager {
       `getClosestNavPoint gameIn=[${gamePos[0].toFixed(2)}, ${gamePos[1].toFixed(2)}, ${gamePos[2].toFixed(2)}] navOut=[${n.nearestPoint.x.toFixed(2)}, ${n.nearestPoint.y.toFixed(2)}, ${n.nearestPoint.z.toFixed(2)}] polyRef=${n.nearestRef}`
     );
     return n.nearestPoint;
+  }
+
+  // Nearest navmesh point at (x, z), searched from above with height ignored.
+  // Returns null when the spot is off-mesh (water/void/gap)
+  getNavGroundPoint(x: number, z: number): Float32Array | null {
+    if (!this.navMeshQuery) return null;
+    const n = this.navMeshQuery.findNearestPoly(
+      { x, y: 1000, z },
+      { halfExtents: { x: 10, y: 2000, z: 10 } }
+    );
+    if (!n.success || !n.nearestRef) return null;
+    return NavManager.navToGame(n.nearestPoint);
   }
 
   createAgent(gamePos: Float32Array): CrowdAgent {

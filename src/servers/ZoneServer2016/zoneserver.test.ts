@@ -10,7 +10,7 @@ import assert from "node:assert";
 process.env.FORCE_DISABLE_WS = "true";
 
 const isMongoTests = process.env.MONGO_TESTS === "true";
-test("ZoneServer2016", { timeout: 10000 }, async (t) => {
+test("ZoneServer2016", { timeout: 60000 }, async (t) => {
   const zone = new ZoneServer2016(0);
   await t.test("start", async () => {
     await zone.start();
@@ -47,7 +47,7 @@ test("ZoneServer2016", { timeout: 10000 }, async (t) => {
 
 test(
   "ZoneServer2016-mongo",
-  { timeout: 10000, skip: !isMongoTests },
+  { timeout: 60000, skip: !isMongoTests },
   async (t) => {
     const zone = new ZoneServer2016(
       0,

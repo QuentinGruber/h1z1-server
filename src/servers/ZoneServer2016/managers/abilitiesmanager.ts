@@ -89,9 +89,9 @@ export class AbilitiesManager {
   ) {
     const hitLocation = (packetData.abilityData as any)?.hitLocation;
     client.character.checkCurrentInteractionGuid();
+    // the melee target id is the packet's targetCharacterId, not the hitLocation bone string
     const characterId =
-      (packetData.abilityData as any)?.hitLocation ??
-      client.character.currentInteractionGuid;
+      packetData.targetCharacterId ?? client.character.currentInteractionGuid;
 
     if (hitLocation) {
       client.character.abilityInitTime = Date.now();
@@ -356,6 +356,8 @@ export class AbilitiesManager {
   ) {
     const abilityEffectId: number = packetData.effectData.abilityEffectId2 ?? 0,
       clientEffect = server._clientEffectsData[abilityEffectId];
+    // a malformed/unknown effect id has no client effect data; bail so the handler never throws
+    if (!clientEffect) return;
     if (clientEffect.typeName == "RequestAnimation") {
       const animationName = clientEffect.animationName;
       server.sendDataToAllOthersWithSpawnedEntity(
@@ -445,7 +447,7 @@ export class AbilitiesManager {
     dictionary: EntityDictionary<BaseEntity>
   ) {
     const index = entity.effectTags.indexOf(effectId);
-    if (index > -1)
+    if (index > -1) {
       server.sendDataToAllOthersWithSpawnedEntity(
         dictionary,
         client,
@@ -457,7 +459,8 @@ export class AbilitiesManager {
           newEffectId: 0
         }
       );
-    entity.effectTags.splice(index, 1);
+      entity.effectTags.splice(index, 1);
+    }
   }
 
   sendRemoveEffectPacket(

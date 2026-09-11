@@ -21,6 +21,7 @@ import {
   LoadoutSlots,
   MaterialTypes,
   MeleeTypes,
+  ModelIds,
   ResourceIds,
   ResourceIndicators,
   ResourceTypes,
@@ -28,6 +29,7 @@ import {
 } from "../models/enums";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
+import { bindableEmotes, defaultEmoteHotkeys, emoteMap } from "../data/emotes";
 import { BaseFullCharacter } from "./basefullcharacter";
 import {
   AccountItem,
@@ -43,11 +45,11 @@ import {
 } from "../../../types/zoneserver";
 import {
   calculateOrientation,
+  flhash,
   isFloat,
   isPosInRadius,
   randomIntFromInterval,
   _,
-  checkConstructionInRange,
   getCurrentServerTimeWrapper,
   getDistance
 } from "../../../utils/utils";
@@ -65,6 +67,7 @@ import {
   CommandPlayDialogEffect,
   EquipmentSetCharacterEquipmentSlot,
   LoadoutSetLoadoutSlots,
+  RagdollStop,
   SendSelfToClient
 } from "types/zone2016packets";
 import { Vehicle2016 } from "../entities/vehicle";
@@ -165,7 +168,7 @@ export class Character2016 extends BaseFullCharacter {
   isMoving = false;
 
   /** Values used upon character creation */
-  hairModel!: string;
+  declare hairModel: string;
   isRespawning = false;
   isReady = false;
   creationDate!: string;
@@ -302,6 +305,9 @@ export class Character2016 extends BaseFullCharacter {
 
   /** Screen effects applied to a player: bleeding, night vision, etc. (see ScreenEffects.json) */
   screenEffects: string[] = [];
+  /** Account-gated (owned) emote item def ids, cached from account items in pGetSendSelf so the
+   * synchronous 0xa105 ability grant (pGetEmoteAbilities) and availability list can include them. */
+  ownedEmoteItemDefinitionIds: number[] = [];
 
   /** The time (milliseconds) at which a user has sent a second melee hit */
   abilityInitTime: number = 0;
@@ -651,14 +657,16 @@ export class Character2016 extends BaseFullCharacter {
     if (
       client.character.isSitting &&
       server.isSurvival() &&
-      (checkConstructionInRange(
-        server._lootableConstruction,
+      (server.constructionManager.isConstructionInRange(
+        server,
+        "lootable",
         client.character.state.position,
         4,
         Items.CAMPFIRE
       ) ||
-        checkConstructionInRange(
-          server._worldLootableConstruction,
+        server.constructionManager.isConstructionInRange(
+          server,
+          "worldLootable",
           client.character.state.position,
           4,
           Items.CAMPFIRE
@@ -1107,6 +1115,8 @@ export class Character2016 extends BaseFullCharacter {
       mountSeatId = vehicle?.getCharacterSeat(this.characterId);
     return {
       ...this.pGetLightweight(),
+      // send the lightweight-spawn placeholder profile id, not the (npc-oriented) pGetLightweight profileId
+      profileId: 270,
       mountGuid: vehicleId || "",
       mountSeatId: mountSeatId == -1 ? 0 : mountSeatId,
       mountRelatedDword1: vehicle ? 1 : 0,
@@ -1121,6 +1131,12 @@ export class Character2016 extends BaseFullCharacter {
     client: ZoneClient2016,
     accountItems: AccountItem[]
   ): SendSelfToClient {
+    // Cache the player's owned (account-gated) emotes so the (synchronous) 0xa105 ability grant can
+    // include them alongside the defaults (see pGetEmoteAbilities / getEmoteAvailability).
+    this.ownedEmoteItemDefinitionIds = this.getOwnedEmoteItemDefinitionIds(
+      server,
+      accountItems
+    );
     return {
       data: {
         ...this.pGetLightweight(),
@@ -1163,6 +1179,20 @@ export class Character2016 extends BaseFullCharacter {
               }
             };
           })
+        },
+        skinItems: {
+          unknownDword1: 0,
+          unknownDword2: 0,
+          unknownString1: "",
+          items: [],
+          // Emote availability (TABLE2): the full bindable-emote set, each tagged with its client
+          // nameHash in unknownDword2 for h1emu dynamic emote resolution (see getEmoteAvailability). The
+          // F-key emote TRIGGER is BROKEN on the Dec-2016 client (Feb-14-2017 patch: emotes "stopped
+          // working per account"), so this data alone doesn't fire an emote; the client-side dinput8 patch
+          // (h1emu-patch-2016) repairs the trigger by resolving nameHash -> itemDef here and sending
+          // Animation.Request 0xf801 {itemDefinitionId}, which the server broadcasts as Animation.Play.
+          emotes: this.getEmoteAvailability(),
+          itemCollection: []
         }
         //profileId: 270,
         //unknownDword15: 165449,
@@ -1218,8 +1248,8 @@ export class Character2016 extends BaseFullCharacter {
           unknownArray1: firegroup
             ? firemodes.map((firemode: any, j: number) => {
                 return {
-                  unknownDword1: j,
-                  unknownDword2: firemode.FIRE_MODE_ID
+                  firemodeIndex: j,
+                  firemodeId: firemode.FIRE_MODE_ID
                 };
               })
             : [] // probably firemodes
@@ -1236,8 +1266,8 @@ export class Character2016 extends BaseFullCharacter {
       firegroups = weaponDefinition.FIRE_GROUPS;
     return {
       guid: item.itemGuid,
-      unknownByte1: 0, // firegroupIndex (default 0)?
-      unknownByte2: 0, // MOST LIKELY firemodeIndex?
+      firegroupIndex: item.weapon?.currentFiregroupIndex ?? 0,
+      firemodeIndex: item.weapon?.currentFiremodeIndex ?? 0,
       unknownByte3: -1,
       unknownByte4: -1,
       unknownByte5: 1,
@@ -1333,7 +1363,7 @@ export class Character2016 extends BaseFullCharacter {
     return {
       loadoutSlotId: slotId,
       abilityLineId: abilityLineId,
-      unknownArray1:
+      memberIds:
         itemDefinitionId == WEAPON_FISTS
           ? [
               {
@@ -1346,7 +1376,7 @@ export class Character2016 extends BaseFullCharacter {
           : [abilityEntry],
       unknownDword3: 2,
       itemDefinitionId: itemDefinitionId,
-      unknownByte: 64
+      abilityFlags: 64
     };
   }
 
@@ -1355,7 +1385,7 @@ export class Character2016 extends BaseFullCharacter {
       {
         loadoutSlotId: 1,
         abilityLineId: 1,
-        unknownArray1: [
+        memberIds: [
           {
             unknownDword1: 1111164,
             unknownDword2: 1111164,
@@ -1364,7 +1394,7 @@ export class Character2016 extends BaseFullCharacter {
         ],
         unknownDword3: 2,
         itemDefinitionId: 83,
-        unknownByte: 64
+        abilityFlags: 64
       }
       // hardcoded one weapon ability to fix fists after respawning
     ];
@@ -1377,7 +1407,168 @@ export class Character2016 extends BaseFullCharacter {
         this.pGetActivatableAbility(slotId, itemDefinition, abilityLineId)
       );
     });
+    // Grant the emote + night-vision abilities. F-key emotes are activatable-ability activations; an
+    // ungranted emote ability = a dead key. This is the root-cause fix - loadout abilities alone left
+    // emotes/NV ungranted.
+    abilities.push(...this.pGetEmoteAbilities(server));
     return abilities;
+  }
+
+  // --- Emote enable helpers (F-key emotes = activatable-ability activations) ------------------------
+  // Emote items are ITEM_TYPE 53 (PARAM1 = animationId, ACTIVATABLE_ABILITY_ID = the emote ability).
+  // Enable = 0xa105 ability GRANT (pGetEmoteAbilities) + availability (getEmoteAvailability -> the
+  // SendSelf.skinItems.emotes map). Night vision (P key, item 1700 / ability 1111272) is granted only
+  // while its goggles are equipped (EYES slot) - the same condition as the /nv command.
+
+  /**
+   * Reuses the /emote ownership rule: an account item is an owned emote when its item def's PARAM1 is
+   * an emote animationId (a value in emoteMap). Excludes the default-wheel animations (already covered).
+   */
+  getOwnedEmoteItemDefinitionIds(
+    server: ZoneServer2016,
+    accountItems: AccountItem[]
+  ): number[] {
+    const emoteAnimationIds = new Set<number>(Object.values(emoteMap)),
+      defaultAnimationIds = new Set<number>(Object.values(defaultEmoteHotkeys)),
+      seen = new Set<number>(),
+      ids: number[] = [];
+    for (const accountItem of accountItems) {
+      const def = server.getItemDefinition(accountItem?.itemDefinitionId);
+      if (!def) continue;
+      if (
+        emoteAnimationIds.has(def.PARAM1) &&
+        !defaultAnimationIds.has(def.PARAM1) &&
+        !seen.has(def.ID)
+      ) {
+        seen.add(def.ID);
+        ids.push(def.ID);
+      }
+    }
+    return ids;
+  }
+
+  /**
+   * Builds SendSelf.skinItems.emotes: default wheel emotes at their retail slot ids, then owned emotes
+   * at continuing slot ids - the same emote set that pGetEmoteAbilities grants. Each entry is 3 u32s:
+   * unknownDword1 = slotId, unknownDword2 = 0 (unread by play path), unknownDword3 = emote itemDefinitionId.
+   */
+  getEmoteAvailability(): {
+    unknownDword1: number;
+    unknownDword2: number;
+    unknownDword3: number;
+  }[] {
+    // Dynamic emote resolution (h1emu Option B): emit one SendSelf.skinItems.emotes entry per bindable
+    // emote - the FULL set, no ownership gate on the 0xf801 play path. slotId (unknownDword1) is only the
+    // client's own availability/UI index; the h1emu dinput8 patch keys emotes by nameHash, not slot.
+    //
+    // CUSTOM h1emu / NON-VANILLA: unknownDword2 = the ForgeLight hash (flhash) of the emote's CASED client
+    // action name, computed at RUNTIME so a new/modded emote works by just adding its cased name + itemDef
+    // to `bindableEmotes` (no rebuilt hash table). The h1emu dinput8 patch reads unknownDword2 to map a
+    // pressed key -> emote itemDefinitionId dynamically. In the VANILLA Dec-2016 client unknownDword2 is
+    // UNUSED (the client ignores it; it is normally 0), so this does nothing on an unpatched client and
+    // breaks nothing.
+    return bindableEmotes.map((emote, i) => ({
+      unknownDword1: i + 1, // client availability/UI slot (1-based); patch keys by nameHash, not slot
+      unknownDword2: flhash(emote.casedName), // emote nameHash for the h1emu dinput8 patch (see note)
+      unknownDword3: emote.itemDef // emote itemDefinitionId
+    }));
+  }
+
+  /**
+   * 0xa105 activatable-ability grant entries for every emote the player can use (default wheel + owned) -
+   * the INTENDED design (as if the Dec-2016 emote hotkey worked). Same entry shape as the weapon grant
+   * (pGetActivatableAbility).
+   *
+   * The client copies a granted ability's member list VERBATIM from the grant's unknownArray1[i].d1
+   * (0xa105 handler) - there is NO client-side AbilitySet expansion, so abilityLineId does NOT pick the
+   * members (it only needs to be a valid non-zero id). Ability_ActivateCore bails when a member id <= 0,
+   * and at an occupied real loadout slot the member resolves 0. So each emote is assigned a FREE in-range
+   * loadoutSlotId (<= 43, not a real loadout slot), capped to those available.
+   *
+   * NOTE: the emote HOTKEY itself is broken on the Dec-2016 client, so these grants don't fire on their
+   * own; the dinput8 patch (h1emu-patch-2016) drives the working Animation.Request 0xf801 send directly.
+   * NV is NOT granted here (see the note where the NV grant used to be).
+   */
+  pGetEmoteAbilities(server: ZoneServer2016): any[] {
+    const MAX_ABILITY_SLOT_ID = 43, // client rejects loadoutSlotId > 43 -> ability never wires
+      emoteItemByAnimation = server.getEmoteItemDefinitionByAnimationId(),
+      grants: any[] = [],
+      seen = new Set<number>(),
+      // real loadout slots (weapons/armor/attachments/goggles) the loadout grant already uses - emotes
+      // must not reuse these. Free = in-range slots not in this set.
+      occupiedSlots = new Set<number>(
+        Object.values(LoadoutSlots).filter(
+          (v): v is number => typeof v === "number"
+        )
+      ),
+      freeSlots: number[] = [];
+    for (let s = 1; s <= MAX_ABILITY_SLOT_ID; s++) {
+      if (!occupiedSlots.has(s)) freeSlots.push(s);
+    }
+
+    const grant = (
+      itemDefinitionId: number | undefined,
+      loadoutSlotId: number,
+      abilityLineId: number
+    ): boolean => {
+      if (itemDefinitionId === undefined || seen.has(itemDefinitionId)) {
+        return false;
+      }
+      const abilityId =
+        server.getItemDefinition(itemDefinitionId)?.ACTIVATABLE_ABILITY_ID;
+      if (!abilityId) return false;
+      seen.add(itemDefinitionId);
+      grants.push({
+        loadoutSlotId: loadoutSlotId,
+        abilityLineId: abilityLineId,
+        memberIds: [
+          {
+            unknownDword1: abilityId,
+            unknownDword2: abilityId,
+            unknownDword3: 0
+          }
+        ],
+        unknownDword3: 2,
+        itemDefinitionId: itemDefinitionId,
+        abilityFlags: 64
+      });
+      return true;
+    };
+
+    // Emote set: default wheel first, then owned (deduped, order preserved).
+    const emoteItemDefinitionIds: number[] = [];
+    for (const animationId of Object.values(defaultEmoteHotkeys)) {
+      const id = emoteItemByAnimation[animationId];
+      if (id !== undefined && !emoteItemDefinitionIds.includes(id)) {
+        emoteItemDefinitionIds.push(id);
+      }
+    }
+    for (const id of this.ownedEmoteItemDefinitionIds) {
+      if (!emoteItemDefinitionIds.includes(id)) emoteItemDefinitionIds.push(id);
+    }
+
+    // Assign each emote a free in-range slot + a non-zero incrementing abilityLineId (starts at 2,
+    // above the weapon grants' abilityLineId 1). Cap at the free slots available.
+    let freeIndex = 0,
+      abilityLineId = 2;
+    for (const itemDefinitionId of emoteItemDefinitionIds) {
+      if (freeIndex >= freeSlots.length) {
+        console.log(
+          `[emotes] no free in-range ability slot left (<= ${MAX_ABILITY_SLOT_ID}); skipping emote itemDefinitionId ${itemDefinitionId}`
+        );
+        break;
+      }
+      if (grant(itemDefinitionId, freeSlots[freeIndex], abilityLineId)) {
+        freeIndex++;
+        abilityLineId++;
+      }
+    }
+
+    // NV hotkey (P) is broken on the Dec-2016 client (its activatable-ability member id resolves to 0 ->
+    // BAIL-1a, so the client never sends anything). NV is therefore NOT granted here as an activatable
+    // ability - the dinput8 patch (h1emu-patch-2016) sends Abilities.InitAbility 0xa101 {1111272} directly
+    // and the server runs the intended NV toggle (see AbilitiesInitAbility / toggleNightVision, == /nv).
+    return grants;
   }
 
   resetMetrics() {
@@ -1390,6 +1581,8 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   resetResources(server: ZoneServer2016) {
+    // Full resource resync: clear the change-gate cache so every value below is (re)sent.
+    this._lastSentResources = {};
     this._resources[ResourceIds.HEALTH] = 10000;
     this._resources[ResourceIds.STAMINA] = 600;
     this._resources[ResourceIds.BLEEDING] = 0;
@@ -1573,7 +1766,7 @@ export class Character2016 extends BaseFullCharacter {
     });
     server.sendChatText(client, `Received ${damage} damage`);
 
-    const damageRecord = await server.generateDamageRecord(
+    const damageRecord = server.generateDamageRecord(
       this.characterId,
       damageInfo,
       oldHealth
@@ -1897,6 +2090,24 @@ export class Character2016 extends BaseFullCharacter {
     };
   }
 
+  OnRagdollStop(
+    server: ZoneServer2016,
+    _client: ZoneClient2016,
+    packet: RagdollStop
+  ) {
+    if (server.isBattleRoyale()) return;
+    const position = packet.position,
+      rotation = packet.rotation;
+    if (this.isAlive || !position || !rotation) return;
+    server.constructionManager.placeTemporaryEntity(
+      server,
+      ModelIds.GUTS,
+      new Float32Array([position[0], position[1], position[2], 0]),
+      new Float32Array([0, rotation[0], 0, 0]), // TODO: This probably needs changing
+      300000 // 5 minutes
+    );
+  }
+
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
     server.sendData(client, "LightweightToFullPc", {
       useCompression: false,
@@ -1929,8 +2140,8 @@ export class Character2016 extends BaseFullCharacter {
         item.itemGuid,
         "Update.SwitchFireMode",
         {
-          firegroupIndex: 0,
-          firemodeIndex: 0
+          firegroupIndex: item.weapon?.currentFiregroupIndex ?? 0,
+          firemodeIndex: item.weapon?.currentFiremodeIndex ?? 0
         }
       );
     });
@@ -2071,7 +2282,7 @@ export class Character2016 extends BaseFullCharacter {
       case "HEAD":
       case "GLASSES":
       case "NECK":
-        damage = damage *= headshotDmgMultiplier;
+        damage *= headshotDmgMultiplier;
         damage = server.applyHelmetDamageReduction(this, damage, 1);
         break;
       default:

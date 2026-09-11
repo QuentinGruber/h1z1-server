@@ -89,8 +89,10 @@ interface WorldObjectsConfig {
   vehicleSpawnRadius: number;
   npcSpawnRadius: number;
   chanceNpc: number;
+  chanceRabbit: number;
   chanceScreamer: number;
   chanceGasser: number;
+  chanceGasserPropagation: number;
   chanceExploder: number;
 
   crowbarHitRewardChance: number;
@@ -122,6 +124,10 @@ interface ConstructionConfig {
   playerFoundationBlockedPlacementRange: number;
   playerShackBlockedPlacementRange: number;
   lowerStrongholdDefenses: boolean;
+  /** #1467 (H14): enable the save-side orphan backstop (logs any construction that
+   * is live but unreachable from the save graph). Runs sampled (every Nth save) and
+   * yields; disable on very large servers only if it ever shows up in profiling. */
+  constructionOrphanCheck: boolean;
 }
 
 interface DecayConfig {
@@ -161,10 +167,32 @@ interface RandomEventsConfig {
   enabled: boolean;
 }
 
-interface AirdropConfig {
-  minimumPlayers: number;
-  planeMovementSpeed: number;
+/** Per-airdrop-type tunables. All optional in config; code supplies defaults. */
+export interface AirdropTypeConfig {
+  /** ms for the plane to cross the whole flight path */
+  planeSpeed: number;
+  /** keep the plane at cruise altitude instead of dipping to the drop */
+  levelFlight: boolean;
+  /** alert sent to the caller when the plane reaches the drop ("" = none) */
+  arrivalAlert: string;
+  /** crate payload: ms for the parachuted crate to fall */
   crateDropSpeed: number;
+  /** bombing payload */
+  bombCount: number;
+  bombBlastRadius: number;
+  bombBlastDamage: number;
+  bombReleaseHeight: number;
+  bombFallSpeed: number;
+  corridorLength: number;
+  corridorWidth: number;
+}
+
+export interface AirdropConfig {
+  minimumPlayers: number;
+  /** Use the navmesh to drop at a random valid spot in the caller's grid cell. */
+  useNavmesh: boolean;
+  /** Overrides per airdrop type, keyed by name (normal, bombing, ...). */
+  types: Record<string, Partial<AirdropTypeConfig>>;
 }
 
 interface GroupConfig {

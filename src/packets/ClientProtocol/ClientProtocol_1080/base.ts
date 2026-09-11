@@ -1932,6 +1932,8 @@ export const basePackets: PacketStructures = [
                 }
               ]
             },
+            // the client reads the self packet to the end and requires it to consume the buffer
+            // exactly, so these trailing fields must stay in place and must not be trimmed
             { name: "quizComplete", type: "boolean", defaultValue: false },
             { name: "unknownQword1", type: "uint64string", defaultValue: "" },
             { name: "unknownDword38", type: "uint32", defaultValue: 0 },
@@ -3423,6 +3425,9 @@ export const basePackets: PacketStructures = [
   ["CrateOpeningBase", 0xf6, {}],
   ["PlayerHeatWarning", 0xf7, {}],
   [
+    // The LIVE F-key emote play request: client sends this on emote activation; server's
+    // animationRequest handler resolves getItemDefinition(itemDefinitionId).PARAM1 -> animationId ->
+    // broadcasts Animation.Play 0xf802. (Not Character.AnimationRequest 0x0f41 - see that packet.)
     "Animation.Request",
     0xf801,
     {

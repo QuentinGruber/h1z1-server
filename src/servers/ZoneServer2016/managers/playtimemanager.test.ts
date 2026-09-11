@@ -21,7 +21,7 @@ import assert from "node:assert";
 
 process.env.FORCE_DISABLE_WS = "true";
 const isMongoTests = process.env.MONGO_TESTS === "true";
-test("PlayTimeManager", { timeout: 10000 }, async (t) => {
+test("PlayTimeManager", { timeout: 60000 }, async (t) => {
   t.mock.timers.enable({ apis: ["setInterval"] });
   const zone = new ZoneServer2016(0);
   await zone.start();

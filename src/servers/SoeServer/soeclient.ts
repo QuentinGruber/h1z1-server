@@ -45,6 +45,7 @@ export default class SOEClient {
   outputStream: SOEOutputStream;
   soeClientId: string;
   lastKeepAliveTimer: NodeJS.Timeout | null = null;
+  sendingInterval: NodeJS.Timeout | null = null;
   isDeleted: boolean = false;
   stats: SOEClientStats = {
     totalPhysicalPacketSent: 0,
@@ -77,6 +78,14 @@ export default class SOEClient {
   }
   closeTimers() {
     clearInterval(this._statsResetTimer as unknown as number);
+    if (this.sendingInterval) {
+      clearInterval(this.sendingInterval);
+      this.sendingInterval = null;
+    }
+    if (this.lastKeepAliveTimer) {
+      clearTimeout(this.lastKeepAliveTimer);
+      this.lastKeepAliveTimer = null;
+    }
   }
   private _resetStats() {
     this.stats.totalPhysicalPacketSent = 0;

@@ -77,8 +77,10 @@ import { ZombieScreamer } from "../entities/zombiescreamer";
 import { PrototypeZombie } from "../entities/prototypezombie";
 import { Exploder } from "../entities/exploder";
 import { Deer } from "../entities/deer";
+import { Rabbit } from "../entities/rabbit";
 import { Wolf } from "../entities/wolf";
 import { Bear } from "../entities/bear";
+import { BasicNpc } from "../entities/basicnpc";
 import { scheduler } from "node:timers/promises";
 import {
   ContainerPropSnapshot,
@@ -183,8 +185,10 @@ export class WorldObjectManager {
   vehicleSpawnRadius!: number;
   npcSpawnRadius!: number;
   chanceNpc!: number;
+  chanceRabbit!: number;
   chanceScreamer!: number;
   chanceGasser!: number;
+  chanceGasserPropagation!: number;
   chanceExploder!: number;
   chanceWornLetter!: number;
   waterSourceReplenishTimer!: number;
@@ -426,10 +430,7 @@ export class WorldObjectManager {
       Object.values(server._clients).forEach((client: ZoneClient2016) => {
         updatedProps.forEach((characterId) => {
           const prop = server._lootableProps[characterId] as LootableProp;
-          const index = client.searchedProps.indexOf(prop);
-          if (index > -1) {
-            client.searchedProps.splice(index, 1);
-          }
+          client.searchedProps.delete(prop);
         });
       });
     } catch (error) {
@@ -701,6 +702,17 @@ export class WorldObjectManager {
           spawnerId
         );
         break;
+      case ModelIds.RABBIT:
+        npc = new Rabbit(
+          characterId,
+          transientId,
+          modelId,
+          position,
+          rotation,
+          server,
+          spawnerId
+        );
+        break;
       case ModelIds.WOLF:
         npc = new Wolf(
           characterId,
@@ -722,7 +734,17 @@ export class WorldObjectManager {
         );
         break;
       default:
-        throw new Error(`Unknown NPC modelId: ${modelId}`);
+        // Fallback to BasicNpc as this was used for testing models as well
+        npc = new BasicNpc(
+          characterId,
+          transientId,
+          modelId,
+          position,
+          rotation,
+          server,
+          spawnerId
+        );
+        break;
     }
     server._npcs[characterId] = npc;
     if (spawnerId) this.spawnedNpcs[spawnerId] = characterId;
@@ -1392,22 +1414,19 @@ export class WorldObjectManager {
       for (let x = 0; x < respawnAmount; x++) {
         const dataVehicle =
           Z1_vehicles[randomIntFromInterval(0, Z1_vehicles.length - 1)];
-        let spawn = true;
-        Object.values(server._vehicles).forEach(
-          (spawnedVehicle: Vehicle2016) => {
-            if (!spawn) return;
-            if (
-              isPosInRadius(
-                this.vehicleSpawnRadius,
-                dataVehicle.position,
-                spawnedVehicle.state.position
-              )
-            ) {
-              spawn = false;
-            }
-          }
+        // .some() short-circuits on the first collision instead of checking
+        // every existing vehicle regardless (re-reads server._vehicles live
+        // each iteration since vehicles spawned earlier in this same batch
+        // must also count as collision candidates for later iterations).
+        const collides = Object.values(server._vehicles).some(
+          (spawnedVehicle: Vehicle2016) =>
+            isPosInRadius(
+              this.vehicleSpawnRadius,
+              dataVehicle.position,
+              spawnedVehicle.state.position
+            )
         );
-        if (!spawn) {
+        if (collides) {
           continue;
         }
         const characterId = generateRandomGuid(),
@@ -1447,6 +1466,9 @@ export class WorldObjectManager {
         case "NPCSpawner_Deer001.adr":
           authorizedModelId.push(9002);
           authorizedModelId.push(9253);
+          break;
+        case "NPCSpawner_Rabbit001.adr":
+          authorizedModelId.push(ModelIds.RABBIT);
           break;
         case "NPCSpawner_Wolf001.adr":
           authorizedModelId.push(9003);
@@ -1969,10 +1991,7 @@ export class WorldObjectManager {
       }
       if (Object.keys(container.items).length != 0) {
         Object.values(server._clients).forEach((client: ZoneClient2016) => {
-          const index = client.searchedProps.indexOf(prop);
-          if (index > -1) {
-            client.searchedProps.splice(index, 1);
-          }
+          client.searchedProps.delete(prop);
         });
       }
     }

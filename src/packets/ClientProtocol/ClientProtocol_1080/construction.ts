@@ -44,12 +44,25 @@ export const constructionPackets: PacketStructures = [
           defaultValue: ""
         },
         { name: "BuildingSlot", type: "string", defaultValue: "" },
-        { name: "unkByte1", type: "uint8", defaultValue: 0 },
-        { name: "unk1", type: "float", defaultValue: 0 },
-        { name: "rotation1", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
-        { name: "rotation2", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
-        { name: "rotation3", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
-        { name: "unk6", type: "float", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownFloat1", type: "float", defaultValue: 0 },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        // placement actor world matrix: right (X row), up (Y row), forward (Z row), then position (translation)
+        {
+          name: "placementRight",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 0]
+        },
+        {
+          name: "placementUp",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 0]
+        },
+        {
+          name: "placementForward",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 0]
+        },
         { name: "position2", type: "floatvector4", defaultValue: [0, 0, 0, 0] }
       ]
     }

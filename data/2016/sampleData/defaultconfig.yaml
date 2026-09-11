@@ -83,8 +83,22 @@ weather:
 
 airdrop:
   minimumPlayers: 10
-  planeMovementSpeed: 140000
-  crateDropSpeed: 60000
+  # Drop at a random valid spot in the caller's grid cell. This is experimental, use at your own risk.
+  useNavmesh: true
+  types:
+    normal:
+      planeSpeed: 140000
+      crateDropSpeed: 60000
+    bombing:
+      planeSpeed: 24000
+      levelFlight: true
+      bombCount: 100
+      bombBlastRadius: 12
+      bombBlastDamage: 150000
+      bombReleaseHeight: 950
+      bombFallSpeed: 60
+      corridorLength: 260
+      corridorWidth: 60
 
 # Anything to do with loot, vehicle, and npc spawning / despawning
 worldobjects:
@@ -116,8 +130,10 @@ worldobjects:
   # How far another spawned npc has to be for another to spawn
   npcSpawnRadius: 2
   chanceNpc: 100 # To be reworked: 100 max
+  chanceRabbit: 100 # 100 max 
   chanceScreamer: 50 # To be reworked: 1000 max
-  chanceGasser: 0 # DISABLED for now 1000 max (rolled only on normal walkers)
+  chanceGasser: 40 # To be reworked: 1000 max
+  chanceGasserPropagation: 20 # 100 max, chance per zombie caught in a gas cloud to become a gasser carrier
   chanceExploder: 50 # 1000 max (rolled only on normal walkers)
 
   chanceWornLetter: 1 # 100 max
@@ -158,6 +174,7 @@ construction:
   playerFoundationBlockedPlacementRange: 70
   playerShackBlockedPlacementRange: 20
   lowerStrongholdDefenses: false # Lowers the walls and gates by 0.1 units to close the gap underneath.
+  constructionOrphanCheck: true # #1467: log any construction unreachable from the save graph (sampled, every Nth save, yields). Set false on very large servers only if profiling shows it.
 
 decay:
   decayTickInterval: 1200000 # 20 minutes per decay tick

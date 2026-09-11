@@ -151,7 +151,13 @@ export const vehiclePackets: PacketStructures = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "unknownString1", type: "string", defaultValue: "" }
+        {
+          // client reads a count-prefixed array of strings (VehicleTintReadFromPacket @0x1405477A0), not a single string
+          name: "unknownArray1",
+          type: "array",
+          defaultValue: [],
+          fields: [{ name: "value", type: "string", defaultValue: "" }]
+        }
       ]
     }
   ],
@@ -169,7 +175,8 @@ export const vehiclePackets: PacketStructures = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+        // client reads a length-prefixed blob (VehicleStatsReadFromPacket @0x140545240), not a bare u32
+        { name: "statData", type: "byteswithlength" }
       ]
     }
   ],
@@ -179,7 +186,13 @@ export const vehiclePackets: PacketStructures = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        // 5 trailing fields the client reads (VehicleDamageInfoReadFromPacket @0x140544330)
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword5", type: "uint32", defaultValue: 0 }
       ]
     }
   ],
@@ -514,7 +527,8 @@ export const vehiclePackets: PacketStructures = [
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+        // client reads a length-prefixed blob here (@0x140544A00); unknownDword2 was the blob length
+        { name: "dataBlob", type: "byteswithlength" }
       ]
     }
   ],

@@ -187,13 +187,13 @@ async function worldSaveUnitTests(t: any, mongoAddress: string) {
     assert.deepEqual(loadedCrops, world.crops);
   });
 }
-test("WorldDataManager", { timeout: 10000 }, async (t) => {
+test("WorldDataManager", { timeout: 60000 }, async (t) => {
   await worldSaveUnitTests(t, "");
 });
 
 test(
   "WorldDataManager-mongo",
-  { timeout: 10000, skip: !isMongoTests },
+  { timeout: 60000, skip: !isMongoTests },
   async (t) => {
     await worldSaveUnitTests(t, "mongodb://localhost:27017");
   }

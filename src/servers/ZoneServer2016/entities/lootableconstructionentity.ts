@@ -10,7 +10,7 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
-
+const debug = require("debug")("Nav");
 import {
   ConstructionPermissionIds,
   Effects,
@@ -33,7 +33,7 @@ import { EXTERNAL_CONTAINER_GUID } from "../../../utils/constants";
 import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 import { scheduler } from "timers/promises";
 import { BaseEntity } from "./baseentity";
-import { isPosInRadius } from "../../../utils/utils";
+import { isPosInRadius, shouldHideHealthBar } from "../../../utils/utils";
 
 function setObstacle(
   server: ZoneServer2016,
@@ -47,6 +47,12 @@ function setObstacle(
       return server.navManager.addObstacle(
         position,
         vec3.fromArray([0.5, 2.0, 0.5]),
+        yaw
+      );
+    case ModelIds.CAMPFIRE:
+      return server.navManager.addObstacle(
+        position,
+        vec3.fromArray([0.5, 0.5, 0.5]),
         yaw
       );
     default:
@@ -143,7 +149,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     ) {
       this.obstacleRef = setObstacle(server, actorModelId, position, rotation);
       if (this.obstacleRef) {
-        console.log(
+        debug(
           `[NavMesh] Added obstacle for world lootable ${characterId} (modelId: ${actorModelId})`
         );
       }
@@ -156,12 +162,18 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     }
 
     this.health -= damageInfo.damage;
-    server.sendDataToAllWithSpawnedEntity(
-      dictionary,
-      this.characterId,
-      "Character.UpdateSimpleProxyHealth",
-      this.pGetSimpleProxyHealth()
-    );
+    for (const a in server._clients) {
+      const client = server._clients[a];
+      if (client.spawnedEntities.has(dictionary[this.characterId])) {
+        server.sendData(
+          client,
+          "Character.UpdateSimpleProxyHealth",
+          shouldHideHealthBar(server, client, this)
+            ? { characterId: this.characterId, healthPercentage: 100 }
+            : this.pGetSimpleProxyHealth()
+        );
+      }
+    }
 
     if (this.health > 0) return;
     this.destroy(server, 3000);
@@ -227,9 +239,9 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     const container = this.getContainer();
     if (container) {
       container.items = {};
-      for (const a in server._characters) {
-        const character = server._characters[a];
-        if (character.mountedContainer == this) {
+      if (this.mountedCharacter) {
+        const character = server._characters[this.mountedCharacter];
+        if (character?.mountedContainer == this) {
           character.dismountContainer(server);
         }
       }

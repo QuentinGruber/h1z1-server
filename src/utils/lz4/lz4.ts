@@ -42,7 +42,7 @@ export const uncompress = (
   eIdx = eIdx || input.length - sIdx;
   let end;
   // Process each sequence in the incoming data
-  for (var i = sIdx, n = eIdx, j = 0; i < n; ) {
+  for (var i = sIdx, n = eIdx, j = 0; i < n;) {
     const token = input[i++];
 
     // Literals

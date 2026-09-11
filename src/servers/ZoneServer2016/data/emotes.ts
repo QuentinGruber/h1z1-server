@@ -105,7 +105,78 @@ const emoteMap: { [Name: string]: number } = {
 // Default emotes that don't require ownership
 const defaultEmotes = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
+// Retail default emote hotkey layout: F-key slot id (1-based, 1..12) -> emote animationId.
+// The server binds each slot's default emote into SendSelfToClient.skinItems.emotes so F1-Fn work.
+// A slot whose animationId has no ITEM_TYPE-53 emote item is omitted (e.g. anim 4 / anim 14).
+const defaultEmoteHotkeys: { [slotId: number]: number } = {
+  1: 2,
+  2: 3,
+  3: 7,
+  4: 8,
+  5: 9,
+  6: 18,
+  7: 13,
+  8: 15,
+  9: 5,
+  10: 10,
+  11: 4,
+  12: 14
+};
+
+// Bindable emotes for h1emu dynamic emote resolution (Option B): the CASED InputProfile action name
+// (exactly as the Dec-2016 client hashes it) -> its ITEM_TYPE-53 emote itemDefinitionId. The server tags
+// each SendSelf.skinItems.emotes entry with flhash(casedName) in the (vanilla-unused) unknownDword2 field
+// so the h1emu dinput8 patch can map a pressed key -> emote itemDef by nameHash at runtime - no hardcoded
+// table, mod-friendly: add a new/modded emote here and it just works.
+// IMPORTANT: these are the CASED names (e.g. "DoubleBird"), NOT the lowercase `emoteMap` keys or the spaced
+// JSON NAME fields - hashing the wrong casing yields the wrong nameHash and the patch lookup misses.
+// (Wave and WaveHelloB share itemDef 3350 but have DISTINCT nameHashes - both are listed.)
+const bindableEmotes: { casedName: string; itemDef: number }[] = [
+  { casedName: "Agree", itemDef: 3285 },
+  { casedName: "AirGuitar", itemDef: 3288 },
+  { casedName: "Applause", itemDef: 3277 },
+  { casedName: "Beckon", itemDef: 3278 },
+  { casedName: "Beg", itemDef: 2438 },
+  { casedName: "BirdCannon", itemDef: 1999 },
+  { casedName: "BootySlap", itemDef: 2000 },
+  { casedName: "Bow", itemDef: 3291 },
+  { casedName: "CrotchChop", itemDef: 2001 },
+  { casedName: "CryBaby", itemDef: 2002 },
+  { casedName: "CutThroat", itemDef: 3279 },
+  { casedName: "DanceA", itemDef: 3286 },
+  { casedName: "DoubleBird", itemDef: 5376 },
+  { casedName: "Fisticuffs", itemDef: 2439 },
+  { casedName: "Flex", itemDef: 2441 },
+  { casedName: "FlexPoint", itemDef: 3154 },
+  { casedName: "Grind", itemDef: 2003 },
+  { casedName: "Hump", itemDef: 2440 },
+  { casedName: "Laugh", itemDef: 3281 },
+  { casedName: "ListenToTheCrowd", itemDef: 3155 },
+  { casedName: "NoWay", itemDef: 3282 },
+  { casedName: "PelvicThrust", itemDef: 2004 },
+  { casedName: "Point", itemDef: 3283 },
+  { casedName: "RaiseCrown", itemDef: 3819 },
+  { casedName: "Salute", itemDef: 3284 },
+  { casedName: "SarcasmDance", itemDef: 2005 },
+  { casedName: "ScrewYou2", itemDef: 2006 },
+  { casedName: "ShimmyDance", itemDef: 2007 },
+  { casedName: "TeaBag", itemDef: 3280 },
+  { casedName: "TeabagLight", itemDef: 3342 },
+  { casedName: "Violin", itemDef: 3348 },
+  { casedName: "Wave", itemDef: 3350 },
+  { casedName: "WaveBye", itemDef: 3287 },
+  { casedName: "WaveHello", itemDef: 3276 },
+  { casedName: "WaveHelloB", itemDef: 3350 },
+  { casedName: "WereNotWorthy", itemDef: 2008 }
+];
+
 // Array of emote names for listing
 const emoteNames: string[] = Object.keys(emoteMap);
 
-export { emoteMap, emoteNames, defaultEmotes };
+export {
+  emoteMap,
+  emoteNames,
+  defaultEmotes,
+  defaultEmoteHotkeys,
+  bindableEmotes
+};

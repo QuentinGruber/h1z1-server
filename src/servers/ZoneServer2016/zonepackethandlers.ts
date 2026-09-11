@@ -22,7 +22,7 @@ const debug = require("debug")("ZoneServer");
 import {
   _,
   isPosInRadius,
-  toHex,
+  Int64String,
   quat2matrix,
   eul2quat,
   isPosInRadiusWithY,
@@ -47,7 +47,8 @@ import {
   Effects,
   VehicleIds,
   UIElements,
-  ReplicationPropertyHash
+  ReplicationPropertyHash,
+  AbilityIds
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
@@ -92,6 +93,7 @@ import {
   ConstructionPlacementFinalizeRequest,
   ConstructionPlacementRequest,
   ConstructionPlacementResponse,
+  ContainerMoveItem,
   ContinentBattleInfo,
   DtoHitSpeedTreeReport,
   EffectAddEffect,
@@ -131,6 +133,7 @@ import {
   GrinderExchangeRequest,
   GrinderExchangeResponse,
   RagdollUpdatePose,
+  RagdollStop,
   AnimationRequest,
   ClientFinishedLoading,
   SynchronizedTeleportNotifyReady,
@@ -480,7 +483,7 @@ export class ZonePacketHandlers {
     }
 
     if (client.firstLoading) {
-      client.character.lastLoginDate = toHex(Date.now());
+      client.character.lastLoginDate = Int64String(Date.now());
       server.setGodMode(client, false);
       if (client.banType != "") {
         server.sendChatTextToAdmins(
@@ -1109,7 +1112,7 @@ export class ZonePacketHandlers {
     }
     if (client.isSynced) return;
     client.isSynced = true;
-    client.character.lastLoginDate = toHex(Date.now());
+    client.character.lastLoginDate = Int64String(Date.now());
     server.constructionManager.constructionPermissionsManager(server, client);
   }
   CommandExecuteCommand(
@@ -1940,11 +1943,6 @@ export class ZonePacketHandlers {
       entity = server.getEntity(guid);
 
     if (!entity) return;
-    if (entity instanceof Crate) {
-      client.character.currentInteractionGuid = guid;
-      client.character.lastInteractionStringTime = Date.now();
-      return;
-    }
     const isConstruction =
       entity instanceof ConstructionParentEntity ||
       entity instanceof ConstructionChildEntity ||
@@ -1962,6 +1960,8 @@ export class ZonePacketHandlers {
     }
     client.character.currentInteractionGuid = guid;
     client.character.lastInteractionStringTime = Date.now();
+    // a crate only records the interaction guid; it has no OnInteractionString handler
+    if (entity instanceof Crate) return;
     entity.OnInteractionString(server, client);
   }
   MountSeatChangeRequest(
@@ -1978,16 +1978,17 @@ export class ZonePacketHandlers {
   ) {
     if (
       !packet.data.itemDefinitionId ||
-      !packet.data.rotation1 ||
-      !packet.data.rotation2 ||
+      !packet.data.placementForward ||
       !packet.data.position2
     ) {
       return;
     }
 
-    const y = packet.data.rotation1[1],
-      w = packet.data.rotation1[3],
-      yaw = Math.atan2(-w, y),
+    // world-up is Y; yaw is the heading of the placement forward (Z) basis row
+    const yaw = Math.atan2(
+        packet.data.placementForward[0],
+        packet.data.placementForward[2]
+      ),
       final = new Float32Array([yaw, 0, 0, 0]);
 
     const modelId = server.getItemDefinition(
@@ -2535,7 +2536,7 @@ export class ZonePacketHandlers {
   ContainerMoveItem(
     server: ZoneServer2016,
     client: Client,
-    packet: ReceivedPacket</*ContainerMoveItem*/ any>
+    packet: ReceivedPacket<ContainerMoveItem>
   ) {
     const {
       containerGuid,
@@ -2544,7 +2545,7 @@ export class ZonePacketHandlers {
       targetCharacterId,
       count,
       newSlotId
-    } = packet.data;
+    } = packet.data as Required<ContainerMoveItem>;
     if (client.hudTimer) {
       client.clearHudTimer();
     }
@@ -2585,7 +2586,11 @@ export class ZonePacketHandlers {
             return;
           }
           if (item.weapon) {
-            const weaponAmmoId = server.getWeaponAmmoId(item.itemDefinitionId);
+            const weaponAmmoId = server.getWeaponAmmoId(
+              item.itemDefinitionId,
+              item.weapon.currentFiregroupIndex,
+              item.weapon.currentFiremodeIndex
+            );
             if (item.itemDefinitionId != weaponAmmoId) {
               const ammo = server.generateItem(
                 weaponAmmoId,
@@ -3190,24 +3195,52 @@ export class ZonePacketHandlers {
       case "Weapon.ReloadInterrupt":
         server.reloadInterrupt(client, weaponItem);
         break;
-      case "Weapon.SwitchFireModeRequest":
+      case "Weapon.SwitchFireModeRequest": {
+        const weapon = weaponItem.weapon,
+          newFiregroupIndex = packet.packet.firegroupIndex ?? 0,
+          newFiremodeIndex = packet.packet.firemodeIndex ?? 0;
+
+        if (weapon) {
+          // A multi-firegroup weapon (e.g. crossbow) changes the LOADED ammo TYPE when the client cycles
+          // to a different firegroup (wooden -> flaming -> explosive). The already-loaded arrow must be
+          // unloaded first: unload() refunds it to inventory (resolved via the weapon's CURRENT/old
+          // firegroup index) and resets the magazine to 0 + re-syncs the client. Without this the magazine
+          // still counts the old arrow, so the follow-up reload hits `ammoCount >= clipSize` and
+          // early-returns in handleWeaponReload, leaving the new type stuck at 0/clip. Do it BEFORE
+          // overwriting the index (unload resolves the refund ammo from the current selection).
+          if (
+            newFiregroupIndex !== weapon.currentFiregroupIndex &&
+            weapon.ammoCount > 0
+          ) {
+            weapon.unload(server, client);
+          }
+
+          // Persist the client's firegroup/firemode selection (before the early-returns below) so
+          // ammo/projectile resolution always reflects the client's choice, even on an empty clip or ADS.
+          // Single-firegroup weapons simply keep {0, 0}.
+          weapon.currentFiregroupIndex = newFiregroupIndex;
+          weapon.currentFiremodeIndex = newFiremodeIndex;
+        }
+
         // workaround so aiming in doesn't sometimes make the shooting sound
-        if (!weaponItem.weapon?.ammoCount) return;
+        // (also skips the broadcast right after an ammo-type unload, when the weapon is momentarily empty)
+        if (!weapon?.ammoCount) return;
 
         // temp workaround to fix 308 sound while aiming
         // this workaround applies to all weapons
-        if (packet.packet.firemodeIndex == 1) return;
+        if (newFiremodeIndex == 1) return;
         server.sendRemoteWeaponUpdateDataToAllOthers(
           client,
           client.character.transientId,
           weaponItem.itemGuid,
           "Update.SwitchFireMode",
           {
-            firegroupIndex: packet.packet.firegroupIndex,
-            firemodeIndex: packet.packet.firemodeIndex
+            firegroupIndex: newFiregroupIndex,
+            firemodeIndex: newFiremodeIndex
           }
         );
         break;
+      }
       case "Weapon.WeaponFireHint":
         debug("WeaponFireHint");
         break;
@@ -3385,13 +3418,15 @@ export class ZonePacketHandlers {
     const characterName =
         packet.data.inviteData?.sourceCharacter?.identity?.characterName || "",
       source = server.getClientByNameOrLoginSession(characterName);
+    const joinState = packet.data.joinState ?? 0;
     if (!(source instanceof Client)) return;
 
+    // accept is signalled in the low byte; the client can send it inside a larger word
     server.groupManager.handleGroupJoin(
       server,
       source,
       client,
-      packet.data.joinState == 1
+      (joinState & 0xff) == 1
     );
   }
 
@@ -3440,6 +3475,15 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<AbilitiesInitAbility>
   ) {
+    // NV is a client toggle ability broken on the Dec-2016 client (member id 0 -> never sends); the
+    // dinput8 patch forces the member so P emits an ability packet. The client's toggle-state STICKS -
+    // after deactivating it keeps sending UninitAbility 0xa103 on re-press instead of alternating back
+    // to InitAbility 0xa101. So the server TOGGLES NV on BOTH Init and Uninit for 1111272, guaranteeing
+    // each P press flips NV regardless of which packet the client sends. No activatable grant is needed.
+    if (packet.data.abilityId === AbilityIds.NV_GOGGLES) {
+      server.toggleNightVision(client);
+      return;
+    }
     server.abilitiesManager.processAbilityInit(server, client, packet.data);
   }
   AbilitiesUninitAbility(
@@ -3447,6 +3491,13 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<AbilitiesUninitAbility>
   ) {
+    // NV re-press: the Dec-2016 client's toggle-state sticks and keeps sending UninitAbility 0xa103
+    // {1111272} on every re-press (not alternating back to Init). So TOGGLE NV here too - each P press
+    // flips NV whether it arrives as Init or Uninit. Other abilityIds keep the vehicle-ability path.
+    if (packet.data.abilityId === AbilityIds.NV_GOGGLES) {
+      server.toggleNightVision(client);
+      return;
+    }
     if (!client.vehicle.mountedVehicle) return;
     const vehicle = server._vehicles[client.vehicle.mountedVehicle];
     if (!vehicle) return;
@@ -3469,9 +3520,9 @@ export class ZonePacketHandlers {
       collides with an object. -Meme
     */
     const hitLocation = (packet.data.abilityData as any)?.hitLocation;
+    // the melee target id is the packet's targetCharacterId, not the hitLocation bone string
     const characterId =
-      (packet.data.abilityData as any)?.hitLocation ??
-      client.character.currentInteractionGuid;
+      packet.data.targetCharacterId ?? client.character.currentInteractionGuid;
 
     if (hitLocation) {
       // Cancel emote when player starts melee attack
@@ -3531,7 +3582,7 @@ export class ZonePacketHandlers {
 
     const itemSubData: any = packet.data.itemSubData;
 
-    switch (packet.data.unknownDword3) {
+    switch (packet.data.itemUseOption) {
       case ItemUseOptions.OPEN_CRATE:
         const rewards = server.getCrateRewards(packet.data.itemDefinitionId),
           rewardResult = server.getRandomCrateReward(
@@ -3541,14 +3592,14 @@ export class ZonePacketHandlers {
         if (!rewards || !reward) return;
 
         if (
-          itemSubData?.unknownBoolean1 == 0 &&
+          itemSubData?.noSubData == 0 &&
           !server.removeInventoryItem(client.character, item)
         ) {
           return;
         }
         server.sendData(client, "Items.ReportRewardCrateContents", {
           winningRewards:
-            reward > 0 && itemSubData?.unknownBoolean1 == 0
+            reward > 0 && itemSubData?.noSubData == 0
               ? [{ itemDefinitionId: reward }]
               : [],
           possibleRewards: Object.values(rewards).map((rew) => {
@@ -3558,7 +3609,7 @@ export class ZonePacketHandlers {
           })
         });
 
-        if (reward > 0 && itemSubData.unknownBoolean1 == 0) {
+        if (reward > 0 && itemSubData.noSubData == 0) {
           setTimeout(() => {
             if (rewardResult.isRare) {
               server.sendAlertToAll(
@@ -3782,6 +3833,19 @@ export class ZonePacketHandlers {
     //server.sendDataToAllOthersWithSpawnedEntity(server._characters, client, client.character.characterId, "Ragdoll.UpdatePose", packet.data)
   }
 
+  RagdollStop(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<RagdollStop>
+  ) {
+    const entity = server.getEntity(packet.data.characterId);
+    if (!(entity instanceof BaseFullCharacter)) {
+      return;
+    }
+    if (packet.data.characterId != client.character.characterId) return;
+    entity.OnRagdollStop(server, client, packet.data);
+  }
+
   async grinderExchangeRequest(
     server: ZoneServer2016,
     client: Client,
@@ -3952,6 +4016,11 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<AnimationRequest>
   ) {
+    // Inbound emote play request (Animation.Request 0xf801): resolve the emote item's PARAM1 ->
+    // animationId and BROADCAST Animation.Play 0xf802 { characterId, animationId } to nearby clients so
+    // everyone sees the emote. The Dec-2016 emote HOTKEY is broken and never sends this 0xf801; the
+    // dinput8 patch (h1emu-patch-2016) supplies it directly (using SendSelf.skinItems.emotes to pick a
+    // real itemDefinitionId).
     const animationId =
       server.getItemDefinition(packet.data.itemDefinitionId)?.PARAM1 || 0;
     if (!animationId) return;
@@ -3994,6 +4063,18 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<any>
   ) {
     switch (packet.name) {
+      // Highest-frequency packet types are checked first — V8 doesn't build a
+      // jump table for a switch this large on arbitrary strings, so this is
+      // effectively a sequential comparison chain.
+      case "PlayerUpdatePosition":
+        this.PlayerUpdatePosition(server, client, packet);
+        break;
+      case "PlayerUpdateManagedPosition":
+        this.PlayerUpdateManagedPosition(server, client, packet);
+        break;
+      case "KeepAlive":
+        this.KeepAlive(server, client, packet);
+        break;
       case "ClientIsReady":
         this.ClientIsReady(server, client, packet);
         break;
@@ -4008,6 +4089,7 @@ export class ZonePacketHandlers {
         break;
       case "Command.SpawnVehicle":
         this.CommandSpawnVehicle(server, client, packet);
+        break;
       case "Command.FreeInteractionNpc":
         this.CommandFreeInteractionNpc(server, client, packet);
         break;
@@ -4025,9 +4107,6 @@ export class ZonePacketHandlers {
         break;
       case "LobbyGameDefinition.DefinitionsRequest":
         this.LobbyGameDefinitionDefinitionsRequest(server, client, packet);
-        break;
-      case "KeepAlive":
-        this.KeepAlive(server, client, packet);
         break;
       case "ClientUpdate.MonitorTimeDrift":
         this.ClientUpdateMonitorTimeDrift(server, client, packet);
@@ -4115,17 +4194,11 @@ export class ZonePacketHandlers {
       case "GetRewardBuffInfo":
         this.GetRewardBuffInfo(server, client, packet);
         break;
-      case "PlayerUpdateManagedPosition":
-        this.PlayerUpdateManagedPosition(server, client, packet);
-        break;
       case "Vehicle.StateData":
         this.VehicleStateData(server, client, packet);
         break;
       case "Vehicle.AccessType":
         this.VehicleAccessType(server, client, packet);
-        break;
-      case "PlayerUpdatePosition":
-        this.PlayerUpdatePosition(server, client, packet);
         break;
       case "Character.Respawn":
         this.CharacterRespawn(server, client, packet);
@@ -4277,6 +4350,9 @@ export class ZonePacketHandlers {
         break;
       case "Ragdoll.UpdatePose":
         this.RagdollUpdatePose(server, client, packet);
+        break;
+      case "Ragdoll.Stop":
+        this.RagdollStop(server, client, packet);
         break;
       case "Grinder.ExchangeRequest":
         this.grinderExchangeRequest(server, client, packet);

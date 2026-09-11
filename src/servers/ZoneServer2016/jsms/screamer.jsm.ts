@@ -16,7 +16,11 @@ import type { Npc } from "../entities/npc";
 import type { ZoneServer2016 } from "../zoneserver";
 import { NavManager } from "../../../utils/recast";
 const debug = require("debug")("ai");
-import { getDistance2d, getDistance } from "../../../utils/utils";
+import {
+  getDistance2d,
+  getDistance,
+  isFacingTarget
+} from "../../../utils/utils";
 import { ZombieWalker } from "../entities/zombiewalker";
 import { MovementModifiers } from "../models/enums";
 import { Factions } from "./factions";
@@ -96,7 +100,7 @@ const AGITATION_DECAY_RATE = 1;
 const AGITATION_INITIAL = 50;
 const SCREAM_DURATION = 3;
 const SCREAM_RADIUS = 50;
-const PLAYER_DETECT_RADIUS = 20;
+const PLAYER_DETECT_RADIUS = 25;
 const SCREAM_COOLDOWN = 20;
 const ATTRACT_RADIUS = 250;
 const ATTRACT_AGITATION = 60;
@@ -135,6 +139,15 @@ function moveToward(
   npc.navAgent.requestMoveTarget(navTarget);
 }
 
+function hasLineOfSight(
+  server: ZoneServer2016,
+  from: Float32Array,
+  to: Float32Array
+): boolean {
+  const result = server.navManager.raycast(from, to);
+  return result.t >= 1;
+}
+
 function tryDetectPlayer(screamer: ScreamerInstance): boolean {
   const sz = 50;
   const pos = screamer.npc.state.position;
@@ -148,11 +161,12 @@ function tryDetectPlayer(screamer: ScreamerInstance): boolean {
       if (!bucket) continue;
       for (const entry of bucket) {
         if (entry.faction !== Factions.HUMAN) continue;
-        if (getDistance2d(pos, entry.position) < PLAYER_DETECT_RADIUS) {
-          screamer.targetCharacterId = entry.id;
-          screamer.event(Events.StartScreaming);
-          return true;
-        }
+        if (getDistance2d(pos, entry.position) >= PLAYER_DETECT_RADIUS)
+          continue;
+        if (!hasLineOfSight(screamer.server, pos, entry.position)) continue;
+        screamer.targetCharacterId = entry.id;
+        screamer.event(Events.StartScreaming);
+        return true;
       }
     }
   }
@@ -221,30 +235,30 @@ function pushScreamSound(screamer: ScreamerInstance): void {
   screamer.server.pushSound({
     position: screamer.npc.state.position.slice() as Float32Array,
     radius: ATTRACT_RADIUS,
-    agitation: ATTRACT_AGITATION
+    agitation: ATTRACT_AGITATION,
+    priority: 5
   });
 }
 
 function screamAtNearbyPlayers(screamer: ScreamerInstance): void {
-  for (const k in screamer.server._clients) {
-    const client = screamer.server._clients[k];
-    if (
-      !client.character.isAlive ||
-      client.character.isVanished ||
-      client.character.isHidden
-    )
-      continue;
-    if (
-      getDistance2d(
-        screamer.npc.state.position,
-        client.character.state.position
-      ) <= SCREAM_RADIUS
-    ) {
-      screamer.server.addScreenEffect(
-        client,
-        screamer.server._screenEffects["SCREAM"]
+  const sz = 50;
+  const pos = screamer.npc.state.position;
+  const cx = Math.floor(pos[0] / sz);
+  const cz = Math.floor(pos[2] / sz);
+  for (let dx = -1; dx <= 1; dx++) {
+    for (let dz = -1; dz <= 1; dz++) {
+      const bucket = screamer.server.aiTargetSpatialMap.get(
+        `${cx + dx},${cz + dz}`
       );
-      screamer.server.applyMovementModifier(client, MovementModifiers.SCREAM);
+      if (!bucket) continue;
+      for (const entry of bucket) {
+        if (entry.faction !== Factions.HUMAN) continue;
+        if (getDistance2d(pos, entry.position) > SCREAM_RADIUS) continue;
+        const client = screamer.server.getClientByCharId(entry.id);
+        if (!client || client.character.isVanished || client.character.isHidden)
+          continue;
+        screamer.server.applyMovementModifier(client, MovementModifiers.SCREAM);
+      }
     }
   }
 }
@@ -268,11 +282,13 @@ export function createScreamer(
             if (!bucket) continue;
             for (const entry of bucket) {
               if (entry.faction !== Factions.HUMAN) continue;
-              if (getDistance2d(pos, entry.position) < PLAYER_DETECT_RADIUS) {
-                screamer.targetCharacterId = entry.id;
-                screamer.event(Events.StartRising);
-                return;
-              }
+              if (getDistance2d(pos, entry.position) >= PLAYER_DETECT_RADIUS)
+                continue;
+              if (!hasLineOfSight(screamer.server, pos, entry.position))
+                continue;
+              screamer.targetCharacterId = entry.id;
+              screamer.event(Events.StartRising);
+              return;
             }
           }
         }
@@ -413,7 +429,7 @@ export function createScreamer(
 
         const attackTarget = getChaseTarget(screamer);
         if (attackTarget) {
-          screamer.npc.lookAt(attackTarget.state.position);
+          screamer.npc.lookAt(attackTarget.state.position, dt);
         }
 
         if (screamer.stateTimer >= 2) {
@@ -422,7 +438,12 @@ export function createScreamer(
               screamer.npc.state.position,
               attackTarget.state.position
             );
-            if (attackDist <= 2) {
+            const facingTarget = isFacingTarget(
+              screamer.npc.state.position,
+              screamer.npc.state.yaw ?? 0,
+              attackTarget.state.position
+            );
+            if (attackDist <= 2 && facingTarget) {
               screamer.npc.applyDamage(screamer.targetCharacterId!);
             }
           }

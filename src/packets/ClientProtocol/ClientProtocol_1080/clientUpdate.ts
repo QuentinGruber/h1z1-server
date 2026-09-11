@@ -167,34 +167,17 @@ export const clientUpdatePackets: PacketStructures = [
     }
   ],
   [
-    "ClientUpdate.ZonePopulation",
-    0x112f00,
-    {
-      fields: [
-        {
-          name: "populations",
-          type: "array",
-          defaultValue: [{}],
-          elementType: "uint8"
-        }
-      ]
-    }
-  ],
-  [
     // 2016
     "ClientUpdate.RespawnLocations",
     0x111f00,
     {
       fields: [
-        { name: "unknownFlags", type: "uint8", defaultValue: 0 },
         {
           name: "locations",
           type: "array",
           defaultValue: [{}],
           fields: respawnLocationSchema
         },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         {
           name: "locations2",
           type: "array",
