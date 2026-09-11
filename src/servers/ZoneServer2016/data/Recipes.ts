@@ -1,4 +1,4 @@
-// ======================================================================
+﻿// ======================================================================
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
@@ -1043,7 +1043,8 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
 };
 
 export const recipes: { [recipeId: number]: Recipe } = {
-  [Items.AMMO_223]: {
+  1001: {
+    rewardId: Items.AMMO_223,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -1065,7 +1066,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
     ],
     requireWeaponWorkbench: true
   },
-  [Items.AMMO_308]: {
+  1002: {
+    rewardId: Items.AMMO_308,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -1087,7 +1089,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
     ],
     requireWeaponWorkbench: true
   },
-  [Items.AMMO_380]: {
+  1003: {
+    rewardId: Items.AMMO_380,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -1105,7 +1108,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
     ],
     requireWeaponWorkbench: true
   },
-  [Items.AMMO_44]: {
+  1004: {
+    rewardId: Items.AMMO_44,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -1127,7 +1131,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
     ],
     requireWeaponWorkbench: true
   },
-  [Items.AMMO_45]: {
+  1005: {
+    rewardId: Items.AMMO_45,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -1145,7 +1150,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
     ],
     requireWeaponWorkbench: true
   },
-  [Items.AMMO_12GA]: {
+  1006: {
+    rewardId: Items.AMMO_12GA,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -1167,7 +1173,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
     ],
     requireWeaponWorkbench: true
   },
-  [Items.AMMO_762]: {
+  1134: {
+    rewardId: Items.AMMO_762,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -1189,7 +1196,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
     ],
     requireWeaponWorkbench: true
   },
-  [Items.AMMO_9MM]: {
+  1135: {
+    rewardId: Items.AMMO_9MM,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -1207,7 +1215,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
     ],
     requireWeaponWorkbench: true
   },
-  [Items.WEAPON_BLAZE]: {
+  1007: {
+    rewardId: Items.WEAPON_BLAZE,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -1226,9 +1235,11 @@ export const recipes: { [recipeId: number]: Recipe } = {
         itemDefinitionId: Items.PROTOTYPE_RECEIVER,
         requiredAmount: 1
       }
-    ]
+    ],
+    requireWeaponWorkbench: true
   },
-  [Items.WEAPON_FROSTBITE]: {
+  1008: {
+    rewardId: Items.WEAPON_FROSTBITE,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -1247,9 +1258,11 @@ export const recipes: { [recipeId: number]: Recipe } = {
         itemDefinitionId: Items.PROTOTYPE_RECEIVER,
         requiredAmount: 1
       }
-    ]
+    ],
+    requireWeaponWorkbench: true
   },
-  [Items.WEAPON_NAGAFENS_RAGE]: {
+  1009: {
+    rewardId: Items.WEAPON_NAGAFENS_RAGE,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -1268,9 +1281,11 @@ export const recipes: { [recipeId: number]: Recipe } = {
         itemDefinitionId: Items.PROTOTYPE_RECEIVER,
         requiredAmount: 1
       }
-    ]
+    ],
+    requireWeaponWorkbench: true
   },
-  [Items.WEAPON_PURGE]: {
+  1010: {
+    rewardId: Items.WEAPON_PURGE,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -1289,9 +1304,11 @@ export const recipes: { [recipeId: number]: Recipe } = {
         itemDefinitionId: Items.PROTOTYPE_RECEIVER,
         requiredAmount: 1
       }
-    ]
+    ],
+    requireWeaponWorkbench: true
   },
-  [Items.WEAPON_REAPER]: {
+  1011: {
+    rewardId: Items.WEAPON_REAPER,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -1310,9 +1327,11 @@ export const recipes: { [recipeId: number]: Recipe } = {
         itemDefinitionId: Items.PROTOTYPE_RECEIVER,
         requiredAmount: 1
       }
-    ]
+    ],
+    requireWeaponWorkbench: true
   },
-  [Items.AIRDROP_CODE]: {
+  1012: {
+    rewardId: Items.AIRDROP_CODE,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -1321,7 +1340,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.ANIMAL_TRAP]: {
+  1013: {
+    rewardId: Items.ANIMAL_TRAP,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -1338,7 +1358,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.BACKPACK_FRAME]: {
+  1014: {
+    rewardId: Items.BACKPACK_FRAME,
     filterId: FilterIds.COMPONENT,
     components: [
       {
@@ -1355,7 +1376,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.BANDAGE]: {
+  1138: {
+    rewardId: Items.BANDAGE,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -1364,7 +1386,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.BARBED_WIRE]: {
+  1015: {
+    rewardId: Items.BARBED_WIRE,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -1377,7 +1400,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.BARBEQUE]: {
+  1016: {
+    rewardId: Items.BARBEQUE,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -1390,7 +1414,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.BANDANA_BASIC]: {
+  1017: {
+    rewardId: Items.BANDANA_BASIC,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -1399,7 +1424,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.SHACK_BASIC]: {
+  1018: {
+    rewardId: Items.SHACK_BASIC,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -1412,7 +1438,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.DOOR_BASIC]: {
+  1019: {
+    rewardId: Items.DOOR_BASIC,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -1425,7 +1452,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.SANDWICH_BEAR]: {
+  1020: {
+    rewardId: Items.SANDWICH_BEAR,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -1438,7 +1466,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.STEAK_BEAR]: {
+  1021: {
+    rewardId: Items.STEAK_BEAR,
     filterId: FilterIds.COOKING,
     components: [
       {
@@ -1447,7 +1476,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.BEE_BOX]: {
+  1022: {
+    rewardId: Items.BEE_BOX,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -1468,7 +1498,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.FUEL_BIOFUEL]: {
+  1023: {
+    rewardId: Items.FUEL_BIOFUEL,
     filterId: FilterIds.COOKING,
     components: [
       {
@@ -1481,7 +1512,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.BLACKBERRY_JUICE]: {
+  1024: {
+    rewardId: Items.BLACKBERRY_JUICE,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -1494,7 +1526,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.BLACKBERRY_PIE]: {
+  1025: {
+    rewardId: Items.BLACKBERRY_PIE,
     filterId: FilterIds.COOKING,
     components: [
       {
@@ -1511,7 +1544,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.BOW_DRILL]: {
+  1026: {
+    rewardId: Items.BOW_DRILL,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -1528,7 +1562,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.CAMPFIRE]: {
+  1027: {
+    rewardId: Items.CAMPFIRE,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -1537,7 +1572,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.CANDLE]: {
+  1028: {
+    rewardId: Items.CANDLE,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -1550,7 +1586,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.PHONE_CHARGED]: {
+  1029: {
+    rewardId: Items.PHONE_CHARGED,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -1563,7 +1600,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.COFFEE]: {
+  1030: {
+    rewardId: Items.COFFEE,
     filterId: FilterIds.COOKING,
     components: [
       {
@@ -1576,7 +1614,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.COFFEE_SUGAR]: {
+  1031: {
+    rewardId: Items.COFFEE_SUGAR,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -1589,7 +1628,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.WEAPON_COMBATKNIFE]: {
+  1032: {
+    rewardId: Items.WEAPON_COMBATKNIFE,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -1603,7 +1643,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
     ],
     requireWorkbench: true
   },
-  [Items.STEAK_RABBIT]: {
+  1033: {
+    rewardId: Items.STEAK_RABBIT,
     filterId: FilterIds.COOKING,
     components: [
       {
@@ -1612,7 +1653,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.CORN_MASH]: {
+  1034: {
+    rewardId: Items.CORN_MASH,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -1629,7 +1671,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.FOUNDATION]: {
+  1035: {
+    rewardId: Items.FOUNDATION,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -1650,7 +1693,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.JERKY_DEER]: {
+  1036: {
+    rewardId: Items.JERKY_DEER,
     filterId: FilterIds.COOKING,
     components: [
       {
@@ -1663,7 +1707,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.SANDWICH_DEER]: {
+  1037: {
+    rewardId: Items.SANDWICH_DEER,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -1676,7 +1721,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.DEER_SCENT]: {
+  1038: {
+    rewardId: Items.DEER_SCENT,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -1689,7 +1735,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.STEAK_DEER]: {
+  1039: {
+    rewardId: Items.STEAK_DEER,
     filterId: FilterIds.COOKING,
     components: [
       {
@@ -1698,7 +1745,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.WEAPON_HAMMER_DEMOLITION]: {
+  1040: {
+    rewardId: Items.WEAPON_HAMMER_DEMOLITION,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -1707,7 +1755,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.DEW_COLLECTOR]: {
+  1041: {
+    rewardId: Items.DEW_COLLECTOR,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -1724,7 +1773,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.BANDAGE_DRESSED]: {
+  1042: {
+    rewardId: Items.BANDAGE_DRESSED,
     filterId: FilterIds.SURVIVAL,
     bundleCount: 5,
     leftOverItems: [Items.WATER_EMPTY],
@@ -1739,7 +1789,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.FUEL_ETHANOL]: {
+  1043: {
+    rewardId: Items.FUEL_ETHANOL,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -1756,7 +1807,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.WEAPON_TORCH_ETHANOL]: {
+  1044: {
+    rewardId: Items.WEAPON_TORCH_ETHANOL,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -1773,7 +1825,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.AMMO_ARROW_EXPLOSIVE]: {
+  1045: {
+    rewardId: Items.AMMO_ARROW_EXPLOSIVE,
     filterId: FilterIds.WEAPONS,
     bundleCount: 10,
     components: [
@@ -1791,7 +1844,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.GLOVES_FINGERLESS]: {
+  1046: {
+    rewardId: Items.GLOVES_FINGERLESS,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -1804,7 +1858,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.TRAP_FIRE]: {
+  1047: {
+    rewardId: Items.TRAP_FIRE,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -1818,7 +1873,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
     ]
   },
 
-  [Items.FIRST_AID]: {
+  1048: {
+    rewardId: Items.FIRST_AID,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -1831,7 +1887,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.AMMO_ARROW_FLAMING]: {
+  1049: {
+    rewardId: Items.AMMO_ARROW_FLAMING,
     filterId: FilterIds.WEAPONS,
     bundleCount: 10,
     components: [
@@ -1849,7 +1906,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.FLARE]: {
+  1050: {
+    rewardId: Items.FLARE,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -1866,7 +1924,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.TRAP_FLASH]: {
+  1051: {
+    rewardId: Items.TRAP_FLASH,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -1879,7 +1938,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.FLOUR]: {
+  1052: {
+    rewardId: Items.FLOUR,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -1888,7 +1948,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.FOUNDATION_EXPANSION]: {
+  1053: {
+    rewardId: Items.FOUNDATION_EXPANSION,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -1909,7 +1970,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.FOUNDATION_RAMP]: {
+  1054: {
+    rewardId: Items.FOUNDATION_RAMP,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -1926,7 +1988,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.FOUNDATION_STAIRS]: {
+  1055: {
+    rewardId: Items.FOUNDATION_STAIRS,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -1943,7 +2006,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.BACKPACK_FRAMED]: {
+  1056: {
+    rewardId: Items.BACKPACK_FRAMED,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -1960,7 +2024,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.FURNACE]: {
+  1057: {
+    rewardId: Items.FURNACE,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -1973,7 +2038,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.TRAP_GAS]: {
+  1058: {
+    rewardId: Items.TRAP_GAS,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -1986,7 +2052,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.GROUND_TAMPER]: {
+  1059: {
+    rewardId: Items.GROUND_TAMPER,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -2007,7 +2074,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.GROUND_TILLER]: {
+  1060: {
+    rewardId: Items.GROUND_TILLER,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -2025,7 +2093,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
     ]
   },
 
-  [Items.REPAIR_KIT_GUN]: {
+  1061: {
+    rewardId: Items.REPAIR_KIT_GUN,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -2034,7 +2103,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.UPGRADE_KIT_GUN]: {
+  1062: {
+    rewardId: Items.UPGRADE_KIT_GUN,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -2047,7 +2117,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.GUNPOWDER]: {
+  1063: {
+    rewardId: Items.GUNPOWDER,
     filterId: FilterIds.COMPONENT,
     components: [
       {
@@ -2060,7 +2131,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.WEAPON_HAMMER]: {
+  1064: {
+    rewardId: Items.WEAPON_HAMMER,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -2073,7 +2145,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.HAND_SHOVEL]: {
+  1065: {
+    rewardId: Items.HAND_SHOVEL,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -2086,7 +2159,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.BLACKBERRY_HANDFUL]: {
+  1066: {
+    rewardId: Items.BLACKBERRY_HANDFUL,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -2095,7 +2169,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.ANTI_VIRAL_BOTTLE]: {
+  1067: {
+    rewardId: Items.ANTI_VIRAL_BOTTLE,
     filterId: FilterIds.COMPONENT,
     components: [
       {
@@ -2108,7 +2183,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.IED]: {
+  1068: {
+    rewardId: Items.IED,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -2122,7 +2198,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
     ],
     requireWorkbench: true
   },
-  [Items.COMPASS_IMPROVISED]: {
+  1069: {
+    rewardId: Items.COMPASS_IMPROVISED,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -2135,7 +2212,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.SKINNING_KNIFE]: {
+  1070: {
+    rewardId: Items.SKINNING_KNIFE,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -2148,7 +2226,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.LANDMINE]: {
+  1071: {
+    rewardId: Items.LANDMINE,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -2166,7 +2245,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
     ],
     requireWorkbench: true
   },
-  [Items.SHELTER_LARGE]: {
+  1072: {
+    rewardId: Items.SHELTER_LARGE,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -2187,7 +2267,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.LOOKOUT_TOWER]: {
+  1073: {
+    rewardId: Items.LOOKOUT_TOWER,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -2204,7 +2285,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.WEAPON_MACHETE01]: {
+  1074: {
+    rewardId: Items.WEAPON_MACHETE01,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -2218,7 +2300,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
     ],
     requireWorkbench: true
   },
-  [Items.WEAPON_BOW_MAKESHIFT]: {
+  1075: {
+    rewardId: Items.WEAPON_BOW_MAKESHIFT,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -2231,7 +2314,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.WEAPON_HATCHET_MAKESHIFT]: {
+  1076: {
+    rewardId: Items.WEAPON_HATCHET_MAKESHIFT,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -2244,7 +2328,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.METAL_BAR]: {
+  1077: {
+    rewardId: Items.METAL_BAR,
     filterId: FilterIds.FURNACE,
     components: [
       {
@@ -2253,7 +2338,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.METAL_BRACKET]: {
+  1078: {
+    rewardId: Items.METAL_BRACKET,
     filterId: FilterIds.COMPONENT,
     components: [
       {
@@ -2262,7 +2348,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.DOOR_METAL]: {
+  1079: {
+    rewardId: Items.DOOR_METAL,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -2275,7 +2362,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.METAL_DOORWAY]: {
+  1080: {
+    rewardId: Items.METAL_DOORWAY,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -2292,7 +2380,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.METAL_GATE]: {
+  1081: {
+    rewardId: Items.METAL_GATE,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -2309,7 +2398,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.SHARD_METAL]: {
+  1082: {
+    rewardId: Items.SHARD_METAL,
     filterId: FilterIds.COMPONENT,
     bundleCount: 4,
     components: [
@@ -2319,7 +2409,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.METAL_SHEET]: {
+  1083: {
+    rewardId: Items.METAL_SHEET,
     filterId: FilterIds.COMPONENT,
     components: [
       {
@@ -2329,7 +2420,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
     ],
     requireWorkbench: true
   },
-  [Items.METAL_WALL]: {
+  1084: {
+    rewardId: Items.METAL_WALL,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -2342,7 +2434,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.WEAPON_AK47_MODIFIED]: {
+  1085: {
+    rewardId: Items.WEAPON_AK47_MODIFIED,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -2353,9 +2446,11 @@ export const recipes: { [recipeId: number]: Recipe } = {
         itemDefinitionId: Items.UPGRADE_KIT_GUN,
         requiredAmount: 1
       }
-    ]
+    ],
+    requireWeaponWorkbench: true
   },
-  [Items.WEAPON_MOLOTOV]: {
+  1086: {
+    rewardId: Items.WEAPON_MOLOTOV,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -2368,7 +2463,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.NAIL]: {
+  1087: {
+    rewardId: Items.NAIL,
     filterId: FilterIds.COMPONENT,
     bundleCount: 4,
     components: [
@@ -2378,7 +2474,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.FLARE_PARACHUTE]: {
+  1088: {
+    rewardId: Items.FLARE_PARACHUTE,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -2391,7 +2488,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.METAL_PIPE]: {
+  1089: {
+    rewardId: Items.METAL_PIPE,
     filterId: FilterIds.COMPONENT,
     components: [
       {
@@ -2401,7 +2499,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
     ],
     requireWorkbench: true
   },
-  [Items.SHARD_PLASTIC]: {
+  1090: {
+    rewardId: Items.SHARD_PLASTIC,
     filterId: FilterIds.COMPONENT,
     bundleCount: 5,
     components: [
@@ -2411,7 +2510,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.ARMOR_PLATED]: {
+  1091: {
+    rewardId: Items.ARMOR_PLATED,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -2433,7 +2533,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
     ]
   },
   // TODO: find PUNJI_STICK_ROW def for 20 sticks
-  [Items.PUNJI_STICKS]: {
+  1092: {
+    rewardId: Items.PUNJI_STICKS,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -2442,7 +2543,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.WATER_PURE]: {
+  1093: {
+    rewardId: Items.WATER_PURE,
     filterId: FilterIds.COOKING,
     components: [
       {
@@ -2451,7 +2553,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.SANDWICH_RABBIT]: {
+  1094: {
+    rewardId: Items.SANDWICH_RABBIT,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -2464,7 +2567,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.STEW_RABBIT]: {
+  1095: {
+    rewardId: Items.STEW_RABBIT,
     filterId: FilterIds.COOKING,
     components: [
       {
@@ -2481,7 +2585,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.REPAIR_BOX]: {
+  1096: {
+    rewardId: Items.REPAIR_BOX,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -2498,7 +2603,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.RIGGED_LIGHT]: {
+  1097: {
+    rewardId: Items.RIGGED_LIGHT,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -2511,7 +2617,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.CORN_ROASTED]: {
+  1098: {
+    rewardId: Items.CORN_ROASTED,
     filterId: FilterIds.COOKING,
     components: [
       {
@@ -2520,7 +2627,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.SALINE]: {
+  1099: {
+    rewardId: Items.SALINE,
     filterId: FilterIds.COMPONENT,
     components: [
       {
@@ -2533,7 +2641,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.BACKPACK_SATCHEL]: {
+  1100: {
+    rewardId: Items.BACKPACK_SATCHEL,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -2542,7 +2651,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.GRENADE_SCREAM]: {
+  1101: {
+    rewardId: Items.GRENADE_SCREAM,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -2555,7 +2665,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.SHACK]: {
+  1102: {
+    rewardId: Items.SHACK,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -2572,7 +2683,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.SHELTER]: {
+  1103: {
+    rewardId: Items.SHELTER,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -2589,7 +2701,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.TRAP_SHOCK]: {
+  1104: {
+    rewardId: Items.TRAP_SHOCK,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -2613,7 +2726,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
 
   // MEDICAL SKINS HERE TODO
 
-  [Items.SLEEPING_MAT]: {
+  1105: {
+    rewardId: Items.SLEEPING_MAT,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -2644,7 +2758,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       },
     ],
   },*/
-  [Items.FLARE_SMOKE]: {
+  1106: {
+    rewardId: Items.FLARE_SMOKE,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -2661,7 +2776,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.SNARE]: {
+  1107: {
+    rewardId: Items.SNARE,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -2675,7 +2791,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
     ],
     requireWorkbench: true
   },
-  [Items.STORAGE_BOX]: {
+  1108: {
+    rewardId: Items.STORAGE_BOX,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -2692,7 +2809,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.STRUCTURE_STAIRS]: {
+  1109: {
+    rewardId: Items.STRUCTURE_STAIRS,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -2709,7 +2827,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.SURVIVAL_BORSCHT]: {
+  1110: {
+    rewardId: Items.SURVIVAL_BORSCHT,
     filterId: FilterIds.COOKING,
     components: [
       {
@@ -2726,7 +2845,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.SURVIVAL_BREAD]: {
+  1111: {
+    rewardId: Items.SURVIVAL_BREAD,
     filterId: FilterIds.COOKING,
     components: [
       {
@@ -2743,7 +2863,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.SWIZZLE]: {
+  1112: {
+    rewardId: Items.SWIZZLE,
     filterId: FilterIds.COOKING,
     components: [
       {
@@ -2760,7 +2881,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.SYRINGE_H1Z1_REDUCER]: {
+  1113: {
+    rewardId: Items.SYRINGE_H1Z1_REDUCER,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -2773,7 +2895,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.GHILLIE_SUIT_TAN]: {
+  1114: {
+    rewardId: Items.GHILLIE_SUIT_TAN,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -2790,7 +2913,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.WEAPON_TORCH]: {
+  1115: {
+    rewardId: Items.WEAPON_TORCH,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -2807,7 +2931,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.TRAP_IGNITION_KIT]: {
+  1116: {
+    rewardId: Items.TRAP_IGNITION_KIT,
     filterId: FilterIds.COMPONENT,
     components: [
       {
@@ -2828,7 +2953,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.SHELTER_UPPER_LARGE]: {
+  1117: {
+    rewardId: Items.SHELTER_UPPER_LARGE,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -2849,7 +2975,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.SHELTER_UPPER]: {
+  1118: {
+    rewardId: Items.SHELTER_UPPER,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -2866,7 +2993,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.STRUCTURE_STAIRS_UPPER]: {
+  1119: {
+    rewardId: Items.STRUCTURE_STAIRS_UPPER,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -2887,7 +3015,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.METAL_WALL_UPPER]: {
+  1120: {
+    rewardId: Items.METAL_WALL_UPPER,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -2901,7 +3030,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
     ]
   },
 
-  [Items.WORKBENCH_WEAPON]: {
+  1121: {
+    rewardId: Items.WORKBENCH_WEAPON,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -2922,7 +3052,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.SANDWICH_WOLF]: {
+  1122: {
+    rewardId: Items.SANDWICH_WOLF,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -2935,7 +3066,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.STEAK_WOLF]: {
+  1123: {
+    rewardId: Items.STEAK_WOLF,
     filterId: FilterIds.COOKING,
     components: [
       {
@@ -2944,7 +3076,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.WOOD_PLANK]: {
+  1124: {
+    rewardId: Items.WOOD_PLANK,
     filterId: FilterIds.COMPONENT,
     bundleCount: 2,
     components: [
@@ -2954,7 +3087,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.WEAPON_SPEAR]: {
+  1125: {
+    rewardId: Items.WEAPON_SPEAR,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -2967,7 +3101,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.WOOD_STICK]: {
+  1126: {
+    rewardId: Items.WOOD_STICK,
     filterId: FilterIds.COMPONENT,
     bundleCount: 2,
     components: [
@@ -2977,7 +3112,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.AMMO_ARROW]: {
+  1127: {
+    rewardId: Items.AMMO_ARROW,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -2986,7 +3122,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.BARRICADE]: {
+  1128: {
+    rewardId: Items.BARRICADE,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -2999,7 +3136,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.ARMOR_WOODEN]: {
+  1129: {
+    rewardId: Items.ARMOR_WOODEN,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -3016,7 +3154,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.WEAPON_BOW_WOOD]: {
+  1130: {
+    rewardId: Items.WEAPON_BOW_WOOD,
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -3033,7 +3172,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.DOOR_WOOD]: {
+  1131: {
+    rewardId: Items.DOOR_WOOD,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -3050,7 +3190,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.WORKBENCH]: {
+  1132: {
+    rewardId: Items.WORKBENCH,
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -3071,7 +3212,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.YEAST]: {
+  1133: {
+    rewardId: Items.YEAST,
     filterId: FilterIds.COMPONENT,
     bundleCount: 2,
     leftOverItems: [Items.WATER_EMPTY],
@@ -3093,7 +3235,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
 
   /* CUSTOM */
 
-  [Items.WEAPON_REPAIR_KIT]: {
+  1136: {
+    rewardId: Items.WEAPON_REPAIR_KIT,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -3110,7 +3253,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.AIO_COLD_MEDICINE]: {
+  1137: {
+    rewardId: Items.AIO_COLD_MEDICINE,
     filterId: FilterIds.SURVIVAL,
     components: [
       {
@@ -3127,11 +3271,110 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.GUN_PART]: {
+  1139: {
+    rewardId: Items.GUN_PART,
     filterId: FilterIds.WEAPONS,
+    bundleCount: 2,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_AK47,
+        requiredAmount: 1
+      }
+    ],
+    requireWeaponWorkbench: true
+  },
+  1140: {
+    rewardId: Items.GUN_PART,
+    filterId: FilterIds.WEAPONS,
+    bundleCount: 2,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_AK47_MODIFIED,
+        requiredAmount: 1
+      }
+    ],
+    requireWeaponWorkbench: true
+  },
+  1141: {
+    rewardId: Items.GUN_PART,
+    filterId: FilterIds.WEAPONS,
+    bundleCount: 2,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_308,
+        requiredAmount: 1
+      }
+    ],
+    requireWeaponWorkbench: true
+  },
+  1142: {
+    rewardId: Items.GUN_PART,
+    filterId: FilterIds.WEAPONS,
+    bundleCount: 2,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_AR15,
+        requiredAmount: 1
+      }
+    ],
+    requireWeaponWorkbench: true
+  },
+  1143: {
+    rewardId: Items.GUN_PART,
+    filterId: FilterIds.WEAPONS,
+    bundleCount: 2,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_SHOTGUN,
+        requiredAmount: 1
+      }
+    ],
+    requireWeaponWorkbench: true
+  },
+  // pistols
+  1144: {
+    rewardId: Items.GUN_PART,
+    filterId: FilterIds.WEAPONS,
+    bundleCount: 1,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_M9,
+        requiredAmount: 1
+      }
+    ],
+    requireWeaponWorkbench: true
+  },
+  1145: {
+    rewardId: Items.GUN_PART,
+    filterId: FilterIds.WEAPONS,
+    bundleCount: 1,
     components: [
       {
         itemDefinitionId: Items.WEAPON_1911,
+        requiredAmount: 1
+      }
+    ],
+    requireWeaponWorkbench: true
+  },
+  1146: {
+    rewardId: Items.GUN_PART,
+    filterId: FilterIds.WEAPONS,
+    bundleCount: 1,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_MAGNUM,
+        requiredAmount: 1
+      }
+    ],
+    requireWeaponWorkbench: true
+  },
+  1147: {
+    rewardId: Items.GUN_PART,
+    filterId: FilterIds.WEAPONS,
+    bundleCount: 1,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_R380,
         requiredAmount: 1
       }
     ],

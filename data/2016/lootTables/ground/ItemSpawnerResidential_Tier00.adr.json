@@ -1,0 +1,275 @@
+{
+  "type": "ground",
+  "spawnChance": 20,
+  "pools": [
+    {
+      "conditions": [],
+      "entries": [
+        {
+          "item": 1373,
+          "weight": 6,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1374,
+          "weight": 6,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2,
+          "weight": 7,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1997,
+          "weight": 7,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 134,
+          "weight": 20,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 142,
+          "weight": 20,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2088,
+          "weight": 40,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2177,
+          "weight": 40,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2217,
+          "weight": 30,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1696,
+          "weight": 10,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 84,
+          "weight": 15,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2102,
+          "weight": 15,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2162,
+          "weight": 15,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2170,
+          "weight": 15,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 7,
+          "weight": 30,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1467,
+          "weight": 5,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1353,
+          "weight": 25,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1368,
+          "weight": 15,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1428,
+          "weight": 15,
+          "count": {
+            "min": 1,
+            "max": 4
+          }
+        },
+        {
+          "item": 1998,
+          "weight": 15,
+          "count": {
+            "min": 1,
+            "max": 4
+          }
+        },
+        {
+          "item": 1992,
+          "weight": 15,
+          "count": {
+            "min": 1,
+            "max": 4
+          }
+        },
+        {
+          "item": 1719,
+          "weight": 11,
+          "count": {
+            "min": 1,
+            "max": 4
+          }
+        },
+        {
+          "item": 1429,
+          "weight": 3,
+          "count": {
+            "min": 1,
+            "max": 5
+          }
+        },
+        {
+          "item": 2325,
+          "weight": 3,
+          "count": {
+            "min": 1,
+            "max": 5
+          }
+        },
+        {
+          "item": 1469,
+          "weight": 3,
+          "count": {
+            "min": 1,
+            "max": 4
+          }
+        },
+        {
+          "item": 1511,
+          "weight": 3,
+          "count": {
+            "min": 1,
+            "max": 4
+          }
+        },
+        {
+          "item": 1701,
+          "weight": 10,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 78,
+          "weight": 15,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1542,
+          "weight": 20,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1724,
+          "weight": 10,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1721,
+          "weight": 10,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2038,
+          "weight": 8,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2273,
+          "weight": 7,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        }
+      ]
+    }
+  ]
+}

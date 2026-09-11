@@ -1,0 +1,46 @@
+{
+  "type": "container",
+  "pools": [
+    {
+      "conditions": [],
+      "rolls": {
+        "min": 0,
+        "max": 2
+      },
+      "entries": [
+        {
+          "item": 2088,
+          "weight": 30,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2177,
+          "weight": 20,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2373,
+          "weight": 10,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 23,
+          "weight": 5,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        }
+      ]
+    }
+  ]
+}

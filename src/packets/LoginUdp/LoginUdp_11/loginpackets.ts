@@ -176,7 +176,7 @@ const packets: PacketStructures = [
           ]
         },
         {
-          name: "unknownArray2",
+          name: "errorDetails",
           type: "array",
           fields: [
             { name: "unknownString1", type: "string", defaultValue: "" },

@@ -1384,10 +1384,10 @@ export function getConstructionSlotId(buildingSlot: string) {
       return 1;
     case "WallStack":
       return 101;
-    default:
-      return Number(
-        buildingSlot.substring(buildingSlot.length, buildingSlot.length - 2)
-      );
+    default: {
+      const match = buildingSlot.match(/(\d+)$/);
+      return match ? Number(match[1]) : 0;
+    }
   }
 }
 
@@ -1684,50 +1684,6 @@ export function luck(l: number) {
   return Math.floor(Math.random() * l) === 0;
 }
 
-const Z1_POIs = require("../../data/2016/zoneData/Z1_POIs");
-export function isPosInPoi(position: Float32Array): boolean {
-  let isInPoi = false;
-  Z1_POIs.forEach((point: any) => {
-    let useRange = true;
-    if (point.bounds) {
-      useRange = false;
-      point.bounds.forEach((bound: any) => {
-        if (isInsideSquare([position[0], position[2]], bound)) {
-          isInPoi = true;
-          return;
-        }
-      });
-    }
-    if (useRange && isPosInRadius(point.range, position, point.position)) {
-      isInPoi = true;
-    }
-  });
-
-  return isInPoi;
-}
-
-const Z1_nerfedPOIs = require("../../data/2016/zoneData/Z1_nerfedPOIs");
-export function isLootNerfedLoc(position: Float32Array): number {
-  let useRange = true;
-  let nerfedValue = 0;
-  Z1_nerfedPOIs.forEach((point: any) => {
-    if (point.bounds) {
-      useRange = false;
-      point.bounds.forEach((bound: any) => {
-        if (isInsideSquare([position[0], position[2]], bound)) {
-          nerfedValue = point.nerfValue;
-          return;
-        }
-      });
-    }
-    if (useRange && isPosInRadius(point.range, position, point.position)) {
-      nerfedValue = point.nerfValue;
-    }
-  });
-
-  return nerfedValue;
-}
-
 export function chance(chanceNum: number): boolean {
   return Math.random() * 1000 < chanceNum;
 }
@@ -1758,4 +1714,16 @@ export function quat2heading(quaternion: Float32Array): number {
   const uint8Value = Math.round((degrees / 360) * 255);
 
   return Math.max(0, Math.min(255, uint8Value));
+}
+
+// 🇺🇸🦅🇺🇸
+export function metersToFeet(meters: number) {
+  return meters * 3.28084;
+}
+export function feetToMeters(feet: number) {
+  return feet * 0.3048;
+}
+export function requireFresh(path: string) {
+  delete require.cache[require.resolve(path)];
+  return require(path);
 }

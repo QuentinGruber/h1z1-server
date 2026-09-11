@@ -1,0 +1,123 @@
+{
+  "type": "ground",
+  "spawnChance": 10,
+  "pools": [
+    {
+      "conditions": [],
+      "entries": [
+        {
+          "item": 14,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1718,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1469,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 4
+          }
+        },
+        {
+          "item": 1511,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 4
+          }
+        },
+        {
+          "item": 11,
+          "weight": 120,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 74,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2271,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2273,
+          "weight": 50,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2236,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2652,
+          "weight": 10,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2659,
+          "weight": 10,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2655,
+          "weight": 10,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2235,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 14,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "type": "ground",
+  "spawnChance": 20,
+  "pools": [
+    {
+      "conditions": [],
+      "entries": [
+        {
+          "item": 78,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1402,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 24,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 2
+          }
+        },
+        {
+          "item": 2510,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 2
+          }
+        },
+        {
+          "item": 1508,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 2
+          }
+        },
+        {
+          "item": 2555,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2558,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2561,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1535,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1353,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1742,
+          "weight": 25,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 23,
+          "weight": 100,
+          "count": {
+            "min": 2,
+            "max": 5
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -19,30 +19,35 @@ export function getCharacterModelData(payload: any): any {
       return {
         modelId: 9474,
         headActor: "SurvivorFemale_Head_03.adr",
+        eyeActor: "SurvivorFemale_Eyes_01.adr",
         hairModel: "SurvivorFemale_Hair_ShortMessy.adr"
       };
     case Characters.MALE_BLACK:
       return {
         modelId: 9469,
         headActor: "SurvivorMale_Head_03.adr",
+        eyeActor: "SurvivorMale_Eyes_01.adr",
         hairModel: ""
       };
     case Characters.FEMALE_WHITE:
       return {
         modelId: 9474,
         headActor: "SurvivorFemale_Head_02.adr",
+        eyeActor: "SurvivorFemale_Eyes_01.adr",
         hairModel: "SurvivorFemale_Hair_ShortBun.adr"
       };
     case Characters.FEMALE_WHITE_YOUNG:
       return {
         modelId: 9474,
         headActor: "SurvivorFemale_Head_02.adr",
+        eyeActor: "SurvivorFemale_Eyes_01.adr",
         hairModel: "SurvivorFemale_Hair_ShortBun.adr"
       };
     case Characters.MALE_WHITE_BALD:
       return {
         modelId: 9469,
         headActor: "SurvivorMale_Head_02.adr",
+        eyeActor: "SurvivorMale_Eyes_01.adr",
         hairModel: ""
       };
     case Characters.MALE_WHITE:
@@ -50,6 +55,7 @@ export function getCharacterModelData(payload: any): any {
       return {
         modelId: 9469,
         headActor: "SurvivorMale_Head_01.adr",
+        eyeActor: "SurvivorMale_Eyes_01.adr",
         hairModel: "SurvivorMale_Hair_ShortMessy.adr"
       };
   }

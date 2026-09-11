@@ -15,9 +15,11 @@ import {
   ConstructionPermissionIds,
   Effects,
   Items,
+  ModelIds,
   ResourceIndicators,
   StringIds
 } from "../models/enums";
+import { BoxObstacle, vec3 } from "recast-navigation";
 import { DamageInfo, HudIndicator } from "types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseLootableEntity } from "./baselootableentity";
@@ -32,7 +34,25 @@ import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 import { scheduler } from "timers/promises";
 import { BaseEntity } from "./baseentity";
 import { isPosInRadius } from "../../../utils/utils";
-import { ExplosiveEntity } from "./explosiveentity";
+
+function setObstacle(
+  server: ZoneServer2016,
+  actorModelId: number,
+  position: Float32Array,
+  rotation: Float32Array
+): BoxObstacle | null {
+  const yaw = rotation[1];
+  switch (actorModelId) {
+    case ModelIds.FURNACE:
+      return server.navManager.addObstacle(
+        position,
+        vec3.fromArray([0.5, 2.0, 0.5]),
+        yaw
+      );
+    default:
+      return null;
+  }
+}
 
 function getMaxHealth(itemDefinitionId: Items): number {
   switch (itemDefinitionId) {
@@ -66,6 +86,9 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   /** Used by DecayManager, determines if the entity will be damaged the next decay tick */
   isDecayProtected: boolean = false;
   isProp: boolean = false;
+
+  /** Navmesh obstacle reference */
+  obstacleRef: BoxObstacle | null = null;
   constructor(
     characterId: string,
     transientId: number,
@@ -112,6 +135,19 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     }
 
     this.scale = scale;
+
+    if (
+      !parentObjectCharacterId &&
+      !process.env.DISABLE_AI &&
+      server.aiEnabled
+    ) {
+      this.obstacleRef = setObstacle(server, actorModelId, position, rotation);
+      if (this.obstacleRef) {
+        console.log(
+          `[NavMesh] Added obstacle for world lootable ${characterId} (modelId: ${actorModelId})`
+        );
+      }
+    }
   }
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     const dictionary = server.getEntityDictionary(this.characterId);
@@ -168,6 +204,12 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   }
 
   destroy(server: ZoneServer2016, destructTime = 0): boolean {
+    if (this.obstacleRef) {
+      console.log(
+        `[NavMesh] Removed obstacle for world lootable ${this.characterId}`
+      );
+      server.navManager.removeObstacle(this.obstacleRef);
+    }
     const deleted = server.deleteEntity(
       this.characterId,
       server._lootableConstruction[this.characterId]
@@ -374,19 +416,13 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     if (!isPosInRadius(2, this.state.position, sourceEntity.state.position))
       return;
 
-    const itemDefinitionId =
-      sourceEntity instanceof ExplosiveEntity
-        ? sourceEntity.itemDefinitionId
-        : 0;
-
     if (server._worldLootableConstruction[this.characterId]) {
       server.constructionManager.checkConstructionDamage(
         server,
         this,
         server.baseConstructionDamage,
-        sourceEntity.state.position,
         this.state.position,
-        itemDefinitionId
+        sourceEntity
       );
       return;
     }
@@ -403,9 +439,8 @@ export class LootableConstructionEntity extends BaseLootableEntity {
       server,
       this,
       server.baseConstructionDamage,
-      sourceEntity.state.position,
       this.state.position,
-      itemDefinitionId
+      sourceEntity
     );
   }
 }

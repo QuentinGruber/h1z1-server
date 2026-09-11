@@ -40,6 +40,7 @@ import {
   getCurrentServerTimeWrapper,
   initMongo,
   removeUntransferableFields,
+  requireFresh,
   toBigHex
 } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
@@ -160,7 +161,12 @@ export class WorldDataManager {
 
   static async getDatabase(mongoAddress: string): Promise<[Db, MongoClient]> {
     const mongoClient = new MongoClient(mongoAddress, {
-      maxPoolSize: 200
+      maxPoolSize: 200,
+      // Fail hung queries after 30s instead of waiting forever (default: 0)
+      socketTimeoutMS: 30_000,
+      // Close idle connections after 90s so the NAT/firewall doesn't silently
+      // drop them first (most NATs time out idle TCP at ~4-5 minutes)
+      maxIdleTimeMS: 90_000
     });
     try {
       await mongoClient.connect();
@@ -174,7 +180,29 @@ export class WorldDataManager {
     if (!(await mongoClient.db(DB_NAME).collections()).length) {
       await initMongo(mongoClient, "ZoneServer");
     }
-    return [mongoClient.db(DB_NAME), mongoClient];
+    const db = mongoClient.db(DB_NAME);
+    // Ensure indices exist for hot-path queries (idempotent — safe to run on every startup)
+    await Promise.all([
+      db
+        .collection(DB_COLLECTIONS.CHARACTERS)
+        .createIndex({ characterId: 1, serverId: 1 }, { background: true }),
+      db
+        .collection(DB_COLLECTIONS.GROUPS)
+        .createIndex({ serverId: 1, groupId: 1 }, { background: true }),
+      db
+        .collection(DB_COLLECTIONS.GROUPS)
+        .createIndex({ serverId: 1, members: 1 }, { background: true }),
+      db
+        .collection(DB_COLLECTIONS.CHALLENGES)
+        .createIndex(
+          { playerGuid: 1, serverId: 1, status: 1 },
+          { background: true }
+        ),
+      db
+        .collection(DB_COLLECTIONS.FAIRPLAY_TEMP)
+        .createIndex({ characterId: 1, serverId: 1 }, { background: true })
+    ]);
+    return [db, mongoClient];
   }
 
   async initialize(worldId: number, mongoAddress: string) {
@@ -208,13 +236,16 @@ export class WorldDataManager {
   }
 
   async fetchWorldData(): Promise<FetchedWorldData> {
-    const vehicles = (await this.loadVehiclesData()) as FullVehicleSaveData[];
-    const constructionParents =
-      (await this.loadConstructionData()) as ConstructionParentSaveData[];
-    const freeplace =
-      (await this.loadWorldFreeplaceConstruction()) as LootableConstructionSaveData[];
-    const crops = (await this.loadCropData()) as PlantingDiameterSaveData[];
-    const traps = (await this.loadTrapData()) as TrapSaveData[];
+    const [vehicles, constructionParents, freeplace, crops, traps] =
+      await Promise.all([
+        this.loadVehiclesData() as Promise<FullVehicleSaveData[]>,
+        this.loadConstructionData() as Promise<ConstructionParentSaveData[]>,
+        this.loadWorldFreeplaceConstruction() as Promise<
+          LootableConstructionSaveData[]
+        >,
+        this.loadCropData() as Promise<PlantingDiameterSaveData[]>,
+        this.loadTrapData() as Promise<TrapSaveData[]>
+      ]);
     debug("World fetched!");
     return {
       constructionParents,
@@ -227,7 +258,7 @@ export class WorldDataManager {
   }
   async deleteServerData() {
     if (this._soloMode) {
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/worlddata/world.json`,
         JSON.stringify({}, null, 2)
       );
@@ -240,7 +271,7 @@ export class WorldDataManager {
 
   async deleteCharacters() {
     if (this._soloMode) {
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/single_player_characters2016.json`,
         JSON.stringify([], null, 2)
       );
@@ -255,8 +286,7 @@ export class WorldDataManager {
   }
 
   async deleteWorld() {
-    await this.deleteServerData();
-    await this.deleteCharacters();
+    await Promise.all([this.deleteServerData(), this.deleteCharacters()]);
     debug("World deleted!");
   }
 
@@ -391,7 +421,7 @@ export class WorldDataManager {
   async getServerData(serverId: number): Promise<ServerSaveData | null> {
     let serverData: ServerSaveData | null;
     if (this._soloMode) {
-      serverData = require(`${this._appDataFolder}/worlddata/world.json`);
+      serverData = requireFresh(`${this._appDataFolder}/worlddata/world.json`);
       if (!serverData?.serverId) {
         debug("World data not found in file, aborting.");
         return null;
@@ -415,7 +445,7 @@ export class WorldDataManager {
       worldSaveVersion: this.worldSaveVersion
     };
     if (this._soloMode) {
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/worlddata/world.json`,
         JSON.stringify(saveData, null, 2)
       );
@@ -575,7 +605,7 @@ export class WorldDataManager {
         ...singlePlayerCharacter,
         ...characterSaveData
       };
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/single_player_characters2016.json`,
         JSON.stringify([singlePlayerCharacter], null, 2)
       );
@@ -763,15 +793,30 @@ export class WorldDataManager {
       } else {
         wall = this.loadConstructionDoorEntity(server, wallData);
       }
-      parent.setWallSlot(server, wall);
+      if (!parent.setWallSlot(server, wall)) {
+        console.error(
+          `[WDM] Wall slot registration failed for ${wall.characterId} (item ${wall.itemDefinitionId}, slot "${wall.slot}") on parent ${parent.characterId} — falling back to freeplace`
+        );
+        parent.addFreeplaceConstruction(wall);
+      }
     });
     Object.values(entityData.occupiedUpperWallSlots).forEach((wallData) => {
       const wall = this.loadConstructionChildEntity(server, wallData);
-      parent.setWallSlot(server, wall);
+      if (!parent.setWallSlot(server, wall)) {
+        console.error(
+          `[WDM] Upper wall slot registration failed for ${wall.characterId} (item ${wall.itemDefinitionId}, slot "${wall.slot}") on parent ${parent.characterId} — falling back to freeplace`
+        );
+        parent.addFreeplaceConstruction(wall);
+      }
     });
     Object.values(entityData.occupiedShelterSlots).forEach((shelterData) => {
       const shelter = this.loadConstructionChildEntity(server, shelterData);
-      parent.setShelterSlot(server, shelter);
+      if (!parent.setShelterSlot(server, shelter)) {
+        console.error(
+          `[WDM] Shelter slot registration failed for ${shelter.characterId} (item ${shelter.itemDefinitionId}, slot "${shelter.slot}") on parent ${parent.characterId} — falling back to freeplace`
+        );
+        parent.addFreeplaceConstruction(shelter);
+      }
     });
     Object.values(entityData.freeplaceEntities).forEach((freeplaceData) => {
       let freeplace:
@@ -847,7 +892,18 @@ export class WorldDataManager {
           server,
           expansionData
         );
-        foundation.setExpansionSlot(expansion);
+        if (!foundation.setExpansionSlot(expansion)) {
+          const slotNum = expansion.getSlotNumber();
+          console.error(
+            `[WDM] Failed to register expansion slot "${expansion.slot}" (${expansion.characterId}) onto foundation ${foundation.characterId} — slot data may be corrupted`
+          );
+          if (slotNum > 0) {
+            foundation.occupiedExpansionSlots[slotNum] = expansion;
+            console.error(
+              `[WDM] Force-inserted expansion at slot ${slotNum} to prevent data loss`
+            );
+          }
+        }
       }
     );
 
@@ -862,7 +918,7 @@ export class WorldDataManager {
   async loadVehiclesData() {
     let vehicles: Array<FullVehicleSaveData> = [];
     if (this._soloMode) {
-      vehicles = require(`${this._appDataFolder}/worlddata/vehicles.json`);
+      vehicles = requireFresh(`${this._appDataFolder}/worlddata/vehicles.json`);
       if (!vehicles) {
         debug("vehicles data not found in file, aborting.");
         return;
@@ -881,7 +937,7 @@ export class WorldDataManager {
   async loadConstructionData() {
     let constructionParents: Array<ConstructionParentSaveData> = [];
     if (this._soloMode) {
-      constructionParents = require(
+      constructionParents = requireFresh(
         `${this._appDataFolder}/worlddata/construction.json`
       );
       if (!constructionParents) {
@@ -904,7 +960,14 @@ export class WorldDataManager {
     server: ZoneServer2016
   ) {
     constructionParents.forEach((parent) => {
-      WorldDataManager.loadConstructionParentEntity(server, parent);
+      try {
+        WorldDataManager.loadConstructionParentEntity(server, parent);
+      } catch (e) {
+        console.error(
+          `[WDM] Failed to load construction parent entity ${parent.characterId} (item ${parent.itemDefinitionId}) — skipping to avoid blocking remaining entities`,
+          e
+        );
+      }
     });
   }
 
@@ -1038,7 +1101,7 @@ export class WorldDataManager {
     if (!constructions.length) return;
 
     if (this._soloMode) {
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/worlddata/construction.json`,
         JSON.stringify(constructions, null, 2)
       );
@@ -1102,7 +1165,7 @@ export class WorldDataManager {
 
   async saveCropData(crops: PlantingDiameterSaveData[]) {
     if (this._soloMode) {
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/worlddata/crops.json`,
         JSON.stringify(crops, null, 2)
       );
@@ -1214,7 +1277,7 @@ export class WorldDataManager {
   async loadCropData() {
     let crops: Array<PlantingDiameterSaveData> = [];
     if (this._soloMode) {
-      crops = require(`${this._appDataFolder}/worlddata/crops.json`);
+      crops = requireFresh(`${this._appDataFolder}/worlddata/crops.json`);
       if (!crops) {
         debug("Crop data not found in file, aborting.");
         return;
@@ -1232,7 +1295,7 @@ export class WorldDataManager {
 
   async saveVehicles(vehicles: FullVehicleSaveData[]) {
     if (this._soloMode) {
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/worlddata/vehicles.json`,
         JSON.stringify(vehicles, null, 2)
       );
@@ -1264,7 +1327,7 @@ export class WorldDataManager {
     freeplaces: LootableConstructionSaveData[]
   ) {
     if (this._soloMode) {
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/worlddata/worldconstruction.json`,
         JSON.stringify(freeplaces, null, 2)
       );
@@ -1298,7 +1361,7 @@ export class WorldDataManager {
     //worldconstruction
     let freeplace: Array<LootableConstructionSaveData> = [];
     if (this._soloMode) {
-      freeplace = require(
+      freeplace = requireFresh(
         `${this._appDataFolder}/worlddata/worldconstruction.json`
       );
       if (!freeplace) {
@@ -1330,7 +1393,7 @@ export class WorldDataManager {
 
   async saveTrapData(traps: TrapSaveData[]) {
     if (this._soloMode) {
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/worlddata/traps.json`,
         JSON.stringify(traps, null, 2)
       );
@@ -1363,7 +1426,7 @@ export class WorldDataManager {
   async loadTrapData() {
     let traps: Array<TrapSaveData> = [];
     if (this._soloMode) {
-      traps = require(`${this._appDataFolder}/worlddata/traps.json`);
+      traps = requireFresh(`${this._appDataFolder}/worlddata/traps.json`);
       if (!traps) {
         debug("trap data not found in file, aborting.");
         return;

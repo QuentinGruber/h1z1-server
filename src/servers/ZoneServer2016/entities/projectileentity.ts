@@ -219,9 +219,10 @@ export class ProjectileEntity extends BaseLightweightCharacter {
         break;
     }
 
-    if (this.itemDefinitionId == Items.GRENADE_HE) server.explosionDamage(this);
+    if (this.itemDefinitionId == Items.GRENADE_HE)
+      server.explosionManager.queueExplosion(this);
     if (this.itemDefinitionId == Items.WEAPON_BOW_RECURVE)
-      server.explosionDamage(this);
+      server.explosionManager.queueExplosion(this);
     if (this.itemDefinitionId == Items.GRENADE_GAS) {
       if (server.isPvE) return;
       this.gasDamageInterval = setInterval(() => {

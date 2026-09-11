@@ -1,0 +1,187 @@
+{
+  "type": "ground",
+  "spawnChance": 20,
+  "pools": [
+    {
+      "conditions": [],
+      "entries": [
+        {
+          "item": 1696,
+          "weight": 5,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1701,
+          "weight": 5,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 9,
+          "weight": 5,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1730,
+          "weight": 5,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2595,
+          "weight": 5,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1728,
+          "weight": 5,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 90,
+          "weight": 5,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1731,
+          "weight": 5,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2727,
+          "weight": 5,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1729,
+          "weight": 5,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 134,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 46,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 3
+          }
+        },
+        {
+          "item": 48,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 4
+          }
+        },
+        {
+          "item": 1448,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 2
+          }
+        },
+        {
+          "item": 82,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1536,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 73,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 74,
+          "weight": 50,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1538,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2236,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2235,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 14,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        }
+      ]
+    }
+  ]
+}

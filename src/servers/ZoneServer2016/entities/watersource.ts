@@ -204,7 +204,6 @@ export class WaterSource extends TaskProp {
       weaponId = weapon?.itemDefinitionId,
       activatableItems = [
         Items.WEAPON_WRENCH,
-        Items.WEAPON_BRANCH,
         Items.WEAPON_HAMMER,
         Items.WEAPON_HAMMER_DEMOLITION
       ];

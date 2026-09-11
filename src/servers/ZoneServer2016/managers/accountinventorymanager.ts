@@ -32,21 +32,24 @@ export class AccountInventoryManager {
     this.mongodbCollection = collection;
   }
 
-  private _getSoloAccountItems(loginSessionId: string): AccountItem[] {
-    return (
-      JSON.parse(fs.readFileSync(this._soloDataPath).toString()) as any[]
-    ).filter((e) => e.loginSessionId === loginSessionId);
+  private async _getSoloAccountItems(
+    loginSessionId: string
+  ): Promise<AccountItem[]> {
+    const raw = await fs.promises.readFile(this._soloDataPath, "utf8");
+    return (JSON.parse(raw) as any[]).filter(
+      (e) => e.loginSessionId === loginSessionId
+    );
   }
 
-  private _saveSoloAccountItems(items: AccountItem[]) {
-    fs.writeFileSync(this._soloDataPath, JSON.stringify(items));
+  private async _saveSoloAccountItems(items: AccountItem[]) {
+    await fs.promises.writeFile(this._soloDataPath, JSON.stringify(items));
   }
 
   async getAccountItems(loginSessionId: string): Promise<AccountItem[]> {
     let accountItems: AccountItem[],
       soloUpdate = false;
     if (this.isInSoloMode) {
-      accountItems = this._getSoloAccountItems(loginSessionId);
+      accountItems = await this._getSoloAccountItems(loginSessionId);
     } else {
       accountItems = await this.mongodbCollection
         .find<AccountItem>({ loginSessionId })
@@ -76,7 +79,7 @@ export class AccountInventoryManager {
     }
 
     if (this.isInSoloMode && soloUpdate) {
-      this._saveSoloAccountItems(accountItems);
+      await this._saveSoloAccountItems(accountItems);
     }
 
     return accountItems;
@@ -87,7 +90,7 @@ export class AccountInventoryManager {
     itemDefinitionId: number
   ): Promise<AccountItem | null> {
     if (this.isInSoloMode) {
-      const accountItems = this._getSoloAccountItems(loginSessionId);
+      const accountItems = await this._getSoloAccountItems(loginSessionId);
       return (
         accountItems.find((v) => {
           return v.itemDefinitionId === itemDefinitionId;
@@ -105,7 +108,7 @@ export class AccountInventoryManager {
     let accountItems: AccountItem[];
 
     if (this.isInSoloMode) {
-      accountItems = this._getSoloAccountItems(loginSessionId);
+      accountItems = await this._getSoloAccountItems(loginSessionId);
     } else {
       accountItems = await this.getAccountItems(loginSessionId);
     }
@@ -124,7 +127,7 @@ export class AccountInventoryManager {
       } else {
         accountItems.push({ loginSessionId, ...item } as any);
       }
-      this._saveSoloAccountItems(accountItems);
+      await this._saveSoloAccountItems(accountItems);
     } else {
       if (storedItem) {
         storedItem.stackCount++;
@@ -149,7 +152,7 @@ export class AccountInventoryManager {
   }
   async updateAccountItem(loginSessionId: string, item: BaseItem) {
     if (this.isInSoloMode) {
-      const accountItems = this._getSoloAccountItems(loginSessionId);
+      const accountItems = await this._getSoloAccountItems(loginSessionId);
       for (let i = 0; i < accountItems.length; i++) {
         const originalItem = accountItems[i];
         if (originalItem.itemDefinitionId === item.itemDefinitionId) {
@@ -157,7 +160,7 @@ export class AccountInventoryManager {
           break;
         }
       }
-      this._saveSoloAccountItems(accountItems);
+      await this._saveSoloAccountItems(accountItems);
     } else {
       return await this.mongodbCollection.updateOne(
         {
@@ -175,7 +178,7 @@ export class AccountInventoryManager {
   }
   async removeAccountItem(loginSessionId: string, item: BaseItem) {
     if (this.isInSoloMode) {
-      const accountItems = this._getSoloAccountItems(loginSessionId);
+      const accountItems = await this._getSoloAccountItems(loginSessionId);
       for (let i = 0; i < accountItems.length; i++) {
         const originalItem = accountItems[i];
         if (originalItem.itemDefinitionId === item.itemDefinitionId) {
@@ -183,7 +186,7 @@ export class AccountInventoryManager {
           break;
         }
       }
-      this._saveSoloAccountItems(accountItems);
+      await this._saveSoloAccountItems(accountItems);
     } else {
       return await this.mongodbCollection.deleteOne({
         loginSessionId,

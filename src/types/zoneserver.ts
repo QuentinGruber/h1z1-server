@@ -83,7 +83,7 @@ export interface CharacterEquipment {
   textureAlias?: string;
   tintAlias?: string;
   decalAlias?: string;
-  SHADER_PARAMETER_GROUP?: Array<{SHADER_SEMANTIC_ID: number}>
+  SHADER_PARAMETER_GROUP?: Array<{ SHADER_SEMANTIC_ID: number }>
 }
 
 export interface GrinderItem {
@@ -161,6 +161,7 @@ export interface DamageInfo {
   hitReport?: HitReport;
   message?: string;
   meleeType?: number;
+  explosive?: boolean;
 }
 
 export interface DamageRecord {
@@ -227,6 +228,123 @@ export interface ContainerLootSpawner extends LootSpawner {
   maxItems: number;
 }
 
+// ── Loot Table JSON (disk format) ─────────────────────────────────────────────
+
+export type LootConditionType =
+  | "in_poi"
+  | "not_in_poi"
+  | "poi_tag"
+  | "not_poi_tag"
+  | "random_chance"
+  | "elevation_range"
+  | "item_density"
+  | "server_time";
+
+export interface LootCondition {
+  condition: LootConditionType;
+
+  // ── POI conditions ──────────────────────────────────────────────────────────
+  /** Filter by numeric POI id (used with in_poi / not_in_poi) */
+  poi_ids?: number[];
+  /** Filter by exact POI name (used with in_poi / not_in_poi) */
+  poi_names?: string[];
+  /** Filter by POI tag strings (used with poi_tag / not_poi_tag) */
+  tags?: string[];
+
+  // ── random_chance ───────────────────────────────────────────────────────────
+  /** 0–100 extra chance roll applied on top of spawnChance */
+  chance?: number;
+
+  // ── elevation_range ─────────────────────────────────────────────────────────
+  /** Minimum world Y (inclusive). Omit for no lower bound. */
+  min?: number;
+  /** Maximum world Y (inclusive). Omit for no upper bound. */
+  max?: number;
+
+  // ── item_density ─────────────────────────────────────────────────────────────
+  /**
+   * Item definition IDs to count nearby.
+   * Pool is skipped if count of matching spawned items within `radius` >= `max_count`.
+   */
+  item_ids?: number[];
+  /** Maximum number of matching items allowed within `radius` before pool is skipped. */
+  max_count?: number;
+  /** Search radius in world units for item_density check. */
+  radius?: number;
+
+  // ── server_time ─────────────────────────────────────────────────────────────
+  /**
+   * In-game hour (0–23) when pool becomes active (inclusive).
+   * Supports wrap-around: hour_min=22, hour_max=4 means 22:00–04:00.
+   */
+  hour_min?: number;
+  /** In-game hour (0–23) when pool stops being active (inclusive). */
+  hour_max?: number;
+
+}
+
+export type ItemFunctionType = "set_damage" | "set_count";
+
+export interface ItemFunction {
+  function: ItemFunctionType;
+  /**
+   * For set_damage: fraction of the item's current durability (0.0–1.0).
+   * For set_count: minimum item stack count.
+   */
+  min: number;
+  /** Max value — used as the upper bound of the random range. */
+  max: number;
+}
+
+export interface LootTableEntry {
+  /**
+   * Determines how this entry is resolved.
+   * - "item": spawns a specific item (default when omitted).
+   * - "loot_table": draws a random item from another named loot table.
+   * - "empty": produces nothing (useful as a weighted no-spawn slot).
+   */
+  type?: "item" | "loot_table" | "empty";
+  /** Item definition ID. Used when type is "item" or absent. */
+  item?: number;
+  /** Name of another loot table to draw from. Used when type is "loot_table". */
+  table?: string;
+  weight: number;
+  count?: { min: number; max: number };
+  /** Functions applied to the spawned item after generation. */
+  functions?: ItemFunction[];
+}
+
+export interface LootPool {
+  conditions: LootCondition[];
+  /**
+   * How many times this pool draws an entry per spawn cycle (container loot only).
+   * When omitted, the pool contributes its entries to the legacy maxItems selection.
+   */
+  rolls?: { min: number; max: number };
+  entries: LootTableEntry[];
+}
+
+export interface GroundLootTableJson {
+  type: "ground";
+  spawnChance: number;
+  pools: LootPool[];
+}
+
+export interface ContainerLootTableJson {
+  type: "container";
+  pools: LootPool[];
+  /**
+   * Optional top-level spawn chance (0-100). Used by world entities (e.g. crates)
+   * to decide whether anything spawns at all when the container is broken/opened.
+   * Not used by the worker for searched container props.
+   */
+  spawnChance?: number;
+  /** Plugin-only: "append" merges pools with base table; omit/replace overwrites. */
+  merge?: "append" | "replace";
+}
+
+export type LootTableJson = GroundLootTableJson | ContainerLootTableJson;
+
 export interface RecipeComponent {
   itemDefinitionId: number;
   requiredAmount: number;
@@ -237,7 +355,7 @@ export interface Recipe {
   bundleCount?: number;
   components: Array<RecipeComponent>;
   splitted?: boolean;
-  itemId?: number;
+  rewardId: number;
   requireWorkbench?: boolean
   requireWeaponWorkbench?: boolean
   leftOverItems?: number[]
@@ -266,8 +384,8 @@ export interface smeltRecipe {
 }
 
 export interface dailyRepairMaterial {
-    itemDefinitionId: number;
-    requiredCount: number;
+  itemDefinitionId: number;
+  requiredCount: number;
 }
 
 export type SlottedConstructionEntity = ConstructionChildEntity | ConstructionParentEntity | ConstructionDoor;
@@ -275,7 +393,7 @@ export type SlottedConstructionEntity = ConstructionChildEntity | ConstructionPa
 export type ConstructionEntity = SlottedConstructionEntity | LootableConstructionEntity;
 
 export type ShelterSlotsPlacementTimer = {
-	[slot: number]: number;
+  [slot: number]: number;
 };
 
 export interface ConstructionPermissions {
@@ -369,35 +487,35 @@ export interface SpeedTree {
 }
 
 export interface ZoneSpeedTreeData {
-	objectId: number;
-	position: Float32Array
+  objectId: number;
+  position: Float32Array
 }
 
 export interface UseOption {
-	id: number;
-	typeName: string;
-	animationId: number
+  id: number;
+  typeName: string;
+  animationId: number
 }
 
 export interface HudIndicator {
-	id: number;
-	typeName: string;
-	nameId: number,
-	descriptionId: number,
-	imageSetId: number,
+  id: number;
+  typeName: string;
+  nameId: number,
+  descriptionId: number,
+  imageSetId: number,
 }
 
 export interface ScreenEffect {
-	effectId: number;
-	typeName: string;
-	duration: number;
-	screenBrightness: number;
-	colorGradingFilename: string;
-	colorGrading: number;
-	screenCover: number;
-	transparency: number;
-	color: number;
-	unknownDword3: number;
+  effectId: number;
+  typeName: string;
+  duration: number;
+  screenBrightness: number;
+  colorGradingFilename: string;
+  colorGrading: number;
+  screenCover: number;
+  transparency: number;
+  color: number;
+  unknownDword3: number;
   unknownDword7: number;
   unknownDword16: number;
   unknownDword17: number;
@@ -406,25 +524,25 @@ export interface ScreenEffect {
 }
 
 export interface clientEffect {
-	id: number;
-	typeName: string;
-	animationName: string
+  id: number;
+  typeName: string;
+  animationName: string
 }
 
 export interface modelData {
-	id: number;
-	fileName: string;
-	materialType: number
+  id: number;
+  fileName: string;
+  materialType: number
 }
 
 export interface characterIndicatorData {
-	typeName: string;
-	expirationTime: number;
+  typeName: string;
+  expirationTime: number;
 }
 
 export interface HealType {
-	healingTicks: number,
-	healingMaxTicks: number
+  healingTicks: number,
+  healingMaxTicks: number
 }
 
 export interface StanceFlags {
@@ -454,39 +572,39 @@ export interface StanceFlags {
 
 export interface Weather2016 {
   overcast: number,
-	fogDensity: number,
-	fogFloor: number,
-	fogGradient: number,
-	globalPrecipitation: number,
-	temperature: number,
-	skyClarity: number,
-	cloudWeight0: number,
-	cloudWeight1: number,
-	cloudWeight2: number,
-	cloudWeight3: number,
-	transitionTime: number,
-	sunAxisX: number,
-	sunAxisY: number,
-	sunAxisZ: number,
-	windDirectionX: number,
-	windDirectionY: number,
-	windDirectionZ: number,
-	wind: number,
-	rainMinStrength: number,
-	rainRampupTimeSeconds: number,
-	cloudFile: string,
-	stratusCloudTiling: number,
-	stratusCloudScrollU: number,
-	stratusCloudScrollV: number,
-	stratusCloudHeight: number,
-	cumulusCloudTiling: number,
-	cumulusCloudScrollU: number,
-	cumulusCloudScrollV: number,
-	cumulusCloudHeight: number,
-	cloudAnimationSpeed: number,
-	cloudSilverLiningThickness: number,
-	cloudSilverLiningBrightness: number,
-	cloudShadows: number
+  fogDensity: number,
+  fogFloor: number,
+  fogGradient: number,
+  globalPrecipitation: number,
+  temperature: number,
+  skyClarity: number,
+  cloudWeight0: number,
+  cloudWeight1: number,
+  cloudWeight2: number,
+  cloudWeight3: number,
+  transitionTime: number,
+  sunAxisX: number,
+  sunAxisY: number,
+  sunAxisZ: number,
+  windDirectionX: number,
+  windDirectionY: number,
+  windDirectionZ: number,
+  wind: number,
+  rainMinStrength: number,
+  rainRampupTimeSeconds: number,
+  cloudFile: string,
+  stratusCloudTiling: number,
+  stratusCloudScrollU: number,
+  stratusCloudScrollV: number,
+  stratusCloudHeight: number,
+  cumulusCloudTiling: number,
+  cumulusCloudScrollU: number,
+  cumulusCloudScrollV: number,
+  cumulusCloudHeight: number,
+  cloudAnimationSpeed: number,
+  cloudSilverLiningThickness: number,
+  cloudSilverLiningBrightness: number,
+  cloudShadows: number
 }
 
 export interface WeatherTemplate extends Weather2016 {
@@ -529,19 +647,19 @@ export interface ItemDefinition {
   MAX_STACK_SIZE: number,
   MIN_STACK_SIZE: number,
   PROFILE_OVERRIDE: number,
-  NO_TRADE: 0|1,
-  SINGLE_USE: 0|1,
+  NO_TRADE: 0 | 1,
+  SINGLE_USE: 0 | 1,
   MODEL_NAME: string,
   GENDER_USAGE: number,
   TEXTURE_ALIAS: string,
   SHADER_PARAMETER_GROUP_ID: number,
   CATEGORY_ID: number,
-  MEMBERS_ONLY: 0|1,
-  NON_MINI_GAME: 0|1,
+  MEMBERS_ONLY: 0 | 1,
+  NON_MINI_GAME: 0 | 1,
   PARAM1: number,
   PARAM2: number,
   PARAM3: number,
-  NO_SALE: 0|1,
+  NO_SALE: 0 | 1,
   WEAPON_TRAIL_EFFECT_ID: number,
   USE_REQUIREMENT_ID: number,
   CLIENT_USE_REQUIREMENT_ID: number,
@@ -550,16 +668,16 @@ export interface ItemDefinition {
   MIN_PROFILE_RANK: number,
   RARITY: number,
   CONTENT_ID: number,
-  NO_LIVE_GAMER: 0|1,
-  COMBAT_ONLY: 0|1,
-  FORCE_DISABLE_PREVIEW: 0|1,
+  NO_LIVE_GAMER: 0 | 1,
+  COMBAT_ONLY: 0 | 1,
+  FORCE_DISABLE_PREVIEW: 0 | 1,
   MEMBER_DISCOUNT: number,
   RACE_SET_ID: number,
   VIP_RANK_REQUIRED: number,
   PERSIST_PROFILE_SWITCH: number,
-  FLAG_QUICK_USE: 0|1,
-  FLAG_CAN_EQUIP: 0|1,
-  FLAG_ACCOUNT_SCOPE: 0|1,
+  FLAG_QUICK_USE: 0 | 1,
+  FLAG_CAN_EQUIP: 0 | 1,
+  FLAG_ACCOUNT_SCOPE: 0 | 1,
   UI_MODEL_CAMERA_ID: number,
   EQUIP_COUNT_MAX: number,
   CURRENCY_TYPE: number,
@@ -583,9 +701,9 @@ export interface ItemDefinition {
   USE_ITEM_RETICLE_ID: number,
   GRINDER_REWARD_SET_ID: number,
   BUILD_BAR_GROUP_ID: number,
-  FLAG_NO_DRAG_DROP: 0|1,
+  FLAG_NO_DRAG_DROP: 0 | 1,
   INTERACTION_ANIMATION_ID: number,
-  IS_ARMOR: 0|1,
+  IS_ARMOR: 0 | 1,
   PASSIVE_EQUIP_SLOT_GROUP_ID: number,
   SCRAP_VALUE_OVERRIDE: number,
 
@@ -600,7 +718,7 @@ export interface AccountItem extends BaseItem {
   loginSessionId: string;
 }
 
-export type EntityDictionary<Entity> = { [characterId: string]: Entity};
+export type EntityDictionary<Entity> = { [characterId: string]: Entity };
 
 export interface PropInstance {
   objectId: number,
@@ -609,4 +727,10 @@ export interface PropInstance {
 export interface RandomReward {
   reward: number;
   isRare: boolean;
+}
+
+export interface Sound {
+  position : Float32Array,
+  radius : number
+  agitation: number
 }

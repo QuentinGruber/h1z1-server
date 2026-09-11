@@ -11,8 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { dailyRepairMaterial } from ".../../types/zoneserver";
-import { FileHash } from ".../../types/shared";
+import { dailyRepairMaterial } from "../../../types/zoneserver";
+import { FileHash } from "../../../types/shared";
 import { CONNECTION_REJECTION_FLAGS } from "utils/enums";
 
 interface ServerConfig {
@@ -35,6 +35,7 @@ interface ServerConfig {
   damageWeapons: boolean;
   disablePOIManager: boolean;
   disableMapBoundsCheck: boolean;
+  disableBaseCheck: boolean;
 }
 
 interface RconConfig {
@@ -67,6 +68,7 @@ interface GameTimeConfig {
 
 interface WorldObjectsConfig {
   vehicleSpawnCap: number;
+  npcSpawnCap: number;
   hasCustomLootRespawnTime: boolean;
   lootRespawnTimer: number;
   vehicleRespawnTimer: number;
@@ -78,6 +80,9 @@ interface WorldObjectsConfig {
   lootDespawnTimer: number;
   deadNpcDespawnTimer: number;
   lootbagDespawnTimer: number;
+  maxNpcDespawnsPerRun: number;
+  maxLootbagDespawnsPerRun: number;
+  maxItemDespawnsPerRun: number;
 
   chanceWornLetter: number;
 
@@ -85,9 +90,14 @@ interface WorldObjectsConfig {
   npcSpawnRadius: number;
   chanceNpc: number;
   chanceScreamer: number;
+  chanceGasser: number;
+  chanceExploder: number;
 
   crowbarHitRewardChance: number;
   crowbarHitDamage: number;
+
+  gridScrapLimit: number;
+  gridScrapLimitEnabled: boolean;
 }
 
 interface SpeedTreeConfig {
@@ -163,6 +173,13 @@ interface GroupConfig {
   foundation_player_limit: number;
 }
 
+interface AiConfig {
+  enabled: boolean;
+  aiTickRate: number; // ms between AI FSM ticks
+  pathfindingUpdateRate: number; // ms between pathfinding simulation and position sync
+  infection: boolean;
+}
+
 export interface Config {
   server: ServerConfig;
   rcon: RconConfig;
@@ -179,4 +196,5 @@ export interface Config {
   smelting: SmeltingConfig;
   randomevents: RandomEventsConfig;
   groups: GroupConfig;
+  ai: AiConfig;
 }
