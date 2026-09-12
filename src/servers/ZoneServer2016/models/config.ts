@@ -191,6 +191,12 @@ export interface AirdropConfig {
   minimumPlayers: number;
   /** Use the navmesh to drop at a random valid spot in the caller's grid cell. */
   useNavmesh: boolean;
+  /** Spawn a horde of zombies around the crate once it has landed. */
+  spawnZombiesOnLanding: boolean;
+  /** Zombies spawned around each landed crate. */
+  zombiesPerAirdrop: number;
+  /** Distance from the crate, in world units, the zombies spawn at. */
+  zombieSpawnRadius: number;
   /** Overrides per airdrop type, keyed by name (normal, bombing, ...). */
   types: Record<string, Partial<AirdropTypeConfig>>;
 }

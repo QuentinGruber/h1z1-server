@@ -112,7 +112,7 @@ export class AirdropManager {
     }
   };
 
-  // Zombie spawn-on-landing settings
+  // Zombie spawn-on-landing settings, will be override by config
   public spawnZombiesOnLanding: boolean = true;
   public zombiesPerAirdrop: number = 15;
   public zombieSpawnRadius: number = 0.5;
@@ -123,6 +123,10 @@ export class AirdropManager {
   applyConfig(cfg: AirdropConfig) {
     this.minimumPlayers = cfg.minimumPlayers;
     this.useNavmesh = cfg.useNavmesh ?? false;
+    this.spawnZombiesOnLanding =
+      cfg.spawnZombiesOnLanding ?? this.spawnZombiesOnLanding;
+    this.zombiesPerAirdrop = cfg.zombiesPerAirdrop ?? this.zombiesPerAirdrop;
+    this.zombieSpawnRadius = cfg.zombieSpawnRadius ?? this.zombieSpawnRadius;
     for (const [name, overrides] of Object.entries(cfg.types ?? {})) {
       const type = this.airdropTypes[name];
       if (!type) continue; // unknown type in config; nothing to tune
