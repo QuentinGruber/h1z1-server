@@ -85,6 +85,10 @@ airdrop:
   minimumPlayers: 10
   # Drop at a random valid spot in the caller's grid cell. This is experimental, use at your own risk.
   useNavmesh: true
+  # Spawn a horde of zombies around the crate once it has landed
+  spawnZombiesOnLanding: true
+  zombiesPerAirdrop: 15
+  zombieSpawnRadius: 0.5
   types:
     normal:
       planeSpeed: 140000

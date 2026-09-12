@@ -13,6 +13,9 @@ import {
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { ExplosiveEntity } from "../entities/explosiveentity";
 import { AirdropConfig, AirdropTypeConfig } from "../models/config";
+import { ZombieWalker } from "../entities/zombiewalker";
+
+const debug = require("debug")("airdropManager");
 
 interface DeliveryProgressData {
   progress: number;
@@ -109,7 +112,7 @@ export class AirdropManager {
     }
   };
 
-  // Zombie spawn-on-landing settings
+  // Zombie spawn-on-landing settings, will be override by config
   public spawnZombiesOnLanding: boolean = true;
   public zombiesPerAirdrop: number = 15;
   public zombieSpawnRadius: number = 0.5;
@@ -120,6 +123,10 @@ export class AirdropManager {
   applyConfig(cfg: AirdropConfig) {
     this.minimumPlayers = cfg.minimumPlayers;
     this.useNavmesh = cfg.useNavmesh ?? false;
+    this.spawnZombiesOnLanding =
+      cfg.spawnZombiesOnLanding ?? this.spawnZombiesOnLanding;
+    this.zombiesPerAirdrop = cfg.zombiesPerAirdrop ?? this.zombiesPerAirdrop;
+    this.zombieSpawnRadius = cfg.zombieSpawnRadius ?? this.zombieSpawnRadius;
     for (const [name, overrides] of Object.entries(cfg.types ?? {})) {
       const type = this.airdropTypes[name];
       if (!type) continue; // unknown type in config; nothing to tune
@@ -330,10 +337,10 @@ export class AirdropManager {
         );
 
         if (this.spawnZombiesOnLanding) {
-  debug("[AIRDROP] About to spawn zombies");
-  this.spawnAirdropZombies(position);
-  debug("[AIRDROP] Finished spawning zombies");
-}
+          debug("[AIRDROP] About to spawn zombies");
+          this.spawnAirdropZombies(position);
+          debug("[AIRDROP] Finished spawning zombies");
+        }
       },
       Math.floor(tickAtPos + crateDropSpeed)
     );
@@ -501,56 +508,52 @@ export class AirdropManager {
    * Called once the crate has finished its delivery animation.
    */
   spawnAirdropZombies(
-  position: Float32Array,
-  count: number = this.zombiesPerAirdrop,
-  radius: number = this.zombieSpawnRadius
-) {
-  for (let i = 0; i < count; i++) {
-    const angle = (i / count) * Math.PI * 2;
+    position: Float32Array,
+    count: number = this.zombiesPerAirdrop,
+    radius: number = this.zombieSpawnRadius
+  ) {
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * Math.PI * 2;
 
-    const spawnPos = new Float32Array([
-      position[0] + Math.cos(angle) * radius,
-      position[1],
-      position[2] + Math.sin(angle) * radius,
-      0
-    ]);
-
-    const modelId =
-      Math.random() < 0.5
-        ? ModelIds.ZOMBIE_MALE_WALKER
-        : ModelIds.ZOMBIE_FEMALE_WALKER;
-
-    const rotation = eul2quat(
-      new Float32Array([
-        0,
-        Math.random() * Math.PI * 2,
+      const spawnPos = new Float32Array([
+        position[0] + Math.cos(angle) * radius,
+        position[1],
+        position[2] + Math.sin(angle) * radius,
         0
-      ])
-    );
+      ]);
 
-    const characterId = this.server.generateGuid();
-    const transientId = this.server.getTransientId(characterId);
+      const modelId =
+        Math.random() < 0.5
+          ? ModelIds.ZOMBIE_MALE_WALKER
+          : ModelIds.ZOMBIE_FEMALE_WALKER;
 
-    const zombie = new ZombieWalker(
-      characterId,
-      transientId,
-      modelId,
-      spawnPos,
-      rotation,
-      this.server
-    );
+      const rotation = eul2quat(
+        new Float32Array([0, Math.random() * Math.PI * 2, 0])
+      );
 
-    this.server._npcs[characterId] = zombie;
+      const characterId = this.server.generateGuid();
+      const transientId = this.server.getTransientId(characterId);
 
-    console.log(
-      `[AIRDROP ZOMBIE] spawned ${characterId} ` +
-      `model=${modelId} ` +
-      `pos=[${spawnPos[0].toFixed(2)}, ` +
-      `${spawnPos[1].toFixed(2)}, ` +
-      `${spawnPos[2].toFixed(2)}]`
-    );
+      const zombie = new ZombieWalker(
+        characterId,
+        transientId,
+        modelId,
+        spawnPos,
+        rotation,
+        this.server
+      );
+
+      this.server._npcs[characterId] = zombie;
+
+      debug(
+        `[AIRDROP ZOMBIE] spawned ${characterId} ` +
+          `model=${modelId} ` +
+          `pos=[${spawnPos[0].toFixed(2)}, ` +
+          `${spawnPos[1].toFixed(2)}, ` +
+          `${spawnPos[2].toFixed(2)}]`
+      );
+    }
   }
-}
 
   broadcastDeliveryInfo(client: ZoneClient2016 | undefined = undefined) {
     for (const [airdropId, airdrop] of this.activeAirdrops.entries()) {
