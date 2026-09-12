@@ -6,6 +6,7 @@ import { ZoneServer2016 } from "../zoneserver";
 import { Effects, Items, ModelIds } from "../models/enums";
 import {
   _,
+  eul2quat,
   getCurrentServerTimeWrapper,
   TimeWrapper
 } from "../../../utils/utils";
@@ -107,6 +108,11 @@ export class AirdropManager {
       deliver: (ctx) => this.deliverBombs(ctx)
     }
   };
+
+  // Zombie spawn-on-landing settings
+  public spawnZombiesOnLanding: boolean = true;
+  public zombiesPerAirdrop: number = 15;
+  public zombieSpawnRadius: number = 0.5;
 
   constructor(public server: ZoneServer2016) {}
 
@@ -322,6 +328,12 @@ export class AirdropManager {
           position,
           Effects.PFX_Impact_Explosion_AirdropBomb_Default_10m
         );
+
+        if (this.spawnZombiesOnLanding) {
+  debug("[AIRDROP] About to spawn zombies");
+  this.spawnAirdropZombies(position);
+  debug("[AIRDROP] Finished spawning zombies");
+}
       },
       Math.floor(tickAtPos + crateDropSpeed)
     );
@@ -483,6 +495,62 @@ export class AirdropManager {
     this.server._explosives[characterId] = bomb;
     bomb.detonate();
   }
+
+  /**
+   * Spawns a small horde of zombies around a landed airdrop crate.
+   * Called once the crate has finished its delivery animation.
+   */
+  spawnAirdropZombies(
+  position: Float32Array,
+  count: number = this.zombiesPerAirdrop,
+  radius: number = this.zombieSpawnRadius
+) {
+  for (let i = 0; i < count; i++) {
+    const angle = (i / count) * Math.PI * 2;
+
+    const spawnPos = new Float32Array([
+      position[0] + Math.cos(angle) * radius,
+      position[1],
+      position[2] + Math.sin(angle) * radius,
+      0
+    ]);
+
+    const modelId =
+      Math.random() < 0.5
+        ? ModelIds.ZOMBIE_MALE_WALKER
+        : ModelIds.ZOMBIE_FEMALE_WALKER;
+
+    const rotation = eul2quat(
+      new Float32Array([
+        0,
+        Math.random() * Math.PI * 2,
+        0
+      ])
+    );
+
+    const characterId = this.server.generateGuid();
+    const transientId = this.server.getTransientId(characterId);
+
+    const zombie = new ZombieWalker(
+      characterId,
+      transientId,
+      modelId,
+      spawnPos,
+      rotation,
+      this.server
+    );
+
+    this.server._npcs[characterId] = zombie;
+
+    console.log(
+      `[AIRDROP ZOMBIE] spawned ${characterId} ` +
+      `model=${modelId} ` +
+      `pos=[${spawnPos[0].toFixed(2)}, ` +
+      `${spawnPos[1].toFixed(2)}, ` +
+      `${spawnPos[2].toFixed(2)}]`
+    );
+  }
+}
 
   broadcastDeliveryInfo(client: ZoneClient2016 | undefined = undefined) {
     for (const [airdropId, airdrop] of this.activeAirdrops.entries()) {
