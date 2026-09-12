@@ -289,7 +289,12 @@ export const commands: Array<Command> = [
     name: "serverinfo",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      if (args[0] === "mem") {
+      if (args[0] === "nav") {
+        server.sendChatText(
+          client,
+          `Navigation: ${server.navManager.healthSummary}`
+        );
+      } else if (args[0] === "mem") {
         const used = process.memoryUsage().rss / 1024 / 1024;
         server.sendChatText(
           client,
