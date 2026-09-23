@@ -23,13 +23,17 @@ import {
   EMOTE_ABILITY_EXPIRE_MS,
   EMOTE_ABILITY_KEY,
   NIGHT_VISION_ABILITY_KEY,
-  emoteAbilities
+  emoteAbilities,
+  emoteAccountItems,
+  emoteForAccountItem
 } from "../data/hotkeyabilities";
 import { AbilityIds, Items, LoadoutSlots } from "../models/enums";
 
 process.env.FORCE_DISABLE_WS = "true";
 
-const WAVE_BYE = 1111391;
+const WAVE_BYE = 1111391,
+  BIRD_CANNON_ITEM = 1999,
+  BIRD_CANNON = 1111475;
 
 type SentPacket = { name: string; data: any };
 
@@ -259,6 +263,109 @@ test("Hotkey abilities", { timeout: 60000 }, async (t) => {
       }
     ]);
   });
+
+  await t.test("account emote items map to emote item definitions", () => {
+    assert.strictEqual(emoteAccountItems.length, 82);
+    const abilityIds = new Set<number>();
+    for (const emote of emoteAccountItems) {
+      const definition = zone.getItemDefinition(emote.accountItemId);
+      assert.strictEqual(definition?.ITEM_TYPE, 53, `${emote.accountItemId}`);
+      assert.ok(!(emote.abilityId in emoteAbilities));
+      abilityIds.add(emote.abilityId);
+    }
+    assert.strictEqual(abilityIds.size, emoteAccountItems.length);
+    assert.deepStrictEqual(emoteForAccountItem(BIRD_CANNON_ITEM), {
+      accountItemId: BIRD_CANNON_ITEM,
+      abilityId: BIRD_CANNON,
+      animationId: 20
+    });
+  });
+
+  await t.test("only owned account emotes are granted", () => {
+    const granted = () =>
+      client.character
+        .pGetActivatableAbilities(zone)
+        .filter((entry) => entry.unknownArray1[0].unknownDword1 == BIRD_CANNON);
+    client.character.ownedEmoteAccountItems = new Set();
+    assert.strictEqual(granted().length, 0);
+    client.character.ownedEmoteAccountItems = new Set([BIRD_CANNON_ITEM]);
+    const [entry] = granted();
+    assert.strictEqual(entry.loadoutSlotId, BIRD_CANNON);
+    assert.strictEqual(entry.abilityLineId, BIRD_CANNON);
+    client.character.ownedEmoteAccountItems = new Set();
+  });
+
+  await t.test("an account emote plays only while owned", () => {
+    const sent = captureSends(zone);
+    mock.timers.enable({ apis: ["setTimeout"] });
+    try {
+      client.character.ownedEmoteAccountItems = new Set();
+      zone.abilitiesManager.processAbilityInit(
+        zone,
+        client,
+        initPacket(BIRD_CANNON, BIRD_CANNON) as any
+      );
+      assert.strictEqual(sent.length, 0);
+      client.character.ownedEmoteAccountItems = new Set([BIRD_CANNON_ITEM]);
+      zone.abilitiesManager.processAbilityInit(
+        zone,
+        client,
+        initPacket(BIRD_CANNON, BIRD_CANNON) as any
+      );
+      assert.deepStrictEqual(
+        sent.map((packet) => packet.name),
+        ["Abilities.InitAbility", "Animation.Play"]
+      );
+      assert.strictEqual(sent[1].data.animationId, 20);
+      mock.timers.tick(EMOTE_ABILITY_EXPIRE_MS);
+      assert.deepStrictEqual(sent[2].data, {
+        unknownDword1: 3,
+        abilityId: BIRD_CANNON,
+        unknownDword2: 1
+      });
+    } finally {
+      mock.timers.reset();
+      client.character.ownedEmoteAccountItems = new Set();
+    }
+  });
+
+  await t.test(
+    "adding and removing an emote account item resends the grants",
+    async () => {
+      const sent = captureSends(zone);
+      const grantsHave = (packet: SentPacket | undefined, abilityId: number) =>
+        packet?.data.abilities.some(
+          (entry: any) => entry.unknownArray1[0].unknownDword1 == abilityId
+        );
+      const lastGrant = () =>
+        sent
+          .filter(
+            (packet) => packet.name == "Abilities.SetActivatableAbilityManager"
+          )
+          .at(-1);
+      // the account inventory stays in memory so the test touches no save file
+      const accountItems: any[] = [];
+      Object.assign(zone.accountInventoriesManager, {
+        getAccountItems: async () => accountItems,
+        addAccountItem: async (_loginSessionId: string, item: any) => {
+          accountItems.push(item);
+        },
+        updateAccountItem: async () => {},
+        removeAccountItem: async (_loginSessionId: string, item: any) => {
+          accountItems.splice(accountItems.indexOf(item), 1);
+        }
+      });
+      client.character.initialized = true;
+      const item = zone.generateItem(BIRD_CANNON_ITEM);
+      assert.ok(item);
+      await zone.lootAccountItem(zone, client, item);
+      assert.ok(client.character.ownedEmoteAccountItems.has(BIRD_CANNON_ITEM));
+      assert.ok(grantsHave(lastGrant(), BIRD_CANNON));
+      await zone.removeAccountItem(client.character, item);
+      assert.ok(!client.character.ownedEmoteAccountItems.has(BIRD_CANNON_ITEM));
+      assert.ok(!grantsHave(lastGrant(), BIRD_CANNON));
+    }
+  );
 
   await zone.stop();
 });

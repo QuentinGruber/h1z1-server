@@ -12,6 +12,7 @@
 // ======================================================================
 
 import { AbilityIds } from "../models/enums";
+import { PluginManager } from "../managers/pluginmanager";
 
 /** InitAbility operation of a client activation request. */
 export const ABILITY_OPERATION_REQUEST = 1;
@@ -53,9 +54,58 @@ export const EMOTE_ABILITY_KEY = 1000;
 /** Activatable store key of the night vision entry. */
 export const NIGHT_VISION_ABILITY_KEY = 1100;
 
+/** An emote ability the player may use once it owns the account item its
+ *  client requirement names (scripts/genEmoteAccountItems.ts). */
+export interface EmoteAccountItem {
+  accountItemId: number;
+  abilityId: number;
+  animationId: number;
+}
+
+export const emoteAccountItems: readonly EmoteAccountItem[] =
+  PluginManager.loadServerData("2016/dataSources/EmoteAccountItems.json");
+
+const accountEmoteByItem = new Map(
+  emoteAccountItems.map((emote) => [emote.accountItemId, emote])
+);
+const accountEmoteByAbility = new Map(
+  emoteAccountItems.map((emote) => [emote.abilityId, emote])
+);
+
+/** Emote unlocked by an account item, if it is one. */
+export function emoteForAccountItem(
+  accountItemId: number
+): EmoteAccountItem | undefined {
+  return accountEmoteByItem.get(accountItemId);
+}
+
+/** Account emote an ability id activates, if it is one. */
+export function accountEmoteForAbility(
+  abilityId: number
+): EmoteAccountItem | undefined {
+  return accountEmoteByAbility.get(abilityId);
+}
+
+/** EmoteAnimations id an emote ability plays for a player owning the given
+ *  account items, 0 when it is no emote ability the player may use. */
+export function emoteAnimationForAbility(
+  abilityId: number,
+  ownedEmoteAccountItems: ReadonlySet<number>
+): number {
+  if (abilityId in emoteAbilities) return emoteAbilities[abilityId];
+  const accountEmote = accountEmoteForAbility(abilityId);
+  return accountEmote && ownedEmoteAccountItems.has(accountEmote.accountItemId)
+    ? accountEmote.animationId
+    : 0;
+}
+
 /** Abilities whose activation the server ends with UninitAbility operation 3. */
 export function isHotkeyAbility(abilityId: number) {
-  return abilityId in emoteAbilities || abilityId == AbilityIds.NV_GOGGLES;
+  return (
+    abilityId in emoteAbilities ||
+    abilityId == AbilityIds.NV_GOGGLES ||
+    accountEmoteByAbility.has(abilityId)
+  );
 }
 
 function hotkeyAbilityEntry(key: number, abilityId: number) {
@@ -77,13 +127,24 @@ function hotkeyAbilityEntry(key: number, abilityId: number) {
   };
 }
 
-/** SetActivatableAbilityManager entries for the night vision and emote hotkeys.
- *  Every manager send replaces the whole client store, so each send carries them. */
-export function getHotkeyAbilityEntries() {
-  return [
+/** SetActivatableAbilityManager entries for the night vision and emote hotkeys:
+ *  every requirement-free emote plus the emote of each owned account emote
+ *  item. Every manager send replaces the whole client store, so each send
+ *  carries them. An account emote's store key is its ability id, unique and
+ *  stable across grants. */
+export function getHotkeyAbilityEntries(
+  ownedEmoteAccountItems: Iterable<number> = []
+) {
+  const entries = [
     hotkeyAbilityEntry(NIGHT_VISION_ABILITY_KEY, AbilityIds.NV_GOGGLES),
     ...Object.keys(emoteAbilities).map((abilityId, index) =>
       hotkeyAbilityEntry(EMOTE_ABILITY_KEY + index, Number(abilityId))
     )
   ];
+  for (const accountItemId of ownedEmoteAccountItems) {
+    const emote = emoteForAccountItem(accountItemId);
+    if (!emote) continue;
+    entries.push(hotkeyAbilityEntry(emote.abilityId, emote.abilityId));
+  }
+  return entries;
 }

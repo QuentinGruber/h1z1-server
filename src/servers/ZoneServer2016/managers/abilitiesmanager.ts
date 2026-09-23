@@ -47,7 +47,7 @@ import {
   ABILITY_OPERATION_ACTIVATED,
   ABILITY_OPERATION_REQUEST,
   EMOTE_ABILITY_EXPIRE_MS,
-  emoteAbilities,
+  emoteAnimationForAbility,
   isHotkeyAbility
 } from "../data/hotkeyabilities";
 const debug = require("debug")("ZoneServer");
@@ -168,7 +168,10 @@ export class AbilitiesManager {
     packetData: AbilitiesInitAbility
   ) {
     const abilityId = packetData.abilityId ?? 0,
-      animationId = emoteAbilities[abilityId];
+      animationId = emoteAnimationForAbility(
+        abilityId,
+        client.character.ownedEmoteAccountItems
+      );
     if (!animationId) return false;
     if (packetData.unknownDword1 != ABILITY_OPERATION_REQUEST) return true;
     const timerKey = this.emoteExpiryTimerKey(client, abilityId);

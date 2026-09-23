@@ -805,6 +805,20 @@ const dev: any = {
       }
     }, 100);
   },
+  accountitem: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    const itemDefinitionId = Number(args[1]);
+    const item = server.generateItem(itemDefinitionId);
+    if (!item) {
+      server.sendChatText(client, `Unknown item definition ${args[1]}`);
+      return;
+    }
+    void server.lootAccountItem(server, client, item);
+    server.sendChatText(client, `Account item ${itemDefinitionId} added`);
+  },
   abilities: function (
     server: ZoneServer2016,
     client: Client,

@@ -1,0 +1,412 @@
+[
+ {
+  "accountItemId": 1999,
+  "abilityId": 1111475,
+  "animationId": 20
+ },
+ {
+  "accountItemId": 2000,
+  "abilityId": 1111476,
+  "animationId": 21
+ },
+ {
+  "accountItemId": 2001,
+  "abilityId": 1111477,
+  "animationId": 22
+ },
+ {
+  "accountItemId": 2002,
+  "abilityId": 1111478,
+  "animationId": 23
+ },
+ {
+  "accountItemId": 2003,
+  "abilityId": 1111479,
+  "animationId": 24
+ },
+ {
+  "accountItemId": 2004,
+  "abilityId": 1111480,
+  "animationId": 25
+ },
+ {
+  "accountItemId": 2005,
+  "abilityId": 1111481,
+  "animationId": 26
+ },
+ {
+  "accountItemId": 2006,
+  "abilityId": 1111482,
+  "animationId": 27
+ },
+ {
+  "accountItemId": 2007,
+  "abilityId": 1111483,
+  "animationId": 28
+ },
+ {
+  "accountItemId": 2008,
+  "abilityId": 1111484,
+  "animationId": 29
+ },
+ {
+  "accountItemId": 2438,
+  "abilityId": 1111597,
+  "animationId": 30
+ },
+ {
+  "accountItemId": 2439,
+  "abilityId": 1111598,
+  "animationId": 31
+ },
+ {
+  "accountItemId": 2441,
+  "abilityId": 1111599,
+  "animationId": 32
+ },
+ {
+  "accountItemId": 2440,
+  "abilityId": 1111600,
+  "animationId": 33
+ },
+ {
+  "accountItemId": 3154,
+  "abilityId": 1111699,
+  "animationId": 34
+ },
+ {
+  "accountItemId": 3155,
+  "abilityId": 1111700,
+  "animationId": 35
+ },
+ {
+  "accountItemId": 3288,
+  "abilityId": 1111718,
+  "animationId": 36
+ },
+ {
+  "accountItemId": 3289,
+  "abilityId": 1111719,
+  "animationId": 37
+ },
+ {
+  "accountItemId": 3290,
+  "abilityId": 1111720,
+  "animationId": 38
+ },
+ {
+  "accountItemId": 3291,
+  "abilityId": 1111721,
+  "animationId": 39
+ },
+ {
+  "accountItemId": 3292,
+  "abilityId": 1111722,
+  "animationId": 40
+ },
+ {
+  "accountItemId": 3293,
+  "abilityId": 1111723,
+  "animationId": 41
+ },
+ {
+  "accountItemId": 3294,
+  "abilityId": 1111724,
+  "animationId": 42
+ },
+ {
+  "accountItemId": 3295,
+  "abilityId": 1111725,
+  "animationId": 43
+ },
+ {
+  "accountItemId": 3296,
+  "abilityId": 1111726,
+  "animationId": 44
+ },
+ {
+  "accountItemId": 3297,
+  "abilityId": 1111727,
+  "animationId": 45
+ },
+ {
+  "accountItemId": 3298,
+  "abilityId": 1111728,
+  "animationId": 46
+ },
+ {
+  "accountItemId": 3299,
+  "abilityId": 1111729,
+  "animationId": 47
+ },
+ {
+  "accountItemId": 3300,
+  "abilityId": 1111730,
+  "animationId": 48
+ },
+ {
+  "accountItemId": 3301,
+  "abilityId": 1111731,
+  "animationId": 49
+ },
+ {
+  "accountItemId": 3302,
+  "abilityId": 1111732,
+  "animationId": 50
+ },
+ {
+  "accountItemId": 3303,
+  "abilityId": 1111733,
+  "animationId": 51
+ },
+ {
+  "accountItemId": 3304,
+  "abilityId": 1111734,
+  "animationId": 52
+ },
+ {
+  "accountItemId": 3305,
+  "abilityId": 1111735,
+  "animationId": 53
+ },
+ {
+  "accountItemId": 3306,
+  "abilityId": 1111736,
+  "animationId": 54
+ },
+ {
+  "accountItemId": 3307,
+  "abilityId": 1111737,
+  "animationId": 55
+ },
+ {
+  "accountItemId": 3308,
+  "abilityId": 1111738,
+  "animationId": 56
+ },
+ {
+  "accountItemId": 3309,
+  "abilityId": 1111739,
+  "animationId": 57
+ },
+ {
+  "accountItemId": 3310,
+  "abilityId": 1111740,
+  "animationId": 58
+ },
+ {
+  "accountItemId": 3311,
+  "abilityId": 1111741,
+  "animationId": 59
+ },
+ {
+  "accountItemId": 3312,
+  "abilityId": 1111742,
+  "animationId": 60
+ },
+ {
+  "accountItemId": 3313,
+  "abilityId": 1111743,
+  "animationId": 61
+ },
+ {
+  "accountItemId": 3314,
+  "abilityId": 1111744,
+  "animationId": 62
+ },
+ {
+  "accountItemId": 3315,
+  "abilityId": 1111745,
+  "animationId": 63
+ },
+ {
+  "accountItemId": 3316,
+  "abilityId": 1111746,
+  "animationId": 64
+ },
+ {
+  "accountItemId": 3317,
+  "abilityId": 1111747,
+  "animationId": 65
+ },
+ {
+  "accountItemId": 3318,
+  "abilityId": 1111748,
+  "animationId": 66
+ },
+ {
+  "accountItemId": 3319,
+  "abilityId": 1111749,
+  "animationId": 67
+ },
+ {
+  "accountItemId": 3320,
+  "abilityId": 1111750,
+  "animationId": 68
+ },
+ {
+  "accountItemId": 3321,
+  "abilityId": 1111751,
+  "animationId": 69
+ },
+ {
+  "accountItemId": 3322,
+  "abilityId": 1111752,
+  "animationId": 70
+ },
+ {
+  "accountItemId": 3323,
+  "abilityId": 1111753,
+  "animationId": 71
+ },
+ {
+  "accountItemId": 3324,
+  "abilityId": 1111754,
+  "animationId": 72
+ },
+ {
+  "accountItemId": 3325,
+  "abilityId": 1111755,
+  "animationId": 73
+ },
+ {
+  "accountItemId": 3326,
+  "abilityId": 1111756,
+  "animationId": 74
+ },
+ {
+  "accountItemId": 3327,
+  "abilityId": 1111757,
+  "animationId": 75
+ },
+ {
+  "accountItemId": 3328,
+  "abilityId": 1111758,
+  "animationId": 76
+ },
+ {
+  "accountItemId": 3329,
+  "abilityId": 1111759,
+  "animationId": 77
+ },
+ {
+  "accountItemId": 3330,
+  "abilityId": 1111760,
+  "animationId": 78
+ },
+ {
+  "accountItemId": 3331,
+  "abilityId": 1111761,
+  "animationId": 79
+ },
+ {
+  "accountItemId": 3332,
+  "abilityId": 1111762,
+  "animationId": 80
+ },
+ {
+  "accountItemId": 3333,
+  "abilityId": 1111763,
+  "animationId": 81
+ },
+ {
+  "accountItemId": 3334,
+  "abilityId": 1111764,
+  "animationId": 82
+ },
+ {
+  "accountItemId": 3335,
+  "abilityId": 1111765,
+  "animationId": 83
+ },
+ {
+  "accountItemId": 3336,
+  "abilityId": 1111766,
+  "animationId": 84
+ },
+ {
+  "accountItemId": 3337,
+  "abilityId": 1111767,
+  "animationId": 85
+ },
+ {
+  "accountItemId": 3338,
+  "abilityId": 1111768,
+  "animationId": 86
+ },
+ {
+  "accountItemId": 3339,
+  "abilityId": 1111769,
+  "animationId": 87
+ },
+ {
+  "accountItemId": 3340,
+  "abilityId": 1111770,
+  "animationId": 88
+ },
+ {
+  "accountItemId": 3341,
+  "abilityId": 1111771,
+  "animationId": 89
+ },
+ {
+  "accountItemId": 3342,
+  "abilityId": 1111772,
+  "animationId": 90
+ },
+ {
+  "accountItemId": 3343,
+  "abilityId": 1111773,
+  "animationId": 91
+ },
+ {
+  "accountItemId": 3344,
+  "abilityId": 1111774,
+  "animationId": 92
+ },
+ {
+  "accountItemId": 3345,
+  "abilityId": 1111775,
+  "animationId": 93
+ },
+ {
+  "accountItemId": 3346,
+  "abilityId": 1111776,
+  "animationId": 94
+ },
+ {
+  "accountItemId": 3347,
+  "abilityId": 1111777,
+  "animationId": 95
+ },
+ {
+  "accountItemId": 3348,
+  "abilityId": 1111778,
+  "animationId": 96
+ },
+ {
+  "accountItemId": 3349,
+  "abilityId": 1111779,
+  "animationId": 97
+ },
+ {
+  "accountItemId": 3350,
+  "abilityId": 1111780,
+  "animationId": 98
+ },
+ {
+  "accountItemId": 3351,
+  "abilityId": 1111781,
+  "animationId": 99
+ },
+ {
+  "accountItemId": 3352,
+  "abilityId": 1111782,
+  "animationId": 100
+ },
+ {
+  "accountItemId": 3819,
+  "abilityId": 1111845,
+  "animationId": 101
+ }
+]

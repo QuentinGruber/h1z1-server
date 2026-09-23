@@ -254,6 +254,8 @@ export class Character2016 extends BaseFullCharacter {
   /** Tracks if the player is currently playing an emote */
   currentEmote: number = 0; // effectId of the current emote, 0 = no emote
   lastEmoteTime: number = 0; // timestamp of when the emote was started
+  /** Owned account items that unlock an emote ability. */
+  ownedEmoteAccountItems: Set<number> = new Set();
 
   /** Metrics of miscellaneous attributes */
   metrics: CharacterMetrics = {
@@ -1388,7 +1390,7 @@ export class Character2016 extends BaseFullCharacter {
         this.pGetActivatableAbility(slotId, itemDefinition, lineId)
       );
     });
-    abilities.push(...getHotkeyAbilityEntries());
+    abilities.push(...getHotkeyAbilityEntries(this.ownedEmoteAccountItems));
     return abilities;
   }
 

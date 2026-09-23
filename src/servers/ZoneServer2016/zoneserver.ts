@@ -240,6 +240,7 @@ import {
 import { GroupManager } from "./managers/groupmanager";
 import { SpeedTreeManager } from "./managers/speedtreemanager";
 import { ConstructionManager } from "./managers/constructionmanager";
+import { emoteForAccountItem } from "./data/hotkeyabilities";
 import { FairPlayManager } from "./managers/fairplaymanager";
 import { PluginManager } from "./managers/pluginmanager";
 import { Destroyable } from "./entities/destroyable";
@@ -2751,6 +2752,13 @@ export class ZoneServer2016 extends EventEmitter {
 
     const accountItems = await this.accountInventoriesManager.getAccountItems(
       client.loginSessionId
+    );
+    // owned emote account items unlock their emote abilities in every ability
+    // manager send, the first one included
+    client.character.ownedEmoteAccountItems = new Set(
+      accountItems
+        .map((item) => item.itemDefinitionId)
+        .filter((itemDefinitionId) => emoteForAccountItem(itemDefinitionId))
     );
 
     this.sendCharacterData(client, accountItems);
@@ -7605,6 +7613,10 @@ export class ZoneServer2016 extends EventEmitter {
         itemDefinitionId: item.itemDefinitionId,
         itemCount: item.stackCount
       });
+      if (emoteForAccountItem(item.itemDefinitionId)) {
+        client.character.ownedEmoteAccountItems.add(item.itemDefinitionId);
+        client.character.updateLoadout(server);
+      }
     }
   }
 
@@ -7640,6 +7652,11 @@ export class ZoneServer2016 extends EventEmitter {
         itemId: item.itemGuid,
         itemDefinitionId: item.itemDefinitionId
       });
+      if (
+        client.character.ownedEmoteAccountItems.delete(item.itemDefinitionId)
+      ) {
+        client.character.updateLoadout(this);
+      }
     } else {
       await this.accountInventoriesManager.updateAccountItem(
         client.loginSessionId,
