@@ -12,6 +12,7 @@
 // ======================================================================
 
 import {
+  AbilityIds,
   ConstructionPermissionIds,
   ContainerErrors,
   Effects,
@@ -29,6 +30,7 @@ import {
 } from "../models/enums";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
+import { getHotkeyAbilityEntries } from "../data/hotkeyabilities";
 import { BaseFullCharacter } from "./basefullcharacter";
 import {
   AccountItem,
@@ -1376,10 +1378,17 @@ export class Character2016 extends BaseFullCharacter {
       const itemDefinition = server.getItemDefinition(slot.itemDefinitionId);
       if (!itemDefinition) return;
       const { slotId } = slot;
+      // the night vision hotkey resolves its entry by line id, which must
+      // equal the slot key for the goggles entry to activate
+      const lineId =
+        itemDefinition.ACTIVATABLE_ABILITY_ID == AbilityIds.NV_GOGGLES
+          ? slotId
+          : abilityLineId;
       abilities.push(
-        this.pGetActivatableAbility(slotId, itemDefinition, abilityLineId)
+        this.pGetActivatableAbility(slotId, itemDefinition, lineId)
       );
     });
+    abilities.push(...getHotkeyAbilityEntries());
     return abilities;
   }
 

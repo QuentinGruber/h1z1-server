@@ -3480,6 +3480,14 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<AbilitiesUninitAbility>
   ) {
+    if (
+      server.abilitiesManager.processHotkeyAbilityUninit(
+        server,
+        client,
+        packet.data
+      )
+    )
+      return;
     if (!client.vehicle.mountedVehicle) return;
     const vehicle = server._vehicles[client.vehicle.mountedVehicle];
     if (!vehicle) return;

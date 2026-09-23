@@ -11,7 +11,11 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { readAbilityInitData, readAbilityUpdateData } from "./shared";
+import {
+  packAbilityInitData,
+  readAbilityInitData,
+  readAbilityUpdateData
+} from "./shared";
 import { PacketStructures } from "types/packetStructure";
 
 export const abilitiesPackets: PacketStructures = [
@@ -36,7 +40,7 @@ export const abilitiesPackets: PacketStructures = [
           name: "abilityData",
           type: "custom",
           parser: readAbilityInitData,
-          packer: readAbilityInitData
+          packer: packAbilityInitData
         }
       ]
     }

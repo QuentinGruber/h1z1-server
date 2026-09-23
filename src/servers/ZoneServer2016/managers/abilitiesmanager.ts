@@ -41,11 +41,24 @@ import { DamageInfo, EntityDictionary } from "types/zoneserver";
 import { LoadoutItem } from "../classes/loadoutItem";
 import { Npc } from "../entities/npc";
 import { PluginManager } from "./pluginmanager";
+import {
+  ABILITY_END_OPERATION,
+  ABILITY_END_VALUE,
+  ABILITY_OPERATION_ACTIVATED,
+  ABILITY_OPERATION_REQUEST,
+  EMOTE_ABILITY_EXPIRE_MS,
+  emoteAbilities,
+  isHotkeyAbility
+} from "../data/hotkeyabilities";
+const debug = require("debug")("ZoneServer");
 const vehicleAbilities = PluginManager.loadServerData(
   "2016/dataSources/VehicleAbilities.json"
 );
 
 export class AbilitiesManager {
+  /** Pending emote expiries keyed by character id and ability id. */
+  private emoteExpiryTimers = new Map<string, NodeJS.Timeout>();
+
   sendVehicleAbilities(
     server: ZoneServer2016,
     client: Client,
@@ -101,6 +114,7 @@ export class AbilitiesManager {
       };
       return;
     }
+    if (this.processEmoteAbilityInit(server, client, packetData)) return;
     switch (packetData.abilityId) {
       case AbilityIds.NV_GOGGLES:
         const index = client.character.screenEffects.indexOf("NIGHTVISION");
@@ -138,6 +152,93 @@ export class AbilitiesManager {
       vehicle,
       packetData
     );
+  }
+
+  /**
+   * Plays an emote ability activated by an Emotes hotkey: confirms the
+   * activation, relays the emote to observers and ends the ability once it
+   * expires so the hotkey activates it again. A repeated activation of an
+   * emote that is still playing is ignored; the client activates it again only
+   * after it ended.
+   * @returns true when the ability is an emote ability
+   */
+  processEmoteAbilityInit(
+    server: ZoneServer2016,
+    client: Client,
+    packetData: AbilitiesInitAbility
+  ) {
+    const abilityId = packetData.abilityId ?? 0,
+      animationId = emoteAbilities[abilityId];
+    if (!animationId) return false;
+    if (packetData.unknownDword1 != ABILITY_OPERATION_REQUEST) return true;
+    const timerKey = this.emoteExpiryTimerKey(client, abilityId);
+    if (this.emoteExpiryTimers.has(timerKey)) return true;
+    debug(
+      `[emote] ability ${abilityId} -> animation ${animationId} from ${client.character.name}`
+    );
+    server.sendData<AbilitiesInitAbility>(client, "Abilities.InitAbility", {
+      ...packetData,
+      unknownDword1: ABILITY_OPERATION_ACTIVATED,
+      unknownDword2: 0
+    });
+    // the emote ability's own stages animate the local player
+    server.sendDataToAllOthersWithSpawnedEntity(
+      server._characters,
+      client,
+      client.character.characterId,
+      "Animation.Play",
+      {
+        characterId: client.character.characterId,
+        animationId: animationId
+      }
+    );
+    this.emoteExpiryTimers.set(
+      timerKey,
+      setTimeout(() => {
+        this.emoteExpiryTimers.delete(timerKey);
+        this.endHotkeyAbility(server, client, abilityId);
+      }, EMOTE_ABILITY_EXPIRE_MS)
+    );
+    return true;
+  }
+
+  private emoteExpiryTimerKey(client: Client, abilityId: number) {
+    return `${client.character.characterId}:${abilityId}`;
+  }
+
+  /**
+   * Ends an emote or night vision ability with UninitAbility operation 3,
+   * which removes the client's ability instance so its hotkey works again.
+   */
+  endHotkeyAbility(server: ZoneServer2016, client: Client, abilityId: number) {
+    debug(`[emote] end ability ${abilityId} for ${client.character.name}`);
+    this.deactivateAbility(
+      server,
+      client,
+      abilityId,
+      ABILITY_END_OPERATION,
+      ABILITY_END_VALUE
+    );
+  }
+
+  /**
+   * Confirms a client stop request for an emote or night vision ability.
+   * @returns true when the ability is an emote or night vision ability
+   */
+  processHotkeyAbilityUninit(
+    server: ZoneServer2016,
+    client: Client,
+    packetData: AbilitiesUninitAbility
+  ) {
+    const abilityId = packetData.abilityId ?? 0;
+    if (!isHotkeyAbility(abilityId)) return false;
+    if (packetData.unknownDword1 == ABILITY_OPERATION_REQUEST) {
+      const timerKey = this.emoteExpiryTimerKey(client, abilityId);
+      clearTimeout(this.emoteExpiryTimers.get(timerKey));
+      this.emoteExpiryTimers.delete(timerKey);
+      this.endHotkeyAbility(server, client, abilityId);
+    }
+    return true;
   }
 
   processVehicleAbilityInit(

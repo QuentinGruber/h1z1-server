@@ -200,7 +200,7 @@ export function readAbilityInitData(data: Buffer, offset: number) {
 
 export function packAbilityInitData(obj: any) {
   let data =
-    obj["unknownByte1"] == 128 ? Buffer.allocUnsafe(62) : Buffer.allocUnsafe(2);
+    obj["unknownByte1"] == 128 ? Buffer.allocUnsafe(58) : Buffer.allocUnsafe(2);
   let offset = 0;
   data.writeUint8(obj["unknownByte1"], offset);
   offset += 1;
