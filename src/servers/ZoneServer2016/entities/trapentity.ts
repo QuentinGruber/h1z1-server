@@ -120,8 +120,9 @@ export class TrapEntity extends BaseSimpleNpc {
 
   async detonate(characterId: string) {
     const client = this.server.getClientByCharId(characterId);
+    const targetCharacter = client?.character ?? this.server._npcs[characterId];
     const server = this.server;
-    if (!client) {
+    if (!targetCharacter) {
       return;
     }
     this.lastTrigger = Date.now();
@@ -132,11 +133,11 @@ export class TrapEntity extends BaseSimpleNpc {
           return;
         }
         if (
-          client.character.isAlive &&
-          !client.vehicle.mountedVehicle &&
-          !client.character.isSpectator
+          targetCharacter.isAlive &&
+          (!client ||
+            (!client.vehicle.mountedVehicle && !client.character.isSpectator))
         ) {
-          client.character.damage(server, {
+          targetCharacter.damage(server, {
             entity: this.characterId,
             causeBleed: true,
             damage: 501
@@ -148,7 +149,7 @@ export class TrapEntity extends BaseSimpleNpc {
             {
               characterId: "0x0",
               effectId: Effects.PFX_Impact_PunjiSticks_Blood,
-              position: client.character.state.position
+              position: targetCharacter.state.position
             }
           );
 
