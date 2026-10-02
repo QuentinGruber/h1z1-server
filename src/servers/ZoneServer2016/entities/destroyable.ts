@@ -13,7 +13,7 @@
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { DamageInfo } from "../../../types/zoneserver";
-import { eul2quat, getDistance } from "../../../utils/utils";
+import { eul2quat, getDistanceSquared } from "../../../utils/utils";
 import { Effects, ModelIds } from "../models/enums";
 import { AddLightweightNpc, AddSimpleNpc } from "types/zone2016packets";
 import { BaseSimpleNpc } from "./basesimplenpc";
@@ -293,17 +293,23 @@ export class Destroyable extends BaseSimpleNpc {
       health: (this.health / this.maxHealth) * 100
     };
   }
+  /** Destroyables (trees/rocks/etc.) never move after spawn, so the rotation
+   *  quaternion — the only non-trivial computation in pGetLightweight — is
+   *  computed once and reused instead of recomputed on every spawn-in-range send. */
+  private _cachedLightweightRotation?: Float32Array;
+
   pGetLightweight(): AddLightweightNpc {
+    if (!this._cachedLightweightRotation) {
+      this._cachedLightweightRotation = eul2quat(
+        new Float32Array([this.state.rotation[1], 0, 0])
+      );
+    }
     return {
       characterId: this.characterId,
       transientId: this.transientId,
       actorModelId: this.destroyed ? this.destroyedModel : this.actorModelId,
-      position: new Float32Array(
-        Array.from(this.state.position).map((pos, idx) => {
-          return idx == 1 ? pos++ : pos;
-        })
-      ),
-      rotation: eul2quat(new Float32Array([this.state.rotation[1], 0, 0])),
+      position: this.state.position,
+      rotation: this._cachedLightweightRotation,
       scale: this.scale,
       isLightweight: true,
       flags: {
@@ -316,11 +322,10 @@ export class Destroyable extends BaseSimpleNpc {
   }
 
   OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity): void {
-    const distance = getDistance(
-      sourceEntity.state.position,
-      this.state.position
-    );
-    if (distance > 5) return;
+    if (
+      getDistanceSquared(sourceEntity.state.position, this.state.position) > 25
+    )
+      return;
 
     this.damage(server, {
       entity: sourceEntity.characterId,

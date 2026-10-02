@@ -24,7 +24,7 @@ import {
   _,
   getDifference,
   isPosInRadius,
-  toHex,
+  Int64String,
   randomIntFromInterval,
   getCurrentServerTimeWrapper,
   getDateString
@@ -72,6 +72,7 @@ import { ZombieScreamer } from "../../entities/zombiescreamer";
 import { Exploder } from "../../entities/exploder";
 import { Gasser } from "../../entities/gasser";
 import { Deer } from "../../entities/deer";
+import { Rabbit } from "../../entities/rabbit";
 import { DeerEvents } from "../../jsms/deer.jsm";
 import { ZombieEvents } from "../../jsms/zombie.jsm";
 import { Wolf } from "../../entities/wolf";
@@ -1038,21 +1039,7 @@ export const commands: Array<Command> = [
     name: "nv",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      const index = client.character.screenEffects.indexOf("NIGHTVISION");
-      if (index <= -1) {
-        if (
-          client.character._loadout[29] &&
-          client.character._loadout[29].itemDefinitionId == Items.NV_GOGGLES
-        ) {
-          client.character.screenEffects.push("NIGHTVISION");
-          server.addScreenEffect(client, server._screenEffects["NIGHTVISION"]);
-        } else {
-          server.sendChatText(client, `You dont have a NV Goggles equipped!`);
-        }
-      } else {
-        client.character.screenEffects.splice(index, 1);
-        server.removeScreenEffect(client, server._screenEffects["NIGHTVISION"]);
-      }
+      server.toggleNightVision(client);
     }
   },
   {
@@ -1167,7 +1154,7 @@ export const commands: Array<Command> = [
       });
       client.isLoading = true;
       client.characterReleased = false;
-      client.character.lastLoginDate = toHex(Date.now());
+      client.character.lastLoginDate = Int64String(Date.now());
       server.dropAllManagedObjects(client);
       server.sendData(client, "ClientUpdate.UpdateLocation", {
         position,
@@ -1199,7 +1186,7 @@ export const commands: Array<Command> = [
       });
       targetClient.isLoading = true;
       targetClient.characterReleased = false;
-      targetClient.character.lastLoginDate = toHex(Date.now());
+      targetClient.character.lastLoginDate = Int64String(Date.now());
       server.dropAllManagedObjects(targetClient);
       const triggerLoadingScreen = !isPosInRadius(
         250,
@@ -1240,7 +1227,7 @@ export const commands: Array<Command> = [
       });
       client.isLoading = true;
       client.characterReleased = false;
-      client.character.lastLoginDate = toHex(Date.now());
+      client.character.lastLoginDate = Int64String(Date.now());
       server.dropAllManagedObjects(client);
       const triggerLoadingScreen = !isPosInRadius(
         250,
@@ -1286,8 +1273,7 @@ export const commands: Array<Command> = [
       const bannedClient = (await server._db
         ?.collection(DB_COLLECTIONS.BANNED)
         .findOne({ name: args[0], active: true })) as
-        | WithId<ClientBan>
-        | undefined;
+        WithId<ClientBan> | undefined;
 
       if (bannedClient) {
         server.sendChatText(
@@ -1384,8 +1370,7 @@ export const commands: Array<Command> = [
       const bannedClient = (await server._db
         ?.collection(DB_COLLECTIONS.BANNED)
         .findOne({ loginSessionId: args[0], active: true })) as
-        | WithId<ClientBan>
-        | undefined;
+        WithId<ClientBan> | undefined;
 
       if (bannedClient) {
         server.sendChatText(
@@ -2289,6 +2274,7 @@ export const commands: Array<Command> = [
         exploder: ModelIds.ZOMBIE_MALE_WALKER,
         deer: ModelIds.DEER,
         deer_buck: ModelIds.DEER_BUCK,
+        rabbit: ModelIds.RABBIT,
         wolf: ModelIds.WOLF,
         bear: ModelIds.BEAR
       };
@@ -2364,6 +2350,7 @@ export const commands: Array<Command> = [
           npc instanceof Deer && npc.actorModelId === ModelIds.DEER,
         deer_buck: (npc) =>
           npc instanceof Deer && npc.actorModelId === ModelIds.DEER_BUCK,
+        rabbit: (npc) => npc instanceof Rabbit,
         wolf: (npc) => npc instanceof Wolf,
         bear: (npc) => npc instanceof Bear,
         all: () => true
@@ -2449,6 +2436,8 @@ export const commands: Array<Command> = [
         ) {
           server.sendData(c, "AddLightweightPc", {
             ...mimic,
+            // send the lightweight-spawn placeholder profile id, not the pGetLightweight profileId
+            profileId: 270,
             mountGuid: "",
             mountSeatId: 0,
             mountRelatedDword1: 0
@@ -4012,6 +4001,7 @@ export const commands: Array<Command> = [
       let bears = 0;
       let wolves = 0;
       let deer = 0;
+      let rabbit = 0;
       for (const npc of Object.values(server._npcs)) {
         if (npc instanceof ZombieScreamer) screamers++;
         else if (npc instanceof Gasser) gassers++;
@@ -4019,11 +4009,12 @@ export const commands: Array<Command> = [
         else if (npc instanceof ZombieWalker) zombies++;
         else if (npc instanceof Bear) bears++;
         else if (npc instanceof Wolf) wolves++;
+        else if (npc instanceof Rabbit) rabbit++;
         else if (npc instanceof Deer) deer++;
       }
       server.sendChatText(
         client,
-        `[NPCs] Zombies: ${zombies} | Screamers: ${screamers} | Gassers: ${gassers} | Exploders: ${exploders} | Bears: ${bears} | Wolves: ${wolves} | Deer: ${deer}`
+        `[NPCs] Zombies: ${zombies} | Screamers: ${screamers} | Gassers: ${gassers} | Exploders: ${exploders} | Bears: ${bears} | Wolves: ${wolves} | Deer: ${deer} | Rabbit: ${rabbit}`
       );
     }
   }

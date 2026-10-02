@@ -57,6 +57,7 @@ interface NpcPlanRequest {
     existingNpcPositions: number[][];
     npcSpawnRadius: number;
     chanceNpc: number;
+    chanceRabbit: number;
     chanceScreamer: number;
     chanceGasser: number;
     chanceExploder: number;
@@ -93,10 +94,7 @@ interface DespawnRequest {
 }
 
 type WorkerRequest =
-  | LootPlanRequest
-  | ContainerPlanRequest
-  | NpcPlanRequest
-  | DespawnRequest;
+  LootPlanRequest | ContainerPlanRequest | NpcPlanRequest | DespawnRequest;
 
 interface LootPlanEntry {
   spawnerId: number;
@@ -155,6 +153,8 @@ function getAuthorizedNpcModels(actorDefinition: string): number[] {
       return [ModelIds.ZOMBIE_FEMALE_WALKER, ModelIds.ZOMBIE_MALE_WALKER];
     case "NPCSpawner_Deer001.adr":
       return [9002, 9253];
+    case "NPCSpawner_Rabbit001.adr":
+      return [ModelIds.RABBIT];
     case "NPCSpawner_Wolf001.adr":
       return [9003];
     case "Bear_Brown.adr":
@@ -362,8 +362,7 @@ function resolveEntry(
   if (type === "loot_table") {
     const table =
       (containerTables[entry.table ?? ""] as
-        | { pools: LootPool[] }
-        | undefined) ??
+        { pools: LootPool[] } | undefined) ??
       (groundTables[entry.table ?? ""] as { pools: LootPool[] } | undefined);
     if (!table) return null;
     const eligible = getEligibleEntries(table.pools, ctx);
@@ -485,6 +484,7 @@ function createNpcPlan(
   existingNpcPositions: number[][],
   npcSpawnRadius: number,
   chanceNpc: number,
+  chanceRabbit: number,
   chanceScreamer: number,
   chanceGasser: number,
   chanceExploder: number,
@@ -622,6 +622,7 @@ parentPort?.on("message", (request: WorkerRequest) => {
         request.payload.existingNpcPositions,
         request.payload.npcSpawnRadius,
         request.payload.chanceNpc,
+        request.payload.chanceRabbit,
         request.payload.chanceScreamer,
         request.payload.chanceGasser,
         request.payload.chanceExploder,

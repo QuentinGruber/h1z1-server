@@ -60,12 +60,13 @@ export class RandomEventsManager {
       { value: "Supplier", weight: 20 }
     ];
     const airdropType = this.weightedRandom(airdropTypes);
-    this.server.airdropManager.spawnAirdrop(pos, airdropType);
+    const dropPos = this.server.getAirdropDropPosition(pos);
+    this.server.airdropManager.spawnAirdrop(dropPos, airdropType);
     const cellName = getCellName(cellIndex, 10);
     this.server.sendAlertToAll(`Random airdrop on ${cellName}`);
     if (!this.server._soloMode) {
       this.server._db.collection("random_aidrops_logs").insertOne({
-        position: pos,
+        position: dropPos,
         serverId: this.server._worldId
       });
     }

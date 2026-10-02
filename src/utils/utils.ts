@@ -34,6 +34,12 @@ import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
 import * as crypto from "crypto";
 import { ZoneClient } from "servers/ZoneServer2015/classes/zoneclient";
 import { ConstructionDoor } from "../servers/ZoneServer2016/entities/constructiondoor";
+import {
+  ConstructionPermissionIds,
+  ModelIds
+} from "../servers/ZoneServer2016/models/enums";
+import { LootableConstructionEntity } from "../servers/ZoneServer2016/entities/lootableconstructionentity";
+import { AddSimpleNpc } from "../types/zone2016packets";
 
 const startTime = Date.now();
 
@@ -753,6 +759,22 @@ export function getDistance(p1: Float32Array, p2: Float32Array) {
 }
 
 /**
+ * Squared 3D Euclidean distance between two points — use with a squared
+ * threshold (`getDistanceSquared(a, b) < r * r`) to avoid a sqrt call when
+ * only a threshold comparison is needed, not the actual distance value.
+ *
+ * @param p1 - The position of the first point.
+ * @param p2 - The position of the second point.
+ * @returns The squared Euclidean distance between the two points.
+ */
+export function getDistanceSquared(p1: Float32Array, p2: Float32Array) {
+  const a = p1[0] - p2[0];
+  const b = p1[1] - p2[1];
+  const c = p1[2] - p2[2];
+  return a * a + b * b + c * c;
+}
+
+/**
  * Calculates the Euclidean distance between two 2D points (ignoring the y-axis).
  *
  * @param p1 - The position of the first point.
@@ -1241,16 +1263,6 @@ export const toBigHex = (bigInt: bigint): string => {
 };
 
 /**
- * Converts a number to a hexadecimal string.
- *
- * @param number - The number to convert.
- * @returns The hexadecimal string representation of the number.
- */
-export const toHex = (number: number): string => {
-  return `0x${number.toString(16)}`;
-};
-
-/**
  * Retrieves a random element from an array.
  *
  * @param array - The array from which to retrieve a random element.
@@ -1520,15 +1532,27 @@ export async function logClientActionToMongo(
  *
  * @param data - The object to remove untransferable fields from.
  */
-export function removeUntransferableFields(data: any) {
+export function removeUntransferableFields(
+  data: any,
+  seen: WeakSet<object> = new WeakSet()
+) {
   const allowedTypes = ["string", "number", "boolean", "undefined", "bigint"];
 
   for (const key in data) {
     // eslint-disable-next-line no-prototype-builtins
     if (data.hasOwnProperty(key)) {
       const value = data[key];
+      // null is a valid, transferable field value — leave it untouched. (typeof null
+      // is "object", so without this short-circuit it would fall through to the delete
+      // branch below; the prior behavior recursed into it, a no-op that preserved it.)
+      if (value === null) continue;
       if (typeof value === "object") {
-        removeUntransferableFields(value);
+        // #1467 (H12): guard against circular references — a cycle would otherwise
+        // recurse until the stack overflows synchronously inside the save build,
+        // aborting the entire world save.
+        if (seen.has(value)) continue;
+        seen.add(value);
+        removeUntransferableFields(value, seen);
       } else if (!allowedTypes.includes(typeof value)) {
         console.log(`Invalid value type: ${typeof value}.`);
         delete data[key];
@@ -1726,4 +1750,66 @@ export function feetToMeters(feet: number) {
 export function requireFresh(path: string) {
   delete require.cache[require.resolve(path)];
   return require(path);
+}
+
+export function isFacingTarget(
+  position: Float32Array,
+  yaw: number,
+  targetPosition: Float32Array,
+  toleranceRad: number = Math.PI / 6 // 30 degrees
+): boolean {
+  const dx = targetPosition[0] - position[0];
+  const dz = targetPosition[2] - position[2];
+
+  if (dx * dx + dz * dz < 1e-6) return true;
+
+  const bearingToTarget = Math.atan2(dx, dz);
+  let angleDiff = bearingToTarget - yaw;
+  angleDiff = Math.atan2(Math.sin(angleDiff), Math.cos(angleDiff));
+
+  return Math.abs(angleDiff) <= toleranceRad;
+}
+
+export function shouldHideHealthBar(
+  server: ZoneServer2016,
+  client: ZoneClient2016,
+  entity: ConstructionChildEntity | LootableConstructionEntity
+): boolean {
+  const hiddenEntities =
+    entity.actorModelId == ModelIds.METAL_STORAGE_CHEST ||
+    entity.actorModelId == ModelIds.FURNACE ||
+    entity.actorModelId == ModelIds.WORKBENCH ||
+    entity.actorModelId == ModelIds.WEAPON_WORKBENCH;
+
+  if (!hiddenEntities) return false;
+
+  const foundation = entity.getParentFoundation(server);
+
+  if (!foundation) return false;
+
+  return !foundation.getHasPermission(
+    server,
+    client.character.characterId,
+    ConstructionPermissionIds.CONTAINERS
+  );
+}
+
+export function getSimpleNpcCheckHidden(
+  server: ZoneServer2016,
+  client: ZoneClient2016,
+  entity: ConstructionChildEntity | LootableConstructionEntity
+): AddSimpleNpc {
+  const simpleNpc = {
+    characterId: entity.characterId,
+    transientId: entity.transientId,
+    position: entity.state.position,
+    rotation: entity.state.rotation,
+    modelId: entity.actorModelId,
+    scale: entity.scale,
+    health: (entity.health / entity.maxHealth) * 100
+  };
+
+  if (shouldHideHealthBar(server, client, entity)) simpleNpc.health = 100;
+
+  return simpleNpc;
 }

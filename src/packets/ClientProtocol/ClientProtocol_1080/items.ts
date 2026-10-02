@@ -27,10 +27,11 @@ import {
 export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
   const obj: any = {},
     startOffset = offset;
-  obj["unknownBoolean1"] = data.readUInt8(offset);
+  // 1 = sub-data omitted; 0 = sub-data follows (OPEN_CRATE: 1=preview, 0=open)
+  obj["noSubData"] = data.readUInt8(offset);
   offset += 1;
 
-  if (!obj["unknownBoolean1"]) {
+  if (!obj["noSubData"]) {
     obj["unknownDword1"] = data.readUInt32LE(offset);
     offset += 4;
     obj["unknownDword2"] = data.readUInt32LE(offset);
@@ -79,10 +80,11 @@ export function parseAccountItemRequestSubData(
 ) {
   const obj: any = {},
     startOffset = offset;
-  obj["unknownBoolean1"] = data.readUInt8(offset);
+  // 1 = sub-data omitted; 0 = sub-data follows (OPEN_CRATE: 1=preview, 0=open)
+  obj["noSubData"] = data.readUInt8(offset);
   offset += 1;
 
-  if (!obj["unknownBoolean1"]) {
+  if (!obj["noSubData"]) {
     obj["unknownDword1"] = data.readUInt32LE(offset);
     offset += 4;
     obj["unknownDword2"] = data.readUInt32LE(offset);
@@ -380,7 +382,11 @@ export const itemsPackets: PacketStructures = [
     "Items.ReportNewRewardCrateAdded",
     0xad1d,
     {
-      fields: accountItemSchema
+      // client reads accountItemSchema + a trailing uint8 (@0x1405ab430), mirroring AddAccountItem/UpdateAccountItem
+      fields: [
+        ...accountItemSchema,
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+      ]
     }
   ],
   [
@@ -410,12 +416,17 @@ export const itemsPackets: PacketStructures = [
     }
   ],
   [
+    // DEPRECATED / not the F-key emote path: this writes the client's LoadoutSlotInputAction
+    // subsystem, NOT the emote play path. F-key emotes are enabled by the 0xa105 ability grant
+    // (pGetEmoteAbilities) + availability (SendSelf.skinItems.emotes); this packet does not make
+    // hotkeys fire. Schema is RE-confirmed 3 x uint32 (kept correct for record/future use).
     "Items.SetEmoteItem",
     0xad1f,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 1 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 3154 }
+        { name: "unknownDword2", type: "uint32", defaultValue: 3154 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 }
       ]
     }
   ],
@@ -496,7 +507,7 @@ export const itemsPackets: PacketStructures = [
       fields: [
         { name: "itemCount", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "itemUseOption", type: "uint32", defaultValue: 0 },
         { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
         {
           name: "itemSubData",

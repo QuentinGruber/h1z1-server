@@ -81,6 +81,7 @@ httpServer.on("request", async function (req, res) {
         delete server.populationData;
         delete server.serverInfo;
         delete server.isDisabled;
+        delete server.secret;
       });
       res.writeHead(200, { "Content-Type": "text/json" });
       res.write(JSON.stringify(serversArray));

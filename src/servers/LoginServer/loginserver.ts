@@ -15,6 +15,8 @@ import { EventEmitter } from "node:events";
 
 import { SOEServer } from "../SoeServer/soeserver";
 import { ZoneConnectionManager } from "../LoginZoneConnection/zoneconnectionmanager";
+import { WsZoneConnectionManager } from "../LoginZoneConnection/wszoneconnectionmanager";
+import { ZoneConnectionMultiplexer } from "../LoginZoneConnection/zoneconnectionmultiplexer";
 import { LZConnectionClient } from "../LoginZoneConnection/shared/lzconnectionclient";
 import { LoginProtocol } from "../../protocols/loginprotocol";
 import { Db, MongoClient, WithId } from "mongodb";
@@ -39,7 +41,7 @@ import { Worker } from "node:worker_threads";
 import { FileHash, httpServerMessage } from "types/shared";
 import { LoginProtocol2016 } from "../../protocols/loginprotocol2016";
 import { crc_length_options } from "../../types/soeserver";
-import { DB_NAME, DEFAULT_CRYPTO_KEY, MAX_UINT32 } from "../../utils/constants";
+import { DB_NAME, DEFAULT_CRYPTO_KEY } from "../../utils/constants";
 import {
   LoginReply,
   CharacterSelectInfoReply,
@@ -118,7 +120,7 @@ export class LoginServer extends EventEmitter {
   private _httpServer!: Worker;
   _enableHttpServer: boolean;
   _httpServerPort: number = Number(process.env.HTTP_PORT ?? 80);
-  private _zoneConnectionManager!: ZoneConnectionManager;
+  private _zoneConnectionManager!: ZoneConnectionMultiplexer;
   private _zoneConnections: { [LZConnectionClientId: string]: number } = {};
   private _globalBroadcastAllowedZones: Set<number> = new Set(
     (process.env.GLOBAL_BROADCAST_SERVER_IDS || "")
@@ -211,7 +213,12 @@ export class LoginServer extends EventEmitter {
     });
 
     if (!this._soloMode) {
-      this._zoneConnectionManager = new ZoneConnectionManager(1110);
+      this._zoneConnectionManager = new ZoneConnectionMultiplexer([
+        new ZoneConnectionManager(1110),
+        new WsZoneConnectionManager(1110, (serverId, secret) =>
+          this.validateZoneSecret(serverId, secret)
+        )
+      ]);
 
       this._zoneConnectionManager.on(
         "data",
@@ -232,25 +239,40 @@ export class LoginServer extends EventEmitter {
                     `Received session request from ${client.address}:${client.port}`
                   );
                   let status = 0;
-                  const server = await this._db
-                    .collection(DB_COLLECTIONS.SERVERS)
-                    .findOne({ serverId: serverId, isDisabled: false });
-                  if (server) {
-                    const fullServerAddress = server.serverAddress;
-                    const serverAddress = fullServerAddress.split(":")[0];
-                    if (serverAddress) {
-                      const resolvedServerAddress = await resolveHostAddress(
-                        this._resolver,
-                        serverAddress
-                      );
-                      if (resolvedServerAddress.includes(client.address)) {
-                        status = 1;
+                  if ((client as any).authed) {
+                    status = 1;
+                  } else {
+                    const server = await this._db
+                      .collection(DB_COLLECTIONS.SERVERS)
+                      .findOne({ serverId: serverId, isDisabled: false });
+                    if (server) {
+                      const fullServerAddress = server.serverAddress;
+                      const serverAddress = fullServerAddress.split(":")[0];
+                      if (serverAddress) {
+                        const resolvedServerAddress = await resolveHostAddress(
+                          this._resolver,
+                          serverAddress
+                        );
+                        if (resolvedServerAddress.includes(client.address)) {
+                          status = 1;
+                        }
                       }
                     }
                   }
                   if (status === 1) {
                     debug(`ZoneConnection established`);
                     client.serverId = serverId;
+                    // evict any stale connection still mapped to this serverId
+                    // so getZoneConnectionClient can't pick a dead/wrong one
+                    for (const staleId in this._zoneConnections) {
+                      if (
+                        this._zoneConnections[staleId] == serverId &&
+                        staleId != client.clientId
+                      ) {
+                        this._zoneConnectionManager.dropClient(staleId);
+                        delete this._zoneConnections[staleId];
+                      }
+                    }
                     this._zoneConnections[client.clientId] = serverId;
                     await this.updateZoneServerVersion(serverId, h1emuVersion);
                     await this.updateZoneServerRuleSets(
@@ -433,11 +455,18 @@ export class LoginServer extends EventEmitter {
     return client;
   }
 
+  async validateZoneSecret(serverId: number, secret: string): Promise<boolean> {
+    const server = await this._db
+      .collection(DB_COLLECTIONS.SERVERS)
+      .findOne({ serverId, isDisabled: false });
+    return !!server?.secret && server.secret == secret;
+  }
+
   rejectZoneConnection(serverId: number, client: LZConnectionClient) {
     debug(
       `rejected connection serverId : ${serverId} address: ${client.address} `
     );
-    delete this._zoneConnectionManager._clients[client.clientId];
+    this._zoneConnectionManager.dropClient(client.clientId);
   }
 
   parseData(clientProtocol: string, data: Buffer) {
@@ -1378,21 +1407,11 @@ export class LoginServer extends EventEmitter {
   }
 
   getZoneConnectionClient(serverId: number): LZConnectionClient | null {
-    const zoneConnectionIndex = Object.values(this._zoneConnections).findIndex(
-      (e) => e === serverId
+    const clientId = Object.keys(this._zoneConnections).find(
+      (id) => this._zoneConnections[id] === serverId
     );
-    const zoneConnectionString = Object.keys(this._zoneConnections)[
-      zoneConnectionIndex
-    ];
-    if (zoneConnectionString) {
-      const [address, port] = zoneConnectionString.split(":");
-
-      const LZClient = new LZConnectionClient({ address, port: Number(port) });
-      // Hack since the loginserver doesn't have a serverId
-      LZClient.serverId = MAX_UINT32;
-      return LZClient;
-    }
-    return null;
+    if (!clientId) return null;
+    return this._zoneConnectionManager._clients[clientId] ?? null;
   }
 
   async askZone(

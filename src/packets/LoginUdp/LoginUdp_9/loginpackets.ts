@@ -417,18 +417,14 @@ const packets: any[] = [
     "TunnelAppPacketClientToServer",
     0x10,
     {
-      fields: [
-        /* loginTunnelPackets.ts */
-      ]
+      fields: [/* loginTunnelPackets.ts */]
     }
   ],
   [
     "TunnelAppPacketServerToClient",
     0x11,
     {
-      fields: [
-        /* loginTunnelPackets.ts */
-      ]
+      fields: [/* loginTunnelPackets.ts */]
     }
   ],
   ["CharacterTransferRequest", 0x12, {}],

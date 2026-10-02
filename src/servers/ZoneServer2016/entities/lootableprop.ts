@@ -280,7 +280,39 @@ export class LootableProp extends BaseLootableEntity {
     isInstant?: boolean
     /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
-    if (!client.searchedProps.includes(this)) {
+    if (
+      this.actorModelId == ModelIds.HOSPITAL_GROSSING_STATION &&
+      client.character.hasItem(Items.VIAL_H1Z1_B_INFECTED_BLOOD)
+    ) {
+      const requiredItemId = Items.VIAL_H1Z1_B_INFECTED_BLOOD;
+      const requiredCount = 1;
+      const inventoryCount =
+        client.character.getInventoryItemAmount(requiredItemId);
+
+      if (requiredCount > inventoryCount) {
+        return;
+      }
+
+      const itemsPassed: { itemDefinitionId: number; count: number }[] = [];
+      itemsPassed.push({
+        itemDefinitionId: Items.VIAL_H1Z1_B_PLASMA,
+        count: 5
+      });
+
+      const requiredItemInfo = {
+        itemDefinitionId: requiredItemId,
+        count: requiredCount
+      };
+      server.taskOption(
+        client,
+        15000,
+        StringIds.GROSSING_STATION,
+        requiredItemInfo,
+        itemsPassed
+      );
+      return;
+    }
+    if (!client.searchedProps.has(this)) {
       server.utilizeHudTimer(
         client,
         server.getItemDefinition(this.getContainer()?.itemDefinitionId)
@@ -289,7 +321,7 @@ export class LootableProp extends BaseLootableEntity {
         0,
         () => {
           super.OnPlayerSelect(server, client);
-          client.searchedProps.push(this);
+          client.searchedProps.add(this);
         }
       );
     } else {
@@ -304,7 +336,21 @@ export class LootableProp extends BaseLootableEntity {
       });
       return;
     }
-    if (client.searchedProps.includes(this)) {
+    if (this.actorModelId == ModelIds.HOSPITAL_GROSSING_STATION) {
+      if (client.character.hasItem(Items.VIAL_H1Z1_B_INFECTED_BLOOD)) {
+        server.sendData(client, "Command.InteractionString", {
+          guid: this.characterId,
+          stringId: StringIds.CREATE_H1Z1_B_PLASMA
+        });
+      } else {
+        server.sendData(client, "Command.InteractionString", {
+          guid: this.characterId,
+          stringId: StringIds.SEARCH
+        });
+      }
+      return;
+    }
+    if (client.searchedProps.has(this)) {
       server.sendData(client, "Command.InteractionString", {
         guid: this.characterId,
         stringId: StringIds.OPEN

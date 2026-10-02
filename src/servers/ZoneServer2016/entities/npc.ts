@@ -18,11 +18,13 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 import {
   getCurrentServerTimeWrapper,
   getDistance,
+  getDistanceSquared,
   logClientActionToMongo,
   metersToFeet
 } from "../../../utils/utils";
 import { DB_COLLECTIONS, KILL_TYPE } from "../../../utils/enums";
 import {
+  Effects,
   Items,
   MeleeTypes,
   NpcIds,
@@ -36,6 +38,7 @@ import { ChallengeType } from "../managers/challengemanager";
 import { ProjectileEntity } from "./projectileentity";
 import { JSM } from "../jsms/jsm";
 import { Factions } from "../jsms/factions";
+import { spawnGasCloudAt } from "../jsms/gasser.jsm";
 
 export abstract class Npc extends BaseFullCharacter {
   health: number;
@@ -258,9 +261,9 @@ export abstract class Npc extends BaseFullCharacter {
           client.character.metrics.zombiesKilled++;
         else client.character.metrics.wildlifeKilled++;
       }
-      for (const a in server._clients) {
-        const c = server._clients[a];
-        if (c.spawnedEntities.has(this)) {
+      const observers = server._entityObservers.get(this.characterId);
+      if (observers) {
+        for (const c of observers) {
           if (!c.isLoading) {
             server.sendData(c, "Character.StartMultiStateDeath", {
               data: {
@@ -286,12 +289,50 @@ export abstract class Npc extends BaseFullCharacter {
     }
 
     if (client) {
-      const damageRecord = await server.generateDamageRecord(
+      const damageRecord = server.generateDamageRecord(
         this.characterId,
         damageInfo,
         oldHealth
       );
       client.character.addCombatlogEntry(damageRecord);
+    }
+
+    if (
+      !this.isAlive &&
+      this.effectTags.includes(Effects.PFX_Char_Zombie_Gasser_Ambient)
+    ) {
+      const GASSER_DEATH_EXPLOSION_RANGE = 10;
+      const GASSER_DEATH_EXPLOSION_DAMAGE = Math.floor(10000 / 3);
+
+      this.removeEffectTag(Effects.PFX_Char_Zombie_Gasser_Ambient);
+
+      for (const character of Object.values(server._characters)) {
+        if (!character.isAlive) continue;
+        if (
+          getDistanceSquared(character.state.position, this.state.position) >
+          GASSER_DEATH_EXPLOSION_RANGE * GASSER_DEATH_EXPLOSION_RANGE
+        )
+          continue;
+
+        character.damage(server, {
+          entity: this.characterId,
+          damage: GASSER_DEATH_EXPLOSION_DAMAGE
+        });
+      }
+
+      server.sendCompositeEffectToAllInRange(
+        100,
+        this.characterId,
+        this.state.position,
+        Effects.PFX_Char_Zombie_Gasser_ExplosionGasCloud
+      );
+
+      // schedule body removal after ragdoll animation completes (~0.1 seconds)
+      setTimeout(() => {
+        server.deleteEntity(this.characterId, server._npcs);
+      }, 100);
+
+      spawnGasCloudAt(server, this.state.position, this.characterId);
     }
   }
 
@@ -525,15 +566,29 @@ export abstract class Npc extends BaseFullCharacter {
     );
   }
 
-  lookAt(targetPosition: Float32Array) {
+  /**
+   * Turns the NPC to face a target, clamped to maxTurnRateRadPerSec so a
+   * stationary NPC (e.g. attacking a player it can't reach, like one on top
+   * of a car) doesn't snap its facing instantly every AI tick.
+   */
+  lookAt(
+    targetPosition: Float32Array,
+    dt: number = 0,
+    maxTurnRateRadPerSec: number = Math.PI
+  ) {
     const dx = targetPosition[0] - this.state.position[0];
     const dz = targetPosition[2] - this.state.position[2];
     const dy = targetPosition[1] - this.state.position[1];
     const horizontalDist = Math.sqrt(dx * dx + dz * dz);
-    const orientation = Math.atan2(dx, dz);
-    const prevOrientation = this.state.yaw ?? orientation;
-    let angleChange = orientation - prevOrientation;
+    const targetOrientation = Math.atan2(dx, dz);
+    const prevOrientation = this.state.yaw ?? targetOrientation;
+    let angleChange = targetOrientation - prevOrientation;
     angleChange = Math.atan2(Math.sin(angleChange), Math.cos(angleChange));
+    if (dt > 0) {
+      const maxStep = maxTurnRateRadPerSec * dt;
+      angleChange = Math.max(-maxStep, Math.min(maxStep, angleChange));
+    }
+    const orientation = prevOrientation + angleChange;
     this.state.yaw = orientation;
     const frontTilt = Math.atan2(dy, horizontalDist);
     const sinO = Math.sin(orientation);

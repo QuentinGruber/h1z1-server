@@ -201,7 +201,10 @@ export class ConstructionDoor extends DoorEntity {
         break;
     }
     if (slotMap) parent.clearSlot(this.getSlotNumber(), slotMap);
-    if (updateSecured) parent.updateSecuredState(server);
+    if (updateSecured) {
+      parent.updateSecuredState(server);
+      server.constructionManager.reevalShelterEntityVisibility(server, parent);
+    }
     return deleted;
   }
 
@@ -321,6 +324,10 @@ export class ConstructionDoor extends DoorEntity {
         const parent = this.getParent(server);
         if (parent) {
           parent.updateSecuredState(server);
+          server.constructionManager.reevalShelterEntityVisibility(
+            server,
+            parent
+          );
           // spawn hidden characters immediately after door opens
           const allowedConstruction = [
             Items.SHELTER,
@@ -335,13 +342,18 @@ export class ConstructionDoor extends DoorEntity {
             this.isOpen &&
             allowedConstruction.includes(parent.itemDefinitionId)
           ) {
-            for (const a in server._clients) {
-              const client = server._clients[a];
-              if (client.character.isHidden == parent.characterId)
-                server.constructionManager.constructionPermissionsManager(
-                  server,
-                  client
-                );
+            // a hidden character stays subscribed to (spawned into) the
+            // shelter it's hiding in, so observers of the parent are the
+            // only clients that can possibly match isHidden below
+            const observers = server._entityObservers.get(parent.characterId);
+            if (observers) {
+              for (const client of observers) {
+                if (client.character.isHidden == parent.characterId)
+                  server.constructionManager.constructionPermissionsManager(
+                    server,
+                    client
+                  );
+              }
             }
           }
         }

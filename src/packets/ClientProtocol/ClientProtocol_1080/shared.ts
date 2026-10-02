@@ -392,16 +392,16 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
 
   if (obj.flags & 0x100) {
     // either the previous one i meantioned is rotation delta or this one cause rotation is almost neved sent by client
-    const unknown12_float = [];
+    const unknownVector1 = [];
     v = readSignedIntWith2bitLengthValue(data, offset);
-    unknown12_float[0] = v.value / 100;
+    unknownVector1[0] = v.value / 100;
     offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
-    unknown12_float[1] = v.value / 100;
+    unknownVector1[1] = v.value / 100;
     offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
-    unknown12_float[2] = v.value / 100;
-    obj["unknown12_float"] = unknown12_float;
+    unknownVector1[2] = v.value / 100;
+    obj["unknownVector1"] = unknownVector1;
     offset += v.length;
   }
 
@@ -448,7 +448,7 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
     offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[3] = v.value / 10000;
-
+    offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[4] = v.value / 10000;
     offset += v.length;
@@ -461,7 +461,7 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
     v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[7] = v.value / 10000;
     offset += v.length;
-    obj["PosAndRot"] = rotationEul;
+    obj["posAndRot"] = rotationEul;
   }
   return {
     value: obj,
@@ -550,16 +550,16 @@ export function readPositionUpdateDataAndCheckLength(
 
   if (obj.flags & 0x100) {
     // either the previous one i meantioned is rotation delta or this one cause rotation is almost neved sent by client
-    const unknown12_float = [];
+    const unknownVector1 = [];
     v = readSignedIntWith2bitLengthValue(data, offset);
-    unknown12_float[0] = v.value / 100;
+    unknownVector1[0] = v.value / 100;
     offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
-    unknown12_float[1] = v.value / 100;
+    unknownVector1[1] = v.value / 100;
     offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
-    unknown12_float[2] = v.value / 100;
-    obj["unknown12_float"] = unknown12_float;
+    unknownVector1[2] = v.value / 100;
+    obj["unknownVector1"] = unknownVector1;
     offset += v.length;
   }
 
@@ -606,7 +606,7 @@ export function readPositionUpdateDataAndCheckLength(
     offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[3] = v.value / 10000;
-
+    offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[4] = v.value / 10000;
     offset += v.length;
@@ -621,7 +621,7 @@ export function readPositionUpdateDataAndCheckLength(
     offset += v.length;
     rotationEul[8] = data.readUint8(offset);
     offset += 1;
-    obj["PosAndRot"] = rotationEul;
+    obj["posAndRot"] = rotationEul;
   }
   if (offset != data.length) {
     console.error("Wrong positionUpdate buffer", obj);
@@ -637,123 +637,106 @@ export function readPositionUpdateDataAndCheckLength(
 }
 
 export function packPositionUpdateData(obj: any) {
-  let data = Buffer.allocUnsafe(7),
-    flags = 0,
-    v;
-
-  data.writeUInt32LE(obj["sequenceTime"], 2);
-  data.writeUInt8(obj["unknown3_int8"], 6);
+  // Fields are collected into `chunks` and joined with a single Buffer.concat
+  // at the end instead of concatenating on every field (which recopies
+  // everything written so far on every call).
+  let flags = 0;
+  const chunks: Buffer[] = [];
+  let v: Buffer;
 
   if ("stance" in obj) {
     flags |= 1;
-    v = packUnsignedIntWith2bitLengthValue(obj["stance"]);
-    data = Buffer.concat([data, v]);
+    chunks.push(packUnsignedIntWith2bitLengthValue(obj["stance"]));
   }
 
   if ("position" in obj) {
     flags |= 2;
-    v = packSignedIntWith2bitLengthValue(obj["position"][0] * 100);
-    data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["position"][1] * 100);
-    data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["position"][2] * 100);
-    data = Buffer.concat([data, v]);
+    chunks.push(packSignedIntWith2bitLengthValue(obj["position"][0] * 100));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["position"][1] * 100));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["position"][2] * 100));
   }
 
   if ("orientation" in obj) {
     flags |= 0x20;
     v = Buffer.allocUnsafe(4);
     v.writeFloatLE(obj["orientation"], 0);
-    data = Buffer.concat([data, v]);
+    chunks.push(v);
   }
 
   if ("frontTilt" in obj) {
     flags |= 0x40;
-    v = packSignedIntWith2bitLengthValue(obj["frontTilt"] * 100);
-    data = Buffer.concat([data, v]);
+    chunks.push(packSignedIntWith2bitLengthValue(obj["frontTilt"] * 100));
   }
 
   if ("sideTilt" in obj) {
     flags |= 0x80;
-    v = packSignedIntWith2bitLengthValue(obj["sideTilt"] * 100);
-    data = Buffer.concat([data, v]);
+    chunks.push(packSignedIntWith2bitLengthValue(obj["sideTilt"] * 100));
   }
 
   if ("angleChange" in obj) {
     flags |= 4;
-    v = packSignedIntWith2bitLengthValue(obj["angleChange"] * 100);
-    data = Buffer.concat([data, v]);
+    chunks.push(packSignedIntWith2bitLengthValue(obj["angleChange"] * 100));
   }
 
   if ("verticalSpeed" in obj) {
     flags |= 8;
-    v = packSignedIntWith2bitLengthValue(obj["verticalSpeed"] * 100);
-    data = Buffer.concat([data, v]);
+    chunks.push(packSignedIntWith2bitLengthValue(obj["verticalSpeed"] * 100));
   }
 
   if ("horizontalSpeed" in obj) {
     flags |= 0x10;
-    v = packSignedIntWith2bitLengthValue(obj["horizontalSpeed"] * 10);
-    data = Buffer.concat([data, v]);
+    chunks.push(packSignedIntWith2bitLengthValue(obj["horizontalSpeed"] * 10));
   }
 
-  if ("unknown12_float" in obj) {
+  if ("unknownVector1" in obj) {
     flags |= 0x100;
-    v = packSignedIntWith2bitLengthValue(obj["unknown12_float"][0] * 100);
-    data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["unknown12_float"][1] * 100);
-    data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["unknown12_float"][2] * 100);
-    data = Buffer.concat([data, v]);
+    chunks.push(
+      packSignedIntWith2bitLengthValue(obj["unknownVector1"][0] * 100)
+    );
+    chunks.push(
+      packSignedIntWith2bitLengthValue(obj["unknownVector1"][1] * 100)
+    );
+    chunks.push(
+      packSignedIntWith2bitLengthValue(obj["unknownVector1"][2] * 100)
+    );
   }
 
   if ("rotationRaw" in obj) {
     flags |= 0x200;
-    v = packSignedIntWith2bitLengthValue(obj["rotationRaw"][0] * 100);
-    data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["rotationRaw"][1] * 100);
-    data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["rotationRaw"][2] * 100);
-    data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["rotationRaw"][3] * 100);
-    data = Buffer.concat([data, v]);
+    chunks.push(packSignedIntWith2bitLengthValue(obj["rotationRaw"][0] * 100));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["rotationRaw"][1] * 100));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["rotationRaw"][2] * 100));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["rotationRaw"][3] * 100));
   }
 
   if ("direction" in obj) {
     flags |= 0x400;
-    v = packSignedIntWith2bitLengthValue(obj["direction"] * 10);
-    data = Buffer.concat([data, v]);
+    chunks.push(packSignedIntWith2bitLengthValue(obj["direction"] * 10));
   }
 
   if ("engineRPM" in obj) {
     flags |= 0x800;
-    v = packSignedIntWith2bitLengthValue(obj["engineRPM"] * 10);
-    data = Buffer.concat([data, v]);
+    chunks.push(packSignedIntWith2bitLengthValue(obj["engineRPM"] * 10));
   }
 
-  if ("PosAndRot" in obj) {
+  if ("posAndRot" in obj) {
     flags |= 0x1000;
-    v = packSignedIntWith2bitLengthValue(obj["PosAndRot"][0] * 10000);
-    data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["PosAndRot"][1] * 10000);
-    data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["PosAndRot"][2] * 10000);
-    data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["PosAndRot"][3] * 10000);
-    data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["PosAndRot"][4] * 10000);
-    data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["PosAndRot"][5] * 10000);
-    data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["PosAndRot"][6] * 10000);
-    data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["PosAndRot"][7] * 10000);
-    data = Buffer.concat([data, v]);
+    chunks.push(packSignedIntWith2bitLengthValue(obj["posAndRot"][0] * 10000));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["posAndRot"][1] * 10000));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["posAndRot"][2] * 10000));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["posAndRot"][3] * 10000));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["posAndRot"][4] * 10000));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["posAndRot"][5] * 10000));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["posAndRot"][6] * 10000));
+    chunks.push(packSignedIntWith2bitLengthValue(obj["posAndRot"][7] * 10000));
   }
 
-  data.writeUInt16LE(flags, 0);
+  const header = Buffer.allocUnsafe(7);
+  header.writeUInt16LE(flags, 0);
+  header.writeUInt32LE(obj["sequenceTime"], 2);
+  header.writeUInt8(obj["unknown3_int8"], 6);
 
-  return data;
+  return Buffer.concat([header, ...chunks]);
 }
 
 export interface MultiDeathData {
@@ -1233,12 +1216,15 @@ export const lightWeightPcSchema: PacketFields = [
     type: "schema",
     fields: identitySchema
   },
-  { name: "unknownByte1", type: "uint8", defaultValue: /*2*/ 2 }, // one of these messes with fullcharacter packet
+  // required lightweight-spawn init value the LightweightToFullPc (0xDA) full-data applier reconciles; do not zero
+  { name: "unknownByte1", type: "uint8", defaultValue: 2 },
   { name: "actorModelId", type: "uint32", defaultValue: 9469 },
-  { name: "unknownDword1", type: "uint32", defaultValue: /*270*/ 270 }, // one of these messes with fullcharacter packet
+  // the character's active profile id (ClientPcData.activeProfileId); the client passes it to ProxiedObject::SetProfileId (vtable slot 32)
+  { name: "profileId", type: "uint32", defaultValue: 270 },
   { name: "position", type: "floatvector3", defaultValue: [0, 80, 0] },
   { name: "rotation", type: "floatvector4", defaultValue: [0, 80, 0, 1] },
-  { name: "unknownFloat1", type: "float", defaultValue: /*4.7*/ 4.7 }, // one of these messes with fullcharacter packet
+  // required lightweight-spawn init value the LightweightToFullPc (0xDA) full-data applier reconciles; do not zero
+  { name: "unknownFloat1", type: "float", defaultValue: 4.7 },
   {
     name: "mountGuid",
     type: "uint64string",
@@ -1250,7 +1236,8 @@ export const lightWeightPcSchema: PacketFields = [
   { name: "effectId", type: "uint32", defaultValue: 0 },
   { name: "unknownDword4", type: "uint32", defaultValue: 0 },
   {
-    name: "unknownQword1", // characterstate?
+    // client copies this into the ProxiedCharacter spawn descriptor as the initial character state
+    name: "initialCharacterState",
     type: "uint64string",
     defaultValue: "0x0100000000100000"
   },
@@ -1474,9 +1461,9 @@ export function packItemSubData(obj: any) {
   data.writeUInt8(obj["hasSubData"] ? 1 : 0, 0);
   if (!obj.hasSubData) return data;
   const v = Buffer.alloc(4);
-  v.writeUInt32LE(obj["unknownDword1"], 0);
+  v.writeUInt32LE(obj["subDataType"], 0);
   data = Buffer.concat([data, v]);
-  if (obj.unknownDword1 <= 0) return data;
+  if (obj.subDataType !== 1) return data; // client reads unknownData1 only when subDataType == 1
   const unknownData1Obj = DataSchema.pack(
     unknownData1Schema,
     obj["unknownData1"]
@@ -1517,8 +1504,8 @@ export function packItemWeaponData(obj: any) {
               defaultValue: [],
               fields: [
                 { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                { name: "firemodeIndex", type: "uint32", defaultValue: 0 },
+                { name: "firemodeId", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword3", type: "uint32", defaultValue: 0 }
               ]
             }
@@ -1614,7 +1601,7 @@ function packFullNPCRemoteWeaponsData(obj: any) {
           ]
         },
         {
-          name: "remoteWeaponExtra",
+          name: "remoteWeaponsExtra",
           type: "array",
           defaultValue: {},
           fields: [
@@ -1845,12 +1832,12 @@ export const remoteWeaponSchema: PacketFields = [
         defaultValue: [],
         fields: [
           {
-            name: "unknownDword1",
+            name: "firemodeIndex",
             type: "uint32",
             defaultValue: 0
           },
           {
-            name: "unknownDword2",
+            name: "firemodeId",
             type: "uint32",
             defaultValue: 0
           }
@@ -1909,8 +1896,8 @@ export const remoteWeaponSchema: PacketFields = [
 ];
 
 export const remoteWeaponExtraSchema: PacketFields = [
-  { name: "unknownByte1", type: "int8", defaultValue: 0 },
-  { name: "unknownByte2", type: "int8", defaultValue: 0 },
+  { name: "firegroupIndex", type: "int8", defaultValue: 0 },
+  { name: "firemodeIndex", type: "int8", defaultValue: 0 },
   { name: "unknownByte3", type: "int8", defaultValue: 0 },
   { name: "unknownByte4", type: "int8", defaultValue: 0 },
   { name: "unknownByte5", type: "uint8", defaultValue: 0 },
@@ -2638,7 +2625,7 @@ export const fullPcSchema: PacketFields = [
     fields: statSchema
   },
   {
-    name: "remoteWeaponExtra",
+    name: "remoteWeaponsExtra",
     type: "array",
     defaultValue: {},
     fields: [
@@ -2658,8 +2645,6 @@ export const respawnLocationSchema: PacketFields = [
   { name: "iconId2", type: "uint32", defaultValue: 0 },
   { name: "respawnTotalTime", type: "uint32", defaultValue: 0 },
   { name: "respawnTimeMs", type: "uint32", defaultValue: 0 },
-  { name: "nameId", type: "uint32", defaultValue: 0 },
-  { name: "distance", type: "float", defaultValue: 0.0 },
   { name: "unknownByte1", type: "uint8", defaultValue: 0 },
   { name: "unknownByte2", type: "uint8", defaultValue: 0 },
   {
@@ -2729,7 +2714,7 @@ export const skyData: PacketFields = [
   { name: "windDirectionY", type: "float", defaultValue: 0 },
   { name: "windDirectionZ", type: "float", defaultValue: 0 },
   { name: "wind", type: "float", defaultValue: 0 },
-  { name: "rainminStrength", type: "float", defaultValue: 0 },
+  { name: "rainMinStrength", type: "float", defaultValue: 0 },
   { name: "rainRampupTimeSeconds", type: "float", defaultValue: 0 },
   { name: "cloudFile", type: "string", defaultValue: "" },
   { name: "stratusCloudTiling", type: "float", defaultValue: 0 },
@@ -2819,7 +2804,7 @@ export const itemDefinitionSchema: PacketFields = [
       { bit: 1, name: "FLAG_QUICK_USE", defaultValue: 0 }, // does nothing
       { bit: 2, name: "FLAG_NO_DRAG_DROP", defaultValue: 0 },
       { bit: 3, name: "FLAG_ACCOUNT_SCOPE", defaultValue: 0 }, // does nothing
-      { bit: 4, name: "FLAG_CAN_EQUIP", defaultValue: 0 }, // does nothing
+      { bit: 4, name: "FLAG_CAN_EQUIP", defaultValue: 0 }, // client-dead: READ-BUT-IGNORED — equip eligibility is driven by ACTIVE/PASSIVE_EQUIP_SLOT_ID, NOT this bit (per RE)
       { bit: 5, name: "bit5", defaultValue: 0 }, // does nothing
       { bit: 6, name: "bit6", defaultValue: 0 }, // does nothing
       { bit: 7, name: "bit7", defaultValue: 0 } // does nothing
@@ -2831,8 +2816,8 @@ export const itemDefinitionSchema: PacketFields = [
   { name: "IMAGE_SET_ID", type: "uint32", defaultValue: 0 },
   { name: "TINT_ID", type: "uint32", defaultValue: 0 },
   { name: "HUD_IMAGE_SET_ID", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword8", type: "uint32", defaultValue: 921 },
-  { name: "unknownDword9", type: "uint32", defaultValue: 922 },
+  { name: "unknownDword8", type: "uint32", defaultValue: 921 }, // client-dead: READ-BUT-IGNORED (Planetside/ForgeLight-inherited); kept for wire order
+  { name: "unknownDword9", type: "uint32", defaultValue: 922 }, // client-dead: READ-BUT-IGNORED (constructor-only); kept for wire order
   { name: "COST", type: "uint32", defaultValue: 0 },
   { name: "ITEM_CLASS", type: "uint32", defaultValue: 0 },
   { name: "PROFILE_OVERRIDE", type: "uint32", defaultValue: 0 },
@@ -2871,18 +2856,18 @@ export const itemDefinitionSchema: PacketFields = [
   { name: "CLIENT_USE_REQUIREMENT_ID", type: "uint32", defaultValue: 0 },
   { name: "OVERRIDE_APPEARANCE", type: "string", defaultValue: "" },
   { name: "OVERRIDE_CAMERA_ID", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword42", type: "uint32", defaultValue: 28 },
-  { name: "unknownDword43", type: "uint32", defaultValue: 28 },
-  { name: "unknownDword44", type: "uint32", defaultValue: 28 },
+  { name: "unknownDword42", type: "uint32", defaultValue: 28 }, // client-dead: READ-BUT-IGNORED (constructor-only); kept for wire order
+  { name: "unknownDword43", type: "uint32", defaultValue: 28 }, // client-dead: READ-BUT-IGNORED (Planetside/ForgeLight-inherited); kept for wire order
+  { name: "unknownDword44", type: "uint32", defaultValue: 28 }, // client-dead: READ-BUT-IGNORED (constructor-only); kept for wire order
   { name: "BULK", type: "uint32", defaultValue: 0 },
   { name: "ACTIVE_EQUIP_SLOT_ID", type: "uint32", defaultValue: 0 },
   { name: "PASSIVE_EQUIP_SLOT_ID", type: "uint32", defaultValue: 0 },
   { name: "PASSIVE_EQUIP_SLOT_GROUP_ID", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword49", type: "uint32", defaultValue: 927 },
+  { name: "unknownDword49", type: "uint32", defaultValue: 927 }, // client-dead: READ-BUT-IGNORED (constructor-only); kept for wire order
   { name: "GRINDER_REWARD_SET_ID", type: "uint32", defaultValue: 0 },
   { name: "BUILD_BAR_GROUP_ID", type: "uint32", defaultValue: 0 },
-  { name: "unknownString7", type: "string", defaultValue: "testStringAAA" },
-  { name: "unknownBoolean1", type: "boolean", defaultValue: true },
+  { name: "unknownString7", type: "string", defaultValue: "testStringAAA" }, // client-dead: READ-BUT-IGNORED (constructor-only); kept for wire order
+  { name: "unknownBoolean1", type: "boolean", defaultValue: true }, // client-dead: READ-BUT-IGNORED (def-level, constructor-only; distinct from ItemInstance.unknownBoolean1); kept for wire order
   { name: "IS_ARMOR", type: "boolean", defaultValue: false },
   { name: "unknownDword52", type: "uint32", defaultValue: 28 },
   { name: "PARAM1", type: "uint32", defaultValue: 0 },
@@ -2890,7 +2875,8 @@ export const itemDefinitionSchema: PacketFields = [
   { name: "PARAM3", type: "uint32", defaultValue: 0 },
   { name: "STRING_PARAM1", type: "string", defaultValue: "" },
   { name: "UI_MODEL_CAMERA_ID", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword57", type: "uint32", defaultValue: 932 },
+  { name: "unknownDword57", type: "uint32", defaultValue: 932 }, // client USES this (UI-column value with ITEM_CLASS fallback) per RE — NOT dead; kept as-is
+
   { name: "SCRAP_VALUE_OVERRIDE", type: "int32", defaultValue: 0 }, // can be -1
   {
     name: "stats",

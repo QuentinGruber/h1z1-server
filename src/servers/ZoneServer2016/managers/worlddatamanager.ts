@@ -75,6 +75,11 @@ export interface WorldArg {
   traps: TrapSaveData[];
   constructions: ConstructionParentSaveData[];
   vehicles: FullVehicleSaveData[];
+  /** #1467: foundation characterIds that failed to serialize this save; their
+   * existing docs are retained (not pruned by deleteMany) to avoid permanent loss. */
+  retainConstructionIds?: string[];
+  /** #1467: world-lootable characterIds that failed to serialize this save; retained. */
+  retainWorldConstructionIds?: string[];
 }
 export interface FetchedWorldData {
   constructionParents: ConstructionParentSaveData[];
@@ -302,8 +307,14 @@ export class WorldDataManager {
     );
     await this.saveServerData(world.lastGuidItem);
     await this.saveCharacters(world.characters);
-    await this.saveConstructionData(world.constructions);
-    await this.saveWorldFreeplaceConstruction(world.worldConstructions);
+    await this.saveConstructionData(
+      world.constructions,
+      world.retainConstructionIds
+    );
+    await this.saveWorldFreeplaceConstruction(
+      world.worldConstructions,
+      world.retainWorldConstructionIds
+    );
     await this.saveCropData(world.crops);
     await this.saveTrapData(world.traps);
     console.timeEnd("WDM: saveWorld");
@@ -786,52 +797,95 @@ export class WorldDataManager {
     parent: ConstructionChildEntity,
     entityData: ConstructionChildSaveData
   ) {
-    Object.values(entityData.occupiedWallSlots).forEach((wallData) => {
-      let wall: ConstructionChildEntity | ConstructionDoor;
-      if ("occupiedWallSlots" in wallData) {
-        wall = this.loadConstructionChildEntity(server, wallData);
-      } else {
-        wall = this.loadConstructionDoorEntity(server, wallData);
-      }
-      if (!parent.setWallSlot(server, wall)) {
+    // #1467: tolerate a missing slot map (schema drift / partial or older-schema
+    // write) via `?? {}`, and load each child inside its own try/catch so a single
+    // corrupt child degrades only itself. Without this, a throw here propagates to
+    // loadConstructionParentEntities' per-foundation catch, which silently discards
+    // the ENTIRE foundation (every gate/shelter/loot under it) — after which
+    // saveConstructionData's deleteMany erases its doc permanently.
+    Object.values(entityData.occupiedWallSlots ?? {}).forEach((wallData) => {
+      try {
+        let wall: ConstructionChildEntity | ConstructionDoor;
+        if ("occupiedWallSlots" in wallData) {
+          wall = this.loadConstructionChildEntity(server, wallData);
+        } else {
+          wall = this.loadConstructionDoorEntity(server, wallData);
+        }
+        if (!parent.setWallSlot(server, wall)) {
+          console.error(
+            `[WDM] Wall slot registration failed for ${wall.characterId} (item ${wall.itemDefinitionId}, slot "${wall.slot}") on parent ${parent.characterId} — falling back to freeplace`
+          );
+          parent.addFreeplaceConstruction(wall);
+        }
+      } catch (e) {
         console.error(
-          `[WDM] Wall slot registration failed for ${wall.characterId} (item ${wall.itemDefinitionId}, slot "${wall.slot}") on parent ${parent.characterId} — falling back to freeplace`
+          `[WDM] Failed to load a wall-slot child on parent ${parent.characterId} — skipping just this child`,
+          e
         );
-        parent.addFreeplaceConstruction(wall);
       }
     });
-    Object.values(entityData.occupiedUpperWallSlots).forEach((wallData) => {
-      const wall = this.loadConstructionChildEntity(server, wallData);
-      if (!parent.setWallSlot(server, wall)) {
-        console.error(
-          `[WDM] Upper wall slot registration failed for ${wall.characterId} (item ${wall.itemDefinitionId}, slot "${wall.slot}") on parent ${parent.characterId} — falling back to freeplace`
-        );
-        parent.addFreeplaceConstruction(wall);
+    Object.values(entityData.occupiedUpperWallSlots ?? {}).forEach(
+      (wallData) => {
+        try {
+          const wall = this.loadConstructionChildEntity(server, wallData);
+          if (!parent.setWallSlot(server, wall)) {
+            console.error(
+              `[WDM] Upper wall slot registration failed for ${wall.characterId} (item ${wall.itemDefinitionId}, slot "${wall.slot}") on parent ${parent.characterId} — falling back to freeplace`
+            );
+            parent.addFreeplaceConstruction(wall);
+          }
+        } catch (e) {
+          console.error(
+            `[WDM] Failed to load an upper-wall-slot child on parent ${parent.characterId} — skipping just this child`,
+            e
+          );
+        }
       }
-    });
-    Object.values(entityData.occupiedShelterSlots).forEach((shelterData) => {
-      const shelter = this.loadConstructionChildEntity(server, shelterData);
-      if (!parent.setShelterSlot(server, shelter)) {
-        console.error(
-          `[WDM] Shelter slot registration failed for ${shelter.characterId} (item ${shelter.itemDefinitionId}, slot "${shelter.slot}") on parent ${parent.characterId} — falling back to freeplace`
-        );
-        parent.addFreeplaceConstruction(shelter);
+    );
+    Object.values(entityData.occupiedShelterSlots ?? {}).forEach(
+      (shelterData) => {
+        try {
+          const shelter = this.loadConstructionChildEntity(server, shelterData);
+          if (!parent.setShelterSlot(server, shelter)) {
+            console.error(
+              `[WDM] Shelter slot registration failed for ${shelter.characterId} (item ${shelter.itemDefinitionId}, slot "${shelter.slot}") on parent ${parent.characterId} — falling back to freeplace`
+            );
+            parent.addFreeplaceConstruction(shelter);
+          }
+        } catch (e) {
+          console.error(
+            `[WDM] Failed to load a shelter-slot child on parent ${parent.characterId} — skipping just this child`,
+            e
+          );
+        }
       }
-    });
-    Object.values(entityData.freeplaceEntities).forEach((freeplaceData) => {
-      let freeplace:
-        | ConstructionChildEntity
-        | ConstructionDoor
-        | LootableConstructionEntity;
-      if ("occupiedWallSlots" in freeplaceData) {
-        freeplace = this.loadConstructionChildEntity(server, freeplaceData);
-      } else if ("passwordHash" in freeplaceData) {
-        freeplace = this.loadConstructionDoorEntity(server, freeplaceData);
-      } else {
-        freeplace = this.loadLootableConstructionEntity(server, freeplaceData);
+    );
+    Object.values(entityData.freeplaceEntities ?? {}).forEach(
+      (freeplaceData) => {
+        try {
+          let freeplace:
+            | ConstructionChildEntity
+            | ConstructionDoor
+            | LootableConstructionEntity;
+          if ("occupiedWallSlots" in freeplaceData) {
+            freeplace = this.loadConstructionChildEntity(server, freeplaceData);
+          } else if ("passwordHash" in freeplaceData) {
+            freeplace = this.loadConstructionDoorEntity(server, freeplaceData);
+          } else {
+            freeplace = this.loadLootableConstructionEntity(
+              server,
+              freeplaceData
+            );
+          }
+          parent.addFreeplaceConstruction(freeplace);
+        } catch (e) {
+          console.error(
+            `[WDM] Failed to load a freeplace child on parent ${parent.characterId} — skipping just this child`,
+            e
+          );
+        }
       }
-      parent.addFreeplaceConstruction(freeplace);
-    });
+    );
   }
 
   static loadConstructionChildEntity(
@@ -886,33 +940,119 @@ export class WorldDataManager {
 
     this.loadConstructionChildSlots(server, foundation, entityData);
 
-    Object.values(entityData.occupiedExpansionSlots).forEach(
+    Object.values(entityData.occupiedExpansionSlots ?? {}).forEach(
       (expansionData) => {
-        const expansion = WorldDataManager.loadConstructionParentEntity(
-          server,
-          expansionData
-        );
-        if (!foundation.setExpansionSlot(expansion)) {
-          const slotNum = expansion.getSlotNumber();
-          console.error(
-            `[WDM] Failed to register expansion slot "${expansion.slot}" (${expansion.characterId}) onto foundation ${foundation.characterId} — slot data may be corrupted`
+        try {
+          const expansion = WorldDataManager.loadConstructionParentEntity(
+            server,
+            expansionData
           );
-          if (slotNum > 0) {
-            foundation.occupiedExpansionSlots[slotNum] = expansion;
+          if (!foundation.setExpansionSlot(expansion)) {
+            const slotNum = expansion.getSlotNumber();
             console.error(
-              `[WDM] Force-inserted expansion at slot ${slotNum} to prevent data loss`
+              `[WDM] Failed to register expansion slot "${expansion.slot}" (${expansion.characterId}) onto foundation ${foundation.characterId} — slot data may be corrupted`
             );
+            // #1467 (H4): only force-insert into a genuinely EMPTY slot — never
+            // clobber an already-registered expansion (that orphans it). If the slot
+            // number is unusable (0/garbled) or already taken, re-home this
+            // expansion's children onto the foundation so its shelters/gates/loot
+            // stay reachable from the save graph (the slot-less shell can't persist).
+            if (slotNum > 0 && !foundation.occupiedExpansionSlots[slotNum]) {
+              foundation.occupiedExpansionSlots[slotNum] = expansion;
+              console.error(
+                `[WDM] Force-inserted expansion at slot ${slotNum} to prevent data loss`
+              );
+            } else {
+              console.error(
+                `[WDM] Re-homing expansion ${expansion.characterId} children onto foundation ${foundation.characterId} (slot ${slotNum} unusable/occupied) to prevent data loss`
+              );
+              WorldDataManager.rehomeChildrenToFoundation(
+                server,
+                foundation,
+                expansion
+              );
+            }
           }
+        } catch (e) {
+          console.error(
+            `[WDM] Failed to load an expansion on foundation ${foundation.characterId} — skipping just this expansion`,
+            e
+          );
         }
       }
     );
 
-    Object.values(entityData.occupiedRampSlots).forEach((rampData) => {
-      const ramp = this.loadConstructionChildEntity(server, rampData);
-      foundation.setRampSlot(ramp);
+    Object.values(entityData.occupiedRampSlots ?? {}).forEach((rampData) => {
+      try {
+        const ramp = this.loadConstructionChildEntity(server, rampData);
+        if (!foundation.setRampSlot(ramp)) {
+          // #1467 (H5): the ramp/stairs loop was the only load slot loop with no
+          // fallback; a collision/invalid slot left it orphaned (only in
+          // _constructionSimple) and dropped on the next save. Re-home to freeplace.
+          console.error(
+            `[WDM] Ramp slot registration failed for ${ramp.characterId} (item ${ramp.itemDefinitionId}, slot "${ramp.slot}") on foundation ${foundation.characterId} — falling back to freeplace`
+          );
+          foundation.addFreeplaceConstruction(ramp);
+        }
+      } catch (e) {
+        console.error(
+          `[WDM] Failed to load a ramp on foundation ${foundation.characterId} — skipping just this ramp`,
+          e
+        );
+      }
     });
     foundation.updateSecuredState(server);
     return foundation;
+  }
+
+  /**
+   * #1467 (H4): move a construction entity's direct children onto the given
+   * foundation's freeplaceEntities so they stay reachable from the save graph, then
+   * drop the now-childless shell from the world dictionary. Used at load time when a
+   * child-parent (e.g. an expansion) cannot be placed into a slot, so its
+   * shelters/gates/loot are preserved instead of orphaned. Nested subtrees follow
+   * automatically (a re-homed shelter is serialized with its own children). A
+   * child-parent that itself nests expansions (only reachable from corrupt/garbled
+   * slot data) is drained recursively so those subtrees are re-homed too; `seen`
+   * guards against a cyclic shell graph.
+   */
+  static rehomeChildrenToFoundation(
+    server: ZoneServer2016,
+    foundation: ConstructionParentEntity,
+    entity: ConstructionParentEntity,
+    seen: Set<string> = new Set()
+  ) {
+    if (seen.has(entity.characterId)) return;
+    seen.add(entity.characterId);
+    const children: Array<
+      ConstructionChildEntity | ConstructionDoor | LootableConstructionEntity
+    > = [
+      ...Object.values(entity.occupiedWallSlots ?? {}),
+      ...Object.values(entity.occupiedUpperWallSlots ?? {}),
+      ...Object.values(entity.occupiedShelterSlots ?? {}),
+      ...Object.values(entity.occupiedRampSlots ?? {}),
+      ...Object.values(entity.freeplaceEntities ?? {})
+    ];
+    for (const child of children) {
+      child.parentObjectCharacterId = foundation.characterId;
+      foundation.freeplaceEntities[child.characterId] = child;
+    }
+    // a child-parent shell can itself hold expansions (only via corrupt slot data,
+    // since in-game only a FOUNDATION authorizes expansions); drain each so their
+    // structures/loot are re-homed too instead of orphaned under the deleted shell.
+    for (const expansion of Object.values(
+      entity.occupiedExpansionSlots ?? {}
+    )) {
+      WorldDataManager.rehomeChildrenToFoundation(
+        server,
+        foundation,
+        expansion,
+        seen
+      );
+    }
+    // the shell has no valid slot, so it cannot be persisted — remove it rather
+    // than leaving an unsaveable orphan live in the foundation dictionary.
+    delete server._constructionFoundations[entity.characterId];
   }
 
   async loadVehiclesData() {
@@ -1002,9 +1142,17 @@ export class WorldDataManager {
     entity: LootableConstructionEntity,
     serverId: number
   ): LootableConstructionSaveData {
+    const container = entity.getContainer();
     return {
       ...this.getBaseConstructionSaveData(entity, serverId),
-      container: entity.getContainer(),
+      // #1467 (H11): serialize the container into the canonical primitive-only
+      // LoadoutContainerSaveData (the shape characters/vehicles persist, and the
+      // declared type of this field) instead of embedding the live LoadoutContainer,
+      // whose runtime fields (e.g. a stored weapon's reloadTimer) could make the save
+      // object non-serializable and abort the entire world save.
+      container: container
+        ? this.getLoadoutContainerSaveData(container)
+        : undefined,
       subEntityType: entity.subEntity?.subType || ""
     };
   }
@@ -1097,7 +1245,10 @@ export class WorldDataManager {
     };
   }
 
-  async saveConstructionData(constructions: ConstructionParentSaveData[]) {
+  async saveConstructionData(
+    constructions: ConstructionParentSaveData[],
+    retainIds: string[] = []
+  ) {
     if (!constructions.length) return;
 
     if (this._soloMode) {
@@ -1124,8 +1275,13 @@ export class WorldDataManager {
     // 2. Execute bulkWrite in order for consistency
     await collection.bulkWrite(ops, { ordered: true });
 
-    // 3. Remove old records not present in the current constructions
-    const allCharacterIds = constructions.map((c) => c.characterId);
+    // 3. Remove old records not present in the current constructions. #1467:
+    // retainIds are foundations that failed to serialize this pass — keep their
+    // last-good docs instead of pruning them, so a transient/partial serialization
+    // error is not turned into permanent data loss.
+    const allCharacterIds = constructions
+      .map((c) => c.characterId)
+      .concat(retainIds);
 
     await collection.deleteMany({
       serverId: this._worldId,
@@ -1324,7 +1480,8 @@ export class WorldDataManager {
   }
 
   async saveWorldFreeplaceConstruction(
-    freeplaces: LootableConstructionSaveData[]
+    freeplaces: LootableConstructionSaveData[],
+    retainIds: string[] = []
   ) {
     if (this._soloMode) {
       await fs.promises.writeFile(
@@ -1332,6 +1489,11 @@ export class WorldDataManager {
         JSON.stringify(freeplaces, null, 2)
       );
     } else {
+      // #1467 (H13): in mongo, skip the (no-op) writes AND the destructive
+      // deleteMany($nin:[]) on a transient-empty snapshot — it would otherwise wipe
+      // ALL world-lootable (including re-homed player loot). Solo above does a full
+      // overwrite, which correctly reflects a legitimately empty world.
+      if (!freeplaces.length) return;
       const collection = this._db?.collection(
         DB_COLLECTIONS.WORLD_CONSTRUCTIONS
       );
@@ -1347,9 +1509,11 @@ export class WorldDataManager {
         );
       }
       await Promise.all(updatePromises);
-      const allCharactersIds = freeplaces.map((freeplace) => {
-        return freeplace.characterId;
-      });
+      // #1467: retain ids that failed to serialize this pass so deleteMany does not
+      // prune their last-good docs (re-homed player loot lives here).
+      const allCharactersIds = freeplaces
+        .map((freeplace) => freeplace.characterId)
+        .concat(retainIds);
       await collection.deleteMany({
         serverId: this._worldId,
         characterId: { $nin: allCharactersIds }

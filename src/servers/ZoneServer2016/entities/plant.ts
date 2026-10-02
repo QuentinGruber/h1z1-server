@@ -113,7 +113,7 @@ export class Plant extends ItemObject {
             this.actorModelId = ModelIds.WHEAT_CROPSTATE_1;
             break;
           case 2:
-            this.actorModelId = ModelIds.WEHAT_CROPSTATE_2;
+            this.actorModelId = ModelIds.WHEAT_CROPSTATE_2;
             break;
           case 3:
             this.actorModelId = ModelIds.WHEAT_CROPSTATE_3;
@@ -140,8 +140,10 @@ export class Plant extends ItemObject {
     /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
     if (this.growState != 3) return;
-    for (const a in server._constructionFoundations) {
-      const foundation = server._constructionFoundations[a];
+    for (const foundation of server.constructionManager.getFoundationsNear(
+      server,
+      this.state.position
+    )) {
       if (!foundation.isInside(this.state.position)) continue;
       if (
         foundation.isSecured &&
@@ -170,16 +172,14 @@ export class Plant extends ItemObject {
         client.character.lootItem(server, server.generateItem(Items.WHEAT));
         client.character.lootItem(
           server,
-          server.generateItem(Items.SEED_WHEAT, 2),
-          2
+          server.generateItem(Items.SEED_WHEAT, 2)
         );
         break;
       case Items.SEED_CORN:
         client.character.lootItem(server, server.generateItem(Items.CORN));
         client.character.lootItem(
           server,
-          server.generateItem(Items.SEED_CORN, 2),
-          2
+          server.generateItem(Items.SEED_CORN, 2)
         );
         break;
     }

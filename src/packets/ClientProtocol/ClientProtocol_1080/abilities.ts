@@ -82,6 +82,10 @@ export const abilitiesPackets: PacketStructures = [
   ],
   ["Abilities.SetAbilityActivationManager", 0xa104, {}],
   [
+    // Grants a player's activatable abilities (weapons + emotes + night vision). An ungranted ability
+    // = a dead key; F-key emotes only fire once granted here. Schema matches Character.pGet
+    // ActivatableAbilities / pGetEmoteAbilities (loadoutSlotId, abilityLineId, unknownArray1[{ability
+    // id x2, 0}], unknownDword3, itemDefinitionId, unknownByte).
     "Abilities.SetActivatableAbilityManager",
     0xa105,
     {
@@ -94,7 +98,8 @@ export const abilitiesPackets: PacketStructures = [
             { name: "loadoutSlotId", type: "uint32", defaultValue: 0 },
             { name: "abilityLineId", type: "uint32", defaultValue: 0 },
             {
-              name: "unknownArray1",
+              // the client copies this member list verbatim; each entry is { abilityId, abilityId, 0 }
+              name: "memberIds",
               type: "array",
               defaultValue: [],
               fields: [
@@ -105,7 +110,7 @@ export const abilitiesPackets: PacketStructures = [
             },
             { name: "unknownDword3", type: "uint32", defaultValue: 0 },
             { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
-            { name: "unknownByte", type: "uint8", defaultValue: 0 }
+            { name: "abilityFlags", type: "uint8", defaultValue: 0 }
           ]
         }
       ]

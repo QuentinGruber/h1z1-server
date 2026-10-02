@@ -95,6 +95,8 @@ export class ConstructionManager {
   playerFoundationBlockedPlacementRange!: number;
   playerShackBlockedPlacementRange!: number;
   lowerStrongholdDefenses!: boolean;
+  /** #1467 (H14): operator gate for the save-side orphan backstop. */
+  constructionOrphanCheck!: boolean;
 
   sendConstructionData(server: ZoneServer2016, client: Client) {
     const unknownArray1 = [46, 45, 47, 48, 49, 50, 12, 7, 15],
@@ -137,6 +139,136 @@ export class ConstructionManager {
     server.sendAlert(client, `Construction Error: ${error}`);
   }
 
+  /** Spatial hash of construction dictionaries used by detectStackedPlacement,
+   *  rebuilt lazily and cached briefly so repeated placements in a short window
+   *  don't each re-scan every construction entity on the server. */
+  private _stackedPlacementHash?: {
+    worldSimple: Map<string, ConstructionChildEntity[]>;
+    simple: Map<string, ConstructionChildEntity[]>;
+    lootable: Map<string, LootableConstructionEntity[]>;
+    worldLootable: Map<string, LootableConstructionEntity[]>;
+    foundations: Map<string, ConstructionParentEntity[]>;
+    builtAt: number;
+  };
+  private static readonly STACKED_PLACEMENT_CACHE_TTL = 1000;
+  private static readonly STACKED_PLACEMENT_CELL_SIZE = 4;
+
+  private static _bucketByCell<T extends { state: { position: Float32Array } }>(
+    dict: Record<string, T>
+  ): Map<string, T[]> {
+    const cellSize = ConstructionManager.STACKED_PLACEMENT_CELL_SIZE;
+    const map = new Map<string, T[]>();
+    for (const key in dict) {
+      const entity = dict[key];
+      const pos = entity.state.position;
+      const cellKey = `${Math.floor(pos[0] / cellSize)},${Math.floor(pos[2] / cellSize)}`;
+      let bucket = map.get(cellKey);
+      if (!bucket) {
+        bucket = [];
+        map.set(cellKey, bucket);
+      }
+      bucket.push(entity);
+    }
+    return map;
+  }
+
+  private getStackedPlacementHash(server: ZoneServer2016) {
+    const now = Date.now();
+    if (
+      this._stackedPlacementHash &&
+      now - this._stackedPlacementHash.builtAt <
+        ConstructionManager.STACKED_PLACEMENT_CACHE_TTL
+    ) {
+      return this._stackedPlacementHash;
+    }
+    this._stackedPlacementHash = {
+      worldSimple: ConstructionManager._bucketByCell(
+        server._worldSimpleConstruction
+      ),
+      simple: ConstructionManager._bucketByCell(server._constructionSimple),
+      lootable: ConstructionManager._bucketByCell(server._lootableConstruction),
+      worldLootable: ConstructionManager._bucketByCell(
+        server._worldLootableConstruction
+      ),
+      foundations: ConstructionManager._bucketByCell(
+        server._constructionFoundations
+      ),
+      builtAt: now
+    };
+    return this._stackedPlacementHash;
+  }
+
+  /** Foundations near `position` (within a margin covering the largest
+   *  foundation cubebounds), for glitch/permission checks that need to test
+   *  `isInside()` against every foundation that could geometrically contain
+   *  a point — not just the entity's own logical parent — without scanning
+   *  every foundation on the server. */
+  getFoundationsNear(
+    server: ZoneServer2016,
+    position: Float32Array
+  ): Generator<ConstructionParentEntity> {
+    const hash = this.getStackedPlacementHash(server);
+    // largest foundation cubebounds half-extent is ~5x4.7 (radius ~6.9) — 12 gives margin
+    return ConstructionManager._entitiesNear(hash.foundations, position, 12);
+  }
+
+  /** Yields entities from the surrounding cells of a bucketed spatial hash within `radius`. */
+  private static *_entitiesNear<T>(
+    map: Map<string, T[]>,
+    position: Float32Array,
+    radius: number
+  ): Generator<T> {
+    const cellSize = ConstructionManager.STACKED_PLACEMENT_CELL_SIZE;
+    const cx = Math.floor(position[0] / cellSize);
+    const cz = Math.floor(position[2] / cellSize);
+    const cellRadius = Math.ceil(radius / cellSize) + 1;
+    for (let dx = -cellRadius; dx <= cellRadius; dx++) {
+      for (let dz = -cellRadius; dz <= cellRadius; dz++) {
+        const bucket = map.get(`${cx + dx},${cz + dz}`);
+        if (!bucket) continue;
+        for (const entity of bucket) yield entity;
+      }
+    }
+  }
+
+  /** Spatial-hash-backed replacement for utils.checkConstructionInRange when the
+   *  dictionary being queried is one of the four construction dictionaries — reuses
+   *  the same cached hash as detectStackedPlacement instead of scanning the full dictionary. */
+  isConstructionInRange(
+    server: ZoneServer2016,
+    kind: "worldSimple" | "simple" | "lootable" | "worldLootable",
+    position: Float32Array,
+    range: number,
+    itemDefinitionId: number
+  ): boolean {
+    const hash = this.getStackedPlacementHash(server);
+    const check = <
+      T extends { state: { position: Float32Array }; itemDefinitionId: number }
+    >(
+      map: Map<string, T[]>
+    ): boolean => {
+      for (const c of ConstructionManager._entitiesNear(map, position, range)) {
+        if (
+          c.itemDefinitionId == itemDefinitionId &&
+          isPosInRadius(range, position, c.state.position)
+        ) {
+          return true;
+        }
+      }
+      return false;
+    };
+    switch (kind) {
+      case "worldSimple":
+        return check(hash.worldSimple);
+      case "simple":
+        return check(hash.simple);
+      case "lootable":
+        return check(hash.lootable);
+      case "worldLootable":
+        return check(hash.worldLootable);
+    }
+  }
+
   detectStackedPlacement(
     server: ZoneServer2016,
     parentObjectCharacterId: string,
@@ -150,8 +282,15 @@ export class ConstructionManager {
       !Number(parentObjectCharacterId) &&
       !this.overridePlacementItems.includes(itemDefinitionId)
     ) {
-      for (const a in server._worldSimpleConstruction) {
-        const c = server._worldSimpleConstruction[a];
+      // anti-stack must see just-placed constructions, so rebuild from the live dicts
+      // (the cached hash is fine for the proximity readers, but stale here bypasses the check)
+      this._stackedPlacementHash = undefined;
+      const hash = this.getStackedPlacementHash(server);
+      for (const c of ConstructionManager._entitiesNear(
+        hash.worldSimple,
+        position,
+        1.5
+      )) {
         const diff = Math.abs(c.state.position[1] - position[1]);
         if (
           isPosInRadiusWithY(1, c.state.position, position, 1.5) &&
@@ -160,8 +299,11 @@ export class ConstructionManager {
           return true;
         }
       }
-      for (const a in server._constructionSimple) {
-        const c = server._constructionSimple[a];
+      for (const c of ConstructionManager._entitiesNear(
+        hash.simple,
+        position,
+        1.5
+      )) {
         const diff = Math.abs(c.state.position[1] - position[1]);
         if (
           isPosInRadiusWithY(1, c.state.position, position, 1.5) &&
@@ -171,8 +313,11 @@ export class ConstructionManager {
         }
       }
 
-      for (const a in server._lootableConstruction) {
-        const c = server._lootableConstruction[a];
+      for (const c of ConstructionManager._entitiesNear(
+        hash.lootable,
+        position,
+        1.5
+      )) {
         const diff = Math.abs(c.state.position[1] - position[1]);
         if (
           isPosInRadiusWithY(1, c.state.position, position, 1.5) &&
@@ -193,8 +338,11 @@ export class ConstructionManager {
           }
         }
       }
-      for (const a in server._worldLootableConstruction) {
-        const c = server._worldLootableConstruction[a];
+      for (const c of ConstructionManager._entitiesNear(
+        hash.worldLootable,
+        position,
+        1.5
+      )) {
         const diff = Math.abs(c.state.position[1] - position[1]);
         if (
           isPosInRadiusWithY(1, c.state.position, position, 1.5) &&
@@ -768,6 +916,8 @@ export class ConstructionManager {
       case Items.PUNJI_STICK_ROW:
       case Items.TRAP_FIRE:
       case Items.TRAP_FLASH:
+      case Items.TRAP_GAS:
+      case Items.TRAP_SHOCK:
         return this.placeTrap(
           server,
           itemDefinitionId,
@@ -823,11 +973,10 @@ export class ConstructionManager {
           parentObjectCharacterId,
           BuildingSlot
         );
-      case Items.SHACK_SMALL:
-        return false;
       case Items.GROUND_TAMPER:
       case Items.SHACK_BASIC:
       case Items.SHACK:
+      case Items.SHACK_SMALL:
       case Items.FOUNDATION:
       case Items.FOUNDATION_EXPANSION:
         return this.placeConstructionFoundation(
@@ -1157,7 +1306,12 @@ export class ConstructionManager {
         BuildingSlot
       );
 
-    parent.setWallSlot(server, wall);
+    if (!parent.setWallSlot(server, wall)) {
+      // #1467 (H6): a rejected slot (occupancy collision) must not leave the entity
+      // live but unreachable from the save graph — bail instead of orphaning it.
+      this.placementError(server, client, ConstructionErrors.WALL_SLOT_FAILED);
+      return false;
+    }
 
     server._constructionSimple[characterId] = wall;
     server.executeFuncForAllReadyClientsInRange((client) => {
@@ -1224,7 +1378,11 @@ export class ConstructionManager {
         BuildingSlot
       );
 
-    parentFoundation.setRampSlot(ramp);
+    if (!parentFoundation.setRampSlot(ramp)) {
+      // #1467 (H6): don't leave a slot-rejected ramp orphaned in _constructionSimple.
+      this.placementError(server, client, ConstructionErrors.OVERLAP);
+      return false;
+    }
     server._constructionSimple[characterId] = ramp;
     server.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnSimpleConstruction(server, client, ramp);
@@ -1288,7 +1446,11 @@ export class ConstructionManager {
         BuildingSlot
       );
 
-    parentFoundation.setRampSlot(stairs);
+    if (!parentFoundation.setRampSlot(stairs)) {
+      // #1467 (H6): don't leave slot-rejected stairs orphaned in _constructionSimple.
+      this.placementError(server, client, ConstructionErrors.OVERLAP);
+      return false;
+    }
     server._constructionSimple[characterId] = stairs;
     server.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnSimpleConstruction(server, client, stairs);
@@ -1382,6 +1544,7 @@ export class ConstructionManager {
     server.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnConstructionDoor(server, client, door);
     }, door);
+    this.reevalShelterEntityVisibility(server, parent);
     return true;
   }
 
@@ -1475,7 +1638,12 @@ export class ConstructionManager {
         BuildingSlot
       );
     if (parentFoundation && BuildingSlot) {
-      parentFoundation.setExpansionSlot(npc);
+      if (!parentFoundation.setExpansionSlot(npc)) {
+        // #1467 (H6): a rejected expansion slot must not leave the expansion live
+        // but unreachable from the save graph — bail instead of orphaning it.
+        this.placementError(server, client, ConstructionErrors.OVERLAP);
+        return false;
+      }
       npc.permissions = parentFoundation.permissions;
     }
     server._constructionFoundations[characterId] = npc;
@@ -2047,48 +2215,35 @@ export class ConstructionManager {
     state: boolean
   ) {
     if (state) {
-      //TODO: Leaving a group will not remove the player because the client already has the isHidden flag.
-      //To reproduce: Create a group and give the other player visitor perm, before disbanding the group remove other players' perms.
-      if (!client.character.isHidden) {
+      // set the shelter-membership flag once (keep the active shelter id for overlapping shelters), but
+      // reconcile the viewer set on every re-eval: even when the target is already hidden, a membership/
+      // permission change must re-cull revoked viewers and reveal newly-permitted ones
+      if (!client.character.isHidden)
         client.character.isHidden = constructionGuid;
-        for (const a in server._clients) {
-          const iteratedClient = server._clients[a];
-
-          const constructionEntity =
-            server.getConstructionEntity(constructionGuid);
-
-          let hasVisitPermission = false;
-          if (constructionEntity) {
-            hasVisitPermission = constructionEntity.getHasPermission(
-              server,
-              iteratedClient.character.characterId,
-              ConstructionPermissionIds.VISIT
-            );
-          }
-
-          const isSameGroup =
-            client.character.groupId != 0 &&
-            iteratedClient.character.groupId != 0 &&
-            client.character.groupId === iteratedClient.character.groupId;
-
-          const hasPermission = isSameGroup && hasVisitPermission;
-
-          if (
-            iteratedClient.spawnedEntities.has(client.character) &&
-            iteratedClient.character.isHidden != client.character.isHidden &&
-            !hasPermission
-          ) {
-            server.sendData<CharacterRemovePlayer>(
-              iteratedClient,
-              "Character.RemovePlayer",
-              {
-                characterId: client.character.characterId
-              }
-            );
-            iteratedClient.spawnedEntities.delete(client.character);
-          }
+      for (const a in server._clients) {
+        const iteratedClient = server._clients[a];
+        if (
+          iteratedClient.spawnedEntities.has(client.character) &&
+          iteratedClient.character.characterId !==
+            client.character.characterId &&
+          // a spectator legitimately sees hidden players (mirrors the spawnCharacters sweep), so never cull one
+          !iteratedClient.character.isSpectator &&
+          this.shouldHidePlayer(server, iteratedClient, client.character)
+        ) {
+          server.sendData<CharacterRemovePlayer>(
+            iteratedClient,
+            "Character.RemovePlayer",
+            {
+              characterId: client.character.characterId
+            }
+          );
+          iteratedClient.spawnedEntities.delete(client.character);
         }
-      } else return;
+      }
+      // reveal the target to viewers who are now permitted but do not yet see them;
+      // spawnCharacterToOtherClients self-guards range, the hide gate, double-spawn, own character, and
+      // skips ineligible (vanished/spectator/dead) targets
+      server.spawnCharacterToOtherClients(client.character);
     } else if (client.character.isHidden) client.character.isHidden = "";
   }
 
@@ -2296,12 +2451,10 @@ export class ConstructionManager {
     client: Client,
     entity: BaseEntity
   ): boolean {
-    if (
-      !(
-        entity instanceof LootableConstructionEntity ||
-        entity instanceof ConstructionChildEntity
-      )
-    ) {
+    if (!(
+      entity instanceof LootableConstructionEntity ||
+      entity instanceof ConstructionChildEntity
+    )) {
       return false;
     }
 
@@ -2332,12 +2485,134 @@ export class ConstructionManager {
         client.character.characterId,
         ConstructionPermissionIds.VISIT
       ),
-      isInside = parent.isInside(entity.state.position);
+      entityInside = parent.isInside(entity.state.position),
+      // a client standing inside the shelter/shack sees its contents regardless of permission
+      viewerInside = parent.isInside(client.character.state.position);
 
     return (
-      !client.isDebugMode && parentSecured && isInside && !hasVisitPermission
+      !client.isDebugMode &&
+      parentSecured &&
+      entityInside &&
+      !hasVisitPermission &&
+      !viewerInside
     );
-    // TODO: check if character is in secured shelter / shack
+  }
+
+  /**
+   * Immediately re-applies the shelter/shack hide gate to the entities contained inside `shelter`
+   * for every ready client, so a door open/close/place/destroy reveals or culls contained
+   * containers/workbenches without waiting for the periodic spawn/cull sweep. Uses the same
+   * shouldHideEntity gate, so the result matches the sweep (no flapping). Never removes a client's
+   * own character.
+   */
+  reevalShelterEntityVisibility(
+    server: ZoneServer2016,
+    shelter: ConstructionParentEntity | ConstructionChildEntity
+  ) {
+    const contained = Object.values(shelter.freeplaceEntities).filter(
+      (e) =>
+        (e instanceof LootableConstructionEntity ||
+          e instanceof ConstructionChildEntity) &&
+        shelter.isInside(e.state.position)
+    );
+    if (!contained.length) return;
+    for (const key in server._clients) {
+      const client = server._clients[key];
+      for (const entity of contained) {
+        if (
+          client.spawnedEntities.has(entity) &&
+          this.shouldHideEntity(server, client, entity)
+        ) {
+          if (entity.characterId !== client.character.characterId) {
+            server.sendData<CharacterRemovePlayer>(
+              client,
+              "Character.RemovePlayer",
+              { characterId: entity.characterId }
+            );
+            client.spawnedEntities.delete(entity);
+          }
+        } else {
+          // spawnEntityForClient self-guards range, the hide gate, and double-spawn
+          server.spawnEntityForClient(client, entity);
+        }
+      }
+    }
+    // re-eval player visibility for players standing inside this shelter/shack: a secured shelter
+    // hides them from non-permitted outsiders, an unsecured one reveals them again
+    for (const key in server._clients) {
+      const insideClient = server._clients[key];
+      if (!shelter.isInside(insideClient.character.state.position)) continue;
+      if (shelter.isSecured) {
+        this.constructionHidePlayer(
+          server,
+          insideClient,
+          shelter.characterId,
+          true
+        );
+      } else {
+        this.constructionHidePlayer(
+          server,
+          insideClient,
+          shelter.characterId,
+          false
+        );
+        server.spawnCharacterToOtherClients(insideClient.character);
+      }
+    }
+  }
+
+  /**
+   * Re-applies the shelter/shack hide gate around a character whose group membership just changed,
+   * so a revoked visitor is culled and a member who kept VISIT access is revealed without waiting for
+   * the periodic sweep. Re-evals every foundation and shelter/shack the character stands inside via
+   * reevalShelterEntityVisibility, which keeps the Character.RemovePlayer own-character guard.
+   */
+  reevalGroupMemberShelterVisibility(server: ZoneServer2016, client: Client) {
+    const position = client.character.state.position;
+    for (const key in server._constructionFoundations) {
+      const foundation = server._constructionFoundations[key];
+      if (foundation.isInside(position)) {
+        this.reevalShelterEntityVisibility(server, foundation);
+      }
+    }
+    for (const key in server._constructionSimple) {
+      const shelter = server._constructionSimple[key];
+      if (shelter.isInside(position)) {
+        this.reevalShelterEntityVisibility(server, shelter);
+      }
+    }
+  }
+
+  /**
+   * Stable per-viewer decision for hiding a player standing inside a secured shelter/shack. Computed
+   * from the same inputs as the entity gate (isSecured + isInside + permission), so it does not flap:
+   * hides the target only when they are inside a secured shelter/shack, the viewer is not inside it,
+   * and the viewer is not a group member with VISIT permission. target.isHidden holds the shelter id.
+   */
+  shouldHidePlayer(
+    server: ZoneServer2016,
+    viewer: Client,
+    target: Client["character"]
+  ): boolean {
+    const shelter = server.getConstructionEntity(target.isHidden);
+    if (!(
+      shelter instanceof ConstructionParentEntity ||
+      shelter instanceof ConstructionChildEntity
+    ))
+      return false;
+    if (!shelter.isSecured) return false;
+    if (!shelter.isInside(target.state.position)) return false;
+    if (shelter.isInside(viewer.character.state.position)) return false;
+    const hasVisit = shelter.getHasPermission(
+      server,
+      viewer.character.characterId,
+      ConstructionPermissionIds.VISIT
+    );
+    const sameGroup =
+      target.groupId != 0 &&
+      viewer.character.groupId != 0 &&
+      target.groupId === viewer.character.groupId;
+    return !(sameGroup && hasVisit);
   }
 
   private spawnConstructionFreeplace(
@@ -2553,9 +2828,7 @@ export class ConstructionManager {
   public repairConstruction(
     server: ZoneServer2016,
     entity:
-      | ConstructionChildEntity
-      | ConstructionDoor
-      | LootableConstructionEntity,
+      ConstructionChildEntity | ConstructionDoor | LootableConstructionEntity,
     amount: number
   ) {
     const damage =
@@ -2572,9 +2845,7 @@ export class ConstructionManager {
   public fullyRepairConstruction(
     server: ZoneServer2016,
     entity:
-      | ConstructionChildEntity
-      | ConstructionDoor
-      | LootableConstructionEntity
+      ConstructionChildEntity | ConstructionDoor | LootableConstructionEntity
   ) {
     entity.health = entity.maxHealth;
     server.sendDataToAllWithSpawnedEntity<CharacterUpdateSimpleProxyHealth>(
@@ -2671,6 +2942,10 @@ export class ConstructionManager {
         server.generateItem(entity.itemDefinitionId)
       );
       entity.destroy(server);
+      // the entity is now destroyed/detached — return so we do not fall through and
+      // call entity.damage() on a dead entity (a double-action on a removed entity).
+      server.damageItem(client.character, weaponItem, 50);
+      return;
     }
 
     entity.damage(server, {

@@ -21,6 +21,13 @@ import {
 } from "../../utils/constants";
 
 const debug = require("debug")("SOEInputStream");
+
+// Upper bound on a reassembled payload. The announced size comes straight off
+// the wire, so without this a single packet can request a multi GB allocation.
+const MAX_REASSEMBLY_SIZE = 16 * 1024 * 1024;
+// Upper bound on out of order packets buffered per client.
+const MAX_BUFFERED_PACKETS = 1024;
+
 type appData = { payload: Buffer; isFragment: boolean };
 export class SOEInputStream extends EventEmitter {
   _nextSequence: wrappedUint16 = new wrappedUint16(0);
@@ -53,8 +60,28 @@ export class SOEInputStream extends EventEmitter {
     // cpf == current processed fragment
     if (!this.has_cpf) {
       const firstPacket = this._appDataMap.get(firstPacketSequence) as appData; // should be always defined
+      if (firstPacket.payload.length < DATA_HEADER_SIZE) {
+        this._appDataMap.delete(firstPacketSequence);
+        this.emit(
+          "error",
+          new Error(
+            "processDataFragments: first fragment too small to hold a size header"
+          )
+        );
+        return [];
+      }
       // the total size is written has a uint32 at the first packet of a fragmented data
       this.cpf_totalSize = firstPacket.payload.readUInt32BE(0);
+      if (this.cpf_totalSize > MAX_REASSEMBLY_SIZE) {
+        this._appDataMap.delete(firstPacketSequence);
+        this.emit(
+          "error",
+          new Error(
+            `processDataFragments: announced size ${this.cpf_totalSize} exceeds the ${MAX_REASSEMBLY_SIZE} limit`
+          )
+        );
+        return [];
+      }
       this.cpf_dataSize = 0;
 
       this.cpf_dataWithoutHeader = Buffer.allocUnsafe(this.cpf_totalSize);
@@ -82,6 +109,7 @@ export class SOEInputStream extends EventEmitter {
         this.cpf_dataSize += fragmentDataLen;
 
         if (this.cpf_dataSize > this.cpf_totalSize) {
+          this.has_cpf = false;
           this.emit(
             "error",
             new Error(
@@ -96,6 +124,7 @@ export class SOEInputStream extends EventEmitter {
                 ")"
             )
           );
+          return [];
         }
         if (this.cpf_dataSize === this.cpf_totalSize) {
           // Delete all the processed fragments from memory
@@ -119,23 +148,21 @@ export class SOEInputStream extends EventEmitter {
   }
 
   private _processData(): void {
-    const nextFragmentSequence =
-      (this._lastProcessedSequence + 1) & MAX_SEQUENCE;
-    const dataToProcess = this._appDataMap.get(nextFragmentSequence);
-    if (dataToProcess) {
-      let appData: Array<Buffer> = [];
+    // Iterative rather than recursive: a client can fill _appDataMap with out
+    // of order packets and then send the missing one, which would otherwise
+    // recurse once per buffered packet and blow the stack.
+    for (;;) {
+      const nextFragmentSequence =
+        (this._lastProcessedSequence + 1) & MAX_SEQUENCE;
+      const dataToProcess = this._appDataMap.get(nextFragmentSequence);
+      if (!dataToProcess) return;
 
-      if (dataToProcess.isFragment) {
-        appData = this.processFragmentedData(nextFragmentSequence);
-      } else {
-        appData = this.processSingleData(dataToProcess, nextFragmentSequence);
-      }
-      if (appData.length) {
-        this.processAppData(appData);
-        // In case there is more data to process
-        // It can happen when packets are received out of order
-        this._processData();
-      }
+      const appData: Array<Buffer> = dataToProcess.isFragment
+        ? this.processFragmentedData(nextFragmentSequence)
+        : this.processSingleData(dataToProcess, nextFragmentSequence);
+
+      if (!appData.length) return;
+      this.processAppData(appData);
     }
   }
 
@@ -189,6 +216,13 @@ export class SOEInputStream extends EventEmitter {
       " fragment=" + isFragment + ", lastAck: " + this._lastAck.get()
     );
     if (sequence >= this._nextSequence.get()) {
+      if (
+        !this._appDataMap.has(sequence) &&
+        this._appDataMap.size >= MAX_BUFFERED_PACKETS
+      ) {
+        // Too many out of order packets buffered, drop rather than grow forever
+        return;
+      }
       this._appDataMap.set(sequence, { payload: data, isFragment: isFragment });
       const wasInOrder = this.acknowledgeInputData(sequence);
       if (wasInOrder) {

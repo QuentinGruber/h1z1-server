@@ -2740,24 +2740,24 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  // disabled for now as crashes game client
-  /*[Items.SHACK_SMALL]: {
+  1148: {
+    rewardId: Items.SHACK_SMALL,
     filterId: FilterIds.HOUSING,
     components: [
       {
         itemDefinitionId: Items.WOOD_PLANK,
-        requiredAmount: 4,
+        requiredAmount: 4
       },
       {
         itemDefinitionId: Items.NAIL,
-        requiredAmount: 4,
+        requiredAmount: 4
       },
       {
         itemDefinitionId: Items.METAL_BRACKET,
-        requiredAmount: 2,
-      },
-    ],
-  },*/
+        requiredAmount: 2
+      }
+    ]
+  },
   1106: {
     rewardId: Items.FLARE_SMOKE,
     filterId: FilterIds.SURVIVAL,

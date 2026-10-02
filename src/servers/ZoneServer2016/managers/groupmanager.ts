@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { h1z1PacketsType2016 } from "types/packets";
-import { GroupUnknown12, zone2016packets } from "types/zone2016packets";
+import { GroupRoster, zone2016packets } from "types/zone2016packets";
 import { Group } from "types/zoneserver";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
@@ -87,18 +87,18 @@ export class GroupManager {
 
     const members = await this.getGroupMembers(group, server);
     const sendData = {
-      unknownDword1: group.groupId,
-      unknownData1: {
+      groupId: group.groupId,
+      groupHeader: {
         groupId: group.groupId,
-        characterId: group.leader
+        ownerCharacterId: group.leader
       },
       members
     };
 
-    this.sendDataToGroup<GroupUnknown12>(
+    this.sendDataToGroup<GroupRoster>(
       server,
       group.groupId,
-      "Group.Unknown12",
+      "Group.Roster",
       sendData
     );
   }
@@ -299,22 +299,28 @@ export class GroupManager {
       source.character.groupId;
 
     server.sendData(target, "Group.Invite", {
-      unknownDword1: 1, // should be 1
+      inviteType: 1,
       unknownDword2: 5,
       unknownDword3: 5,
       inviteData: {
+        // the inviter's characterId is always a real 64-bit id, so this is never the -1 "no active group"
+        // sentinel the client rejects; the value is echoed back and ignored by the join handler
+        groupId: source.character.characterId,
+        hasRaidError: 0,
         sourceCharacter: {
           characterId: source.character.characterId,
           identity: {
             characterFirstName: source.character.name,
             characterName: source.character.name
-          }
+          },
+          memberRole: 1
         },
         targetCharacter: {
           characterId: target.character.characterId,
           identity: {
             characterName: target.character.name
-          }
+          },
+          memberRole: 1
         }
       }
     });
@@ -386,18 +392,36 @@ export class GroupManager {
     server.sendAlert(target, "Group joined.");
     delete this.pendingInvites[target.character.characterId];
 
+    // a membership change flips shelter VISIT sharing, so re-eval the hide gate around every member
+    // (group.members now includes the joiner) instead of waiting for the periodic sweep
+    this.reevalShelterVisibilityForMembers(server, group.members);
+
     const leaderClient = server.getClientByCharId(group.leader);
     if (!leaderClient) return;
     const members = await this.getGroupMembers(group, server);
-    this.sendDataToGroup(server, group.groupId, "Group.Unknown12", {
-      unknownDword1: group.groupId,
-      unknownData1: {
+    this.sendDataToGroup(server, group.groupId, "Group.Roster", {
+      groupId: group.groupId,
+      groupHeader: {
         groupId: group.groupId,
-        characterId: leaderClient.character.characterId
+        ownerCharacterId: leaderClient.character.characterId
       },
-      unknownString1: leaderClient.character.name,
+      groupName: leaderClient.character.name,
       members
     });
+  }
+
+  private reevalShelterVisibilityForMembers(
+    server: ZoneServer2016,
+    memberIds: string[]
+  ) {
+    for (const memberId of memberIds) {
+      const memberClient = server.getClientByCharId(memberId);
+      if (!memberClient) continue;
+      server.constructionManager.reevalGroupMemberShelterVisibility(
+        server,
+        memberClient
+      );
+    }
   }
 
   async handlePlayerDisconnect(server: ZoneServer2016, client: Client) {
@@ -409,6 +433,14 @@ export class GroupManager {
       groupId,
       `${client.character.name} has disconnected from the game.`
     );
+    // the disconnecting player leaves shelter VISIT sharing, so re-eval the hide gate around them
+    // and their group members now instead of waiting for the periodic sweep
+    const memberIds = new Set<string>([client.character.characterId]);
+    if (groupId) {
+      const group = await this.getGroup(server, groupId);
+      if (group) group.members.forEach((memberId) => memberIds.add(memberId));
+    }
+    this.reevalShelterVisibilityForMembers(server, [...memberIds]);
   }
 
   async removeGroupMember(
@@ -436,6 +468,9 @@ export class GroupManager {
         groupId: group.groupId
       });
     }
+    // a membership change flips shelter VISIT sharing, so re-eval the hide gate around every member
+    // (group.members still includes the leaver here) instead of waiting for the periodic sweep
+    this.reevalShelterVisibilityForMembers(server, group.members);
     if (client) {
       for (const a of group.members) {
         setTimeout(() => {
