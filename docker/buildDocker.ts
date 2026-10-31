@@ -1,3 +1,4 @@
+const debug = require("debug")("h1emu:docker:buildDocker");
 import { spawn } from "child_process";
 import { ServerImage } from "./types";
 const images: ServerImage[] = require("./images.json");
@@ -15,18 +16,18 @@ function buildAllImages(imageTag:string) {
     ]);
 
     buildProcess.stdout.on("data", (data) => {
-      console.log(`${name}(${version}): ${data}`);
+      debug(`${name}(${version}): ${data}`);
     });
 
     buildProcess.stderr.on("data", (data) => {
-      console.log(`${name}(${version}): ${data}`);
+      debug(`${name}(${version}): ${data}`);
     });
 
     buildProcess.on("close", (code) => {
       if (code) {
         throw new Error(`${name}(${version}) exited with code ${code}`);
       } else {
-        console.log(`${name}(${version}) builded!`);
+        debug(`${name}(${version}) builded!`);
       }
     });
   });

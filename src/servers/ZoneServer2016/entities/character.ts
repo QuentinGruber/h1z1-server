@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+const debug = require("debug")("h1emu:src:servers:ZoneServer2016:entities:character");
 import {
   ConstructionPermissionIds,
   ContainerErrors,
@@ -1241,7 +1242,7 @@ export class Character2016 extends BaseFullCharacter {
           firemodes = firegroupDef?.FIRE_MODES || [];
         if (!firemodes) {
           console.error(`firegroupDef missing for`);
-          console.log(firegroup);
+          debug(firegroup);
         }
         return {
           firegroupId: firegroup.FIRE_GROUP_ID,
@@ -1553,7 +1554,7 @@ export class Character2016 extends BaseFullCharacter {
       abilityLineId = 2;
     for (const itemDefinitionId of emoteItemDefinitionIds) {
       if (freeIndex >= freeSlots.length) {
-        console.log(
+        debug(
           `[emotes] no free in-range ability slot left (<= ${MAX_ABILITY_SLOT_ID}); skipping emote itemDefinitionId ${itemDefinitionId}`
         );
         break;

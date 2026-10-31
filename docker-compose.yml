@@ -1,3 +1,4 @@
+
 services:
   mongodb:
     image: mongo:6.0
@@ -7,31 +8,68 @@ services:
     environment:
       MONGO_INITDB_DATABASE: h1server
     ports:
-      - "27018:27017"
+      - "127.0.0.1:27018:27017"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mongosh",
+          "--quiet",
+          "--eval",
+          "quit(db.adminCommand('ping').ok ? 0 : 1)"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
 
   login-server:
     build:
       context: .
       dockerfile: docker/2015/LoginServer.Dockerfile
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
     environment:
-      MONGO_URL: mongodb://127.0.0.1:27018/h1server
-    network_mode: host
+      MONGO_URL: mongodb://mongodb:27017/h1server
+      # Set PUBLIC_SERVER_IP in .env for the address sent to game clients.
+      # Leave empty to retain the current MongoDB serverAddress.
+      PUBLIC_SERVER_IP: ${PUBLIC_SERVER_IP:-}
+      PUBLIC_SERVER_PORT: ${PUBLIC_SERVER_PORT:-1117}
+      PUBLIC_SERVER_WORLD_ID: ${WORLD_ID:-2}
+      DEBUG: ${DEBUG:-}
+    ports:
+      - "1115:1115/tcp"
+      - "1115:1115/udp"
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "docker/login-healthcheck.js"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 20s
 
   zone-server-2016:
     build:
       context: .
       dockerfile: docker/2016/ZoneServer.Dockerfile
     depends_on:
-      - mongodb
-      - login-server
+      mongodb:
+        condition: service_healthy
+      login-server:
+        condition: service_healthy
     environment:
-      MONGO_URL: mongodb://127.0.0.1:27018/h1server
+      MONGO_URL: mongodb://mongodb:27017/h1server
       WORLD_ID: ${WORLD_ID:-2}
-      LOGINSERVER_IP: "127.0.0.1"
-    network_mode: host
+      LOGINSERVER_IP: "login-server"
+      DEBUG: ${DEBUG:-}
+      LZ_SERVER_SECRET_FILE: /run/secrets/zone-server-2016
+    volumes:
+      - ./config.yaml:/usr/src/app/config.yaml
+    secrets:
+      - zone-server-2016
+    ports:
+      - "1117:1117/udp"
     restart: unless-stopped
     profiles:
       - "2016"
@@ -44,13 +82,17 @@ services:
       - mongodb
       - login-server
     environment:
-      MONGO_URL: mongodb://127.0.0.1:27018/h1server
+      MONGO_URL: mongodb://mongodb:27017/h1server
       WORLD_ID: ${WORLD_ID:-0}
-      LOGINSERVER_IP: "127.0.0.1"
-    network_mode: host
+      LOGINSERVER_IP: "login-server"
+      DEBUG: ${DEBUG:-}
     restart: unless-stopped
     profiles:
       - "2015"
 
 volumes:
   mongodb-data:
+
+secrets:
+  zone-server-2016:
+    file: ./.zone-2016.secret

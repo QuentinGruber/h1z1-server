@@ -1,5 +1,7 @@
 node_modules
 .env
+.zone-2016.secret
+.login-fix-backup-*/
 .idea
 out
 tests_out

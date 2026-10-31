@@ -7,6 +7,7 @@
 //   npm run stress-profile  — with --cpu-prof (writes cpuprofile file)
 // ======================================================================
 
+const debug = require("debug")("h1emu:benchmarks:src:zoneStress:zone-stress");
 /* eslint-disable @typescript-eslint/no-require-imports */
 export {};
 process.env["DISABLE_PLUGINS"] = "true";
@@ -184,7 +185,7 @@ async function runExplosionWave(
   count: number,
   pos: Float32Array
 ): Promise<void> {
-  console.log(
+  debug(
     `\n[EXPLOSION] Creating ${count} IEDs at (${pos[0].toFixed(0)}, ${pos[1].toFixed(0)}, ${pos[2].toFixed(0)})…`
   );
 
@@ -210,7 +211,7 @@ async function runExplosionWave(
   }
 
   const queueMs = performance.now() - t0;
-  console.log(
+  debug(
     `[EXPLOSION] Queued in ${queueMs.toFixed(1)}ms — waiting for chunks to drain…`
   );
 
@@ -218,7 +219,7 @@ async function runExplosionWave(
 
   const totalMs = performance.now() - t0;
   const chunks = Math.ceil(count / 200);
-  console.log(
+  debug(
     `[EXPLOSION] Done — total ${totalMs.toFixed(0)}ms over ${chunks} chunks (~${(totalMs / chunks).toFixed(1)}ms/chunk)`
   );
 }
@@ -226,15 +227,15 @@ async function runExplosionWave(
 // ---- Main -----------------------------------------------------------
 
 async function main() {
-  console.log("=== H1Z1 Zone Stress Test ===");
-  console.log(
+  debug("=== H1Z1 Zone Stress Test ===");
+  debug(
     `Config: ${CONFIG.clients} clients | ${rawConstruction.length} base templates x ${CONFIG.baseReplications} replications` +
       ` | move@${CONFIG.moveHz}Hz | fire@${CONFIG.fireHz}Hz | ${CONFIG.durationSeconds}s`
   );
 
   const server = new ZoneServer2016(0);
 
-  console.log("Starting server (no network, no MongoDB)…");
+  debug("Starting server (no network, no MongoDB)…");
   await server.start();
 
   // Stub out sendData — fake clients have no real UDP connection so calling the
@@ -244,7 +245,7 @@ async function main() {
   server.sendOrderedData = () => {};
 
   // --- Load construction ---
-  console.log(`Replicating construction ${CONFIG.baseReplications}x…`);
+  debug(`Replicating construction ${CONFIG.baseReplications}x…`);
   const allBases: any[] = [...rawConstruction];
   for (let rep = 1; rep < CONFIG.baseReplications; rep++) {
     for (const base of rawConstruction) {
@@ -257,12 +258,12 @@ async function main() {
   ).length;
   const simpleCount = Object.keys(server._constructionSimple ?? {}).length;
   const doorCount = Object.keys(server._constructionDoors ?? {}).length;
-  console.log(
+  debug(
     `Construction loaded: ${foundationCount} foundations, ${simpleCount} pieces, ${doorCount} doors`
   );
 
   // --- Create bots ---
-  console.log(`Creating ${CONFIG.clients} bots…`);
+  debug(`Creating ${CONFIG.clients} bots…`);
   // Derive spawn center as the centroid of all replicated base positions
   const CENTER_X = Math.round(
     allBases.reduce((sum: number, b: any) => sum + (b.position?.[0] ?? 0), 0) /
@@ -272,7 +273,7 @@ async function main() {
     allBases.reduce((sum: number, b: any) => sum + (b.position?.[2] ?? 0), 0) /
       allBases.length
   );
-  console.log(
+  debug(
     `Bot spawn center derived from bases: (${CENTER_X}, ${CENTER_Z})`
   );
 
@@ -291,7 +292,7 @@ async function main() {
     character.state.yaw = Math.random() * Math.PI * 2;
     bots.push({ client, character, weapon, pos, projCount: 0 });
   }
-  console.log("Bots created. Running stress loop…\n");
+  debug("Bots created. Running stress loop…\n");
 
   // Explosion wave — triggers after delay so construction & bots are in place
   setTimeout(
@@ -391,7 +392,7 @@ async function main() {
 
     statRows.push({ t, moveAvgMs: mAvg, fireAvgMs: fAvg, memMB });
 
-    console.log(
+    debug(
       `[${String(t).padStart(3)}s]` +
         `  move batch=${mAvg.toFixed(2).padStart(7)}ms (~${String(movePktsPerSec).padStart(6)}/s)` +
         `  fire batch=${fAvg.toFixed(2).padStart(7)}ms (~${String(firePktsPerSec).padStart(6)}/s)` +
@@ -423,23 +424,23 @@ async function main() {
     const moveCpuPct = ((moveBatchMs / totalMoveBudgetMs) * 100).toFixed(1);
     const fireCpuPct = ((fireBatchMs / totalMoveBudgetMs) * 100).toFixed(1);
 
-    console.log("\n=== FINAL REPORT ===");
-    console.log(`Duration:              ${elapsed.toFixed(1)}s`);
-    console.log(`Clients:               ${CONFIG.clients}`);
-    console.log(`Foundations loaded:    ${foundationCount}`);
-    console.log(`Construction pieces:   ${simpleCount + doorCount}`);
-    console.log(`Move packets total:    ${totalMovePkts}`);
-    console.log(`Fire events total:     ${totalFirePkts}`);
-    console.log(
+    debug("\n=== FINAL REPORT ===");
+    debug(`Duration:              ${elapsed.toFixed(1)}s`);
+    debug(`Clients:               ${CONFIG.clients}`);
+    debug(`Foundations loaded:    ${foundationCount}`);
+    debug(`Construction pieces:   ${simpleCount + doorCount}`);
+    debug(`Move packets total:    ${totalMovePkts}`);
+    debug(`Fire events total:     ${totalFirePkts}`);
+    debug(
       `Move batch peak:       ${movePeak}ms  (${moveCpuPct}% of wall time)`
     );
-    console.log(
+    debug(
       `Fire batch peak:       ${firePeak}ms  (${fireCpuPct}% of wall time)`
     );
-    console.log(`Memory avg / peak:     ${memAvg}MB / ${memPeak}MB`);
+    debug(`Memory avg / peak:     ${memAvg}MB / ${memPeak}MB`);
 
     if (process.execArgv.some((a) => a.startsWith("--cpu-prof"))) {
-      console.log(
+      debug(
         "\nCPU profile written — open .cpuprofile in Chrome DevTools > Performance > Load profile"
       );
     }

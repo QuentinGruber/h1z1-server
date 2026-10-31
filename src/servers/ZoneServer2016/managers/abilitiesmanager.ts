@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+const debug = require("debug")("h1emu:src:servers:ZoneServer2016:managers:abilitiesmanager");
 import {
   Abilities,
   AbilityIds,
@@ -200,7 +201,7 @@ export class AbilitiesManager {
     if (!client.character.abilityInitTime) {
       // This happen a lot in production but i'm unable to reproduce it
       // Maybe sometimes the hitLocation field in abilityInit is empty
-      // console.log(
+      // debug(
       //   `${client.character.characterId} tried to update a non-initialized ability!`
       // );
       return;

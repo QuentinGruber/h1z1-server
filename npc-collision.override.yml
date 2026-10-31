@@ -1,0 +1,6 @@
+services:
+  zone-server-2016:
+    environment:
+      NPC_COLLISION_DIAGNOSTICS: '1'
+      NPC_MOTION_TRACE: '1'
+      NPC_GROUND_DIAGNOSTICS: ''

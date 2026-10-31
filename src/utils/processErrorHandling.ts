@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+const debug = require("debug")("h1emu:src:utils:processErrorHandling");
 export function logVersion() {
   console.error(`h1z1-server version : ${process.env.H1Z1_SERVER_VERSION}`);
 }
@@ -49,11 +50,11 @@ process.on("SIGINT", () => {
 });
 
 process.on("beforeExit", (code) => {
-  console.log(`Process will exit with code: ${code} time : ${new Date()}`);
+  debug(`Process will exit with code: ${code} time : ${new Date()}`);
   logVersion();
 });
 
 process.on("exit", (code) => {
-  console.log(`Process exited with code: ${code} time : ${new Date()}`);
+  debug(`Process exited with code: ${code} time : ${new Date()}`);
   logVersion();
 });

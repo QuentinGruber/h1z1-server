@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+const debug = require("debug")("h1emu:src:servers:ZoneServer2016:managers:configmanager");
 import * as fs from "fs";
 import * as yaml from "js-yaml";
 import { Config } from "../models/config";
@@ -46,7 +47,7 @@ export class ConfigManager {
       if (!fileExists(configPath))
         console.error("Config path is invalid! Using default.");
 
-      console.log(
+      debug(
         "Config file not found, creating it in base directory using default values."
       );
       copyFile(
@@ -57,7 +58,7 @@ export class ConfigManager {
       this.config = this.defaultConfig;
       this.applyEnvOverrides();
       this.applyConfig(server);
-      console.log("Default config loaded!");
+      debug("Default config loaded!");
       return;
     }
 
@@ -66,7 +67,7 @@ export class ConfigManager {
       this.config = this.loadConfig(config);
       this.applyEnvOverrides();
       this.applyConfig(server);
-      console.log("Config Loaded!");
+      debug("Config Loaded!");
       return;
     }
 
@@ -91,7 +92,7 @@ export class ConfigManager {
     this.config = this.loadConfig(config);
     this.applyEnvOverrides();
     this.applyConfig(server);
-    console.log("Config reloaded!");
+    debug("Config reloaded!");
     return true;
   }
 

@@ -1,0 +1,79 @@
+[
+  {
+    "input": [
+      -1822.24,
+      58.17,
+      -2234.6
+    ],
+    "ground": {
+      "height": 55.317499999999995,
+      "selected": {
+        "name": "Z1_-36_-32.cnk0",
+        "triangle": 19797,
+        "height": 55.317499999999995
+      },
+      "failedQuery": false,
+      "tiles": [
+        {
+          "name": "Z1_-36_-32.cnk0",
+          "bounds": [
+            -2048,
+            33.625,
+            -2304,
+            -1792,
+            63.5625,
+            -2048
+          ]
+        }
+      ]
+    },
+    "navmeshY": 55.85610580444336,
+    "navmeshMinusTerrain": 0.5386058044433639,
+    "suppliedYMinusTerrain": 2.8525000000000063,
+    "npcYFromCurrentAdapter": 57.55471420288086,
+    "observedNpcAtExactPoint": null,
+    "roadCollision": {
+      "height": 57.55471391873623,
+      "actor": "RoadStraightSlopeUp_256.adr",
+      "instanceId": 1277429836,
+      "triangle": 121
+    },
+    "roadMinusTerrain": 2.237213918736238
+  },
+  {
+    "input": [
+      1989.04,
+      53.39,
+      -2235.25
+    ],
+    "ground": {
+      "height": 92.06692708333334,
+      "selected": {
+        "name": "Z1_-36_28.cnk0",
+        "triangle": 29658,
+        "height": 92.06692708333334
+      },
+      "failedQuery": false,
+      "tiles": [
+        {
+          "name": "Z1_-36_28.cnk0",
+          "bounds": [
+            1792,
+            72.5,
+            -2304,
+            2048,
+            123.875,
+            -2048
+          ]
+        }
+      ]
+    },
+    "navmeshY": 92.38703155517578,
+    "navmeshMinusTerrain": 0.3201044718424413,
+    "suppliedYMinusTerrain": -38.67692708333334,
+    "npcYFromCurrentAdapter": 92.06692504882812,
+    "observedNpcAtExactPoint": null,
+    "roadCollision": null,
+    "roadMinusTerrain": null
+  }
+]

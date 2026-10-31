@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+const debug = require("debug")("h1emu:src:servers:ZoneServer2016:entities:npc");
 import { DamageInfo } from "types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
@@ -36,9 +37,18 @@ import { CommandInteractionString } from "types/zone2016packets";
 import { BaseEntity } from "./baseentity";
 import { ChallengeType } from "../managers/challengemanager";
 import { ProjectileEntity } from "./projectileentity";
+import { npcCollisionProfile } from "../../../utils/npccollisionprofiles";
+import type {
+  ImpactCorpse,
+  VehicleDeathImpact
+} from "../../../utils/npccorpseplacement";
 import { JSM } from "../jsms/jsm";
 import { Factions } from "../jsms/factions";
 import { spawnGasCloudAt } from "../jsms/gasser.jsm";
+import {
+  NpcGroundMotion,
+  NpcGroundSample
+} from "../../../utils/npcgroundmotion";
 
 export abstract class Npc extends BaseFullCharacter {
   health: number;
@@ -51,6 +61,7 @@ export abstract class Npc extends BaseFullCharacter {
 
   spawnerId: number;
   deathTime: number = 0;
+  vehicleImpactCorpse?: ImpactCorpse;
   npcId: number = 0;
   faction: Factions = Factions.None;
   rewardItems: { itemDefId: number; weight: number }[] = [];
@@ -90,6 +101,14 @@ export abstract class Npc extends BaseFullCharacter {
   lookAtTarget: Float32Array | null = null;
   isSelected: boolean = false;
   variant: string = "";
+  private groundMotion?: NpcGroundMotion;
+  private packetMoving = false;
+  lastMovementPacketTime = 0;
+  lastMovementRecipients = 0;
+  groundMotionDiagnostics?: ReturnType<NpcGroundMotion["update"]> & {
+    packetVerticalSpeed: number;
+    horizontalSpeed: number;
+  };
 
   constructor(
     characterId: string,
@@ -108,7 +127,16 @@ export abstract class Npc extends BaseFullCharacter {
     this.server = server;
     this.variant = variant;
     if (!process.env.DISABLE_AI && this.server.aiEnabled) {
-      this.navAgent = this.server.navManager.createAgent(this.state.position);
+      this.navAgent = this.server.navManager.createAgent(
+        this.state.position,
+        npcCollisionProfile(actorModelId)
+      );
+      // Use the agent's actual spawn X/Z, then intersect the terrain there.
+      // Do not move the Detour agent off its own navigation surface.
+      this.state.position = this.server.navManager.npcNavToGame(
+        this.navAgent.position()
+      );
+      this.resetGroundMotion();
     }
     server.explosiveManager.addEntity(this);
   }
@@ -213,13 +241,23 @@ export abstract class Npc extends BaseFullCharacter {
         }
       }
     } else {
-      console.log(
+      debug(
         `CharacterId ${characterId} not found when applying damage from npc`
       );
     }
   }
 
-  async damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+  async damage(
+    server: ZoneServer2016,
+    damageInfo: DamageInfo,
+    fatalImpact?: VehicleDeathImpact
+  ) {
+    if (
+      !this.isAlive ||
+      !Number.isFinite(damageInfo.damage) ||
+      damageInfo.damage <= 0
+    )
+      return;
     let client = server.getClientByCharId(damageInfo.entity);
     if (!client) {
       const sourceEntity = server.getEntity(damageInfo.entity);
@@ -232,6 +270,24 @@ export abstract class Npc extends BaseFullCharacter {
     if ((this.health -= damageInfo.damage) <= 0 && this.isAlive) {
       this.deathTime = Date.now();
       this.flags.knockedOut = 1;
+      if (this.navAgent) {
+        this.navAgent.resetMoveTarget();
+        server.navManager.crowd.removeAgent(this.navAgent);
+        this.navAgent = undefined;
+      }
+      this.packetMoving = false;
+      this.groundMotion = undefined;
+      // Position separation and zero-speed replication must precede both
+      // loot creation and the client-managed death/ragdoll transition.
+      try {
+        server.npcCollisionManager?.onNpcDeath(this, fatalImpact);
+      } catch (error) {
+        console.error(
+          "[NPC-CORPSE] Death positioning failed",
+          this.characterId,
+          error
+        );
+      }
 
       this.addLoot(server);
 
@@ -269,13 +325,27 @@ export abstract class Npc extends BaseFullCharacter {
               data: {
                 characterId: this.characterId,
                 flag: 128,
-                managerCharacterId: c.character.characterId
+                managerCharacterId:
+                  this.vehicleImpactCorpse?.managerId ?? c.character.characterId
               }
             });
             server.sendData(c, "Character.ManagedObject", {
               objectCharacterId: this.characterId,
-              characterId: c.character.characterId
+              characterId:
+                this.vehicleImpactCorpse?.managerId ?? c.character.characterId
             });
+            if (this.vehicleImpactCorpse) {
+              server.npcCollisionManager?.corpses.packetQueued(
+                this,
+                "Character.StartMultiStateDeath",
+                c
+              );
+              server.npcCollisionManager?.corpses.packetQueued(
+                this,
+                "Character.ManagedObject",
+                c
+              );
+            }
           } else {
             server.sendData(c, "Character.StartMultiStateDeath", {
               data: {
@@ -338,6 +408,7 @@ export abstract class Npc extends BaseFullCharacter {
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
     server.sendData(client, "LightweightToFullNpc", this.pGetFull(server));
+    server.npcCollisionManager?.corpses.onFullData(this, client);
 
     if (this.onReadyCallback) {
       this.onReadyCallback(client);
@@ -511,59 +582,127 @@ export abstract class Npc extends BaseFullCharacter {
     this.navAgent.resetMoveTarget();
   }
 
-  goTo(position: Float32Array) {
+  hasPendingMovementStop() {
+    return this.packetMoving;
+  }
+
+  resetGroundMotion() {
+    const p = this.state.position;
+    const ground = this.server.navManager.sampleNpcGround({
+      x: p[0],
+      y: p[1],
+      z: p[2]
+    });
+    this.groundMotion = new NpcGroundMotion(
+      p.slice(),
+      ground,
+      getCurrentServerTimeWrapper().getFull()
+    );
+    this.packetMoving = false;
+    this.groundMotionDiagnostics = undefined;
+  }
+
+  goTo(position: Float32Array, ground?: NpcGroundSample) {
+    const previousPosition = this.state.position;
+    const time = getCurrentServerTimeWrapper();
+    const nominalMs = this.server.pathfindingUpdateRate || 0;
+    const sample =
+      ground ??
+      this.server.navManager.sampleNpcGround({
+        x: position[0],
+        y: position[1],
+        z: position[2]
+      });
+    if (!this.groundMotion) {
+      const previousGround = this.server.navManager.sampleNpcGround({
+        x: previousPosition[0],
+        y: previousPosition[1],
+        z: previousPosition[2]
+      });
+      this.groundMotion = new NpcGroundMotion(
+        previousPosition.slice(),
+        previousGround,
+        time.getFull() - nominalMs
+      );
+    }
     const orientTarget = this.lookAtTarget ?? position;
     const dx = orientTarget[0] - this.state.position[0];
     const dz = orientTarget[2] - this.state.position[2];
-    const dy = orientTarget[1] - this.state.position[1];
 
     const horizontalDist = Math.sqrt(dx * dx + dz * dz);
-    const orientation = Math.atan2(dx, dz);
+    const orientation =
+      horizontalDist > 0 ? Math.atan2(dx, dz) : (this.state.yaw ?? 0);
     const prevOrientation = this.state.yaw ?? orientation;
     let angleChange = orientation - prevOrientation;
     // normalize to [-π, π]
     angleChange = Math.atan2(Math.sin(angleChange), Math.cos(angleChange));
     this.state.yaw = orientation;
-    const frontTilt = Math.atan2(dy, horizontalDist);
+    const frontTilt = Math.atan(
+      sample.slopeX * Math.sin(orientation) +
+        sample.slopeZ * Math.cos(orientation)
+    );
 
     const sinO = Math.sin(orientation);
     const cosO = Math.cos(orientation);
 
-    const lateralDist = dx * cosO - dz * sinO;
-
-    const sideTilt = Math.atan2(lateralDist, horizontalDist);
+    const sideTilt = Math.atan(sample.slopeX * cosO - sample.slopeZ * sinO);
 
     this.state.position = position;
 
-    let horizontalSpeed = horizontalDist;
-    let verticalSpeed = Math.abs(dy);
-    if (this.navAgent) {
-      const vel = this.navAgent.velocity();
-      horizontalSpeed = metersToFeet(Math.sqrt(vel.x * vel.x + vel.z * vel.z));
-      verticalSpeed = metersToFeet(Math.abs(vel.y));
-    }
-
-    this.server.sendDataToAllWithSpawnedEntity(
-      this.server._npcs,
-      this.characterId,
-      "PlayerUpdatePosition",
-      {
-        transientId: this.transientId,
-        positionUpdate: {
-          sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
-          position: this.state.position,
-          unknown3_int8: 0,
-          stance: 66565,
-          engineRPM: 0,
-          orientation,
-          frontTilt,
-          sideTilt,
-          angleChange,
-          verticalSpeed,
-          horizontalSpeed
-        }
-      }
+    const travelled = Math.hypot(
+      position[0] - previousPosition[0],
+      position[2] - previousPosition[2]
     );
+    const motion = this.groundMotion.update(
+      position,
+      sample,
+      time.getFull(),
+      nominalMs,
+      travelled > 0
+    );
+    // Match animation/prediction speed to actual authoritative displacement
+    // over the packet interval, including slowdowns and downhill travel.
+    const measuredSpeed = motion.dt > 0 ? travelled / motion.dt : 0;
+    const horizontalSpeed = metersToFeet(measuredSpeed);
+    const stance =
+      1 |
+      1024 |
+      (travelled > 0 ? 65536 : 64) |
+      (measuredSpeed >
+      (npcCollisionProfile(this.actorModelId).walkSpeedLimit ?? 3)
+        ? 4
+        : 0);
+    const verticalSpeed = metersToFeet(motion.verticalSpeed);
+    this.packetMoving = horizontalSpeed !== 0 || verticalSpeed !== 0;
+    this.groundMotionDiagnostics = {
+      ...motion,
+      packetVerticalSpeed: verticalSpeed,
+      horizontalSpeed
+    };
+
+    this.lastMovementPacketTime = time.getTruncatedU32();
+    this.lastMovementRecipients =
+      this.server.sendDataToAllWithSpawnedEntity(
+        this.server._npcs,
+        this.characterId,
+        "PlayerUpdatePosition",
+        {
+          transientId: this.transientId,
+          positionUpdate: {
+            sequenceTime: time.getTruncatedU32(),
+            position: this.state.position,
+            unknown3_int8: 0,
+            stance,
+            engineRPM: 0,
+            orientation,
+            frontTilt,
+            sideTilt,
+            angleChange,
+            verticalSpeed,
+            horizontalSpeed
+          }
+        }
+      ) ?? 0;
   }
 
   /**
@@ -578,8 +717,6 @@ export abstract class Npc extends BaseFullCharacter {
   ) {
     const dx = targetPosition[0] - this.state.position[0];
     const dz = targetPosition[2] - this.state.position[2];
-    const dy = targetPosition[1] - this.state.position[1];
-    const horizontalDist = Math.sqrt(dx * dx + dz * dz);
     const targetOrientation = Math.atan2(dx, dz);
     const prevOrientation = this.state.yaw ?? targetOrientation;
     let angleChange = targetOrientation - prevOrientation;
@@ -590,11 +727,6 @@ export abstract class Npc extends BaseFullCharacter {
     }
     const orientation = prevOrientation + angleChange;
     this.state.yaw = orientation;
-    const frontTilt = Math.atan2(dy, horizontalDist);
-    const sinO = Math.sin(orientation);
-    const cosO = Math.cos(orientation);
-    const lateralDist = dx * cosO - dz * sinO;
-    const sideTilt = Math.atan2(lateralDist, horizontalDist);
 
     this.server.sendDataToAllWithSpawnedEntity(
       this.server._npcs,
@@ -604,16 +736,13 @@ export abstract class Npc extends BaseFullCharacter {
         transientId: this.transientId,
         positionUpdate: {
           sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
-          position: this.state.position,
+          // Facing-only packets must not reset XYZ interpolation or zero the
+          // locomotion velocity between the regular movement updates.
           unknown3_int8: 0,
-          stance: 66565,
+          // Facing-only updates must not override gait or slope tilt.
           engineRPM: 0,
           orientation,
-          frontTilt,
-          sideTilt,
-          angleChange,
-          verticalSpeed: 0,
-          horizontalSpeed: 0
+          angleChange
         }
       }
     );

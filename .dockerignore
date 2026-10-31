@@ -1,4 +1,7 @@
 node_modules/
+.zone-2016.secret
+.login-fix-backup-*/
+.terrain-fix-backup-*/
 out/
 
 scripts/

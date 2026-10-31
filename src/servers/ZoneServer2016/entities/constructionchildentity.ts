@@ -661,7 +661,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     slotCooldown = 30000
   ): boolean {
     if (this.obstacleRef) {
-      console.log(
+      debug(
         `[NavMesh] Removed obstacle for world construction ${this.characterId}`
       );
       server.navManager.removeObstacle(this.obstacleRef);

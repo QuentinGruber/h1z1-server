@@ -217,7 +217,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
 
   destroy(server: ZoneServer2016, destructTime = 0): boolean {
     if (this.obstacleRef) {
-      console.log(
+      debug(
         `[NavMesh] Removed obstacle for world lootable ${this.characterId}`
       );
       server.navManager.removeObstacle(this.obstacleRef);

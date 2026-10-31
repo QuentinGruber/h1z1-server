@@ -916,7 +916,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     slotCooldown = 30000
   ): boolean {
     if (this.obstacleRef) {
-      console.log(
+      debug(
         `[NavMesh] Removed obstacle for construction ${this.characterId}`
       );
       server.navManager.removeObstacle(this.obstacleRef);

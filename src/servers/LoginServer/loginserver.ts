@@ -133,6 +133,24 @@ export class LoginServer extends EventEmitter {
   private _pendingInternalReqTimeouts: { [requestId: number]: NodeJS.Timeout } =
     {};
   private _soloPlayIp: string = process.env.SOLO_PLAY_IP || "127.0.0.1";
+
+  /** Optional client-facing address from Compose; never used for zone authentication. */
+  private advertisedServerAddress(serverId: number, databaseAddress: string): string {
+    const ip = process.env.PUBLIC_SERVER_IP?.trim();
+    const worldId = Number(process.env.PUBLIC_SERVER_WORLD_ID ?? 2);
+    if (!ip || !Number.isInteger(worldId) || serverId !== worldId) {
+      return databaseAddress;
+    }
+    const port = Number(process.env.PUBLIC_SERVER_PORT ?? 1117);
+    if (!Number.isInteger(port) || port < 1 || port > 65535) {
+      throw new Error("PUBLIC_SERVER_PORT must be an integer from 1 to 65535");
+    }
+    // IP/hostname only: the protocol expects a host:port string.
+    if (/[:\s/]/.test(ip)) {
+      throw new Error("PUBLIC_SERVER_IP must contain a hostname or IPv4 address without a port");
+    }
+    return `${ip}:${port}`;
+  }
   private clients: Map<string, LoginClient>;
   private _resolver = new Resolver();
   private _mongoClient?: MongoClient;
@@ -207,7 +225,7 @@ export class LoginServer extends EventEmitter {
           debug("Packet parsing was unsuccesful");
         }
       } catch (error) {
-        console.log(error);
+        debug(error);
         process.exitCode = 1;
       }
     });
@@ -281,6 +299,9 @@ export class LoginServer extends EventEmitter {
                       gameMode
                     );
                     await this.updateServerStatus(serverId, true);
+                    debug(
+                      `[LOGIN] Zone ${serverId} registered from ${client.address} (${h1emuVersion})`
+                    );
                   } else {
                     this.rejectZoneConnection(serverId, client);
                     return;
@@ -372,14 +393,14 @@ export class LoginServer extends EventEmitter {
                   break;
                 }
                 default:
-                  console.log(
+                  debug(
                     `Unhandled ZoneConnection packet: ${packet.name}`
                   );
                   break;
               }
             }
           } catch (e) {
-            console.log(e);
+            debug(e);
           }
         }
       );
@@ -425,8 +446,6 @@ export class LoginServer extends EventEmitter {
           }
         }
       );
-
-      this._zoneConnectionManager.start();
     }
     this.pluginManager.initializePlugins(this);
   }
@@ -720,7 +739,7 @@ export class LoginServer extends EventEmitter {
         );
         break;
       default:
-        console.log(`Unhandled tunnel packet "${packet.subPacketName}"`);
+        debug(`Unhandled tunnel packet "${packet.subPacketName}"`);
         break;
     }
   }
@@ -919,6 +938,17 @@ export class LoginServer extends EventEmitter {
         .map((server: GameServer) => {
           if (server.locked && !isAdmin) {
             server.allowedAccess = false;
+          }
+          // The server list's ping endpoint must match the address used at login.
+          const advertised = this.advertisedServerAddress(
+            server.serverId,
+            server.serverAddress
+          );
+          if (advertised !== server.serverAddress && server.populationData) {
+            server.populationData = server.populationData.replace(
+              /(PingAddress|PingAdr)="[^"]*"/g,
+              (_value, attribute: string) => `${attribute}="${advertised}"`
+            );
           }
           return server;
         })
@@ -1281,7 +1311,10 @@ export class LoginServer extends EventEmitter {
       console.error(`Could not find session for ${client.authKey}`);
       return false;
     }
-    const { serverAddress } = gameServer;
+    const serverAddress = this.advertisedServerAddress(
+      serverId,
+      gameServer.serverAddress
+    );
     const characterLoginInfo = await this.getCharactersLoginInfo(
       serverId,
       serverAddress,
@@ -1291,17 +1324,22 @@ export class LoginServer extends EventEmitter {
     );
     const rejectionFlags = await this.getClientRejectionFlags(serverId, client);
 
-    connectionAllowed = (await this.askZone(
-      serverId,
-      "CharacterAllowedRequest",
-      {
-        characterId,
-        loginSessionId: UserSession?.guid ?? "",
-        rejectionFlags: rejectionFlags.map((flag) => {
-          return { rejectionFlag: flag };
-        })
-      }
-    )) as ConnectionAllowed;
+    const zoneReply = await this.askZone(serverId, "CharacterAllowedRequest", {
+      characterId,
+      loginSessionId: UserSession?.guid ?? "",
+      rejectionFlags: rejectionFlags.map((flag) => {
+        return { rejectionFlag: flag };
+      })
+    });
+    connectionAllowed =
+      typeof zoneReply === "object" && zoneReply !== null
+        ? (zoneReply as ConnectionAllowed)
+        : {
+            status: 0,
+            rejectionFlag: CONNECTION_REJECTION_FLAGS.ERROR,
+            message:
+              "The zone server is unavailable or did not answer the login request. Please try again shortly."
+          };
 
     if (client.gameVersion === GAME_VERSIONS.H1Z1_KOTK_PS3) {
       // any type can be pass to a byteswithlength field but only the specified type in the table can be read
@@ -1431,11 +1469,17 @@ export class LoginServer extends EventEmitter {
           });
           this._pendingInternalReq[reqId] = resolve;
           this._pendingInternalReqTimeouts[reqId] = setTimeout(() => {
+            console.error(
+              `[LOGIN] ${packetName} serverId=${serverId} reqId=${reqId}: zone response timed out`
+            );
             delete this._pendingInternalReq[reqId];
             delete this._pendingInternalReqTimeouts[reqId];
             resolve(0);
           }, 5000);
         } else {
+          console.error(
+            `[LOGIN] ${packetName} serverId=${serverId}: zone is not registered`
+          );
           resolve(0);
         }
       } catch (e) {
@@ -1593,9 +1637,9 @@ export class LoginServer extends EventEmitter {
         await this._mongoClient.connect();
       } catch (e) {
         console.error(e);
-        throw debug(
-          "[ERROR]Unable to connect to mongo server " + this._mongoAddress
-        );
+        throw new Error("Login server could not connect to MongoDB", {
+          cause: e
+        });
       }
       debug("connected to mongo !");
       // if no collections exist on h1server database , fill it with samples
@@ -1605,8 +1649,10 @@ export class LoginServer extends EventEmitter {
         await initMongo(this._mongoClient, debugName);
       }
       this._db = this._mongoClient.db(DB_NAME);
-      this.updateServersStatus();
-      this.clearQueueMongo();
+      await this.updateServersStatus();
+      await this.clearQueueMongo();
+      // Do not accept zone registration before the database is initialized.
+      await this._zoneConnectionManager.start();
     }
 
     if (this._soloMode) {

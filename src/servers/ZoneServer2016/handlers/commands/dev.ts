@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+const debug = require("debug")("h1emu:src:servers:ZoneServer2016:handlers:commands:dev");
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // TODO enable @typescript-eslint/no-unused-vars
 import { h1z1PacketsType2016 } from "types/packets";
@@ -621,7 +622,7 @@ const dev: any = {
     }, 500);
   },
   sc: function (server: ZoneServer2016, client: Client, args: Array<string>) {
-    console.log(WorldObjectManager.itemSpawnersChances);
+    debug(WorldObjectManager.itemSpawnersChances);
   },
   c: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     const rs = server.rewardManager.rewards;
@@ -786,15 +787,16 @@ const dev: any = {
     );
 
     server._npcs[characterId] = zombie;
-    console.log(
+    debug(
       `[ZOMBIE-DEBUG] Creating nav agent at zombie state.position: [${zombie.state.position[0].toFixed(2)}, ${zombie.state.position[1].toFixed(2)}, ${zombie.state.position[2].toFixed(2)}]`
     );
     const a = server.navManager.createAgent(zombie.state.position);
     zombie.navAgent = a;
     // Sync zombie to its navmesh spawn point converted back to game coords
-    const initialGamePos = NavManager.navToGame(a.position());
+    const initialGamePos = server.navManager.npcNavToGame(a.position());
     zombie.state.position = initialGamePos;
-    console.log(
+    zombie.resetGroundMotion();
+    debug(
       `[ZOMBIE-DEBUG] Nav agent created, navPos=[${a.position().x.toFixed(2)}, ${a.position().y.toFixed(2)}, ${a.position().z.toFixed(2)}] gamePos=[${initialGamePos[0].toFixed(2)}, ${initialGamePos[1].toFixed(2)}, ${initialGamePos[2].toFixed(2)}]`
     );
 
@@ -806,8 +808,8 @@ const dev: any = {
         const targetNavPoint =
           server.navManager.getClosestNavPointVec3(playerPos);
         zombie.navAgent.requestMoveTarget(targetNavPoint);
-        const navPos = zombie.navAgent.interpolatedPosition;
-        const gamePos = NavManager.navToGame(navPos);
+        const navPos = zombie.navAgent.position();
+        const gamePos = server.navManager.npcNavToGame(navPos);
         zombie.goTo(gamePos);
       }
     }, 100);
@@ -1025,7 +1027,7 @@ const dev: any = {
       console.time("recast");
       const result = server.navManager.raycast(npc_pos, player_pos);
       console.timeEnd("recast");
-      console.log(result);
+      debug(result);
     }
   },
   zombiemove: function (
@@ -1362,7 +1364,7 @@ const dev: any = {
     };
     let found = false;
     for (const v in server._vehicles) {
-      console.log(server._vehicles[v]);
+      debug(server._vehicles[v]);
       if (server._vehicles[v].actorModelId === parseInt(args[1])) {
         location.position = new Float32Array(
           server._vehicles[v].state.position
@@ -1396,7 +1398,7 @@ const dev: any = {
     let found = false;
     for (const n in server._npcs) {
       if (server._npcs[n].actorModelId === parseInt(args[1])) {
-        console.log(server._npcs[n]);
+        debug(server._npcs[n]);
         location.position = new Float32Array(server._npcs[n].state.position);
         server.sendData(client, "ClientUpdate.UpdateLocation", location);
         found = true;

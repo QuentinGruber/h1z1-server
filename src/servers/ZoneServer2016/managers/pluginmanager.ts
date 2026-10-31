@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+const debug = require("debug")("h1emu:src:servers:ZoneServer2016:managers:pluginmanager");
 import * as fs from "fs";
 import * as path from "path";
 import * as yaml from "js-yaml";
@@ -322,7 +323,7 @@ export class PluginManager {
   private checkPluginsFolder(): void {
     if (!fs.existsSync(this.pluginsDir)) {
       fs.mkdirSync(this.pluginsDir);
-      console.log(`[PluginManager] Created plugins folder: ${this.pluginsDir}`);
+      debug(`[PluginManager] Created plugins folder: ${this.pluginsDir}`);
     }
   }
 
@@ -354,7 +355,7 @@ export class PluginManager {
     return new Promise((resolve, reject) => {
       // shoutout chatGPT
 
-      console.log("[PluginManager] Installing dependencies...");
+      debug("[PluginManager] Installing dependencies...");
 
       const installProcess = spawn("npm", ["install"], {
         cwd: path.join(this.pluginsDir, pluginPath),
@@ -370,7 +371,7 @@ export class PluginManager {
 
       installProcess.once("close", (code) => {
         if (code === 0) {
-          console.log("[PluginManager] Dependencies installed successfully.");
+          debug("[PluginManager] Dependencies installed successfully.");
           resolve();
           return;
         }
@@ -410,11 +411,11 @@ export class PluginManager {
       if (isZoneServer(server)) {
         this.registerPluginCommands(server, plugin);
       } else if (plugin.commands?.length) {
-        console.log(
+        debug(
           `[PluginManager] ${plugin.name} tried adding commands, but LoginServer does not support plugin commands.`
         );
       }
-      console.log(`[PluginManager] ${plugin.name} initialized!`);
+      debug(`[PluginManager] ${plugin.name} initialized!`);
     } catch (e: any) {
       console.error(e);
     }
@@ -435,7 +436,7 @@ export class PluginManager {
       // Install dependencies into the node_modules directory
       await this.installDependencies(pluginPath);
     } else {
-      console.log(`[PluginManager] Dependencies loaded for ${pluginPath}`);
+      debug(`[PluginManager] Dependencies loaded for ${pluginPath}`);
     }
 
     traverseAndReplace(
@@ -450,7 +451,7 @@ export class PluginManager {
     const plugin = new module.default();
     plugin.dir = path.join(this.pluginsDir, pluginPath);
     this.plugins.push(plugin);
-    console.log(`[PluginManager] Loaded: ${plugin.name}`);
+    debug(`[PluginManager] Loaded: ${plugin.name}`);
   }
 
   /**
@@ -468,7 +469,7 @@ export class PluginManager {
         await this.loadPlugin(folder);
       } catch (e: any) {
         console.error(e);
-        console.log(
+        debug(
           `[PluginManager] Plugin "${folder}" not loaded, make sure you've compiled the plugin before attempting to load it.`
         );
       }
@@ -492,7 +493,7 @@ export class PluginManager {
       configPath = path.join(this.pluginsDir, fileName);
 
     if (!fileExists(path.join(this.pluginsDir, fileName))) {
-      console.log(
+      debug(
         `[PluginManager] Generated config file for ${plugin.name} at base plugins directory: ${fileName}`
       );
       await copyFile(defaultConfigPath, configPath);
@@ -532,7 +533,7 @@ export class PluginManager {
     }
     if (!this.moduleDir) {
       console.error("[PluginManager] moduleDir is undefined!");
-      console.log(`[PluginManager] No plugins loaded.`);
+      debug(`[PluginManager] No plugins loaded.`);
       return;
     }
 
@@ -547,7 +548,7 @@ export class PluginManager {
     }
 
     if (this.plugins.length == 0) {
-      console.log(`[PluginManager] No plugins loaded.`);
+      debug(`[PluginManager] No plugins loaded.`);
     }
   }
 
@@ -572,7 +573,7 @@ export class PluginManager {
     const originalFunction = thisArg[methodName];
 
     if (!originalFunction) {
-      console.log(
+      debug(
         `\n\n\n[PluginManager] Plugin ${plugin.name} tried to hook an invalid method!\n\n\n`
       );
       return;
@@ -601,7 +602,7 @@ export class PluginManager {
   ) {
     server.commandHandler.commands[flhash(command.name.toUpperCase())] =
       command;
-    console.log(
+    debug(
       `[PluginManager] Plugin ${plugin.name} registered a command: /${command.name}`
     );
   }

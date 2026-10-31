@@ -1,3 +1,4 @@
+const debug = require("debug")("h1emu:src:servers:ZoneServer2016:managers:decaymanager");
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
@@ -211,7 +212,7 @@ export class DecayManager {
       }
     }
     if (destroyedGriefFoundations > 0) {
-      console.log(`Destroyed ${destroyedGriefFoundations} grief foundations`);
+      debug(`Destroyed ${destroyedGriefFoundations} grief foundations`);
     }
   }
 

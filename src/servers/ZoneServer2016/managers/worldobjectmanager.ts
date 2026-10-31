@@ -366,7 +366,7 @@ export class WorldObjectManager {
         if (++i % 200 === 0) await scheduler.yield();
       }
     } catch (error) {
-      console.log(`[WOM] createLootThreaded fallback: ${error}`);
+      debug(`[WOM] createLootThreaded fallback: ${error}`);
       apm.captureError(error);
       await this.createLoot(server);
     }

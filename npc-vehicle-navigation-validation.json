@@ -1,0 +1,106 @@
+[
+  {
+    "species": "zombie",
+    "radius": 0.3,
+    "height": 2,
+    "reached": true,
+    "samples": 84,
+    "maxGroundError": 0.0000019073486328125,
+    "blockedMoves": 0
+  },
+  {
+    "species": "bear",
+    "radius": 1.6907547624493422,
+    "height": 1.397754329489544,
+    "reached": true,
+    "samples": 90,
+    "maxGroundError": 0.0000019073486328125,
+    "blockedMoves": 0
+  },
+  {
+    "species": "wolf",
+    "radius": 0.7310835852824611,
+    "height": 0.9476274030748755,
+    "reached": true,
+    "samples": 84,
+    "maxGroundError": 0.0000019073486328125,
+    "blockedMoves": 0
+  },
+  {
+    "species": "deer",
+    "radius": 1.0256741022025333,
+    "height": 1.3706560629652813,
+    "reached": true,
+    "samples": 86,
+    "maxGroundError": 0.0000019073486328125,
+    "blockedMoves": 0
+  },
+  {
+    "kind": "actual-FSM",
+    "species": "zombie",
+    "states": [
+      "chase",
+      "attack",
+      "attacking"
+    ],
+    "hits": 1,
+    "succeeded": true,
+    "end": [
+      -1900.9322509765625,
+      62.293155670166016,
+      -2268.865478515625,
+      0
+    ]
+  },
+  {
+    "kind": "actual-FSM",
+    "species": "bear",
+    "states": [
+      "standingUp",
+      "chase",
+      "attack",
+      "attacking"
+    ],
+    "hits": 1,
+    "succeeded": true,
+    "end": [
+      -1901.1903076171875,
+      62.31592559814453,
+      -2268.732177734375,
+      0
+    ]
+  },
+  {
+    "kind": "actual-FSM",
+    "species": "wolf",
+    "states": [
+      "howling",
+      "chase",
+      "attack",
+      "attacking"
+    ],
+    "hits": 1,
+    "succeeded": true,
+    "end": [
+      -1900.9981689453125,
+      62.29948043823242,
+      -2268.8232421875,
+      0
+    ]
+  },
+  {
+    "kind": "actual-FSM",
+    "species": "deer",
+    "states": [
+      "flee"
+    ],
+    "hits": 0,
+    "succeeded": true,
+    "end": [
+      -1906.9052734375,
+      62.46875,
+      -2264.8916015625,
+      0
+    ]
+  }
+]

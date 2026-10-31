@@ -1,3 +1,4 @@
+const debug = require("debug")("h1emu:scripts:updateTypeDoc");
 import fs from "fs";
 
 // Read all files in the src directory recursively
@@ -24,7 +25,7 @@ files.filter((file) => file.endsWith(".ts"));
 // Create an array of all the file names
 const fileNames = files.map((file) => `${file}`);
 
-console.log(`Found ${fileNames.length} files`);
+debug(`Found ${fileNames.length} files`);
 
 const typeDocConfig = require("../typedoc.json");
 
@@ -32,4 +33,4 @@ typeDocConfig.entryPoints = fileNames;
 
 // Write the file back to disk
 fs.writeFileSync("./typedoc.json", JSON.stringify(typeDocConfig, null, 2));
-console.log("Updated typedoc.json");
+debug("Updated typedoc.json");

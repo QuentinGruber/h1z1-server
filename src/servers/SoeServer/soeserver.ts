@@ -110,7 +110,7 @@ export class SOEServer extends EventEmitter {
       }, intervalTime);
     } catch (e) {
       console.error(e);
-      console.log("PerformanceObserver not available");
+      debug("PerformanceObserver not available");
     }
   }
 
@@ -443,7 +443,7 @@ export class SOEServer extends EventEmitter {
     entry.count++;
     if (entry.count > MAX_PACKETS_PER_IP_PER_SEC) {
       if (!entry.logged) {
-        console.log(
+        debug(
           `[DDoS] IP ${ip} rate-limited: ${entry.count} packets in 1s window (dropped)`
         );
         entry.logged = true;
@@ -463,7 +463,7 @@ export class SOEServer extends EventEmitter {
     entry.count++;
     if (entry.count > MAX_SESSIONS_PER_IP_PER_MIN) {
       if (!entry.logged) {
-        console.log(
+        debug(
           `[DDoS] IP ${ip} session-spam: ${entry.count} session requests in 60s (dropped)`
         );
         entry.logged = true;
@@ -535,7 +535,7 @@ export class SOEServer extends EventEmitter {
       }
       this.handlePacket(client, parsed_data);
     } catch (e) {
-      console.log(e);
+      debug(e);
     }
   }
 

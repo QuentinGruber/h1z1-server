@@ -4,7 +4,7 @@ WORKDIR /usr/src/app
 COPY package.json package-lock.json tsconfig.json h1z1-server.js ./
 COPY src/ ./src/
 COPY tsconfigs/ ./tsconfigs/
-RUN npm install
+RUN npm ci --ignore-scripts && npm run build
 
 FROM node:24-alpine
 LABEL maintainer="quentingruber@gmail.com"
@@ -15,7 +15,7 @@ COPY --from=builder /usr/src/app/package.json ./
 COPY --from=builder /usr/src/app/package-lock.json ./
 COPY data/ ./data/
 COPY docker/ ./docker/
-RUN npm install --omit=dev --ignore-scripts
+RUN npm ci --omit=dev --ignore-scripts
 ENV NODE_ENV="production"
 ENV DISABLE_PLUGINS=true
 # Login server port

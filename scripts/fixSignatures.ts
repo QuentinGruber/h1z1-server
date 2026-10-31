@@ -1,3 +1,4 @@
+const debug = require("debug")("h1emu:scripts:fixSignatures");
 import fs from "fs";
 
 const signatureHeader = fs.readFileSync(`${__dirname}/../signature-header.txt`);
@@ -23,7 +24,7 @@ files.forEach((filePath: string) => {
     const offset = data.indexOf(signatureHeader[0]) - 1;
     const dataHeader: Buffer = data.slice(offset ?? 0, signatureHeader.length);
     if (Buffer.compare(dataHeader, signatureHeader) > 0) {
-      console.log(filePath);
+      debug(filePath);
       const newData = signatureHeader + data;
       fs.writeFile(filePath, newData, () => {});
     }

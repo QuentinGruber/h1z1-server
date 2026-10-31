@@ -130,7 +130,7 @@ export class SOEOutputStream extends EventEmitter {
       this._order_sequence.increment();
       this.emit(SOEOutputChannels.Ordered, data, this._order_sequence.get());
     } else {
-      console.log(
+      debug(
         "ordered packets can't be too large, this packet will be upgraded as a reliable one"
       );
       this.writeReliable(data);

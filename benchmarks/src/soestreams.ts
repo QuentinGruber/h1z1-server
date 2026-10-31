@@ -1,3 +1,4 @@
+const debug = require("debug")("h1emu:benchmarks:src:soestreams");
 import { SOEInputStream } from "../../h1z1-server.js";
 import { DEFAULT_CRYPTO_KEY } from "../../out/utils/constants";
 
@@ -109,7 +110,7 @@ const inputStream = new SOEInputStream(
   Buffer.from(DEFAULT_CRYPTO_KEY, "base64")
 );
 
-console.log("SOEINPUT");
+debug("SOEINPUT");
 
 console.time("genSequenceForFragBench");
 for (let index = 0; index < loops; index++) {

@@ -1,0 +1,251 @@
+{
+  "version": 1,
+  "notes": "Conservative LOD0 body envelopes, NOT decoded PhysX articulated shapes. Human capsule retains existing navigation dimensions. Mass/resistance/damage parameters are configurable balance approximations, not recovered game rules.",
+  "impact": {
+    "minimumSpeed": 0.5,
+    "maximumSpeed": 75,
+    "maximumSampleSeconds": 1,
+    "maximumClockSkewSeconds": 0.25,
+    "parkedDelayMs": 750,
+    "worldCollisionWindowMs": 250,
+    "npcDamagePerJoule": 0.5,
+    "vehicleDamagePerJoule": 0.02,
+    "rotationStepRadians": 0.08726646259971647
+  },
+  "npcs": {
+    "9002": {
+      "species": "deer",
+      "bounds": [
+        -0.21221694350242615,
+        0.00041563331615179777,
+        -0.43308746814727783,
+        0.21221700310707092,
+        1.371071696281433,
+        1.0034795999526978
+      ],
+      "radius": 1.0256741022025333,
+      "height": 1.3706560629652813,
+      "mass": 90,
+      "resistance": 1,
+      "walkSpeedLimit": 2,
+      "source": {
+        "actor": "Deer001.adr",
+        "mesh": "Deer001_lod0.dme",
+        "collision": "Deer001_COL.apx",
+        "adrSha256": "295e4a08cb3017f454875074ba431c75b748e82f924d4f17697ea5f5bceac06e",
+        "meshSha256": "e568a9cefa095e5c010786342dad5cfcc908267eb57705189376d94cdead90dd",
+        "collisionSha256": "a2653eea0f741a0db9b01529446aac8dfbde1f1cf3eac1f521019ab05c7a1e61"
+      }
+    },
+    "9003": {
+      "species": "wolf",
+      "bounds": [
+        -0.16810372471809387,
+        -0.003357507521286607,
+        -0.5487294793128967,
+        0.16810372471809387,
+        0.9442698955535889,
+        0.7114944458007812
+      ],
+      "radius": 0.7310835852824611,
+      "height": 0.9476274030748755,
+      "mass": 45,
+      "resistance": 1,
+      "walkSpeedLimit": 3,
+      "source": {
+        "actor": "Wolf001.adr",
+        "mesh": "Wolf001_LOD0.dme",
+        "collision": "Wolf001_COL.apx",
+        "adrSha256": "4c257b4ee131e1b1796446d25e50964104a5a8149ab1321f049d3faa5b7ccf3d",
+        "meshSha256": "4e213ee524b973e547b211d3635042ee097723367a4bc3fd8bd854c7cc28c19a",
+        "collisionSha256": "0da0ea12a5b0a6303cb34e7460d784d0e7571c6772f0942878f30325dc444720"
+      }
+    },
+    "9187": {
+      "species": "bear",
+      "bounds": [
+        -0.4351283311843872,
+        -0.0021379173267632723,
+        -0.7851788401603699,
+        0.4351283311843872,
+        1.3956164121627808,
+        1.6338038444519043
+      ],
+      "radius": 1.6907547624493422,
+      "height": 1.397754329489544,
+      "mass": 250,
+      "resistance": 1.5,
+      "walkSpeedLimit": 2,
+      "source": {
+        "actor": "Bear_Brown.adr",
+        "mesh": "Bear_Brown_LOD0.dme",
+        "collision": "Bear_Brown_COL.apx",
+        "adrSha256": "c81ea5f29e23a4b452f5502bf739d204b0e1f192ec5c4c662c08b806f0f60b23",
+        "meshSha256": "519b0e3ac2880ab430d9d1cebe8c39ddf957db44093bb6912bfcbd203abf5394",
+        "collisionSha256": "f74e78cd7e41bef49c97768471bcc108eb25376da33c709bf00c56bf4f121bca"
+      }
+    },
+    "9212": {
+      "species": "rabbit",
+      "bounds": [
+        -0.10654521733522415,
+        -0.0009135656873695552,
+        -0.0804823487997055,
+        0.1169470027089119,
+        0.37444114685058594,
+        0.3174308240413666
+      ],
+      "radius": 0.3382882343419281,
+      "height": 0.3753547125379555,
+      "mass": 2,
+      "resistance": 1,
+      "walkSpeedLimit": 2,
+      "source": {
+        "actor": "Rabbit_Tan.adr",
+        "mesh": "Rabbit_Tan_LOD0.dme",
+        "collision": "Rabbit_Tan_COL.apx",
+        "adrSha256": "1e3ad5cb0f55301ca2d52ec93324520024d23107b05c5d90d22f3f5a890ec71a",
+        "meshSha256": "ef9507a5df1016853427ed47e0908ed308c3c10649dfee9500e5adf986c55257",
+        "collisionSha256": "9f04bb4130c8034f9487692a588c7628f4f7c99f1e1f2e7e92d621e964dc8574"
+      }
+    },
+    "9253": {
+      "species": "deer",
+      "bounds": [
+        -0.30447399616241455,
+        0.0003929573285859078,
+        -0.4388101398944855,
+        0.3044740557670593,
+        1.629781723022461,
+        0.9977565407752991
+      ],
+      "radius": 1.0431790667450787,
+      "height": 1.629388765693875,
+      "mass": 90,
+      "resistance": 1,
+      "walkSpeedLimit": 2,
+      "source": {
+        "actor": "Deer_Buck.adr",
+        "mesh": "Deer_Buck_LOD0.dme",
+        "collision": "Deer001_COL.apx",
+        "adrSha256": "97b6f77625027f3e78134273ed526daad99ee400d077fe63cb3b963940efeca2",
+        "meshSha256": "f3a611b36f64c5a5f5b6b352b6261690a6192deb3034dc00fdb442296086b159",
+        "collisionSha256": "a2653eea0f741a0db9b01529446aac8dfbde1f1cf3eac1f521019ab05c7a1e61"
+      }
+    },
+    "default": {
+      "species": "humanoid",
+      "bounds": [
+        -0.3,
+        0,
+        -0.3,
+        0.3,
+        2,
+        0.3
+      ],
+      "radius": 0.3,
+      "height": 2,
+      "mass": 80,
+      "resistance": 1,
+      "walkSpeedLimit": 1.5
+    }
+  },
+  "vehicles": {
+    "9258": {
+      "species": "pickup",
+      "bounds": [
+        -1.1597301959991455,
+        -0.019127273932099342,
+        -2.2417798042297363,
+        1.1597301959991455,
+        1.7876241207122803,
+        2.236067056655884
+      ],
+      "radius": 3.092919464699474,
+      "height": 1.8067513946443796,
+      "mass": 1900,
+      "resistance": 1,
+      "walkSpeedLimit": 2,
+      "source": {
+        "actor": "Common_PickupTruck.adr",
+        "mesh": "Common_PickupTruck_LOD0.dme",
+        "collision": "Common_PickupTruck_COL.apx",
+        "adrSha256": "1d03a906f83c963d37fb2f113dabe71bbdeb7ad77aeae3259f55a977323a4015",
+        "meshSha256": "b28c3340dafef67c48411cfda5f66ff4487b1b77751244dac52dcac792299a7d",
+        "collisionSha256": "02a7ddecb18a1bcc1bfe68210d0cf7f093593f640ec6718fc73b9c9a01a73398"
+      }
+    },
+    "9301": {
+      "species": "policecar",
+      "bounds": [
+        -1.0546188354492188,
+        -0.004063697997480631,
+        -2.6822283267974854,
+        1.0546188354492188,
+        1.663934588432312,
+        2.7245309352874756
+      ],
+      "radius": 3.3621374183700645,
+      "height": 1.6679982864297926,
+      "mass": 1600,
+      "resistance": 1,
+      "walkSpeedLimit": 2,
+      "source": {
+        "actor": "Common_Vehicle_PoliceCar01.adr",
+        "mesh": "Common_Vehicle_PoliceCar01_LOD0.dme",
+        "collision": "Common_Vehicle_PoliceCar01_COL.apx",
+        "adrSha256": "f5916ea1cc23f21cfdb054c5fc20b43fde4ac32240bb27b7d260918eda4521de",
+        "meshSha256": "b38f5b6557d9d598231ac1a3f15dca02057289ba170a5eed0028e0330b7d3cea",
+        "collisionSha256": null
+      }
+    },
+    "9588": {
+      "species": "atv",
+      "bounds": [
+        -0.5694723129272461,
+        -0.00008730798435863107,
+        -0.9858512878417969,
+        0.5694723129272461,
+        1.0961778163909912,
+        0.9356884360313416
+      ],
+      "radius": 1.5804452796847344,
+      "height": 1.0962651243753498,
+      "mass": 300,
+      "resistance": 1,
+      "walkSpeedLimit": 2,
+      "source": {
+        "actor": "Vehicle_Common_ATV01.adr",
+        "mesh": "Vehicle_Common_ATV01_LOD0.dme",
+        "collision": "Vehicle_Common_ATV01_col.apx",
+        "adrSha256": "92bf505d79deb905b220f7398f022f0f6949e61ee8873bde144123f3f57d7b0d",
+        "meshSha256": "209014bfa65592a5b9461d7d0fa15efda69a2203e9ae2cc013833be1fc821ef5",
+        "collisionSha256": "2d902cdd9f0a0f00e2d3dd70ee328f084c118fd567aa698ac0f6546b82010f7b"
+      }
+    },
+    "10060": {
+      "species": "offroader",
+      "bounds": [
+        -1.0132122039794922,
+        -0.0071356710977852345,
+        -1.9639379978179932,
+        1.0132110118865967,
+        1.815098524093628,
+        2.0340805053710938
+      ],
+      "radius": 2.908378435621914,
+      "height": 1.8222341951914132,
+      "mass": 1500,
+      "resistance": 1,
+      "walkSpeedLimit": 2,
+      "source": {
+        "actor": "Common_OffRoader_Tintable.adr",
+        "mesh": "Common_OffRoader_Tintable_LOD0.dme",
+        "collision": "Common_OffRoader_COL.apx",
+        "adrSha256": "3d83d66499385f5014019455b76e46fccb8461b58f1c367096a0331f938a6006",
+        "meshSha256": "cfe7285055d05a9f3987dfae78b5e1d3e5d93f3dc450aebc068e30877b663797",
+        "collisionSha256": "1ac9e7d7b6bfb72a9372b84da78853db4eef25302a6960daffc297105d962ba7"
+      }
+    }
+  }
+}

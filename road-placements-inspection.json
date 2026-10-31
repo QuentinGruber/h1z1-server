@@ -1,0 +1,254 @@
+{
+  "objects": 980,
+  "roadInstances": 8174,
+  "points": [
+    {
+      "input": [
+        -1822.24,
+        58.17,
+        -2234.6
+      ],
+      "nearestRoadInstances": [
+        {
+          "actor": "RoadStraightSlopeUp_256.adr",
+          "position": [
+            -1775,
+            54,
+            -2235
+          ],
+          "rotation": [
+            -1.5707964897155762,
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            0.6800003051757812,
+            1
+          ],
+          "id": 1277429836,
+          "renderDistance": 2000,
+          "distance": 47.241693449748404
+        },
+        {
+          "actor": "Common_Props_RoadBarrier01.adr",
+          "position": [
+            -1858.95556640625,
+            62.3125,
+            -2194.06884765625
+          ],
+          "rotation": [
+            -1.5533429384231567,
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "id": 1562079028,
+          "renderDistance": 500,
+          "distance": 54.688272297120676
+        },
+        {
+          "actor": "Common_Props_RoadBarrier01.adr",
+          "position": [
+            -1858.885986328125,
+            62.3125,
+            -2190.06103515625
+          ],
+          "rotation": [
+            -1.5533429384231567,
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "id": 1999332748,
+          "renderDistance": 500,
+          "distance": 57.67709860346577
+        },
+        {
+          "actor": "Common_Props_RoadBarrier01.adr",
+          "position": [
+            -1858.9527587890625,
+            62.3125,
+            -2185.967041015625
+          ],
+          "rotation": [
+            -1.6493359804153442,
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "id": 1999332749,
+          "renderDistance": 500,
+          "distance": 60.93432002968259
+        },
+        {
+          "actor": "Common_Props_RoadBarrier01.adr",
+          "position": [
+            -1858.895263671875,
+            62.608428955078125,
+            -2181.483154296875
+          ],
+          "rotation": [
+            1.3321352005004883,
+            1.3352184295654297,
+            3.1051108837127686,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "id": 3073100114,
+          "renderDistance": 500,
+          "distance": 64.53687048737534
+        }
+      ]
+    },
+    {
+      "input": [
+        1989.04,
+        53.39,
+        -2235.25
+      ],
+      "nearestRoadInstances": [
+        {
+          "actor": "Common_Structures_Bridges_BaileyBridgeFlat.adr",
+          "position": [
+            2128.383056640625,
+            50.271995544433594,
+            -2429.724853515625
+          ],
+          "rotation": [
+            -1.4922564029693604,
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "id": 4272544739,
+          "renderDistance": 1000,
+          "distance": 239.24246296148235
+        },
+        {
+          "actor": "Common_Structures_Bridges_BaileyBridgeRamp.adr",
+          "position": [
+            2128.41064453125,
+            50.26591873168945,
+            -2429.7099609375
+          ],
+          "rotation": [
+            -1.4922564029693604,
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "id": 3953412830,
+          "renderDistance": 1000,
+          "distance": 239.246427277128
+        },
+        {
+          "actor": "Common_Structures_Bridges_BaileyBridgeFlat.adr",
+          "position": [
+            2140.155517578125,
+            50.271995544433594,
+            -2430.650634765625
+          ],
+          "rotation": [
+            -1.4922564029693604,
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "id": 1417665128,
+          "renderDistance": 1000,
+          "distance": 247.01681667391352
+        },
+        {
+          "actor": "Common_Structures_Bridges_BaileyBridgeFlat.adr",
+          "position": [
+            2151.937744140625,
+            50.271995544433594,
+            -2431.576904296875
+          ],
+          "rotation": [
+            -1.4922564029693604,
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "id": 460015682,
+          "renderDistance": 1000,
+          "distance": 255.10768000375617
+        },
+        {
+          "actor": "Common_Structures_Bridges_BaileyBridgeFlat.adr",
+          "position": [
+            2163.718505859375,
+            50.271995544433594,
+            -2432.50537109375
+          ],
+          "rotation": [
+            -1.4922564029693604,
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "id": 600699748,
+          "renderDistance": 1000,
+          "distance": 263.4810464428072
+        }
+      ]
+    }
+  ]
+}

@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+const debug = require("debug")("h1emu:src:servers:ZoneServer2016:entities:baseentity");
 import { DamageInfo } from "types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "../classes/zoneclient";
@@ -147,7 +148,7 @@ export abstract class BaseEntity {
   }
 
   destroy(server: ZoneServer2016): boolean {
-    console.log(
+    debug(
       `Attempted to call destroy() on an entity an undefined destroy method! actorModelId ${this.actorModelId}`
     );
     return false;

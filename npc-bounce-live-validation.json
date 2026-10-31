@@ -1,0 +1,265 @@
+{
+  "samples": 107,
+  "movingSamples": 87,
+  "downhillSamples": 35,
+  "wrongUpwardVelocity": 0,
+  "failedTerrainQueries": 0,
+  "maxSelectedSurfaceError": 0.0000019073486328125,
+  "dtRange": [
+    0.139,
+    0.249
+  ],
+  "examples": [
+    {
+      "characterId": "0xd274128691f55dce",
+      "region": 0,
+      "npc": [
+        -1892.3778076171875,
+        62.34041976928711,
+        -2224.97021484375
+      ],
+      "navmesh": {
+        "x": -1892.3778076171875,
+        "y": 62.57028579711914,
+        "z": -2224.97021484375
+      },
+      "groundY": 62.34041976928711,
+      "selectedTerrain": {
+        "name": "Z1_-36_-32.cnk0",
+        "triangle": 17697,
+        "height": 62.34041976928711
+      },
+      "terrainTiles": [
+        {
+          "name": "Z1_-36_-32.cnk0",
+          "bounds": [
+            -2048,
+            33.625,
+            -2304,
+            -1792,
+            63.5625,
+            -2048
+          ]
+        }
+      ],
+      "failedHeightQuery": false,
+      "roadCollision": null,
+      "consecutivePrevious": [
+        -1892.3927001953125,
+        62.343509674072266,
+        -2224.810302734375
+      ],
+      "updateDeltaSeconds": 0.152,
+      "selectedSurface": "terrain",
+      "finalY": 62.34041976928711,
+      "motion": {
+        "previous": [
+          -1892.3927001953125,
+          62.343509674072266,
+          -2224.810302734375
+        ],
+        "previousSurface": "terrain",
+        "dt": 0.152,
+        "rawVerticalSpeed": -0.02032832095497533,
+        "verticalSpeed": -0.02005682629515532,
+        "continuous": true,
+        "stopped": false,
+        "selectedSurface": "terrain",
+        "selectedHeight": 62.34041976928711,
+        "finalY": 62.34041976928711,
+        "packetVerticalSpeed": -0.06580323798219738,
+        "horizontalSpeed": 6.306037620191806
+      }
+    },
+    {
+      "characterId": "0xc16c5144d242b9f6",
+      "region": 0,
+      "npc": [
+        -1867.26513671875,
+        62.099849700927734,
+        -2223.656005859375
+      ],
+      "navmesh": {
+        "x": -1867.26513671875,
+        "y": 63.21042251586914,
+        "z": -2223.656005859375
+      },
+      "groundY": 62.099848937988284,
+      "selectedTerrain": {
+        "name": "Z1_-36_-32.cnk0",
+        "triangle": 17739,
+        "height": 62.099848937988284
+      },
+      "terrainTiles": [
+        {
+          "name": "Z1_-36_-32.cnk0",
+          "bounds": [
+            -2048,
+            33.625,
+            -2304,
+            -1792,
+            63.5625,
+            -2048
+          ]
+        }
+      ],
+      "failedHeightQuery": false,
+      "roadCollision": null,
+      "consecutivePrevious": [
+        -1867.42431640625,
+        62.119781494140625,
+        -2223.677978515625
+      ],
+      "updateDeltaSeconds": 0.152,
+      "selectedSurface": "terrain",
+      "finalY": 62.099849700927734,
+      "motion": {
+        "previous": [
+          -1867.42431640625,
+          62.119781494140625,
+          -2223.677978515625
+        ],
+        "previousSurface": "terrain",
+        "dt": 0.152,
+        "rawVerticalSpeed": -0.13113021850585938,
+        "verticalSpeed": -0.12946625798431036,
+        "continuous": true,
+        "stopped": false,
+        "selectedSurface": "terrain",
+        "selectedHeight": 62.099848937988284,
+        "finalY": 62.099849700927734,
+        "packetVerticalSpeed": -0.4247580778452448,
+        "horizontalSpeed": 6.306037255279007
+      }
+    },
+    {
+      "characterId": "0xd274128691f55dce",
+      "region": 0,
+      "npc": [
+        -1892.18994140625,
+        62.14534378051758,
+        -2226.410888671875
+      ],
+      "navmesh": {
+        "x": -1892.18994140625,
+        "y": 62.55658721923828,
+        "z": -2226.410888671875
+      },
+      "groundY": 62.14534378051758,
+      "selectedTerrain": {
+        "name": "Z1_-36_-32.cnk0",
+        "triangle": 17658,
+        "height": 62.14534378051758
+      },
+      "terrainTiles": [
+        {
+          "name": "Z1_-36_-32.cnk0",
+          "bounds": [
+            -2048,
+            33.625,
+            -2304,
+            -1792,
+            63.5625,
+            -2048
+          ]
+        }
+      ],
+      "failedHeightQuery": false,
+      "roadCollision": {
+        "height": 62.10742168909095,
+        "actor": "Road_City_IntersectionT_64.adr",
+        "instanceId": 42537070,
+        "triangle": 57,
+        "slopeX": 0,
+        "slopeZ": -0.2672476726856307
+      },
+      "consecutivePrevious": [
+        -1892.195068359375,
+        62.1496696472168,
+        -2226.380126953125
+      ],
+      "updateDeltaSeconds": 0.167,
+      "selectedSurface": "terrain",
+      "finalY": 62.14534378051758,
+      "motion": {
+        "previous": [
+          -1892.195068359375,
+          62.1496696472168,
+          -2226.380126953125
+        ],
+        "previousSurface": "terrain",
+        "dt": 0.167,
+        "rawVerticalSpeed": -0.02590339340849551,
+        "verticalSpeed": -0.07102131552982495,
+        "continuous": true,
+        "stopped": false,
+        "selectedSurface": "terrain",
+        "selectedHeight": 62.14534378051758,
+        "finalY": 62.14534378051758,
+        "packetVerticalSpeed": -0.23300957284287088,
+        "horizontalSpeed": 6.1468840059261876
+      }
+    },
+    {
+      "characterId": "0xc16c5144d242b9f6",
+      "region": 0,
+      "npc": [
+        -1865.822998046875,
+        61.836280822753906,
+        -2223.475341796875
+      ],
+      "navmesh": {
+        "x": -1865.822998046875,
+        "y": 63.250999450683594,
+        "z": -2223.475341796875
+      },
+      "groundY": 61.836280822753906,
+      "selectedTerrain": {
+        "name": "Z1_-36_-32.cnk0",
+        "triangle": 17740,
+        "height": 61.836280822753906
+      },
+      "terrainTiles": [
+        {
+          "name": "Z1_-36_-32.cnk0",
+          "bounds": [
+            -2048,
+            33.625,
+            -2304,
+            -1792,
+            63.5625,
+            -2048
+          ]
+        }
+      ],
+      "failedHeightQuery": false,
+      "roadCollision": null,
+      "consecutivePrevious": [
+        -1865.85400390625,
+        61.84306335449219,
+        -2223.478759765625
+      ],
+      "updateDeltaSeconds": 0.167,
+      "selectedSurface": "terrain",
+      "finalY": 61.836280822753906,
+      "motion": {
+        "previous": [
+          -1865.85400390625,
+          61.84306335449219,
+          -2223.478759765625
+        ],
+        "previousSurface": "terrain",
+        "dt": 0.167,
+        "rawVerticalSpeed": -0.04061396250467814,
+        "verticalSpeed": -0.11155905744782973,
+        "continuous": true,
+        "stopped": false,
+        "selectedSurface": "terrain",
+        "selectedHeight": 61.836280822753906,
+        "finalY": 61.836280822753906,
+        "packetVerticalSpeed": -0.3660074180371377,
+        "horizontalSpeed": 6.146883387376651
+      }
+    }
+  ]
+}

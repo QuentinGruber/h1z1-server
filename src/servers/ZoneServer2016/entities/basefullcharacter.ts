@@ -921,7 +921,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           }
           server.addContainerItem(this, itemToMove, newContainer, false);
         } catch (error) {
-          console.log(error);
+          debug(error);
         }
       }
     }
@@ -1509,7 +1509,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   }
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
-    console.log(
+    debug(
       `[ERROR] Unhandled FullCharacterDataRequest from client ${client.guid}!`
     );
   }
@@ -1519,7 +1519,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     client: ZoneClient2016,
     packet: RagdollStop
   ) {
-    console.log(`[ERROR] Unhandled RagdollStop from client ${client.guid}!`);
+    debug(`[ERROR] Unhandled RagdollStop from client ${client.guid}!`);
   }
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {

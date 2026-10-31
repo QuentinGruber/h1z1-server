@@ -1,3 +1,4 @@
+const debug = require("debug")("h1emu:benchmarks:src:echo:echo-bench");
 import { EchoServer } from "./echo-server";
 import { BenchParameters, EchoClient } from "./echo-client";
 
@@ -10,7 +11,7 @@ const echoServer = new EchoServer(1119, cryptoKey);
 echoServer.start();
 async function echoAwait(echoClient: EchoClient, clientId: number) {
   const finalTime = await echoClient.getFinalTime();
-  console.log(`Took ${finalTime}ms #${clientId}`);
+  debug(`Took ${finalTime}ms #${clientId}`);
 }
 
 const benchParameters: BenchParameters = {

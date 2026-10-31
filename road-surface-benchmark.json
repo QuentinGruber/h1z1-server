@@ -1,0 +1,9 @@
+{
+  "loadMs": 141.88920000000002,
+  "instances": 425,
+  "spawnPoints": 803,
+  "roadFootprints": 36,
+  "raisedSpawns": 30,
+  "warmRoadMedianMs": 0.07589999999999009,
+  "warmRoadP95Ms": 0.24939999999998008
+}

@@ -1,3 +1,4 @@
+const debug = require("debug")("h1emu:benchmarks:src:packetPerSec:persec-bench");
 import { EchoServer } from "../echo/echo-server";
 import { BenchParameters, PerSecClient } from "./persec-client";
 
@@ -28,7 +29,7 @@ for (let index = 0; index < CLIENTS_NUMBER; index++) {
     (packetsThisRoutine: number, acksThisRoutine: number) => {
       totalPacketsRoutine += packetsThisRoutine;
       return;
-      console.log(
+      debug(
         `Client #${index} received ${packetsThisRoutine}/${benchParameters.packetsPerSec} and got ${acksThisRoutine}/${benchParameters.packetsPerSec} acks this routine #${routineCount}`
       );
     }
@@ -38,7 +39,7 @@ for (let index = 0; index < CLIENTS_NUMBER; index++) {
 const warmupRoutines = 3;
 const testRoutineNumber = 120;
 setInterval(() => {
-  console.log(
+  debug(
     `Total packets for routine #${routineCount} : ${totalPacketsRoutine} with ${clients.length} clients`
   );
   if (routineCount > warmupRoutines) {
@@ -46,7 +47,7 @@ setInterval(() => {
     if (routines.length === testRoutineNumber) {
       let allPackets = 0;
       routines.forEach((e) => (allPackets += e));
-      console.log(
+      debug(
         `Mean packets per sec ${Math.floor(allPackets / routines.length)}`
       );
       process.exit();

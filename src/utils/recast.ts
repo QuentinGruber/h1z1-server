@@ -27,22 +27,46 @@ import {
 import { NavMeshQuery } from "recast-navigation";
 import { Crowd } from "recast-navigation";
 import { createDefaultTileCacheMeshProcess } from "recast-navigation/generators";
+import { TerrainHeight } from "./terrainheight";
+import { NpcGroundDiagnostics } from "./npcgrounddiagnostics";
+import { RoadSurfaces } from "./roadsurfaces";
+import type { NpcGroundSample } from "./npcgroundmotion";
 const debug = require("debug")("nav");
 
 const MAX_OBSTACLE = 20000;
 const MAX_PENDING_OBSTACLE = 50;
 
 export class NavManager {
+  readonly groundDiagnostics = new NpcGroundDiagnostics();
+  terrain?: TerrainHeight;
+  roads?: RoadSurfaces;
   navmesh!: NavMesh;
   tilecache!: TileCache;
   obstaclesRequestsPending: number = 0;
   crowd!: Crowd;
   navMeshQuery!: NavMeshQuery;
   lastTimeCall: number = Date.now();
+  lastCrowdTiming?: { elapsedSeconds: number; durationMs: number };
   updateFrequency = 1 / 5;
   obstacleCount = 0;
   constructor() {}
   async loadNav() {
+    if (!process.env.FAKE_NAVMESH) {
+      const directory =
+        process.env.TERRAIN_DATA_PATH ??
+        __dirname + "/../../data/2016/terrainData";
+      // Require the terrain manifest at startup. Tiles are checked on first use.
+      this.terrain = new TerrainHeight(directory);
+      this.roads = new RoadSurfaces(
+        __dirname + "/../../data/2016/roadSurfaces.json.gz"
+      );
+      debug(
+        `[ROAD] Loaded ${this.roads.instanceCount} asphalt-road collision instances`
+      );
+      debug(
+        `[TERRAIN] Loaded ${this.terrain.tiles.length} terrain tile records from ${directory}`
+      );
+    }
     console.time("[NAV] Navmesh loaded");
     const mesh_parts: Buffer[] = [];
     const tc_parts: Buffer[] = [];
@@ -52,7 +76,7 @@ export class NavManager {
         const partPath = __dirname + `/../../data/2016/navData/z1_${part}.bin`;
         if (!existsSync(partPath)) break;
         mesh_parts.push(readFileSync(partPath));
-        console.log(`[NAV] loaded nav part ${part}`);
+        debug(`[NAV] loaded nav part ${part}`);
         part++;
       }
       part = 0;
@@ -62,11 +86,11 @@ export class NavManager {
           __dirname + `/../../data/2016/navData/z1_cache_${part}.bin`;
         if (!existsSync(partPath)) break;
         tc_parts.push(readFileSync(partPath));
-        console.log(`[NAV] loaded nav cache part ${part}`);
+        debug(`[NAV] loaded nav cache part ${part}`);
         part++;
       }
     } else {
-      console.log(`"[NAV]" Empty navmesh loaded`);
+      debug(`"[NAV]" Empty navmesh loaded`);
     }
     await initRecast();
 
@@ -81,7 +105,14 @@ export class NavManager {
     const maxAgentRadius = 2.0;
     this.navMeshQuery = new NavMeshQuery(this.navmesh);
     this.crowd = new Crowd(navMesh, { maxAgents, maxAgentRadius });
+    this.groundDiagnostics.reportReferences(
+      this.terrain,
+      this.navMeshQuery,
+      this.roads
+    );
     console.timeEnd("[NAV] Navmesh loaded");
+    // Loading geometry is not elapsed simulation time for this new crowd.
+    this.lastTimeCall = Date.now();
   }
 
   static gameToNav(f: Float32Array): Vector3 {
@@ -91,8 +122,44 @@ export class NavManager {
     return new Float32Array([v.x, v.y, v.z, 0]);
   }
 
+  /** Keep Detour's corridor/agent Y separate from the NPC's physical ground Y. */
+  npcNavToGame(v: Vector3): Float32Array {
+    return new Float32Array([v.x, this.sampleNpcGround(v).height, v.z, 0]);
+  }
+
+  sampleNpcGround(v: Vector3): NpcGroundSample {
+    const terrain = this.terrain?.getSurface?.(v.x, v.z);
+    const height = terrain?.height ?? this.terrain?.getHeight(v.x, v.z);
+    const road = this.roads?.getSample(v.x, v.z);
+    // Only the exact road collision footprint can raise terrain Y. Detour's
+    // own agent/corridor and X/Z remain unchanged, including obstacle avoidance.
+    if (road && (height == null || road.height > height))
+      return {
+        ...road,
+        surface: "road",
+        valid: true,
+        roadInstanceId: road.instanceId
+      };
+    if (height != null)
+      return {
+        height,
+        surface: "terrain",
+        valid: !!terrain,
+        slopeX: terrain?.slopeX ?? 0,
+        slopeZ: terrain?.slopeZ ?? 0
+      };
+    return {
+      height: v.y,
+      surface: "navmesh",
+      valid: false,
+      slopeX: 0,
+      slopeZ: 0
+    };
+  }
+
   removeObstacle(obstacle: BoxObstacle) {
     this.tilecache.removeObstacle(obstacle);
+    this.obstacleCount = Math.max(0, this.obstacleCount - 1);
     this.obstaclesRequestsPending++;
   }
 
@@ -144,6 +211,7 @@ export class NavManager {
 
   updt() {
     const now = Date.now();
+    const started = performance.now();
     const timeSinceLastCalled = (now - this.lastTimeCall) / 1000;
     if (this.obstaclesRequestsPending) {
       let upToDate = false;
@@ -156,7 +224,15 @@ export class NavManager {
       `requests: ${this.obstaclesRequestsPending}, total: ${this.tilecache.obstacles.size}`
     );
     this.lastTimeCall = now;
-    this.crowd.update(this.updateFrequency, timeSinceLastCalled, 1);
+    // Use Recast's bounded catch-up (10 fixed substeps). A single substep
+    // permanently starves every agent when callbacks exceed the fixed step.
+    this.crowd.update(this.updateFrequency, timeSinceLastCalled);
+    if (process.env.NPC_MOTION_TRACE === "1") {
+      this.lastCrowdTiming = {
+        elapsedSeconds: timeSinceLastCalled,
+        durationMs: performance.now() - started
+      };
+    }
   }
 
   // Returns nearest navmesh point (in nav coords) to the given game position.
@@ -184,7 +260,10 @@ export class NavManager {
     return NavManager.navToGame(n.nearestPoint);
   }
 
-  createAgent(gamePos: Float32Array): CrowdAgent {
+  createAgent(
+    gamePos: Float32Array,
+    dimensions = { radius: 0.3, height: 2 }
+  ): CrowdAgent {
     const navPosition = this.getClosestNavPointVec3(gamePos);
     debug(
       `createAgent: navPos=[${navPosition.x.toFixed(2)}, ${navPosition.y.toFixed(2)}, ${navPosition.z.toFixed(2)}]`
@@ -204,11 +283,11 @@ export class NavManager {
 
     const spawnPoint = success ? initialAgentPosition : navPosition;
     const agent = this.crowd.addAgent(spawnPoint, {
-      radius: 0.3,
-      height: 2,
+      radius: dimensions.radius,
+      height: dimensions.height,
       maxAcceleration: 1.0,
       maxSpeed: 1.0,
-      collisionQueryRange: 2.0,
+      collisionQueryRange: Math.max(2, dimensions.radius * 4),
       pathOptimizationRange: 4.0,
       separationWeight: 2.0
     });

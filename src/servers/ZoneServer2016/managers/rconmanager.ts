@@ -1,3 +1,4 @@
+const debug = require("debug")("h1emu:src:servers:ZoneServer2016:managers:rconmanager");
 // ======================================================================
 //
 //   GNU GENERAL PUBLIC LICENSE
@@ -39,10 +40,10 @@ export class RConManager extends EventEmitter {
 
   start() {
     if (process.env.FORCE_DISABLE_WS || !this.wssPort || !this.password) {
-      console.log("RConManager disabled");
+      debug("RConManager disabled");
       return;
     }
-    console.log("RConManager start");
+    debug("RConManager start");
 
     this.wss = new WebSocketServer({ noServer: true });
     this.wss.on("connection", (ws) => {

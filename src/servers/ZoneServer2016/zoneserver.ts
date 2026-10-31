@@ -261,6 +261,8 @@ import { RewardManager } from "./managers/rewardmanager";
 import { DynamicAppearance } from "types/zonedata";
 import { clearInterval, setInterval } from "node:timers";
 import { NavManager } from "../../utils/recast";
+import { NpcCollisionManager } from "./managers/npccollisionmanager";
+import { NpcMotionTrace } from "../../utils/npcmotiontrace";
 import { ProjectileEntity } from "./entities/projectileentity";
 import { ChallengeManager, ChallengeType } from "./managers/challengemanager";
 import { RandomEventsManager } from "./managers/randomeventsmanager";
@@ -592,6 +594,8 @@ export class ZoneServer2016 extends EventEmitter {
   disableBaseCheck!: boolean;
   /*                          */
   navManager: NavManager;
+  npcCollisionManager: NpcCollisionManager;
+  private npcMotionTrace = new NpcMotionTrace();
   staticBuildings: AddSimpleNpc[] = PluginManager.loadServerData(
     "2016/sampleData/staticbuildings.json"
   );
@@ -645,6 +649,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.explosiveManager = new AiManager(this);
     this.airdropManager = new AirdropManager(this);
     this.navManager = new NavManager();
+    this.npcCollisionManager = new NpcCollisionManager(this);
     this.challengeManager = new ChallengeManager(this);
     this.randomEventsManager = new RandomEventsManager(this);
     this.explosionManager = new ExplosionManager(this);
@@ -685,7 +690,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this._mongoAddress) {
       this._soloMode = true;
       this.fairPlayManager.useFairPlay = false;
-      console.log("Server in solo mode !");
+      debug("Server in solo mode !");
     }
 
     this.accountInventoriesManager = new AccountInventoryManager(this);
@@ -839,7 +844,7 @@ export class ZoneServer2016 extends EventEmitter {
                 const byte = data[i].toString(16).padStart(2, '0');
                 hexString += byte + ' ';
             }
-            console.log(`<Buffer ${hexString.trim()}>`);
+            debug(`<Buffer ${hexString.trim()}>`);
           }
           */
 
@@ -880,10 +885,10 @@ export class ZoneServer2016 extends EventEmitter {
     );
     this.dynamicappearance = dynamicappearance;
     if (this._mongoAddress && this.rebootTime) {
-      console.log("Reboot time set to " + this.rebootTime + " hours");
+      debug("Reboot time set to " + this.rebootTime + " hours");
       this.rebootTimeTimer = setTimeout(
         () => {
-          console.log("Rebooting server due to reboot time set");
+          debug("Rebooting server due to reboot time set");
           this.shutdown(this.rebootWarnTime, "Server rebooting");
         },
         this.rebootTime * 60 * 60 * 1000
@@ -925,6 +930,9 @@ export class ZoneServer2016 extends EventEmitter {
           console.error(err);
         } else {
           this.sendZonePopulationUpdate();
+          debug(
+            `[LOGIN] Zone ${this._worldId} registered with ${this._loginServerInfo.address}:${this._loginServerInfo.port}`
+          );
           debug(`LoginConnection established for ${client.sessionId}`);
         }
       }
@@ -965,7 +973,20 @@ export class ZoneServer2016 extends EventEmitter {
               this.onClientIsAdminRequest(client, packet);
               break;
             case "CharacterAllowedRequest":
-              this.onClientAllowedRequest(client, packet);
+              try {
+                await this.onClientAllowedRequest(client, packet);
+              } catch (error) {
+                console.error(
+                  `[LOGIN] CharacterAllowedRequest reqId=${packet.data.reqId} failed`,
+                  error
+                );
+                this.sendCharacterAllowedReply(
+                  client,
+                  packet.data.reqId,
+                  false,
+                  CONNECTION_REJECTION_FLAGS.ERROR
+                );
+              }
               break;
             case "CharacterDeleteRequest": {
               const { characterId, reqId } = packet.data;
@@ -1030,7 +1051,7 @@ export class ZoneServer2016 extends EventEmitter {
               const { guid, reason } = packet.data;
 
               if (!this.enableLoginServerKickRequests) {
-                console.log(
+                debug(
                   `LoginServer requested to kick client with guid ${guid} for reason: ${reason}! Ignored due to configuration setting.`
                 );
                 return;
@@ -1053,13 +1074,13 @@ export class ZoneServer2016 extends EventEmitter {
               const client = this.getClientByGuid(guid);
 
               if (!client) {
-                console.log(
+                debug(
                   `LoginServer requested to kick INVALID client with guid ${guid} for reason: ${reason}!`
                 );
                 return;
               }
 
-              console.log(
+              debug(
                 `LoginServer kicking ${client.character.name} for reason: ${reasonString}`
               );
 
@@ -1208,7 +1229,7 @@ export class ZoneServer2016 extends EventEmitter {
     try {
       await this.sendInitData(client);
     } catch (error) {
-      console.log(error);
+      debug(error);
       this.sendData<LoginFailed>(client, "LoginFailed", {});
       if (!this._soloMode) {
         await this._db.collection(DB_COLLECTIONS.LOGIN_ERRORS).insertOne({
@@ -1223,7 +1244,7 @@ export class ZoneServer2016 extends EventEmitter {
       try {
         await this.sendInitData(client);
       } catch (error) {
-        console.log(error);
+        debug(error);
         this.sendData<LoginFailed>(client, "LoginFailed", {});
         if (!this._soloMode) {
           await this._db.collection(DB_COLLECTIONS.LOGIN_ERRORS).insertOne({
@@ -1271,7 +1292,7 @@ export class ZoneServer2016 extends EventEmitter {
           client.heavyPacketCount ===
           ZoneServer2016.MAX_HEAVY_PACKETS_PER_CLIENT_PER_SEC + 1
         ) {
-          console.log(
+          debug(
             `[DDoS] Client ${client.character.characterId} heavy-packet rate-limited: ${client.heavyPacketCount} ${packet.name} in 1s (dropped)`
           );
         }
@@ -1442,7 +1463,7 @@ export class ZoneServer2016 extends EventEmitter {
   async onClientAllowedRequest(client: LZConnectionClient, packet: any) {
     const { characterId, loginSessionId, reqId } = packet.data;
     if (!this._ready) {
-      console.log(
+      debug(
         `Character (${characterId}) connection rejected: server is not ready.`
       );
       this.sendCharacterAllowedReply(
@@ -1454,7 +1475,7 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     if (this.isRebooting) {
-      console.log(
+      debug(
         `Character (${characterId}) connection rejected due to reboot`
       );
       this.sendCharacterAllowedReply(
@@ -1467,7 +1488,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     if (this.isLocked && !(await this.getIsAdmin(loginSessionId))) {
-      console.log(
+      debug(
         `Character (${characterId}) connection rejected due to server lock`
       );
       this.sendCharacterAllowedReply(
@@ -1481,7 +1502,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     const ban = await this.isClientBanned(loginSessionId, client.address);
     if (ban) {
-      console.log(
+      debug(
         `Character (${characterId}) connection rejected due to local ban`
       );
 
@@ -1523,7 +1544,7 @@ export class ZoneServer2016 extends EventEmitter {
               continue;
             }
           }
-          console.log(
+          debug(
             `Character (${characterId}) connection rejected due to rejection type ${rejectionFlag}`
           );
           this.sendCharacterAllowedReply(client, reqId, false, rejectionFlag);
@@ -1543,10 +1564,11 @@ export class ZoneServer2016 extends EventEmitter {
           false,
           CONNECTION_REJECTION_FLAGS.CHARACTER_NOT_FOUND
         );
+        return;
       }
       this.sendCharacterAllowedReply(client, reqId, true);
     } catch (error) {
-      console.log(error);
+      debug(error);
       this.sendCharacterAllowedReply(
         client,
         reqId,
@@ -1773,7 +1795,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.characterId
       );
     } catch (e) {
-      console.log(e);
+      debug(e);
       this.sendData<LoginFailed>(client, "LoginFailed", {});
       return;
     }
@@ -2019,7 +2041,7 @@ export class ZoneServer2016 extends EventEmitter {
       gameMode: Number(this.gameMode),
       serverRuleSets: this.serverGameRules
     });
-    this._loginConnectionManager.start();
+    await this._loginConnectionManager.start();
     await this._db
       ?.collection(DB_COLLECTIONS.SERVERS)
       .findOneAndUpdate(
@@ -2036,7 +2058,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnLoadCharacterData", client)))
       return;
     if (savedCharacter.characterName == undefined) {
-      console.log(
+      debug(
         `ERROR: Undefined character name found for client ${client.loginSessionId}`
       );
       savedCharacter.characterName =
@@ -2144,7 +2166,7 @@ export class ZoneServer2016 extends EventEmitter {
           this.lastItemGuid = BigInt(loadedWorld.lastItemGuid);
         }
         if (loadedWorld.worldSaveVersion !== this.worldSaveVersion) {
-          console.log(
+          debug(
             `World save version mismatch, deleting world data. Current: ${this.worldSaveVersion} Old: ${loadedWorld.worldSaveVersion}`
           );
           await this.worldDataManager.deleteWorld();
@@ -2227,8 +2249,8 @@ export class ZoneServer2016 extends EventEmitter {
     );*/
 
     this._ready = true;
-    console.log("Server is ready and accepting connections.");
-    console.log(
+    debug("Server is ready and accepting connections.");
+    debug(
       `Server saving ${this.enableWorldSaves ? "enabled" : "disabled"}.`
     );
     debug("Server ready");
@@ -2519,7 +2541,7 @@ export class ZoneServer2016 extends EventEmitter {
     payload = payload.replaceAll("/", "");
     const splitMessage = payload.split(" ");
     const commandName = splitMessage[0];
-    console.log(`[RCON]Execute command "${commandName}"`);
+    debug(`[RCON]Execute command "${commandName}"`);
     const commandHash: number = flhash(commandName.toUpperCase());
     const args: string = payload.replace(commandName, "").trim();
     // TODO: add loginSessionId from the user
@@ -2565,11 +2587,11 @@ export class ZoneServer2016 extends EventEmitter {
           const end = performance.now();
           const duration = end - start;
           if (duration >= 1) {
-            console.log(
+            debug(
               `H1emu-ai took ${duration}ms with ${this.explosiveManager.getEntitiesTotalNumber()} entities`
             );
           }
-          console.log(this.explosiveManager.getEntitiesStats());
+          debug(this.explosiveManager.getEntitiesStats());
         } else {
           this.explosiveManager.run();
         }
@@ -2587,7 +2609,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     await this.setupServer();
     if (this.isPvE) {
-      console.log("Server in PvE mode");
+      debug("Server in PvE mode");
     }
     this.fairPlayManager.decryptFairPlayValues();
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
@@ -4970,6 +4992,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     // 5. Clean up registries
     for (const { id, entity } of entities) {
+      this.npcCollisionManager?.remove(id);
       this.explosiveManager.removeEntity(entity);
       delete dictionary[id];
       delete this._transientIds[this._characterIds[id]];
@@ -4985,6 +5008,7 @@ export class ZoneServer2016 extends EventEmitter {
   ): boolean {
     const entity = dictionary[characterId];
     if (!entity) return false;
+    this.npcCollisionManager?.remove(characterId);
     if (entity instanceof BaseLightweightCharacter && entity.navAgent) {
       this.navManager.crowd.removeAgent(entity.navAgent);
       entity.navAgent = undefined;
@@ -6394,6 +6418,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     // Also send to the entity's own client (they don't spawn themselves).
     if (ownerClient) this.sendRawDataReliable(ownerClient, data);
+    return (observers?.size ?? 0) + (ownerClient ? 1 : 0);
   }
 
   sendDataToAllInRange<ZonePacket>(
@@ -6628,7 +6653,7 @@ export class ZoneServer2016 extends EventEmitter {
     const vehicle = this._vehicles[client.vehicle.mountedVehicle];
     if (!vehicle) {
       // return if vehicle doesnt exist
-      console.log(
+      debug(
         `Error: ${client.character.name} exited non existing vehicle`
       );
       this.sendData<MountDismountResponse>(client, "Mount.DismountResponse", {
@@ -6641,7 +6666,7 @@ export class ZoneServer2016 extends EventEmitter {
     const seatId = vehicle.getCharacterSeat(client.character.characterId);
     client.character.vehicleExitDate = new Date().getTime();
     if (seatId == -1) {
-      console.log(
+      debug(
         `Error: ${client.character.name} exited vehicle with no seatId set`
       );
       return;
@@ -7196,7 +7221,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (this._containerDefinitions[containerDefinitionId]) {
       return this._containerDefinitions[containerDefinitionId];
     } else {
-      console.log(
+      debug(
         `Tried to get containerDefinition for invalid containerDefinitionId ${containerDefinitionId}`
       );
       return this._containerDefinitions[119];
@@ -10590,7 +10615,7 @@ export class ZoneServer2016 extends EventEmitter {
         const indicator = this._hudIndicators[typeName];
         if (!indicator) {
           // to help identifying the issue
-          console.log(`Unknown hud indicator: ${typeName} removing it`);
+          debug(`Unknown hud indicator: ${typeName} removing it`);
           client.character.resourceHudIndicators.splice(index, 1);
           return;
         }
@@ -11191,20 +11216,47 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   updatePathfindingPositions(): void {
+    this.npcMotionTrace?.begin();
     for (const k in this._npcs) {
       const npc = this._npcs[k];
-      if (npc.navAgent) {
-        const navPos = npc.navAgent.interpolatedPosition;
-        const gamePos = NavManager.navToGame(navPos);
+      if (npc.navAgent && npc.isAlive) {
+        // Use the authoritative crowd position. In recast-navigation 0.43.1,
+        // interpolatedPosition can stay stale at exact fixed-step boundaries.
+        const agentPos = npc.navAgent.position();
+        const navPos =
+          this.npcCollisionManager?.constrain(npc, agentPos) ?? agentPos;
+        const gamePos = this.navManager.npcNavToGame(navPos);
+        let packetSubmitted = false;
         if (
           gamePos[0] != npc.state.position[0] ||
-          gamePos[2] != npc.state.position[2]
+          gamePos[1] != npc.state.position[1] ||
+          gamePos[2] != npc.state.position[2] ||
+          npc.hasPendingMovementStop()
         ) {
           npc.goTo(gamePos);
+          packetSubmitted = true;
         }
+        this.npcMotionTrace?.observe(
+          npc,
+          navPos,
+          packetSubmitted,
+          this.navManager,
+          this._entityObservers?.get(npc.characterId)?.size ?? 0
+        );
+        this.navManager.groundDiagnostics.trace(
+          npc.characterId,
+          npc.state.position,
+          navPos,
+          this.navManager.terrain,
+          this.navManager.roads,
+          npc.groundMotionDiagnostics
+        );
       }
     }
 
+    // Index the newly published NPC positions for incoming vehicle sweeps.
+    this.npcCollisionManager?.sync();
+    this.npcMotionTrace?.end(this.navManager);
     for (const k in this._characters) {
       const character = this._characters[k];
       if (!character.navAgent) {
@@ -11215,18 +11267,6 @@ export class ZoneServer2016 extends EventEmitter {
         character.navAgent.teleport(
           NavManager.gameToNav(character.state.position)
         );
-      }
-    }
-
-    for (const k in this._vehicles) {
-      const vehicle = this._vehicles[k];
-      if (!vehicle.navAgent) {
-        vehicle.navAgent = this.navManager.createPassiveAgent(
-          vehicle.state.position,
-          2.0
-        );
-      } else {
-        vehicle.navAgent.teleport(NavManager.gameToNav(vehicle.state.position));
       }
     }
   }

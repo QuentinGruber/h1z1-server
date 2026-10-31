@@ -1,3 +1,4 @@
+const debug = require("debug")("h1emu:entrypoint");
 // ======================================================================
 //
 //   GNU GENERAL PUBLIC LICENSE
@@ -14,10 +15,10 @@ require("./out/utils/processErrorHandling")
 
 const PackageSetting = require("./package.json");
 process.env.H1Z1_SERVER_VERSION = PackageSetting.version;
-console.log(
+debug(
   `${PackageSetting.name} V${PackageSetting.version} by H1emu community`
 );
-console.log(`Node ${process.version}`);
+debug(`Node ${process.version}`);
 
 const ConfigFilePath = process.env.CONFIG;
 

@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+const debug = require("debug")("h1emu:src:servers:ZoneServer2016:handlers:commands:commands");
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   ClientBan,
@@ -3986,7 +3987,7 @@ export const commands: Array<Command> = [
       server.weatherManager.weather[args[0]] = Number(args[1]);
       server.weatherManager.sendUpdateToAll(server, client, false);
       server.sendChatText(client, `Set weather ${args[0]} to ${args[1]}`);
-      console.log(server.weatherManager.weather);
+      debug(server.weatherManager.weather);
       server.weatherManager.sendUpdateToAll(server, client, false);
     }
   },

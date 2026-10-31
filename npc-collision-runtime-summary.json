@@ -1,0 +1,10 @@
+﻿{
+    "frames":  37,
+    "groundSamples":  90,
+    "stationarySamples":  16,
+    "stationaryYChanges":  0,
+    "maximumGroundRoundingError":  3.81469727E-06,
+    "packetsToClients":  0,
+    "impactLogs":  0,
+    "runtimeErrors":  0
+}

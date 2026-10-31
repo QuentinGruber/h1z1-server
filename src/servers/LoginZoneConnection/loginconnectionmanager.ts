@@ -29,7 +29,7 @@ export class LoginConnectionManager extends BaseLZConnection {
   _hasBeenConnectedToLogin: boolean = false;
   _reconnectTimer: NodeJS.Timeout | undefined;
   constructor(serverId: number, serverPort?: number) {
-    console.log(
+    debug(
       `LoginConnectionManager is being phased out. Please migrate to the new implementation that uses the ws transport. If you're unsure how to proceed or need help obtaining your secret, open a ticket on Discord.`
     );
     super(serverPort);
@@ -142,7 +142,7 @@ export class LoginConnectionManager extends BaseLZConnection {
 
   async start() {
     if (!this._loginServerInfo || !this._sessionData) {
-      console.log(
+      debug(
         "[ERROR] LoginConnectionManager started without setting login info!"
       );
       return;

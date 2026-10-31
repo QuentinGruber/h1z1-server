@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+const debug = require("debug")("h1emu:src:servers:ZoneServer2016:managers:challengemanager");
 import { randomInt } from "node:crypto";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
@@ -219,7 +220,7 @@ export class ChallengeManager {
       midnight.setHours(23, 59, 59, 0);
       time = midnight.getTime() - now.getTime();
     }
-    console.log(`Challenges expires in ${(time / 60_000).toFixed(0)} minutes`);
+    debug(`Challenges expires in ${(time / 60_000).toFixed(0)} minutes`);
     setTimeout(() => {
       this.expireChallenges();
       this.scheduleExpires(24 * 3600 * 1000);

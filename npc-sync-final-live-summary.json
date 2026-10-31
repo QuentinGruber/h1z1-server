@@ -1,0 +1,14 @@
+{
+  "frames": 49,
+  "samples": 136,
+  "stationarySamples": 24,
+  "stationaryHeightChanges": 0,
+  "wrongDownhillSigns": 0,
+  "maxGroundError": 1.1444091796875E-05,
+  "maxPublicationMs": 316.9177630000013,
+  "last10MaxPublicationMs": 157.42942099999345,
+  "last10MaxBacklogSeconds": 0.015000000000005603,
+  "lastBacklogSeconds": 0.002333333333339932,
+  "packetsToClients": 0,
+  "errors": 0
+}

@@ -480,8 +480,9 @@ export class H1Z1Protocol {
             break;
           }
           case 0xce: {
-            packet = H1Z1Packets.Packets[0xce];
-            offset = 3;
+            // Ragdoll opcodes are three bytes (CE0101, CE0202, ...), not
+            // a CE entry. Use the same lookup as the world channel.
+            [packet, offset] = this.resolveOpcode(opCode, data);
             break;
           }
           default: {

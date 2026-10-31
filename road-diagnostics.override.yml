@@ -1,0 +1,7 @@
+# Temporary frame logging only; no movement rules or coordinates.
+services:
+  zone-server-2016:
+    environment:
+      NPC_MOTION_TRACE: '1'
+      # Avoid running the older full-tile provenance trace alongside this trace.
+      NPC_GROUND_DIAGNOSTICS: ''

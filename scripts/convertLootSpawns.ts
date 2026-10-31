@@ -1,3 +1,4 @@
+const debug = require("debug")("h1emu:scripts:convertLootSpawns");
 // ======================================================================
 //
 //   GNU GENERAL PUBLIC LICENSE
@@ -90,6 +91,6 @@ for (const [spawnerName, spawner] of Object.entries(containerLootSpawners)) {
   containerCount++;
 }
 
-console.log(
+debug(
   `Migration complete: ${groundCount} ground tables, ${containerCount} container tables written to data/2016/lootTables/`
 );

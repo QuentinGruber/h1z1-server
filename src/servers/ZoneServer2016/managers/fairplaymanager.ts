@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+const debug = require("debug")("h1emu:src:servers:ZoneServer2016:managers:fairplaymanager");
 import { Collection } from "mongodb";
 import {
   FairPlayValues,
@@ -773,7 +774,7 @@ export class FairPlayManager {
     const receivedHashes: Array<FileHash> = JSON.parse(data);
 
     if (!receivedHashes || !Array.isArray(receivedHashes)) {
-      console.log(
+      debug(
         `${client.loginSessionId} failed asset integrity check due to invalid JSON data.`
       );
       server.kickPlayerWithReason(
@@ -801,7 +802,7 @@ export class FairPlayManager {
       const received = receivedHashes.find(
         (clientValue) => clientValue.file_name === serverValue.file_name
       );
-      console.log(
+      debug(
         `${client.loginSessionId} (${client.character.name}) failed asset integrity check due to missing or invalid file ${serverValue.file_name} received: ${received?.crc32_hash ?? "missing"} expected: ${serverValue.crc32_hash}`
       );
       server.kickPlayerWithReason(
@@ -822,7 +823,7 @@ export class FairPlayManager {
       ) {
         continue;
       }
-      console.log(
+      debug(
         `Unauthorized file on client: ${client.loginSessionId} - ${clientValue.file_name}: ${clientValue.crc32_hash}`
       );
       server.kickPlayerWithReason(
@@ -832,7 +833,7 @@ export class FairPlayManager {
       return;
     }
 
-    console.log(`${client.loginSessionId} passed asset integrity check.`);
+    debug(`${client.loginSessionId} passed asset integrity check.`);
     server.sendConsoleText(client, "[SERVER] Passed asset integrity check");
     clearTimeout(client.assetIntegrityKickTimer);
     delete client.assetIntegrityKickTimer;

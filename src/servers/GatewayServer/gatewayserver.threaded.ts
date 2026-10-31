@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+const debug = require("debug")("h1emu:src:servers:GatewayServer:gatewayserver.threaded");
 import { EventEmitter } from "node:events";
 import { SOEOutputChannels } from "servers/SoeServer/soeoutputstream";
 import { Worker, MessageChannel } from "node:worker_threads";
@@ -79,7 +80,7 @@ export class GatewayServerThreaded extends EventEmitter {
       );
     });
     this.internalChannel.port2.on("message", (msg) => {
-      console.log(msg);
+      debug(msg);
     });
   }
 

@@ -8,6 +8,7 @@
 //   npm run stress-ai-inspect  — with --inspect for DevTools
 // ======================================================================
 
+const debug = require("debug")("h1emu:benchmarks:src:npcAiStress:npc-ai-stress");
 /* eslint-disable @typescript-eslint/no-require-imports */
 export {};
 process.env["DISABLE_PLUGINS"] = "true";
@@ -72,8 +73,8 @@ class RollingStats {
 // ---- Main -----------------------------------------------------------
 
 async function main() {
-  console.log("=== H1Z1 NPC AI Tick Stress Test ===");
-  console.log(
+  debug("=== H1Z1 NPC AI Tick Stress Test ===");
+  debug(
     `Config: ${CONFIG.playerCount} fake players` +
       ` | ${CONFIG.durationSeconds}s | stats every ${CONFIG.statsIntervalMs / 1000}s` +
       ` | ${CONFIG.soundsPerPlayer} sound(s)/player/tick r=${CONFIG.soundRadius} agit=${CONFIG.soundAgitation}` +
@@ -82,7 +83,7 @@ async function main() {
 
   const server = new ZoneServer2016(0);
 
-  console.log("Starting server (no network, no MongoDB)…");
+  debug("Starting server (no network, no MongoDB)…");
   await server.start();
 
   // Stub out sendData — NPCs will try to broadcast movement/animation packets
@@ -99,7 +100,7 @@ async function main() {
   const SPAWN_RADIUS = 400;
 
   // --- Wait for server default NPC spawn ------------------------------
-  console.log("Waiting for server default NPC spawn…");
+  debug("Waiting for server default NPC spawn…");
   const npcWaitStart = Date.now();
   while (Object.keys(server._npcs).length === 0) {
     if (Date.now() - npcWaitStart > 30_000) {
@@ -109,12 +110,12 @@ async function main() {
     await new Promise((r) => setTimeout(r, 500));
   }
   const npcCount = Object.keys(server._npcs).length;
-  console.log(`Default NPCs spawned: ${npcCount}`);
+  debug(`Default NPCs spawned: ${npcCount}`);
 
   // --- Create fake players --------------------------------------------
   // Place them among the default NPCs so they trigger chase/attack states,
   // giving a realistic mixed-state distribution.
-  console.log(`Creating ${CONFIG.playerCount} fake player characters…`);
+  debug(`Creating ${CONFIG.playerCount} fake player characters…`);
   const fakePlayers: any[] = [];
   for (let i = 0; i < CONFIG.playerCount; i++) {
     const character = createFakeCharacter(server);
@@ -123,7 +124,7 @@ async function main() {
     character.state.position = pos;
     fakePlayers.push(character);
   }
-  console.log("Setup complete. Measuring AI tick performance…\n");
+  debug("Setup complete. Measuring AI tick performance…\n");
 
   // --- Instrument updatePathfindingPositions --------------------------
   let totalPathTicks = 0;
@@ -233,7 +234,7 @@ async function main() {
       .map((s) => `${s}:${dist[s]}`)
       .join(" ");
 
-    console.log(
+    debug(
       `[${String(t).padStart(3)}s]` +
         `  tickAI   avg=${aiAvg.toFixed(2).padStart(7)}ms  max=${aiMax.toFixed(2).padStart(7)}ms` +
         `  |  pathfind avg=${pAvg.toFixed(2).padStart(7)}ms  max=${pMax.toFixed(2).padStart(7)}ms` +
@@ -271,31 +272,31 @@ async function main() {
 
     const finalDist = getStateDist(server);
 
-    console.log("\n=== FINAL REPORT ===");
-    console.log(`Duration:              ${elapsed.toFixed(1)}s`);
-    console.log(`Zombies:               ${npcCount}`);
-    console.log(`Fake players:          ${CONFIG.playerCount}`);
-    console.log(`Total AI ticks:        ${totalAiTicks}`);
-    console.log(
+    debug("\n=== FINAL REPORT ===");
+    debug(`Duration:              ${elapsed.toFixed(1)}s`);
+    debug(`Zombies:               ${npcCount}`);
+    debug(`Fake players:          ${CONFIG.playerCount}`);
+    debug(`Total AI ticks:        ${totalAiTicks}`);
+    debug(
       `tickAI avg:            ${aiAvgOverall}ms  peak: ${aiPeak}ms  (${aiCpuPct}% of wall time)`
     );
-    console.log(`Total pathfind ticks:  ${totalPathTicks}`);
-    console.log(
+    debug(`Total pathfind ticks:  ${totalPathTicks}`);
+    debug(
       `pathfind avg:          ${pathAvgOverall}ms  peak: ${pathPeak}ms  (${pathCpuPct}% of wall time)`
     );
-    console.log(`Memory avg / peak:     ${memAvg}MB / ${memPeak}MB`);
-    console.log(`Final state dist:`);
+    debug(`Memory avg / peak:     ${memAvg}MB / ${memPeak}MB`);
+    debug(`Final state dist:`);
     for (const s of ZOMBIE_STATES) {
       if (finalDist[s] > 0) {
         const pct = ((finalDist[s] / npcCount) * 100).toFixed(1);
-        console.log(
+        debug(
           `  ${s.padEnd(12)} ${String(finalDist[s]).padStart(5)} (${pct}%)`
         );
       }
     }
 
     if (process.execArgv.some((a: string) => a.startsWith("--cpu-prof"))) {
-      console.log(
+      debug(
         "\nCPU profile written — open .cpuprofile in Chrome DevTools > Performance > Load profile"
       );
     }

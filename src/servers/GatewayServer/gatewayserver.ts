@@ -81,13 +81,13 @@ export class GatewayServer extends EventEmitter {
                 break;
             }
           } else {
-            console.log(`Unsupported gateway packet ${packet.name}`);
-            console.log(packet);
+            debug(`Unsupported gateway packet ${packet.name}`);
+            debug(packet);
           }
         } catch (e) {
           console.error("Gateway: packet parsing failed");
-          console.log(data);
-          console.log(e);
+          debug(data);
+          debug(e);
         }
       }
     );

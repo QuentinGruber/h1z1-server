@@ -1,0 +1,110 @@
+[
+  {
+    "label": "zombie-road",
+    "original": [
+      -1822.239990234375,
+      57.554710388183594,
+      -2234.60009765625
+    ],
+    "corpse": [
+      -1822.239990234375,
+      57.56627655029297,
+      -2237.81005859375
+    ],
+    "surface": "road",
+    "groundError": 0.000002936518100682406,
+    "agentRemoved": true,
+    "lootCalls": 1,
+    "packetBeforeDeath": true
+  },
+  {
+    "label": "bear-police-road",
+    "original": [
+      -1822.239990234375,
+      57.554710388183594,
+      -2234.60009765625
+    ],
+    "corpse": [
+      -1822.239990234375,
+      57.56703186035156,
+      -2238.02001953125
+    ],
+    "surface": "road",
+    "groundError": 2.837540336031452e-7,
+    "agentRemoved": true,
+    "lootCalls": 1,
+    "packetBeforeDeath": true
+  },
+  {
+    "label": "deer-road",
+    "original": [
+      -1822.239990234375,
+      57.554710388183594,
+      -2234.60009765625
+    ],
+    "corpse": [
+      -1822.239990234375,
+      57.54433059692383,
+      -2231.72998046875
+    ],
+    "surface": "road",
+    "groundError": 0.000004177805145388902,
+    "agentRemoved": true,
+    "lootCalls": 1,
+    "packetBeforeDeath": true
+  },
+  {
+    "label": "wolf-road",
+    "original": [
+      -1822.239990234375,
+      57.554710388183594,
+      -2234.60009765625
+    ],
+    "corpse": [
+      -1822.239990234375,
+      57.5632209777832,
+      -2236.9599609375
+    ],
+    "surface": "road",
+    "groundError": 0.000003289837152919972,
+    "agentRemoved": true,
+    "lootCalls": 1,
+    "packetBeforeDeath": true
+  },
+  {
+    "label": "zombie-foundation",
+    "original": [
+      -1924.99560546875,
+      62.46875,
+      -2268.8310546875
+    ],
+    "corpse": [
+      -1937.010009765625,
+      62.46875,
+      -2268.830078125
+    ],
+    "surface": "terrain",
+    "groundError": 0,
+    "agentRemoved": true,
+    "lootCalls": 1,
+    "packetBeforeDeath": true
+  },
+  {
+    "label": "stopped-car-uncarve",
+    "original": [
+      -1924.99560546875,
+      62.46875,
+      -2268.8310546875
+    ],
+    "corpse": [
+      -1925,
+      62.46875,
+      -2265.77001953125
+    ],
+    "surface": "terrain",
+    "groundError": 0,
+    "agentRemoved": true,
+    "lootCalls": 1,
+    "packetBeforeDeath": true
+  }
+]

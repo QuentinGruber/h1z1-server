@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+const debug = require("debug")("h1emu:src:servers:ZoneServer2016:managers:loottablemanager");
 import * as fs from "fs";
 import * as path from "path";
 import { PluginManager } from "./pluginmanager";
@@ -38,7 +39,7 @@ export class LootTableManager {
       "containers",
       pluginDataRoots
     );
-    console.log(
+    debug(
       `[LootTableManager] Loaded ${Object.keys(this.groundTables).length} ground tables, ` +
         `${Object.keys(this.containerTables).length} container tables`
     );

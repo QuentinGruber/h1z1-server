@@ -51,6 +51,7 @@ import {
   AbilityIds
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
+import { Npc } from "./entities/npc";
 import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
 import { ConstructionParentEntity } from "./entities/constructionparententity";
 import { ConstructionDoor } from "./entities/constructiondoor";
@@ -210,6 +211,8 @@ function getStanceFlags(num: number): StanceFlags {
 //const abilities = require("../../../data/2016/sampleData/abilities.json");
 
 export class ZonePacketHandlers {
+  // Throttle repeated vehicle impacts reported for the same NPC.
+
   constructor() {}
 
   ClientIsReady(
@@ -720,15 +723,8 @@ export class ZonePacketHandlers {
         damage: damage
       });
       sp2?.end();
-    } else if (vehicle) {
-      if (damage > 5000 && damage < 5500) {
-        const sp3 = tx?.startSpan("collisionDamage.vehicleDamage");
-        vehicle.damage(server, {
-          entity: "Server.CollisionDamage",
-          damage: damage / 50
-        });
-        sp3?.end();
-      }
+    } else if (vehicle && client.managedObjects.includes(vehicle.characterId)) {
+      server.npcCollisionManager.worldCollision(vehicle);
     }
   }
 
@@ -737,14 +733,12 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<VehicleCollision>
   ) {
-    const transientId = (packet.data.transientId as number) || 0,
-      characterId = server._transientIds[transientId],
-      vehicle = characterId ? server._vehicles[characterId] : undefined,
-      damage = Number((packet.data.damage || 0).toFixed(0));
-
-    if (!vehicle || damage <= 100) return;
-    vehicle.damage(server, { entity: "", damage: damage * 4 });
-    //server.DTOhit(client, packet);
+    const transientId = (packet.data.transientId as number) ?? 0;
+    if (!Number.isInteger(transientId) || transientId < 0) return;
+    const vehicle = server._vehicles[server._transientIds[transientId]];
+    if (!vehicle || !client.managedObjects.includes(vehicle.characterId))
+      return;
+    server.npcCollisionManager.worldCollision(vehicle);
   }
 
   CommandPointAndReport(
@@ -1287,7 +1281,7 @@ export class ZonePacketHandlers {
     // Early exit if no data or transientId is missing
     const packetData = packet.data;
     if (!packetData || packetData.transientId == undefined) {
-      console.log("TransientId error detected", packet);
+      debug("TransientId error detected", packet);
       return;
     }
 
@@ -1381,6 +1375,31 @@ export class ZonePacketHandlers {
         return;
       }*/
 
+      // Collision damage comes from validated motion and server geometry, never
+      // the client Collision.Damage payload. Validate before changing passengers.
+      const collisionPosition = new Float32Array([
+        positionUpdate.position[0],
+        positionUpdate.position[1] - (vehicle.vehicleId === 5 ? 0.2 : 0.8),
+        positionUpdate.position[2],
+        1
+      ]);
+      if (
+        !server.npcCollisionManager.moveVehicle(
+          vehicle,
+          collisionPosition,
+          positionUpdate.orientation ??
+            vehicle.positionUpdate.orientation ??
+            vehicle.state.yaw ??
+            0,
+          positionUpdate.frontTilt ?? vehicle.positionUpdate.frontTilt ?? 0,
+          positionUpdate.sideTilt ?? vehicle.positionUpdate.sideTilt ?? 0,
+          Date.now(),
+          positionUpdate.sequenceTime,
+          client.character.characterId
+        )
+      )
+        return;
+
       // Update passenger positions and handle kicks if necessary
       vehicle.getPassengerList().forEach((passengerId) => {
         const passenger = server._characters[passengerId];
@@ -1392,13 +1411,7 @@ export class ZonePacketHandlers {
           vehicle.removePassenger(passengerId);
         }
       });
-      const adjustedPosValue = vehicle.vehicleId == 5 ? 0.2 : 0.8;
-      const fixedPosUpdate = new Float32Array([
-        positionUpdate.position[0],
-        positionUpdate.position[1] - adjustedPosValue,
-        positionUpdate.position[2],
-        1
-      ]);
+      const fixedPosUpdate = collisionPosition;
       // Update vehicle position
       vehicle.state.position = fixedPosUpdate;
       vehicle.oldPos = {
@@ -1428,6 +1441,27 @@ export class ZonePacketHandlers {
       }
     }
 
+    if (
+      !positionUpdate.position &&
+      (positionUpdate.orientation !== undefined ||
+        positionUpdate.frontTilt !== undefined ||
+        positionUpdate.sideTilt !== undefined)
+    ) {
+      if (
+        !server.npcCollisionManager.moveVehicle(
+          vehicle,
+          vehicle.state.position,
+          positionUpdate.orientation ?? vehicle.positionUpdate.orientation ?? 0,
+          positionUpdate.frontTilt ?? vehicle.positionUpdate.frontTilt ?? 0,
+          positionUpdate.sideTilt ?? vehicle.positionUpdate.sideTilt ?? 0,
+          Date.now(),
+          positionUpdate.sequenceTime,
+          client.character.characterId
+        )
+      )
+        return;
+    }
+
     // Send position updates to other clients
     if (packetData.transientId !== server._characterIds[OBSERVER_GUID]) {
       server.sendRawToAllOthersWithSpawnedEntity(
@@ -1446,11 +1480,11 @@ export class ZonePacketHandlers {
       );
       vehicle.positionUpdate.rotation = positionUpdate.rotation;
     }
-    if (positionUpdate.orientation)
+    if (positionUpdate.orientation !== undefined)
       vehicle.positionUpdate.orientation = positionUpdate.orientation;
-    if (positionUpdate.frontTilt)
+    if (positionUpdate.frontTilt !== undefined)
       vehicle.positionUpdate.frontTilt = positionUpdate.frontTilt;
-    if (positionUpdate.sideTilt)
+    if (positionUpdate.sideTilt !== undefined)
       vehicle.positionUpdate.sideTilt = positionUpdate.sideTilt;
   }
   VehicleStateData(
@@ -1995,7 +2029,7 @@ export class ZonePacketHandlers {
       packet.data.itemDefinitionId
     )?.PLACEMENT_MODEL_ID;
     if (!modelId) {
-      console.log(
+      debug(
         `[ERROR] No PLACEMENT_MODEL_ID for ${packet.data.itemDefinitionId} from characterId ${client.character.characterId}`
       );
       server.sendChatText(
@@ -2309,7 +2343,7 @@ export class ZonePacketHandlers {
         } else {
           const msg = `Unload weapon failed for item ${item.itemDefinitionId}. Please report this!`;
           server.sendAlert(client, msg);
-          console.log(msg);
+          debug(msg);
         }
         break;
       case ItemUseOptions.SALVAGE:
@@ -3827,19 +3861,51 @@ export class ZonePacketHandlers {
   RagdollUpdatePose(
     server: ZoneServer2016,
     client: Client,
-    packet: ReceivedPacket<RagdollUpdatePose>
+    packet: ReceivedPacket<RagdollUpdatePose> & { flag?: number }
   ) {
-    // currently all ragdoll are client sided, less work for server but creates corpse position desync (shouldnt really be important)
+    const entity = server.getEntity(packet.data.characterId);
+    if (entity instanceof Npc && entity.vehicleImpactCorpse) {
+      server.npcCollisionManager?.corpses.packetReceived(
+        entity,
+        client,
+        "Ragdoll.UpdatePose",
+        packet.flag,
+        (packet.data.positionUpdate as { position?: unknown } | undefined)
+          ?.position
+      );
+      server.npcCollisionManager?.corpses.onPose(
+        entity,
+        client,
+        packet.data.positionUpdate
+      );
+      return;
+    }
+    // Non-impact ragdoll handling retains its existing behavior.
     //server.sendDataToAllOthersWithSpawnedEntity(server._characters, client, client.character.characterId, "Ragdoll.UpdatePose", packet.data)
   }
 
   RagdollStop(
     server: ZoneServer2016,
     client: Client,
-    packet: ReceivedPacket<RagdollStop>
+    packet: ReceivedPacket<RagdollStop> & { flag?: number }
   ) {
     const entity = server.getEntity(packet.data.characterId);
     if (!(entity instanceof BaseFullCharacter)) {
+      return;
+    }
+    if (entity instanceof Npc && entity.vehicleImpactCorpse) {
+      server.npcCollisionManager?.corpses.packetReceived(
+        entity,
+        client,
+        "Ragdoll.Stop",
+        packet.flag,
+        packet.data.position
+      );
+      server.npcCollisionManager?.corpses.settle(
+        entity,
+        client,
+        packet.data.rotation
+      );
       return;
     }
     if (packet.data.characterId != client.character.characterId) return;
@@ -4416,7 +4482,7 @@ export class ZonePacketHandlers {
       case "09":
         break;
       default:
-        console.log(
+        debug(
           `Unknown custom packet opcode: ${opcode} from ${client.loginSessionId}`
         );
         break;

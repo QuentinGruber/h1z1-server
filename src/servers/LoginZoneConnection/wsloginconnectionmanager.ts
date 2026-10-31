@@ -175,13 +175,13 @@ export class WsLoginConnectionManager extends EventEmitter {
 
   async start() {
     if (!this._loginServerInfo.address || !this._sessionData) {
-      console.log(
+      debug(
         "[ERROR] WsLoginConnectionManager started without setting login info!"
       );
       return;
     }
     if (!this._secret) {
-      console.log(
+      debug(
         "[ERROR] WsLoginConnectionManager: LZ_SERVER_SECRET is not set"
       );
       return;

@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+const debug = require("debug")("h1emu:src:servers:ZoneServer2016:managers:rewardmanager");
 import { setInterval } from "timers";
 import { ZoneServer2016 } from "../zoneserver";
 import { AccountItems } from "../models/enums";
@@ -148,7 +149,7 @@ export class RewardManager {
     if (item) {
       this.server.lootAccountItem(this.server, client, item);
     } else {
-      console.log("Server failed to generate reward account item");
+      debug("Server failed to generate reward account item");
     }
   }
   dropReward(client: ZoneClient2016) {

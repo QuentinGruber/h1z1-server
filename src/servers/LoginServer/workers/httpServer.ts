@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+const debug = require("debug")("h1emu:src:servers:LoginServer:workers:httpServer");
 import { MongoClient } from "mongodb";
 import { httpServerMessage } from "types/shared";
 import { parentPort, workerData } from "node:worker_threads";
@@ -57,7 +58,7 @@ http.request({
   port: SERVER_PORT
 });
 const httpServer = http.createServer().listen(SERVER_PORT);
-console.log(`Http server listening on ${SERVER_PORT}`);
+debug(`Http server listening on ${SERVER_PORT}`);
 httpServer.on("request", async function (req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*"); // Allow all origins
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS"); // Allow specified methods

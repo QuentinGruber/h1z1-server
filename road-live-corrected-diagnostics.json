@@ -1,0 +1,289 @@
+{
+  "referencePoints": [
+    {
+      "input": {
+        "x": -1822.24,
+        "y": 58.17,
+        "z": -2234.6,
+        "radius": 75
+      },
+      "sample": {
+        "height": 55.317499999999995,
+        "selected": {
+          "name": "Z1_-36_-32.cnk0",
+          "triangle": 19797,
+          "height": 55.317499999999995
+        },
+        "failedQuery": false,
+        "tiles": [
+          {
+            "name": "Z1_-36_-32.cnk0",
+            "bounds": [
+              -2048,
+              33.625,
+              -2304,
+              -1792,
+              63.5625,
+              -2048
+            ]
+          }
+        ]
+      },
+      "navmesh": {
+        "x": -1822.239990234375,
+        "y": 55.85610580444336,
+        "z": -2234.60009765625
+      },
+      "npc": null,
+      "roadCollision": {
+        "height": 57.55471391873623,
+        "actor": "RoadStraightSlopeUp_256.adr",
+        "instanceId": 1277429836,
+        "triangle": 121
+      }
+    },
+    {
+      "input": {
+        "x": 1989.04,
+        "y": 53.39,
+        "z": -2235.25,
+        "radius": 75
+      },
+      "sample": {
+        "height": 92.06692708333334,
+        "selected": {
+          "name": "Z1_-36_28.cnk0",
+          "triangle": 29658,
+          "height": 92.06692708333334
+        },
+        "failedQuery": false,
+        "tiles": [
+          {
+            "name": "Z1_-36_28.cnk0",
+            "bounds": [
+              1792,
+              72.5,
+              -2304,
+              2048,
+              123.875,
+              -2048
+            ]
+          }
+        ]
+      },
+      "navmesh": {
+        "x": 1989.0400390625,
+        "y": 92.38703155517578,
+        "z": -2235.25
+      },
+      "npc": null,
+      "roadCollision": null
+    }
+  ],
+  "sampleCount": 159,
+  "roadSamples": 28,
+  "failedHeightQueries": 0,
+  "maxRoadError": 0.0000013709068298339844,
+  "examples": [
+    {
+      "characterId": "0xf37106a75e1afe86",
+      "region": 0,
+      "npc": [
+        -1890.8856201171875,
+        62.29310607910156,
+        -2250.690673828125
+      ],
+      "navmesh": {
+        "x": -1890.8856201171875,
+        "y": 62.35010528564453,
+        "z": -2250.690673828125
+      },
+      "groundY": 62.0979429880778,
+      "selectedTerrain": {
+        "name": "Z1_-36_-32.cnk0",
+        "triangle": 6617,
+        "height": 62.0979429880778
+      },
+      "terrainTiles": [
+        {
+          "name": "Z1_-36_-32.cnk0",
+          "bounds": [
+            -2048,
+            33.625,
+            -2304,
+            -1792,
+            63.5625,
+            -2048
+          ]
+        }
+      ],
+      "failedHeightQuery": false,
+      "roadCollision": {
+        "height": 62.29310470819473,
+        "actor": "Road_City_IntersectionT_64.adr",
+        "instanceId": 42537070,
+        "triangle": 81
+      }
+    },
+    {
+      "characterId": "0x239400190f0bc128",
+      "region": 0,
+      "npc": [
+        -1890.209228515625,
+        62.29310607910156,
+        -2236.355224609375
+      ],
+      "navmesh": {
+        "x": -1890.209228515625,
+        "y": 62.39239501953125,
+        "z": -2236.355224609375
+      },
+      "groundY": 61.824588775634766,
+      "selectedTerrain": {
+        "name": "Z1_-36_-32.cnk0",
+        "triangle": 16403,
+        "height": 61.824588775634766
+      },
+      "terrainTiles": [
+        {
+          "name": "Z1_-36_-32.cnk0",
+          "bounds": [
+            -2048,
+            33.625,
+            -2304,
+            -1792,
+            63.5625,
+            -2048
+          ]
+        }
+      ],
+      "failedHeightQuery": false,
+      "roadCollision": {
+        "height": 62.29310470819473,
+        "actor": "Road_City_IntersectionT_64.adr",
+        "instanceId": 42537070,
+        "triangle": 28
+      }
+    },
+    {
+      "characterId": "0x5e02588764828a82",
+      "region": 0,
+      "npc": [
+        -1872.066650390625,
+        62.29310607910156,
+        -2227.674072265625
+      ],
+      "navmesh": {
+        "x": -1872.066650390625,
+        "y": 62.824119567871094,
+        "z": -2227.674072265625
+      },
+      "groundY": 60.89745330810547,
+      "selectedTerrain": {
+        "name": "Z1_-36_-32.cnk0",
+        "triangle": 16948,
+        "height": 60.89745330810547
+      },
+      "terrainTiles": [
+        {
+          "name": "Z1_-36_-32.cnk0",
+          "bounds": [
+            -2048,
+            33.625,
+            -2304,
+            -1792,
+            63.5625,
+            -2048
+          ]
+        }
+      ],
+      "failedHeightQuery": false,
+      "roadCollision": {
+        "height": 62.29310470819473,
+        "actor": "Road_City_IntersectionT_64.adr",
+        "instanceId": 42537070,
+        "triangle": 26
+      }
+    },
+    {
+      "characterId": "0xf37106a75e1afe86",
+      "region": 0,
+      "npc": [
+        -1890.91455078125,
+        62.29310607910156,
+        -2251.0419921875
+      ],
+      "navmesh": {
+        "x": -1890.91455078125,
+        "y": 62.373313903808594,
+        "z": -2251.0419921875
+      },
+      "groundY": 62.099622090657554,
+      "selectedTerrain": {
+        "name": "Z1_-36_-32.cnk0",
+        "triangle": 6617,
+        "height": 62.099622090657554
+      },
+      "terrainTiles": [
+        {
+          "name": "Z1_-36_-32.cnk0",
+          "bounds": [
+            -2048,
+            33.625,
+            -2304,
+            -1792,
+            63.5625,
+            -2048
+          ]
+        }
+      ],
+      "failedHeightQuery": false,
+      "roadCollision": {
+        "height": 62.29310470819473,
+        "actor": "Road_City_IntersectionT_64.adr",
+        "instanceId": 42537070,
+        "triangle": 81
+      }
+    },
+    {
+      "characterId": "0x239400190f0bc128",
+      "region": 0,
+      "npc": [
+        -1890.1844482421875,
+        62.29310607910156,
+        -2236.70703125
+      ],
+      "navmesh": {
+        "x": -1890.1844482421875,
+        "y": 62.38579177856445,
+        "z": -2236.70703125
+      },
+      "groundY": 61.82931137084961,
+      "selectedTerrain": {
+        "name": "Z1_-36_-32.cnk0",
+        "triangle": 16403,
+        "height": 61.82931137084961
+      },
+      "terrainTiles": [
+        {
+          "name": "Z1_-36_-32.cnk0",
+          "bounds": [
+            -2048,
+            33.625,
+            -2304,
+            -1792,
+            63.5625,
+            -2048
+          ]
+        }
+      ],
+      "failedHeightQuery": false,
+      "roadCollision": {
+        "height": 62.29310470819473,
+        "actor": "Road_City_IntersectionT_64.adr",
+        "instanceId": 42537070,
+        "triangle": 28
+      }
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+const debug = require("debug")("h1emu:src:servers:ZoneServer2016:entities:destroyable");
 // ======================================================================
 //
 //   GNU GENERAL PUBLIC LICENSE
@@ -108,7 +109,7 @@ function getDestroyedEffectId(actorModelId: ModelIds): Effects {
     case ModelIds.STREET_SIGNS_STREET_NAMES_SIGN_POST:
       return Effects.PFX_Damage_TrafficSigns_StreetSign_StreetName;
     default:
-      console.log(`[WARN] No destroyed effect for modelId: ${actorModelId}`);
+      debug(`[WARN] No destroyed effect for modelId: ${actorModelId}`);
       return Effects.TEST_Null;
   }
 }

@@ -609,7 +609,7 @@ export class WorldDataManager {
         (character: any) => character.characterId === character.characterId
       );
       if (!singlePlayerCharacter) {
-        console.log("[ERROR] Single player character savedata not found!");
+        debug("[ERROR] Single player character savedata not found!");
         return;
       }
       singlePlayerCharacter = {
