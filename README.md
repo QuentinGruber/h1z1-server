@@ -52,6 +52,7 @@ So we will see :)
 - Thanks to Chriis who provided the basis for this project by being the first (as far as I know) to try to emulate servers for h1z1 and who inspired me.
 
 - Thanks to <a href="https://github.com/jseidelin">Jacob Seidelin</a> without whom none of this would have been possible.
+- Thanks to <a href="http://github.com/crossfire151">Nightcóre</a> for zombie correction aka invisible zombies and NPC collision improvements.
 
 - Thanks to all those who sent messages of help and support and perpetuated the hope of playing h1z1 again.
 
