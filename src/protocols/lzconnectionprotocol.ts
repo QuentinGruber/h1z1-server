@@ -282,11 +282,11 @@ export class LZConnectionProtocol {
           data: result
         };
       } else {
-        debug("parse()", "No parser for packet " + packet.name);
+        console.log("parse()", "No parser for packet " + packet.name);
         return null;
       }
     } else {
-      debug(
+      console.log(
         "parse()",
         "Unknown or unhandled LZConnection packet type: " + packetType
       );
@@ -306,15 +306,15 @@ export class LZConnectionProtocol {
           data.writeUInt8(packetType, 0);
           packetData.data.copy(data, 1);
         } else {
-          debug("Could not pack data schema for " + packet.name);
+          console.log("Could not pack data schema for " + packet.name);
           return null;
         }
       } else {
-        debug("pack()", "No pack function for packet " + packet.name);
+        console.log("pack()", "No pack function for packet " + packet.name);
         return null;
       }
     } else {
-      debug(
+      console.log(
         "pack()",
         "Unknown or unhandled LZConnection packet type: " + packetType
       );

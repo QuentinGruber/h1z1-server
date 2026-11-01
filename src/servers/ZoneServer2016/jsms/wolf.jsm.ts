@@ -413,7 +413,7 @@ export function createWolf(npc: Npc, server: ZoneServer2016): WolfInstance {
   ) as unknown as WolfInstance;
 
   wolf.onTransition = (from: string, to: string, eventId: string) => {
-    debug(`[wolf:${wolf.id}] ${from} → ${to} (${eventId})`);
+    console.log(`[wolf:${wolf.id}] ${from} → ${to} (${eventId})`);
   };
   wolf.id = npc.characterId;
   wolf.npc = npc;

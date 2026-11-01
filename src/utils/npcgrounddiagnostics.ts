@@ -30,7 +30,7 @@ export class NpcGroundDiagnostics {
         throw new Error("Expected an array of {x,z,radius}");
       this.regions = regions;
       this.until = Date.now() + 10 * 60 * 1000;
-      debug(
+      console.log(
         `[NPC-GROUND] Temporary diagnostics enabled for ${regions.length} regions; expires in 10 minutes`
       );
     } catch (error) {
@@ -53,7 +53,7 @@ export class NpcGroundDiagnostics {
         { x: region.x, y: region.y ?? sample?.height ?? 0, z: region.z },
         { halfExtents: { x: 0.01, y: 1000, z: 0.01 } }
       );
-      debug(
+      console.log(
         "[NPC-GROUND-REFERENCE] " +
           JSON.stringify({
             input: region,
@@ -96,7 +96,7 @@ export class NpcGroundDiagnostics {
     this.last.set(characterId, now);
     this.count++;
     const sample = terrain?.inspectHeight(nav.x, nav.z);
-    debug(
+    console.log(
       "[NPC-GROUND] " +
         JSON.stringify({
           characterId,

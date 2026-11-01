@@ -25,7 +25,7 @@ files.filter((file) => file.endsWith(".ts"));
 // Create an array of all the file names
 const fileNames = files.map((file) => `${file}`);
 
-debug(`Found ${fileNames.length} files`);
+console.log(`Found ${fileNames.length} files`);
 
 const typeDocConfig = require("../typedoc.json");
 
@@ -33,4 +33,4 @@ typeDocConfig.entryPoints = fileNames;
 
 // Write the file back to disk
 fs.writeFileSync("./typedoc.json", JSON.stringify(typeDocConfig, null, 2));
-debug("Updated typedoc.json");
+console.log("Updated typedoc.json");

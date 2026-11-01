@@ -330,7 +330,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     if (!process.env.DISABLE_AI && server.aiEnabled) {
       this.obstacleRef = setObstacle(server, actorModelId, position, rotation);
       if (this.obstacleRef) {
-        debug(
+        console.log(
           `[NavMesh] Added obstacle for construction ${this.characterId} (modelId: ${actorModelId})`
         );
       }
@@ -661,7 +661,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     slotCooldown = 30000
   ): boolean {
     if (this.obstacleRef) {
-      debug(
+      console.log(
         `[NavMesh] Removed obstacle for world construction ${this.characterId}`
       );
       server.navManager.removeObstacle(this.obstacleRef);

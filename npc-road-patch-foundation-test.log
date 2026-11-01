@@ -1,0 +1,12 @@
+[ROAD] Loaded 425 asphalt-road collision instances
+[TERRAIN] Loaded 1024 terrain tile records from /usr/src/app/out/utils/../../data/2016/terrainData
+[NAV] loaded nav part 0
+[NAV] loaded nav part 1
+[NAV] loaded nav part 2
+[NAV] loaded nav cache part 0
+[NAV] loaded nav cache part 1
+[NAV] Navmesh loaded: 5.616s
+getClosestNavPoint gameIn=[-2008.00, 48.92, -2233.76] navOut=[-2008.00, 48.65, -2233.76] polyRef=11308294
+getClosestNavPoint gameIn=[-1988.00, 53.63, -2233.76] navOut=[-1988.00, 53.12, -2233.76] polyRef=11308294
+requests: 0, total: 1
+{"foundationAvoided":true,"reachedTarget":true,"groundSamples":516,"rayHitFraction":0.39501953125,"elevationRange":4.602424621582031}

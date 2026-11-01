@@ -372,14 +372,14 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug(packet);
+      console.log(packet);
     };
     this.commandRecipeStart = function (
       server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
-      debug(packet);
+      console.log(packet);
       server.sendData(client, "Command.RecipeAction", {});
     };
     this.commandFreeInteractionNpc = function (
@@ -387,7 +387,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug("FreeInteractionNpc");
+      console.log("FreeInteractionNpc");
       server.sendData(client, "Command.FreeInteractionNpc", {});
     };
     this.collisionDamage = function (
@@ -419,7 +419,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug(
+      console.log(
         `Character "${client.character.name}" (${client.character.characterId}) ask for VehicleItemDefinition`
       );
     };
@@ -428,7 +428,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug(
+      console.log(
         `Vehicle "${packet.data.characterId}" move mode : ${packet.data.moveMode}`
       );
     };
@@ -437,7 +437,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug("EndCharacterAccess");
+      console.log("EndCharacterAccess");
     };
     this.KeepAlive = function (
       server: ZoneServer2015,
@@ -474,21 +474,21 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug(packet);
+      console.log(packet);
     };
     this.wallOfDataUIEvent = function (
       server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
-      debug(packet);
+      console.log(packet);
     };
     this.SetLocale = function (
       server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
-      debug("Do nothing");
+      console.log("Do nothing");
     };
     this.GetContinentBattleInfo = function (
       server: ZoneServer2015,
@@ -564,7 +564,7 @@ export class zonePacketHandlers {
     ) {
       // just in case
       if (packet.data.unknownDword1) {
-        debug("ClientInitializationDetails : ", packet.data.unknownDword1);
+        console.log("ClientInitializationDetails : ", packet.data.unknownDword1);
       }
     };
     this.ClientLogout = function (
@@ -572,7 +572,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug("ClientLogout");
+      console.log("ClientLogout");
       clearTimeout(client.hudTimer); // clear the timer started at StartLogoutRequest
       server.deleteClient(client);
     };
@@ -1036,15 +1036,15 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug(packet);
-      debug("select");
+      console.log(packet);
+      console.log("select");
     };
     this.playerUpdateVehicleCollision = function (
       server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
-      debug(packet);
+      console.log(packet);
     };
     this.vehicleDismiss = function (
       server: ZoneServer2015,
@@ -1524,7 +1524,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug("Redeploy");
+      console.log("Redeploy");
       server.sendData(client, "ClientUpdate.UpdateLocation", {
         position: new Float32Array([0, 50, 0, 1]),
         triggerLoadingScreen: true
@@ -1535,7 +1535,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug("Interaction Canceled");
+      console.log("Interaction Canceled");
     };
     this.commandStartLogoutRequest = function (
       server: ZoneServer2015,
@@ -1581,7 +1581,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug(packet);
+      console.log(packet);
       server.speedTreeUse(client, packet);
     };
     this.GetRewardBuffInfo = function (
@@ -1810,7 +1810,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug(packet);
+      console.log(packet);
       const { guid } = packet.data,
         entityData =
           server._objects[guid] ||
@@ -1889,7 +1889,7 @@ export class zonePacketHandlers {
           server.enterVehicle(client, entityData);
           break;
         case 3: // door
-          debug("tried to open ", entityData.characterId);
+          console.log("tried to open ", entityData.characterId);
           if (entityData.isOpen === false) {
             entityData.moving = true;
             setTimeout(function () {
@@ -2072,7 +2072,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug("Construction.PlacementRequest");
+      console.log("Construction.PlacementRequest");
       // TODO
       //server.sendData(client, "Construction.PlacementResponse", {model:modelChoosen});
     };
@@ -2081,8 +2081,8 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug(packet);
-      debug("Construction.PlacementFinalizeRequest");
+      console.log(packet);
+      console.log("Construction.PlacementFinalizeRequest");
       server.sendData(client, "Construction.PlacementFinalizeResponse", {
         status: true
       });
@@ -2092,7 +2092,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug(packet);
+      console.log(packet);
       server.respawnPlayer(client);
     };
     this.playerUpdateFullCharacterDataRequest = function (

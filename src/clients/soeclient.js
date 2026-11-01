@@ -35,7 +35,7 @@ class SOEClient {
     const me = this;
 
     this._guid = ((Math.random() * 0xffffffff) >>> 0).toString(16);
-    debug(this._guid, "Creating new SOEClient instance");
+    console.log(this._guid, "Creating new SOEClient instance");
     this._protocolName = protocolName;
     this._serverAddress = serverAddress;
     this._serverPort = serverPort;
@@ -120,7 +120,7 @@ class SOEClient {
             break;
           }
         }
-        debug("Sending " + packets.length + " OutOfOrder packets");
+        console.log("Sending " + packets.length + " OutOfOrder packets");
         me._sendPacket(
           SoeOpcode.MultiPacket,
           {
@@ -160,7 +160,7 @@ class SOEClient {
     function handlePacket(packet) {
       switch (packet.name) {
         case "SessionReply":
-          debug("Received session reply from server");
+          console.log("Received session reply from server");
           me._compression = 0;
           me._crcSeed = packet.crc_seed;
           me._crcLength = packet.crc_length;
@@ -171,7 +171,7 @@ class SOEClient {
           me.emit("connect", null, packet);
           break;
         case "Disconnect":
-          debug("Received disconnect from server");
+          console.log("Received disconnect from server");
           me.disconnect();
           me.emit("disconnect");
           break;
@@ -193,7 +193,7 @@ class SOEClient {
             }
           }
           if (lastOutOfOrder > 0) {
-            debug(
+            console.log(
               "Received multiple out-order-packet packet on channel " +
                 channel +
                 ", sequence " +
@@ -203,21 +203,21 @@ class SOEClient {
           }
           break;
         case "Ping":
-          debug("Received ping from server");
+          console.log("Received ping from server");
           break;
         case "NetStatusReply":
-          debug("Received net status reply from server");
+          console.log("Received net status reply from server");
           break;
         case "Data":
-          debug("Received data packet from server");
+          console.log("Received data packet from server");
           inputStream.write(Buffer.from(packet.data), packet.sequence, false);
           break;
         case "DataFragment":
-          debug("Received data fragment from server");
+          console.log("Received data fragment from server");
           inputStream.write(Buffer.from(packet.data), packet.sequence, true);
           break;
         case "OutOfOrder":
-          debug(
+          console.log(
             "Received out-order-packet packet on channel " +
               packet.channel +
               ", sequence " +
@@ -229,7 +229,7 @@ class SOEClient {
           outputStream.ack(packet.sequence, new Map());
           break;
         case "FatalError":
-          debug("Received fatal error from server");
+          console.log("Received fatal error from server");
           break;
         case "FatalErrorReply":
           break;
@@ -246,12 +246,12 @@ class SOEClient {
 
     connection.on("listening", function () {
       const address = this.address();
-      debug("Listening on " + address.address + ":" + address.port);
+      console.log("Listening on " + address.address + ":" + address.port);
     });
   }
 
   connect() {
-    debug(
+    console.log(
       "Setting up connection for " +
         this._serverAddress +
         ":" +
@@ -282,7 +282,7 @@ class SOEClient {
   toggleEncryption(value) {
     value = !!value;
     this._useEncryption = value;
-    debug(this._guid, "Toggling encryption: value = " + value);
+    console.log(this._guid, "Toggling encryption: value = " + value);
     this._outputStream.toggleEncryption(value);
     this._inputStream.toggleEncryption(value);
   }
@@ -298,7 +298,7 @@ class SOEClient {
     const data = Buffer.from(
       this._protocol.pack(packetOpcode, JSON.stringify(packet))
     );
-    debug(this._guid, "Sending " + packetOpcode + " packet to server");
+    console.log(this._guid, "Sending " + packetOpcode + " packet to server");
     if (this._dumpData) {
       fs.writeFileSync(
         "debug/soeclient_" + this._guid + "_outpacket_" + q++ + ".dat",
@@ -313,7 +313,7 @@ class SOEClient {
   }
 
   sendAppData(data, overrideEncryption) {
-    debug(this._guid, "Sending app data: " + data.length + " bytes");
+    console.log(this._guid, "Sending app data: " + data.length + " bytes");
     this._outputStream.write(data, SOEOutputChannels.Reliable);
   }
 }

@@ -774,7 +774,7 @@ export class FairPlayManager {
     const receivedHashes: Array<FileHash> = JSON.parse(data);
 
     if (!receivedHashes || !Array.isArray(receivedHashes)) {
-      debug(
+      console.log(
         `${client.loginSessionId} failed asset integrity check due to invalid JSON data.`
       );
       server.kickPlayerWithReason(
@@ -802,7 +802,7 @@ export class FairPlayManager {
       const received = receivedHashes.find(
         (clientValue) => clientValue.file_name === serverValue.file_name
       );
-      debug(
+      console.log(
         `${client.loginSessionId} (${client.character.name}) failed asset integrity check due to missing or invalid file ${serverValue.file_name} received: ${received?.crc32_hash ?? "missing"} expected: ${serverValue.crc32_hash}`
       );
       server.kickPlayerWithReason(
@@ -823,7 +823,7 @@ export class FairPlayManager {
       ) {
         continue;
       }
-      debug(
+      console.log(
         `Unauthorized file on client: ${client.loginSessionId} - ${clientValue.file_name}: ${clientValue.crc32_hash}`
       );
       server.kickPlayerWithReason(
@@ -833,7 +833,7 @@ export class FairPlayManager {
       return;
     }
 
-    debug(`${client.loginSessionId} passed asset integrity check.`);
+    console.log(`${client.loginSessionId} passed asset integrity check.`);
     server.sendConsoleText(client, "[SERVER] Passed asset integrity check");
     clearTimeout(client.assetIntegrityKickTimer);
     delete client.assetIntegrityKickTimer;

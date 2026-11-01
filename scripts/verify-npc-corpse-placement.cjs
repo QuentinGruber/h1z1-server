@@ -153,7 +153,7 @@ async function main() {
       nav.updt();
     }
     assert.equal(nav.obstacleCount, 0);
-    debug(JSON.stringify(results, null, 2));
+    console.log(JSON.stringify(results, null, 2));
     fs.writeFileSync(
       "npc-corpse-map-validation.json",
       JSON.stringify(results, null, 2)

@@ -43,4 +43,4 @@ fs.writeFileSync(
   process.argv[2] ?? "terrain-frame-profile.json",
   JSON.stringify(frames, null, 2)
 );
-debug(JSON.stringify(frames, null, 2));
+console.log(JSON.stringify(frames, null, 2));

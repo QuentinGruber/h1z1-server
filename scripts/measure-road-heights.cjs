@@ -47,7 +47,7 @@ async function main() {
       "road-height-measurements.json",
       JSON.stringify(report, null, 2)
     );
-    debug(JSON.stringify(report, null, 2));
+    console.log(JSON.stringify(report, null, 2));
   } finally {
     nav.crowd.destroy();
     nav.navMeshQuery.destroy();

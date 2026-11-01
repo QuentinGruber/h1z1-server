@@ -663,7 +663,7 @@ const hax: any = {
       characterId: client.character.characterId
     });
     delete server._characters[client.character.characterId];
-    debug(server._characters);
+    console.log(server._characters);
     server.sendChatText(client, "Delete player, back in observer mode");
   },
   changestat: function (server: ZoneServer2015, client: Client, args: any[]) {
@@ -1020,7 +1020,7 @@ const hax: any = {
       server._dynamicWeatherWorker = null;
       server.sendChatText(client, "Dynamic weather removed !");
     }
-    debug("Randomized weather");
+    console.log("Randomized weather");
     server.sendChatText(client, `Randomized weather`);
 
     function rnd_number() {
@@ -1068,7 +1068,7 @@ const hax: any = {
         unknownDword7: 0
       })
     };
-    debug(JSON.stringify(rnd_weather));
+    console.log(JSON.stringify(rnd_weather));
     server.changeWeather(client, rnd_weather);
   },
   rick: function (server: ZoneServer2015, client: Client, args: any[]) {

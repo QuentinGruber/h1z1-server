@@ -120,7 +120,7 @@ async function build(source, directory) {
     path.join(directory, "manifest.json"),
     JSON.stringify(manifest)
   );
-  debug(
+  console.log(
     JSON.stringify({
       tiles: tiles.length,
       vertices: tiles.reduce((s, t) => s + t.vertices, 0),

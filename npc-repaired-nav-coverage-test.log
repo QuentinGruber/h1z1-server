@@ -1,0 +1,17 @@
+[ROAD] Loaded 425 asphalt-road collision instances
+[TERRAIN] Loaded 1024 terrain tile records from /usr/src/app/out/utils/../../data/2016/terrainData
+[NAV] loaded nav part 0
+[NAV] loaded nav part 1
+[NAV] loaded nav part 2
+[NAV] loaded nav cache part 0
+[NAV] loaded nav cache part 1
+[NAV] Navmesh loaded: 4.599s
+getClosestNavPoint gameIn=[-1993.69, 53.35, -2233.76] navOut=[-1993.69, 52.10, -2233.76] polyRef=7113990
+getClosestNavPoint gameIn=[-1991.93, 53.35, -2233.76] navOut=[-1991.93, 52.47, -2233.76] polyRef=7113990
+getClosestNavPoint gameIn=[-1990.17, 53.35, -2233.76] navOut=[-1990.17, 52.85, -2233.76] polyRef=7113990
+getClosestNavPoint gameIn=[-1991.77, 52.54, -2233.76] navOut=[-1991.77, 52.51, -2233.76] polyRef=7113990
+requests: 0, total: 1
+requests: 0, total: 0
+2026-11-01T04:20:52.692Z h1emu:door-nav-coverage DOOR side=-1 [{"x":0,"z":-2,"nearest":0,"point":{"x":-1991.77001953125,"y":52.6548957824707,"z":-2235.760009765625},"physicalGround":{"height":52.74062834469085,"actor":"RoadStraightSlope_512.adr","instanceId":2777289806,"triangle":118,"slopeX":0.23525298006170461,"slopeZ":-3.8327569264601276e-8,"surface":"road","valid":true,"roadInstanceId":2777289806}}]
+2026-11-01T04:20:52.693Z h1emu:door-nav-coverage DOOR side=1 [{"x":0,"z":2,"nearest":0,"point":{"x":-1991.77001953125,"y":52.36127853393555,"z":-2231.760009765625},"physicalGround":{"height":52.740628191380566,"actor":"RoadStraightSlope_512.adr","instanceId":2777289806,"triangle":123,"slopeX":0.23525298006170553,"slopeZ":-3.832756926460143e-8,"surface":"road","valid":true,"roadInstanceId":2777289806}}]
+2026-11-01T04:20:52.701Z h1emu:door-nav-coverage RESULT beforeDoor=[{"x":0,"z":-2,"nearest":0,"point":{"x":-1991.77001953125,"y":52.6548957824707,"z":-2235.760009765625},"physicalGround":{"height":52.74062834469085,"actor":"RoadStraightSlope_512.adr","instanceId":2777289806,"triangle":118,"slopeX":0.23525298006170461,"slopeZ":-3.8327569264601276e-8,"surface":"road","valid":true,"roadInstanceId":2777289806}},{"x":0,"z":2,"nearest":0,"point":{"x":-1991.77001953125,"y":52.36127853393555,"z":-2231.760009765625},"physicalGround":{"height":52.740628191380566,"actor":"RoadStraightSlope_512.adr","instanceId":2777289806,"triangle":123,"slopeX":0.23525298006170553,"slopeZ":-3.832756926460143e-8,"surface":"road","valid":true,"roadInstanceId":2777289806}}] afterDoor=[{"x":0,"z":-2,"nearest":0,"point":{"x":-1991.77001953125,"y":52.6548957824707,"z":-2235.760009765625},"physicalGround":{"height":52.74062834469085,"actor":"RoadStraightSlope_512.adr","instanceId":2777289806,"triangle":118,"slopeX":0.23525298006170461,"slopeZ":-3.8327569264601276e-8,"surface":"road","valid":true,"roadInstanceId":2777289806}},{"x":0,"z":2,"nearest":0,"point":{"x":-1991.77001953125,"y":52.36127853393555,"z":-2231.760009765625},"physicalGround":{"height":52.740628191380566,"actor":"RoadStraightSlope_512.adr","instanceId":2777289806,"triangle":123,"slopeX":0.23525298006170553,"slopeZ":-3.832756926460143e-8,"surface":"road","valid":true,"roadInstanceId":2777289806}}]

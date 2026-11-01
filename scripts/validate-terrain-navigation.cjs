@@ -249,7 +249,7 @@ async function main() {
       path.join(__dirname, "../terrain-navigation-validation.json"),
       JSON.stringify({ ...summary, results, roadChases }, null, 2)
     );
-    debug(JSON.stringify(summary));
+    console.log(JSON.stringify(summary));
   } finally {
     Math.random = random;
     nav.terrain = terrain;

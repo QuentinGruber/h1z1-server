@@ -258,7 +258,7 @@ export class CraftManager {
           component.itemDefinitionId
         );
         if (!componentRecipeLookup) {
-          debug(
+          console.log(
             `[CraftManager] ${client.character.name} tried to craft an invalid recipe for item ${component.itemDefinitionId}!`
           );
           return false; // no valid recipe to craft component
@@ -305,7 +305,7 @@ export class CraftManager {
           component.itemDefinitionId
         );
         if (!componentRecipeLookup) {
-          debug(
+          console.log(
             `[CraftManager] ${client.character.name} tried to craft an invalid recipe for item ${component.itemDefinitionId}!`
           );
           return false; // no valid recipe to craft component

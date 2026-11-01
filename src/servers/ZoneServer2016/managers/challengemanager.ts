@@ -220,7 +220,7 @@ export class ChallengeManager {
       midnight.setHours(23, 59, 59, 0);
       time = midnight.getTime() - now.getTime();
     }
-    debug(`Challenges expires in ${(time / 60_000).toFixed(0)} minutes`);
+    console.log(`Challenges expires in ${(time / 60_000).toFixed(0)} minutes`);
     setTimeout(() => {
       this.expireChallenges();
       this.scheduleExpires(24 * 3600 * 1000);

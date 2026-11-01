@@ -51,7 +51,7 @@ function getOrderedNumbersInRange(
   length: number
 ): number[] {
   if (length > max - min + 1) {
-    debug("Length cannot be greater than the range of numbers.");
+    console.log("Length cannot be greater than the range of numbers.");
     return [];
   }
 

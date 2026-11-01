@@ -31,7 +31,7 @@ export function getActorModelId(actorModel: string): number {
     case "Common_Props_Barell01.adr":
       return ModelIds.BARELL_1;
     default:
-      debug(`crate adr file not mapped to modelId: ${actorModel}`);
+      console.log(`crate adr file not mapped to modelId: ${actorModel}`);
       return 0;
   }
 }

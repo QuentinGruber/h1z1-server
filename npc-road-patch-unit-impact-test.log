@@ -1,0 +1,117 @@
+✔ road cache patch preserves every existing height, area and unrelated tile (696.354925ms)
+✔ road cache patch rejects mismatched cache or collision source data (288.794805ms)
+✔ precise road cache retains original obstacle settings and road source heights (148.164678ms)
+[0x123] wander → idle (idleTimeout)
+[0x123] idle → chase (seePlayer)
+▶ zombie locomotion and idle packet transitions
+  ✔ walking level (4.719689ms)
+  ✔ running level (2.35826ms)
+  ✔ walking uphill (1.074747ms)
+  ✔ running uphill (0.63071ms)
+  ✔ walking downhill (1.456309ms)
+  ✔ running downhill (2.041775ms)
+  ✔ downhill to stop, including FSM idle while decelerating (2.754382ms)
+  ✔ walk/run/walk downhill; facing and Y-only updates (1.071879ms)
+  ✔ unchanged crowd snapshot must not idle a moving zombie (0.623305ms)
+  ✔ wildlife keeps existing displacement-based replication (2.166339ms)
+  ✔ stalled or collision-constrained motion still publishes a stop (1.742429ms)
+  ✔ 200ms crowd / 150ms replication: slope=0 speed=1 (1.472109ms)
+  ✔ 200ms crowd / 150ms replication: slope=0 speed=4 (1.121504ms)
+  ✔ 200ms crowd / 150ms replication: slope=0.5 speed=1 (0.468589ms)
+  ✔ 200ms crowd / 150ms replication: slope=0.5 speed=4 (0.901188ms)
+  ✔ 200ms crowd / 150ms replication: slope=-0.5 speed=1 (0.917295ms)
+  ✔ 200ms crowd / 150ms replication: slope=-0.5 speed=4 (1.156044ms)
+  ✔ Y-only correction cannot invent horizontal prediction (0.570578ms)
+✔ zombie locomotion and idle packet transitions (33.416975ms)
+Process will exit with code: 0 time : Sun Nov 01 2026 04:56:28 GMT+0000 (Coordinated Universal Time)
+h1z1-server version : undefined
+Process exited with code: 0 time : Sun Nov 01 2026 04:56:28 GMT+0000 (Coordinated Universal Time)
+h1z1-server version : undefined
+[zombie] wander → chase (seePlayer)
+[zombie] chase → attack (reachPlayer)
+[zombie] attack → attacking (startAttacking)
+[zombie] attacking → attack (doneAttacking)
+[zombie] wander → chase (seePlayer)
+[zombie] chase → attack (reachPlayer)
+[zombie] attack → attacking (startAttacking)
+[zombie] attacking → attack (doneAttacking)
+[zombie] wander → chase (seePlayer)
+[zombie] chase → attack (reachPlayer)
+[zombie] attack → attacking (startAttacking)
+[zombie] attacking → attack (doneAttacking)
+[zombie] wander → chase (seePlayer)
+[zombie] chase → attack (reachPlayer)
+[zombie] attack → attacking (startAttacking)
+[zombie] attacking → attack (doneAttacking)
+[zombie] wander → chase (seePlayer)
+  Position: 0, 100, 2.700000047683716, 1
+  Agitation: 50
+  Hunger: 0
+  ChargeGas: 100
+[zombie] chase → attack (reachPlayer)
+  Position: 0, 100, 2.700000047683716, 1
+  Agitation: 50
+  Hunger: 0
+  ChargeGas: 100
+[zombie] attack → attacking (startAttacking)
+  Position: 0, 100, 2.700000047683716, 1
+  Agitation: 50
+  Hunger: 0
+  ChargeGas: 100
+[zombie] attacking → attack (doneAttacking)
+  Position: 0, 100, 2.700000047683716, 1
+  Agitation: 50
+  Hunger: 0
+  ChargeGas: 100
+[zombie] attack → attacking (spit)
+  Position: 0, 100, 2.700000047683716, 1
+  Agitation: 50
+  Hunger: 0
+  ChargeGas: 100
+[zombie] wander → chase (seePlayer)
+[zombie] chase → attack (reachPlayer)
+[zombie] attack → attacking (startAttacking)
+[zombie] wander → chase (seePlayer)
+[zombie] chase → attack (reachPlayer)
+[zombie] attack → chase (playerBacked)
+▶ mounted prey can be attacked from every vehicle side without steering into its seat
+  ✔ left (8.148345ms)
+  ✔ right (1.078955ms)
+  ✔ rear (0.819962ms)
+  ✔ front (1.295569ms)
+✔ mounted prey can be attacked from every vehicle side without steering into its seat (13.777125ms)
+✔ rotated vehicle targeting and dismount preserve target semantics (0.345499ms)
+✔ idling engine remains audible to zombies without changing wildlife hearing (0.359234ms)
+✔ looping Idle cannot persist over zombie locomotion; wildlife animation is unchanged (0.268113ms)
+✔ special zombie attack transitions cancel steering once (2.932874ms)
+✔ zombie target projection prefers local X/Z and falls back only when absent (0.999185ms)
+✔ only a zombie pursuing a mounted character opens the vehicle approach (1.69008ms)
+✔ mounted zombie closes beyond damage reach and holds a stable stopping band (1.398306ms)
+✔ zombie facing-only replication cannot rotate a clear body into the vehicle (0.848803ms)
+✔ continuous OBB sweep catches tunnelling, rotation and rejects vertical separation (5.265199ms)
+✔ profiles distinguish species; low-speed contact, fast impacts and attribution use actual health systems (16.058163ms)
+✔ bear survives an impact that kills a deer and costs the vehicle more condition (2.355744ms)
+✔ held contact is one impact, separation rearms, dead NPCs cannot duplicate loot (2.401197ms)
+✔ multiple NPCs are independent; no three-target limit or endpoint overlap required (5.626242ms)
+✔ stationary vehicles do not damage walkers; invalid motion cannot create an impact (1.612961ms)
+✔ parked obstacle is removed on movement and proxies cleaned on deletion (1.968935ms)
+✔ grade/height separation prevents impacts through bridges and retains terrain Y (1.350053ms)
+✔ world-collision hints consume measured energy loss once and ignore arbitrary damage amounts (2.541825ms)
+✔ stationary overlap never resets an NPC target; a newly blocked step retains nav/terrain separation (1.965293ms)
+✔ uphill and downhill vehicle sweeps damage a stationary NPC without changing its ground Y (8.003282ms)
+✔ vehicle destruction follows the existing damage path once (4.057625ms)
+✔ forged collision amounts and unmanaged vehicle movement cannot damage NPCs (872.50933ms)
+✔ bounded monotonic packet timing tolerates delivery bursts and rejects backwards timestamps (1.079791ms)
+✔ authenticated managed-position handler resolves the sweep before vehicle/passenger replication (3.239825ms)
+Process will exit with code: 0 time : Sun Nov 01 2026 04:56:28 GMT+0000 (Coordinated Universal Time)
+h1z1-server version : undefined
+Process exited with code: 0 time : Sun Nov 01 2026 04:56:28 GMT+0000 (Coordinated Universal Time)
+h1z1-server version : undefined
+ℹ tests 50
+ℹ suites 0
+ℹ pass 50
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1447.234408

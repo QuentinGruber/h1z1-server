@@ -85,7 +85,7 @@ try {
   Date.now = originalNow;
 }
 const summary = cases.map(({ samples, ...rest }) => rest);
-debug(JSON.stringify(summary, null, 2));
+console.log(JSON.stringify(summary, null, 2));
 fs.writeFileSync(
   process.argv[2] ?? "npc-slope-profile.json",
   JSON.stringify({ summary, cases }, null, 2)

@@ -39,7 +39,7 @@ const dev: any = {
       try {
         server.despawnEntity(entity.characterId);
       } catch (error) {
-        debug(error);
+        console.log(error);
       }
     });
     client.spawnedEntities = [];

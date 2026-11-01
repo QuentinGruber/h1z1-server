@@ -129,9 +129,9 @@ export class PerSecClient extends EventEmitter {
         break;
       case "OutOfOrder": {
         delete this._packetStore[packet.sequence];
-        // debug("last sent " + this._sequenceNumber);
-        // debug("last ack" + this._lastAck);
-        // debug("out " + packet.sequence);
+        // console.log("last sent " + this._sequenceNumber);
+        // console.log("last ack" + this._lastAck);
+        // console.log("out " + packet.sequence);
       }
     }
   }
@@ -143,7 +143,7 @@ export class PerSecClient extends EventEmitter {
   receiveData(data: Uint8Array): void {
     const raw_parsed_data: string = this._protocol.parse(data);
     const parsed_data = JSON.parse(raw_parsed_data);
-    // debug("client " + parsed_data.name);
+    // console.log("client " + parsed_data.name);
     this.handlePacket(parsed_data);
   }
 }

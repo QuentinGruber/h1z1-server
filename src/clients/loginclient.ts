@@ -65,11 +65,11 @@ export class LoginClient extends EventEmitter {
     this._protocol = new LoginProtocol();
     let n = 0;
     this._soeClient.on("connect", (err: string, result: string) => {
-      debug("Connected to login server");
+      console.log("Connected to login server");
       this.login("FiNgErPrInT");
     });
     this._soeClient.on("disconnect", (err: string, result: string) => {
-      debug("Disconnected");
+      console.log("Disconnected");
     });
     this._soeClient.on("appdata", (err: string, data: Buffer) => {
       n++;
@@ -77,7 +77,7 @@ export class LoginClient extends EventEmitter {
       try {
         packet = this._protocol.parse(data);
       } catch (e) {
-        debug("Failed parsing app data loginclient_appdata_" + n + ".dat");
+        console.log("Failed parsing app data loginclient_appdata_" + n + ".dat");
         return;
       }
 
@@ -98,7 +98,7 @@ export class LoginClient extends EventEmitter {
           break;
         case "CharacterLoginReply":
           if (result.status === 1) {
-            debug(JSON.stringify(result, null, 4));
+            console.log(JSON.stringify(result, null, 4));
             this.emit("characterlogin", null, result);
           } else {
             this.emit("characterlogin", "Character login failed");
@@ -146,7 +146,7 @@ export class LoginClient extends EventEmitter {
   }
 
   connect() {
-    debug("Connecting to login server");
+    console.log("Connecting to login server");
     this._soeClient.connect();
   }
 
@@ -155,7 +155,7 @@ export class LoginClient extends EventEmitter {
       sessionId: this._soeClient._sessionId.toString(),
       systemFingerPrint: fingerprint
     });
-    debug("Sending login request");
+    console.log("Sending login request");
     this._soeClient.sendAppData(data, true);
 
     this.emit("connect");
@@ -166,19 +166,19 @@ export class LoginClient extends EventEmitter {
   }
 
   requestServerList() {
-    debug("Requesting server list");
+    console.log("Requesting server list");
     const data = this._protocol.pack("ServerListRequest");
     this._soeClient.sendAppData(data, true);
   }
 
   requestCharacterInfo() {
-    debug("Requesting character info");
+    console.log("Requesting character info");
     const data = this._protocol.pack("CharacterSelectInfoRequest");
     this._soeClient.sendAppData(data, true);
   }
 
   requestCharacterLogin(characterId: string, serverId: number, payload: any) {
-    debug("Requesting character login");
+    console.log("Requesting character login");
     const data = this._protocol.pack("CharacterLoginRequest", {
       characterId: characterId,
       serverId: serverId,
@@ -187,14 +187,14 @@ export class LoginClient extends EventEmitter {
     if (data) {
       this._soeClient.sendAppData(data, true);
     } else {
-      debug("Could not pack character login request data");
+      console.log("Could not pack character login request data");
     }
   }
 
   requestCharacterDelete = function () {};
 
   requestCharacterCreate() {
-    debug("Requesting character create");
+    console.log("Requesting character create");
     const data = this._protocol.pack("CharacterCreateRequest", {
       serverId: 1,
       unknown: 0,
@@ -209,7 +209,7 @@ export class LoginClient extends EventEmitter {
     if (data) {
       this._soeClient.sendAppData(data, true);
     } else {
-      debug("Could not pack character create request data");
+      console.log("Could not pack character create request data");
     }
   }
 }

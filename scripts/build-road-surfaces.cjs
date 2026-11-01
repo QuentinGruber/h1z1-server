@@ -176,7 +176,7 @@ function build(assetDirectory, zoneFile, output) {
   };
   fs.mkdirSync(path.dirname(output), { recursive: true });
   fs.writeFileSync(output, zlib.gzipSync(JSON.stringify(data)));
-  debug(
+  console.log(
     JSON.stringify({
       models: Object.keys(data.models).length,
       instances: instances.length,

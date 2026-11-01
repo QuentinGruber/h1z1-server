@@ -201,7 +201,7 @@ export class AbilitiesManager {
     if (!client.character.abilityInitTime) {
       // This happen a lot in production but i'm unable to reproduce it
       // Maybe sometimes the hitLocation field in abilityInit is empty
-      // debug(
+      // console.log(
       //   `${client.character.characterId} tried to update a non-initialized ability!`
       // );
       return;

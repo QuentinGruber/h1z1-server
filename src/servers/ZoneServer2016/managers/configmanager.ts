@@ -47,7 +47,7 @@ export class ConfigManager {
       if (!fileExists(configPath))
         console.error("Config path is invalid! Using default.");
 
-      debug(
+      console.log(
         "Config file not found, creating it in base directory using default values."
       );
       copyFile(
@@ -58,7 +58,7 @@ export class ConfigManager {
       this.config = this.defaultConfig;
       this.applyEnvOverrides();
       this.applyConfig(server);
-      debug("Default config loaded!");
+      console.log("Default config loaded!");
       return;
     }
 
@@ -67,7 +67,7 @@ export class ConfigManager {
       this.config = this.loadConfig(config);
       this.applyEnvOverrides();
       this.applyConfig(server);
-      debug("Config Loaded!");
+      console.log("Config Loaded!");
       return;
     }
 
@@ -92,7 +92,7 @@ export class ConfigManager {
     this.config = this.loadConfig(config);
     this.applyEnvOverrides();
     this.applyConfig(server);
-    debug("Config reloaded!");
+    console.log("Config reloaded!");
     return true;
   }
 

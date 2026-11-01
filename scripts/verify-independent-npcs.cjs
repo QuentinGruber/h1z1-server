@@ -150,7 +150,7 @@ try {
     "npc-independent-validation.json",
     JSON.stringify(together, null, 2)
   );
-  debug(
+  console.log(
     "PASS: 300 concurrent samples + 300 isolated controls, full position packet roundtrips, retained buffer integrity, stationary Y unchanged, downhill signed velocity, identical solo/concurrent results."
   );
 } finally {

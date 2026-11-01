@@ -276,7 +276,7 @@ function createDestroyable(server: ZoneServer2015) {
       });
     }
   });
-  debug("AR15 and ammo items objects created. Spawnrate:" + chanceAR15 + "%");
+  console.log("AR15 and ammo items objects created. Spawnrate:" + chanceAR15 + "%");
 }
 
 function createDestroyablePS(server: ZoneServer2015) {
@@ -295,7 +295,7 @@ function createDestroyablePS(server: ZoneServer2015) {
       );
     });
   });
-  debug("Props objects created");
+  console.log("Props objects created");
 }
 
 function createAllVehicles(server: ZoneServer2015) {
@@ -314,7 +314,7 @@ function createAllVehicles(server: ZoneServer2015) {
       new Float32Array(rotation)
     );
   });
-  debug("All vehicles created");
+  console.log("All vehicles created");
 }
 
 function createSomeNpcs(server: ZoneServer2015) {
@@ -370,7 +370,7 @@ function createSomeNpcs(server: ZoneServer2015) {
       });
     }
   });
-  debug("All npcs objects created");
+  console.log("All npcs objects created");
 }
 
 function createAR15(server: ZoneServer2015) {
@@ -421,7 +421,7 @@ function createAR15(server: ZoneServer2015) {
       });
     }
   });
-  debug("AR15 and ammo items objects created. Spawnrate:" + chanceAR15 + "%");
+  console.log("AR15 and ammo items objects created. Spawnrate:" + chanceAR15 + "%");
 }
 
 function createPumpShotgun(server: ZoneServer2015) {
@@ -469,7 +469,7 @@ function createPumpShotgun(server: ZoneServer2015) {
       });
     }
   });
-  debug(
+  console.log(
     "PumpShotgun and ammo items objects created. Spawnrate:" +
       chancePumpShotgun +
       "%"
@@ -554,7 +554,7 @@ function createTools(server: ZoneServer2015) {
       });
     }
   });
-  debug("Tools items objects created. Spawnrate:" + chanceTools + "%");
+  console.log("Tools items objects created. Spawnrate:" + chanceTools + "%");
 }
 
 function create1911(server: ZoneServer2015) {
@@ -602,7 +602,7 @@ function create1911(server: ZoneServer2015) {
       });
     }
   });
-  debug("1911 and ammo items objects created. Spawnrate:" + chance1911 + "%");
+  console.log("1911 and ammo items objects created. Spawnrate:" + chance1911 + "%");
 }
 
 function createM24(server: ZoneServer2015) {
@@ -650,7 +650,7 @@ function createM24(server: ZoneServer2015) {
       });
     }
   });
-  debug(
+  console.log(
     "SniperRifle and ammo items objects created. Spawnrate:" + chanceM24 + "%"
   );
 }
@@ -704,7 +704,7 @@ function createConsumables(server: ZoneServer2015) {
       });
     }
   });
-  debug(
+  console.log(
     "Consumable items objects created. Spawnrate:" + chanceConsumables + "%"
   );
 }
@@ -760,7 +760,7 @@ function createClothes(server: ZoneServer2015) {
       });
     }
   });
-  debug("Clothes items objects created. Spawnrate:" + chanceClothes + "%");
+  console.log("Clothes items objects created. Spawnrate:" + chanceClothes + "%");
 }
 
 function createResidential(server: ZoneServer2015) {
@@ -824,7 +824,7 @@ function createResidential(server: ZoneServer2015) {
       });
     }
   });
-  debug(
+  console.log(
     "Residential Areas items objects created. Spawnrate:" +
       chanceResidential +
       "%"
@@ -879,7 +879,7 @@ function createRare(server: ZoneServer2015) {
       });
     }
   });
-  debug("Rare items objects created. Spawnrate:" + chanceRare + "%");
+  console.log("Rare items objects created. Spawnrate:" + chanceRare + "%");
 }
 
 function createIndustrial(server: ZoneServer2015) {
@@ -934,7 +934,7 @@ function createIndustrial(server: ZoneServer2015) {
       });
     }
   });
-  debug(
+  console.log(
     "Industrial Areas items objects created. Spawnrate:" +
       chanceIndustrial +
       "%"
@@ -992,7 +992,7 @@ function createWorld(server: ZoneServer2015) {
       });
     }
   });
-  debug("World Areas items objects created. Spawnrate:" + chanceWorld + "%");
+  console.log("World Areas items objects created. Spawnrate:" + chanceWorld + "%");
 }
 
 function createLog(server: ZoneServer2015) {
@@ -1039,7 +1039,7 @@ function createLog(server: ZoneServer2015) {
       });
     }
   });
-  debug("Log Areas items objects created. Spawnrate:" + chanceWorld + "%");
+  console.log("Log Areas items objects created. Spawnrate:" + chanceWorld + "%");
 }
 
 function createCommercial(server: ZoneServer2015) {
@@ -1091,7 +1091,7 @@ function createCommercial(server: ZoneServer2015) {
       });
     }
   });
-  debug(
+  console.log(
     "Commercial Areas items objects created. Spawnrate:" +
       chanceCommercial +
       "%"
@@ -1144,7 +1144,7 @@ function createFarm(server: ZoneServer2015) {
       });
     }
   });
-  debug("Farm Areas items objects created. Spawnrate:" + chanceFarm + "%");
+  console.log("Farm Areas items objects created. Spawnrate:" + chanceFarm + "%");
 }
 
 function createProps(server: ZoneServer2015) {
@@ -1174,7 +1174,7 @@ function createProps(server: ZoneServer2015) {
       );
     });
   });
-  debug("Props objects created");
+  console.log("Props objects created");
 }
 
 function createAllDoors(server: ZoneServer2015): void {
@@ -1199,5 +1199,5 @@ function createAllDoors(server: ZoneServer2015): void {
       );
     });
   });
-  debug("All doors objects created");
+  console.log("All doors objects created");
 }

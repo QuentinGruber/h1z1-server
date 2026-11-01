@@ -3987,7 +3987,7 @@ export const commands: Array<Command> = [
       server.weatherManager.weather[args[0]] = Number(args[1]);
       server.weatherManager.sendUpdateToAll(server, client, false);
       server.sendChatText(client, `Set weather ${args[0]} to ${args[1]}`);
-      debug(server.weatherManager.weather);
+      console.log(server.weatherManager.weather);
       server.weatherManager.sendUpdateToAll(server, client, false);
     }
   },

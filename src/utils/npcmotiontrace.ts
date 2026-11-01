@@ -97,7 +97,7 @@ export class NpcMotionTrace {
     this.lastLog = now;
     // Read-only diagnostic access to the pinned Recast accumulator.
     const crowd = manager.crowd as unknown as { accumulator?: number };
-    debug(
+    console.log(
       "[NPC-MOTION-FRAME] " +
         JSON.stringify({
           frame: this.frame,

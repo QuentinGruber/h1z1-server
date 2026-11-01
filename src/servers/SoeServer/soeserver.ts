@@ -110,7 +110,7 @@ export class SOEServer extends EventEmitter {
       }, intervalTime);
     } catch (e) {
       console.error(e);
-      debug("PerformanceObserver not available");
+      console.log("PerformanceObserver not available");
     }
   }
 
@@ -147,7 +147,7 @@ export class SOEServer extends EventEmitter {
   private _sendPhysicalPacket(client: Client, packet: Uint8Array): void {
     client.packetsSentThisSec++;
     client.stats.totalPhysicalPacketSent++;
-    debug("Sending physical packet", packet);
+    console.log("Sending physical packet", packet);
     if (client.family === "IPv4") {
       this._connection.send(packet, client.port, client.address);
     } else {
@@ -287,7 +287,7 @@ export class SOEServer extends EventEmitter {
     // sessionId, which a half-open client never sets.
     client.lastKeepAliveTimer = this.keepAliveTimeoutTime
       ? setTimeout(() => {
-          debug("Client keep alive timeout");
+          console.log("Client keep alive timeout");
           this.deleteClient(client);
           this.emit("disconnect", client);
         }, this.keepAliveTimeoutTime)
@@ -307,7 +307,7 @@ export class SOEServer extends EventEmitter {
     });
 
     client.inputStream.on("error", (err: Error) => {
-      debug(err);
+      console.log(err);
       this.emit("disconnect", client);
     });
 
@@ -319,7 +319,7 @@ export class SOEServer extends EventEmitter {
     client.outputStream.on(
       SOEOutputChannels.Ordered,
       (data: Buffer, sequence: number) => {
-        debug("ordered");
+        console.log("ordered");
         this._sendAndBuildLogicalPacket(client, SoeOpcode.Ordered, {
           sequence: sequence,
           data: data
@@ -338,7 +338,7 @@ export class SOEServer extends EventEmitter {
   private handlePacket(client: SOEClient, packet: any) {
     switch (packet.name) {
       case "SessionRequest":
-        debug(
+        console.log(
           "Received session request from " + client.address + ":" + client.port
         );
         client.sessionId = packet.session_id;
@@ -370,7 +370,7 @@ export class SOEServer extends EventEmitter {
         break;
       case "FatalError":
       case "Disconnect":
-        debug("Received disconnect from client");
+        console.log("Received disconnect from client");
         this.deleteClient(client);
         this.emit("disconnect", client);
         break;
@@ -382,13 +382,13 @@ export class SOEServer extends EventEmitter {
         break;
       }
       case "Ping":
-        debug("Received ping from client");
+        console.log("Received ping from client");
         const ping = this.createLogicalPacket(SoeOpcode.Ping, {});
         // Same as session reply, we send the ping directly
         this._sendAndBuildPhysicalPacket(client, ping);
         break;
       case "NetStatusRequest":
-        debug("Received net status request from client");
+        console.log("Received net status request from client");
         break;
       case "Data":
         client.inputStream.write(
@@ -428,8 +428,8 @@ export class SOEServer extends EventEmitter {
         client.outputStream.ack(packet.sequence, client.unAckData);
         break;
       default:
-        debug(`Unknown SOE packet received from ${client.sessionId}`);
-        debug(packet);
+        console.log(`Unknown SOE packet received from ${client.sessionId}`);
+        console.log(packet);
     }
   }
 
@@ -443,7 +443,7 @@ export class SOEServer extends EventEmitter {
     entry.count++;
     if (entry.count > MAX_PACKETS_PER_IP_PER_SEC) {
       if (!entry.logged) {
-        debug(
+        console.log(
           `[DDoS] IP ${ip} rate-limited: ${entry.count} packets in 1s window (dropped)`
         );
         entry.logged = true;
@@ -463,7 +463,7 @@ export class SOEServer extends EventEmitter {
     entry.count++;
     if (entry.count > MAX_SESSIONS_PER_IP_PER_MIN) {
       if (!entry.logged) {
-        debug(
+        console.log(
           `[DDoS] IP ${ip} session-spam: ${entry.count} session requests in 60s (dropped)`
         );
         entry.logged = true;
@@ -478,7 +478,7 @@ export class SOEServer extends EventEmitter {
       if (!this._checkIpRateLimit(remote.address)) return;
 
       const clientId = SOEClient.getClientId(remote);
-      debug(data.length + " bytes from ", clientId);
+      console.log(data.length + " bytes from ", clientId);
 
       let client = this._clients.get(clientId);
 
@@ -487,10 +487,10 @@ export class SOEServer extends EventEmitter {
       if (data[0] !== 0x00) {
         if (!client) return;
         if (this._allowRawDataReception) {
-          debug("Raw data received from client", clientId, data);
+          console.log("Raw data received from client", clientId, data);
           this.emit("appdata", client, data, true); // Unreliable + Unordered
         } else {
-          debug(
+          console.log(
             "Raw data received from client but raw data reception isn't enabled",
             clientId,
             data
@@ -504,7 +504,7 @@ export class SOEServer extends EventEmitter {
 
       const raw_parsed_data: string = this._protocol.parse(data);
       if (!raw_parsed_data) {
-        debug("Unmanaged packet from client", clientId, data);
+        console.log("Unmanaged packet from client", clientId, data);
         return;
       }
 
@@ -513,13 +513,13 @@ export class SOEServer extends EventEmitter {
         parsed_data = JSON.parse(raw_parsed_data);
       } catch {
         // h1emu-core can emit malformed JSON for hostile input, drop the packet
-        debug("Failed to parse packet JSON from " + clientId);
+        console.log("Failed to parse packet JSON from " + clientId);
         return;
       }
 
       if (parsed_data.name === "Error") {
-        debug("parsing error " + parsed_data.error);
-        debug(parsed_data);
+        console.log("parsing error " + parsed_data.error);
+        console.log(parsed_data);
         return;
       }
 
@@ -535,7 +535,7 @@ export class SOEServer extends EventEmitter {
       }
       this.handlePacket(client, parsed_data);
     } catch (e) {
-      debug(e);
+      console.log(e);
     }
   }
 
@@ -758,7 +758,7 @@ export class SOEServer extends EventEmitter {
       );
       return logicalPacket;
     } catch (e) {
-      debug(
+      console.log(
         `Failed to create packet ${packetOpcode} packet data : ${JSON.stringify(
           packet,
           null,
@@ -840,6 +840,6 @@ export class SOEServer extends EventEmitter {
     client.isDeleted = true;
     client.closeTimers();
     this._clients.delete(client.soeClientId);
-    debug("client connection from port : ", client.port, " deleted");
+    console.log("client connection from port : ", client.port, " deleted");
   }
 }

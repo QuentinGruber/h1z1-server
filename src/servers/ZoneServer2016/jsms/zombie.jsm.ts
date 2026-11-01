@@ -155,15 +155,15 @@ function moveToward(
   server: ZoneServer2016
 ): void {
   if (!npc.navAgent) return;
-  const navTarget = server.navManager.getClosestNavPointVec3(target);
-  npc.navAgent.requestMoveTarget(navTarget);
+  const navTarget = npc.getZombieNavTarget(target);
+  if (navTarget) npc.navAgent.requestMoveTarget(navTarget);
 }
 
 function listenToSounds(zombie: ZombieInstance, sounds: Sound[]): Sound | null {
   let nearest: Sound | null = null;
   let nearestDist = Infinity;
   let bestPriority = Number.NEGATIVE_INFINITY;
-  for (const sound of sounds) {
+  for (const sound of zombie.npc.getZombieSounds(sounds)) {
     const dist = getDistance2d(zombie.npc.state.position, sound.position);
     if (dist < sound.radius) {
       zombie.agitation = Math.min(100, zombie.agitation + sound.agitation);
@@ -233,9 +233,13 @@ function getChaseTarget(zombie: ZombieInstance): {
 } | null {
   if (!zombie.targetCharacterId) return null;
   const player = zombie.server._characters[zombie.targetCharacterId];
+  if (player) zombie.npc.refreshZombieVehicleApproach(zombie.targetCharacterId);
   if (player)
     return {
-      position: player.state.position,
+      position: zombie.npc.getZombieTargetPosition(
+        zombie.targetCharacterId,
+        player.state.position
+      ),
       isAlive: player.isAlive,
       isVanished: !!player.isVanished,
       isHidden: !!player.isHidden
@@ -432,7 +436,13 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
         );
         if (chaseDist > 50) {
           zombie.event(ZombieEvents.LostPlayer);
-        } else if (chaseDist < 2) {
+        } else if (
+          chaseDist <
+          zombie.npc.getZombieVehicleApproachDistance(
+            zombie.targetCharacterId,
+            2
+          )
+        ) {
           zombie.event(ZombieEvents.ReachPlayer);
         } else {
           if (trySmellCorpse(zombie)) return;
@@ -481,15 +491,24 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
           return;
         }
         zombie.npc.lookAtTarget = attackTarget.position;
-        moveToward(zombie.npc, attackTarget.position, zombie.server);
         const attackDist = getDistance(
           zombie.npc.state.position,
           attackTarget.position
         );
-        if (attackDist >= 2) {
+        if (
+          attackDist >=
+          zombie.npc.getZombieVehicleApproachDistance(
+            zombie.targetCharacterId,
+            2,
+            true
+          )
+        ) {
+          moveToward(zombie.npc, attackTarget.position, zombie.server);
           zombie.event(ZombieEvents.PlayerBacked);
-        } else if (zombie.lastAttackTime > 2) {
-          zombie.event(ZombieEvents.StartAttacking);
+        } else {
+          zombie.npc.stopMovement();
+          if (zombie.lastAttackTime > 2)
+            zombie.event(ZombieEvents.StartAttacking);
         }
       },
 
@@ -640,6 +659,7 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
         from: [ZombieTransitions.Chase],
         to: ZombieTransitions.Attack,
         EnterTransition: () => {
+          zombie.npc.stopMovement();
           zombie.lastAttackTime = 2;
         }
       },
@@ -677,6 +697,7 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
         from: [ZombieTransitions.Attack],
         to: ZombieTransitions.Attacking,
         EnterTransition: () => {
+          zombie.npc.stopMovement();
           zombie.npc.playAnimation(ZombieOneshotAnim.KnifeSlash);
           zombie.stateTimer = 0;
           zombie.lastAttackTime = 0;
@@ -727,7 +748,11 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
         EnterTransition: () => {
           zombie.stateTimer = 0;
           zombie.npc.stopMovement();
-          zombie.npc.setAnimation(ZombieLoopingAnim.Idle);
+          // resetMoveTarget() still allows the crowd agent to decelerate.
+          // Let goTo() replicate the moving stance until X/Z actually stops,
+          // then its stationary stance selects idle. An explicit looping Idle
+          // here races those packets and is retained for newly spawned observers
+          // even after this zombie resumes walking/running.
         }
       },
       {
@@ -750,7 +775,7 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
   ) as unknown as ZombieInstance;
 
   zombie.onTransition = (from: string, to: string, eventId: string) => {
-    debug(`[${zombie.id}] ${from} → ${to} (${eventId})`);
+    console.log(`[${zombie.id}] ${from} → ${to} (${eventId})`);
   };
   zombie.id = npc.characterId;
   zombie.npc = npc;

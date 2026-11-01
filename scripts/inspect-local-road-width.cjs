@@ -1,0 +1,1 @@
+const {RoadSurfaces}=require('../out/utils/roadsurfaces');const r=new RoadSurfaces('data/2016/roadSurfaces.json.gz');const out=[];for(let z=-14;z<=14;z++){const p=r.getSample(-1991.77,-2233.76+z);out.push({z,road:p?.instanceId,height:p?.height});}process.stdout.write(JSON.stringify(out));

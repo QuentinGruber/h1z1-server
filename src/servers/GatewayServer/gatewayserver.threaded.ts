@@ -80,7 +80,7 @@ export class GatewayServerThreaded extends EventEmitter {
       );
     });
     this.internalChannel.port2.on("message", (msg) => {
-      debug(msg);
+      console.log(msg);
     });
   }
 

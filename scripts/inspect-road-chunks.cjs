@@ -18,5 +18,5 @@ for(const name of ['Z1_-36_-32.cnk0','Z1_-36_28.cnk0']){
   const indices=[slice*4225+z*65+x,slice*4225+x*65+z,(tx*65+z)*260+tz*65+x,(tz*65+x)*260+tx*65+z,(tz*4+tx)*4225+z*65+x,(tz*4+tx)*4225+x*65+z,(tz*65+z)*260+tx*65+x,(tx*65+x)*260+tz*65+z];
   indices.forEach((idx,k)=>{const h=b.readInt16LE(ho+idx*4),s=scores[k];s.n++;s.same+=h===hn;s.error+=Math.abs(h-hn);});
  }
- debug(JSON.stringify({name,heightOffset:ho,heightRange:[hmin/32,hmax/32],vertexRange:[vmin/32,vmax/32],tiles:c.tiles,scores:scores.map(s=>({same:s.same/s.n,error:s.error/s.n/32}))}));
+ console.log(JSON.stringify({name,heightOffset:ho,heightRange:[hmin/32,hmax/32],vertexRange:[vmin/32,vmax/32],tiles:c.tiles,scores:scores.map(s=>({same:s.same/s.n,error:s.error/s.n/32}))}));
 }

@@ -1,0 +1,18 @@
+0 verbose cli C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js
+1 info using npm@11.13.0
+2 info using node@v24.16.0
+3 silly config load:file:C:\Program Files\nodejs\node_modules\npm\npmrc
+4 silly config load:file:C:\Users\Nightcore\Downloads\h1z1-2016-complete-patched-server\h1z1-server-0.50.0\.npmrc
+5 silly config load:file:C:\Users\Nightcore\.npmrc
+6 silly config load:file:C:\Users\Nightcore\AppData\Roaming\npm\etc\npmrc
+7 verbose title npm cache ls debug
+8 verbose argv "cache" "ls" "debug" "--cache" ".npm-cache"
+9 verbose logfile logs-max:10 dir:C:\Users\Nightcore\Downloads\h1z1-2016-complete-patched-server\h1z1-server-0.50.0\.npm-cache\_logs\2026-11-01T19_58_03_177Z-
+10 verbose logfile C:\Users\Nightcore\Downloads\h1z1-2016-complete-patched-server\h1z1-server-0.50.0\.npm-cache\_logs\2026-11-01T19_58_03_177Z-debug-0.log
+11 silly logfile done cleaning log files
+12 verbose cwd C:\Users\Nightcore\Downloads\h1z1-2016-complete-patched-server\h1z1-server-0.50.0
+13 verbose os Windows_NT 10.0.26300
+14 verbose node v24.16.0
+15 verbose npm  v11.13.0
+16 verbose exit 0
+17 info ok

@@ -177,9 +177,9 @@ export class WorldDataManager {
       await mongoClient.connect();
     } catch (e) {
       console.error(e);
-      throw debug("[ERROR]Unable to connect to mongo server " + mongoAddress);
+      throw console.log("[ERROR]Unable to connect to mongo server " + mongoAddress);
     }
-    debug("connected to mongo !");
+    console.log("connected to mongo !");
     // if no collections exist on h1server database , fill it with samples
 
     if (!(await mongoClient.db(DB_NAME).collections()).length) {
@@ -230,7 +230,7 @@ export class WorldDataManager {
         lastItemGuid: toBigHex(lastItemGuid),
         worldSaveVersion: this.worldSaveVersion
       });
-      debug("Existing world was not found, created one.");
+      console.log("Existing world was not found, created one.");
     } else {
       await this._db?.collection(DB_COLLECTIONS.WORLDS).insertOne({
         worldId: this._worldId,
@@ -251,7 +251,7 @@ export class WorldDataManager {
         this.loadCropData() as Promise<PlantingDiameterSaveData[]>,
         this.loadTrapData() as Promise<TrapSaveData[]>
       ]);
-    debug("World fetched!");
+    console.log("World fetched!");
     return {
       constructionParents,
       freeplace,
@@ -292,7 +292,7 @@ export class WorldDataManager {
 
   async deleteWorld() {
     await Promise.all([this.deleteServerData(), this.deleteCharacters()]);
-    debug("World deleted!");
+    console.log("World deleted!");
   }
 
   async saveWorld(world: WorldArg) {
@@ -434,7 +434,7 @@ export class WorldDataManager {
     if (this._soloMode) {
       serverData = requireFresh(`${this._appDataFolder}/worlddata/world.json`);
       if (!serverData?.serverId) {
-        debug("World data not found in file, aborting.");
+        console.log("World data not found in file, aborting.");
         return null;
       }
     } else {
@@ -442,7 +442,7 @@ export class WorldDataManager {
         ?.collection<ServerSaveData>(DB_COLLECTIONS.WORLDS)
         .findOne({ worldId: serverId });
       if (!serverData || !serverData.serverId) {
-        debug("World data not found in mongo, aborting.");
+        console.log("World data not found in mongo, aborting.");
         return null;
       }
     }
@@ -609,7 +609,7 @@ export class WorldDataManager {
         (character: any) => character.characterId === character.characterId
       );
       if (!singlePlayerCharacter) {
-        debug("[ERROR] Single player character savedata not found!");
+        console.log("[ERROR] Single player character savedata not found!");
         return;
       }
       singlePlayerCharacter = {
@@ -654,7 +654,7 @@ export class WorldDataManager {
   //   if (this._soloMode) {
   //     vehicles = require(`${this._appDataFolder}/worlddata/vehicles.json`);
   //     if (!vehicles) {
-  //       debug("Vehicle data not found in file, aborting.");
+  //       console.log("Vehicle data not found in file, aborting.");
   //       return;
   //     }
   //   } else {
@@ -1060,7 +1060,7 @@ export class WorldDataManager {
     if (this._soloMode) {
       vehicles = requireFresh(`${this._appDataFolder}/worlddata/vehicles.json`);
       if (!vehicles) {
-        debug("vehicles data not found in file, aborting.");
+        console.log("vehicles data not found in file, aborting.");
         return;
       }
     } else {
@@ -1081,7 +1081,7 @@ export class WorldDataManager {
         `${this._appDataFolder}/worlddata/construction.json`
       );
       if (!constructionParents) {
-        debug("Construction data not found in file, aborting.");
+        console.log("Construction data not found in file, aborting.");
         return;
       }
     } else {
@@ -1435,7 +1435,7 @@ export class WorldDataManager {
     if (this._soloMode) {
       crops = requireFresh(`${this._appDataFolder}/worlddata/crops.json`);
       if (!crops) {
-        debug("Crop data not found in file, aborting.");
+        console.log("Crop data not found in file, aborting.");
         return;
       }
     } else {
@@ -1529,7 +1529,7 @@ export class WorldDataManager {
         `${this._appDataFolder}/worlddata/worldconstruction.json`
       );
       if (!freeplace) {
-        debug("World construction data not found in file, aborting.");
+        console.log("World construction data not found in file, aborting.");
         return;
       }
     } else {
@@ -1592,7 +1592,7 @@ export class WorldDataManager {
     if (this._soloMode) {
       traps = requireFresh(`${this._appDataFolder}/worlddata/traps.json`);
       if (!traps) {
-        debug("trap data not found in file, aborting.");
+        console.log("trap data not found in file, aborting.");
         return;
       }
     } else {

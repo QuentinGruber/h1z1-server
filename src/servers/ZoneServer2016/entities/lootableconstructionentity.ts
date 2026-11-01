@@ -149,7 +149,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     ) {
       this.obstacleRef = setObstacle(server, actorModelId, position, rotation);
       if (this.obstacleRef) {
-        debug(
+        console.log(
           `[NavMesh] Added obstacle for world lootable ${characterId} (modelId: ${actorModelId})`
         );
       }
@@ -217,7 +217,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
 
   destroy(server: ZoneServer2016, destructTime = 0): boolean {
     if (this.obstacleRef) {
-      debug(
+      console.log(
         `[NavMesh] Removed obstacle for world lootable ${this.characterId}`
       );
       server.navManager.removeObstacle(this.obstacleRef);

@@ -1,0 +1,988 @@
+[ROAD] Loaded 425 asphalt-road collision instances
+[TERRAIN] Loaded 1024 terrain tile records from /usr/src/app/out/utils/../../data/2016/terrainData
+[NAV] loaded nav part 0
+[NAV] loaded nav part 1
+[NAV] loaded nav part 2
+[NAV] loaded nav cache part 0
+[NAV] loaded nav cache part 1
+[NAV] Navmesh loaded: 7.468s
+getClosestNavPoint gameIn=[-2003.56, 49.30, -2244.00] navOut=[-2003.56, 49.88, -2244.00] polyRef=4883466
+createAgent: navPos=[-2003.56, 49.88, -2244.00]
+createAgent: agentIdx=0 navPos=[-2003.25, 50.12, -2246.90]
+getClosestNavPoint gameIn=[-2036.69, 54.80, -2272.21] navOut=[-2036.69, 54.80, -2272.21] polyRef=4826371
+[zombie] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2003.72, 49.74, -2236.30] navOut=[-2003.72, 49.44, -2238.90] polyRef=4883462
+requests: 0, total: 0
+getClosestNavPoint gameIn=[-2005.74, 50.53, -2235.29] navOut=[-2005.74, 48.94, -2238.90] polyRef=4883462
+getClosestNavPoint gameIn=[-2003.98, 50.53, -2235.25] navOut=[-2003.98, 46.93, -2234.10] polyRef=4883482
+getClosestNavPoint gameIn=[-2002.22, 50.53, -2235.21] navOut=[-2002.22, 47.31, -2234.10] polyRef=4883481
+getClosestNavPoint gameIn=[-2003.82, 49.72, -2235.25] navOut=[-2003.82, 46.96, -2234.10] polyRef=4883482
+getClosestNavPoint gameIn=[-2003.82, 50.52, -2235.25] navOut=[-2003.82, 46.96, -2234.10] polyRef=4883482
+getClosestNavPoint gameIn=[-2003.72, 49.74, -2236.30] navOut=[-2003.72, 49.44, -2238.90] polyRef=4883462
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.73, 49.74, -2236.30] navOut=[-2003.73, 49.23, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.72, 49.78, -2236.30] navOut=[-2003.72, 49.23, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.73, 49.89, -2236.30] navOut=[-2003.73, 49.23, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.74, 49.90, -2236.30] navOut=[-2003.74, 49.23, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.74, 49.90, -2236.30] navOut=[-2003.74, 49.23, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.75, 49.90, -2236.30] navOut=[-2003.75, 49.22, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.76, 49.90, -2236.30] navOut=[-2003.76, 49.22, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.78, 49.90, -2236.30] navOut=[-2003.78, 49.22, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.76, 49.90, -2236.30] navOut=[-2003.76, 49.22, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.76, 49.90, -2236.30] navOut=[-2003.76, 49.22, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.75, 49.91, -2236.30] navOut=[-2003.75, 49.23, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.73, 49.91, -2236.30] navOut=[-2003.73, 49.23, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.71, 49.92, -2236.30] navOut=[-2003.71, 49.23, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.71, 49.92, -2236.30] navOut=[-2003.71, 49.23, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.71, 49.92, -2236.30] navOut=[-2003.71, 49.23, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.69, 49.92, -2236.30] navOut=[-2003.69, 49.24, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.69, 49.92, -2236.30] navOut=[-2003.69, 49.24, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.71, 49.92, -2236.30] navOut=[-2003.71, 49.23, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.72, 49.92, -2236.30] navOut=[-2003.72, 49.23, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.76, 49.91, -2236.30] navOut=[-2003.76, 49.22, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.79, 49.90, -2236.30] navOut=[-2003.79, 49.21, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.85, 49.89, -2236.30] navOut=[-2003.85, 49.20, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.90, 49.87, -2236.30] navOut=[-2003.90, 49.19, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.95, 49.86, -2236.31] navOut=[-2003.95, 49.18, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.00, 49.85, -2236.31] navOut=[-2004.00, 49.17, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.05, 49.84, -2236.31] navOut=[-2004.05, 49.16, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.10, 49.83, -2236.31] navOut=[-2004.10, 49.14, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.14, 49.82, -2236.31] navOut=[-2004.14, 49.13, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.19, 49.81, -2236.31] navOut=[-2004.19, 49.12, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.24, 49.79, -2236.31] navOut=[-2004.24, 49.11, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.29, 49.78, -2236.31] navOut=[-2004.29, 49.10, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.33, 49.77, -2236.31] navOut=[-2004.33, 49.09, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.38, 49.76, -2236.32] navOut=[-2004.38, 49.08, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.43, 49.75, -2236.32] navOut=[-2004.43, 49.07, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.48, 49.74, -2236.32] navOut=[-2004.48, 49.06, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.52, 49.73, -2236.32] navOut=[-2004.52, 49.05, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.57, 49.72, -2236.32] navOut=[-2004.57, 49.04, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.62, 49.70, -2236.32] navOut=[-2004.62, 49.02, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.67, 49.69, -2236.32] navOut=[-2004.67, 49.01, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.71, 49.68, -2236.32] navOut=[-2004.71, 49.00, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.76, 49.67, -2236.32] navOut=[-2004.76, 48.99, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.81, 49.66, -2236.33] navOut=[-2004.81, 48.98, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.86, 49.65, -2236.33] navOut=[-2004.86, 48.97, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.90, 49.64, -2236.33] navOut=[-2004.90, 48.96, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.95, 49.63, -2236.33] navOut=[-2004.95, 48.95, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.00, 49.62, -2236.33] navOut=[-2005.00, 48.94, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.05, 49.60, -2236.33] navOut=[-2005.05, 48.93, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.09, 49.59, -2236.33] navOut=[-2005.09, 48.91, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.14, 49.58, -2236.33] navOut=[-2005.14, 48.90, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.19, 49.57, -2236.33] navOut=[-2005.19, 48.89, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.24, 49.56, -2236.34] navOut=[-2005.24, 48.88, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.28, 49.55, -2236.34] navOut=[-2005.28, 48.87, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.33, 49.54, -2236.34] navOut=[-2005.33, 48.86, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.38, 49.53, -2236.34] navOut=[-2005.38, 48.85, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.43, 49.52, -2236.34] navOut=[-2005.43, 48.84, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.47, 49.50, -2236.34] navOut=[-2005.47, 48.83, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.52, 49.49, -2236.34] navOut=[-2005.52, 48.82, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.57, 49.48, -2236.34] navOut=[-2005.57, 48.81, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.62, 49.47, -2236.34] navOut=[-2005.62, 48.79, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.66, 49.46, -2236.35] navOut=[-2005.66, 48.78, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.71, 49.45, -2236.35] navOut=[-2005.71, 48.77, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.76, 49.44, -2236.35] navOut=[-2005.76, 48.76, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.81, 49.43, -2236.35] navOut=[-2005.81, 48.75, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.85, 49.41, -2236.35] navOut=[-2005.85, 48.74, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.90, 49.40, -2236.35] navOut=[-2005.90, 48.73, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.95, 49.39, -2236.35] navOut=[-2005.95, 48.72, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.00, 49.38, -2236.35] navOut=[-2006.00, 48.71, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.04, 49.37, -2236.35] navOut=[-2006.04, 48.70, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.09, 49.36, -2236.35] navOut=[-2006.09, 48.69, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.14, 49.35, -2236.36] navOut=[-2006.14, 48.67, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.18, 49.34, -2236.36] navOut=[-2006.18, 48.66, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.23, 49.33, -2236.36] navOut=[-2006.23, 48.65, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.28, 49.31, -2236.36] navOut=[-2006.28, 48.64, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.33, 49.30, -2236.36] navOut=[-2006.33, 48.63, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.37, 49.29, -2236.36] navOut=[-2006.37, 48.62, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.42, 49.28, -2236.36] navOut=[-2006.42, 48.61, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=9077774
+requests: 0, total: 1
+2026-11-01T02:33:15.082Z h1emu:mounted-nav-test RESULT {"padding":1.6907547624493422,"localProjection":false,"hits":0,"state":"chase","position":[-2006.4696044921875,49.282508850097656,-2238.9248046875,0],"nav":{"x":-2006.4696044921875,"y":48.602378845214844,"z":-2238.9248046875},"goal":{"x":-2006.4444580078125,"y":48.60397720336914,"z":-2238.899658203125},"range":2.5621477408477715,"blocked":0}
+requests: 0, total: 0
+getClosestNavPoint gameIn=[-2003.56, 49.30, -2244.00] navOut=[-2003.56, 50.12, -2244.00] polyRef=13272069
+createAgent: navPos=[-2003.56, 50.12, -2244.00]
+createAgent: agentIdx=0 navPos=[-2007.08, 48.96, -2241.68]
+getClosestNavPoint gameIn=[-1980.94, 56.44, -2270.21] navOut=[-1980.94, 56.44, -2270.21] polyRef=4837904
+[zombie] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2003.72, 49.74, -2236.30] navOut=[-2003.72, 49.23, -2238.90] polyRef=13272075
+requests: 0, total: 0
+getClosestNavPoint gameIn=[-2005.74, 50.53, -2235.29] navOut=[-2005.68, 46.69, -2234.25] polyRef=13272090
+getClosestNavPoint gameIn=[-2003.98, 50.53, -2235.25] navOut=[-2003.93, 47.15, -2234.34] polyRef=13272090
+getClosestNavPoint gameIn=[-2002.22, 50.53, -2235.21] navOut=[-2002.18, 47.61, -2234.43] polyRef=13272090
+getClosestNavPoint gameIn=[-2003.82, 49.72, -2235.25] navOut=[-2003.77, 47.19, -2234.35] polyRef=13272090
+getClosestNavPoint gameIn=[-2003.82, 50.52, -2235.25] navOut=[-2003.77, 47.19, -2234.35] polyRef=13272090
+getClosestNavPoint gameIn=[-2003.72, 49.74, -2236.30] navOut=[-2003.72, 49.23, -2238.90] polyRef=13272075
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.73, 49.74, -2236.30] navOut=[-2003.73, 49.23, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.72, 49.78, -2236.30] navOut=[-2003.72, 49.23, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.73, 49.89, -2236.30] navOut=[-2003.73, 49.23, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.74, 49.90, -2236.30] navOut=[-2003.74, 49.23, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.74, 49.90, -2236.30] navOut=[-2003.74, 49.23, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.75, 49.90, -2236.30] navOut=[-2003.75, 49.22, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.76, 49.90, -2236.30] navOut=[-2003.76, 49.22, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.78, 49.90, -2236.30] navOut=[-2003.78, 49.22, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.76, 49.90, -2236.30] navOut=[-2003.76, 49.22, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.76, 49.90, -2236.30] navOut=[-2003.76, 49.22, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.75, 49.91, -2236.30] navOut=[-2003.75, 49.23, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.73, 49.91, -2236.30] navOut=[-2003.73, 49.23, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.71, 49.92, -2236.30] navOut=[-2003.71, 49.23, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.71, 49.92, -2236.30] navOut=[-2003.71, 49.23, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.71, 49.92, -2236.30] navOut=[-2003.71, 49.23, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.69, 49.92, -2236.30] navOut=[-2003.69, 49.24, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.69, 49.92, -2236.30] navOut=[-2003.69, 49.24, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.71, 49.92, -2236.30] navOut=[-2003.71, 49.23, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.72, 49.92, -2236.30] navOut=[-2003.72, 49.23, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.76, 49.91, -2236.30] navOut=[-2003.76, 49.22, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.79, 49.90, -2236.30] navOut=[-2003.79, 49.21, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.85, 49.89, -2236.30] navOut=[-2003.85, 49.20, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.90, 49.87, -2236.30] navOut=[-2003.90, 49.19, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2003.95, 49.86, -2236.31] navOut=[-2003.95, 49.18, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.00, 49.85, -2236.31] navOut=[-2004.00, 49.17, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.05, 49.84, -2236.31] navOut=[-2004.05, 49.16, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.10, 49.83, -2236.31] navOut=[-2004.10, 49.14, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.14, 49.82, -2236.31] navOut=[-2004.14, 49.13, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.19, 49.81, -2236.31] navOut=[-2004.19, 49.12, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.24, 49.79, -2236.31] navOut=[-2004.24, 49.11, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.29, 49.78, -2236.31] navOut=[-2004.29, 49.10, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.33, 49.77, -2236.31] navOut=[-2004.33, 49.09, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.38, 49.76, -2236.32] navOut=[-2004.38, 49.08, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.43, 49.75, -2236.32] navOut=[-2004.43, 49.07, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.48, 49.74, -2236.32] navOut=[-2004.48, 49.06, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.52, 49.73, -2236.32] navOut=[-2004.52, 49.05, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.57, 49.72, -2236.32] navOut=[-2004.57, 49.04, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.62, 49.70, -2236.32] navOut=[-2004.62, 49.02, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.67, 49.69, -2236.32] navOut=[-2004.67, 49.01, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.71, 49.68, -2236.32] navOut=[-2004.71, 49.00, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.76, 49.67, -2236.32] navOut=[-2004.76, 48.99, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.81, 49.66, -2236.33] navOut=[-2004.81, 48.98, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.86, 49.65, -2236.33] navOut=[-2004.86, 48.97, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.90, 49.64, -2236.33] navOut=[-2004.90, 48.96, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2004.95, 49.63, -2236.33] navOut=[-2004.95, 48.95, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.00, 49.62, -2236.33] navOut=[-2005.00, 48.94, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.05, 49.60, -2236.33] navOut=[-2005.05, 48.93, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.09, 49.59, -2236.33] navOut=[-2005.09, 48.91, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.14, 49.58, -2236.33] navOut=[-2005.14, 48.90, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.19, 49.57, -2236.33] navOut=[-2005.19, 48.89, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.24, 49.56, -2236.34] navOut=[-2005.24, 48.88, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.28, 49.55, -2236.34] navOut=[-2005.28, 48.87, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.33, 49.54, -2236.34] navOut=[-2005.33, 48.86, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.38, 49.53, -2236.34] navOut=[-2005.38, 48.85, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.43, 49.52, -2236.34] navOut=[-2005.43, 48.84, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.47, 49.50, -2236.34] navOut=[-2005.47, 48.83, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.52, 49.49, -2236.34] navOut=[-2005.52, 48.82, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.57, 49.48, -2236.34] navOut=[-2005.57, 48.81, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.62, 49.47, -2236.34] navOut=[-2005.62, 48.79, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.66, 49.46, -2236.35] navOut=[-2005.66, 48.78, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.71, 49.45, -2236.35] navOut=[-2005.71, 48.77, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.76, 49.44, -2236.35] navOut=[-2005.76, 48.76, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.81, 49.43, -2236.35] navOut=[-2005.81, 48.75, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.85, 49.41, -2236.35] navOut=[-2005.85, 48.74, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.90, 49.40, -2236.35] navOut=[-2005.90, 48.73, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2005.95, 49.39, -2236.35] navOut=[-2005.95, 48.72, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.00, 49.38, -2236.35] navOut=[-2006.00, 48.71, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.04, 49.37, -2236.35] navOut=[-2006.04, 48.70, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.09, 49.36, -2236.35] navOut=[-2006.09, 48.69, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.14, 49.35, -2236.36] navOut=[-2006.14, 48.67, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.18, 49.34, -2236.36] navOut=[-2006.18, 48.66, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.23, 49.33, -2236.36] navOut=[-2006.23, 48.65, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.28, 49.31, -2236.36] navOut=[-2006.28, 48.64, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.33, 49.30, -2236.36] navOut=[-2006.33, 48.63, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.37, 49.29, -2236.36] navOut=[-2006.37, 48.62, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.42, 49.28, -2236.36] navOut=[-2006.42, 48.61, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.27, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2006.44, 49.28, -2236.36] navOut=[-2006.44, 48.60, -2238.90] polyRef=17466379
+requests: 0, total: 1
+2026-11-01T02:33:15.152Z h1emu:mounted-nav-test RESULT {"padding":0.3,"localProjection":false,"hits":0,"state":"chase","position":[-2006.4696044921875,49.282508850097656,-2238.9248046875,0],"nav":{"x":-2006.4696044921875,"y":48.60357666015625,"z":-2238.9248046875},"goal":{"x":-2006.4444580078125,"y":48.60397720336914,"z":-2238.899658203125},"range":2.5621477408477715,"blocked":0}
+requests: 0, total: 0
+getClosestNavPoint gameIn=[-2003.56, 49.30, -2244.00] navOut=[-2003.56, 50.12, -2244.00] polyRef=21660677
+createAgent: navPos=[-2003.56, 50.12, -2244.00]
+createAgent: agentIdx=0 navPos=[-1999.89, 50.67, -2250.64]
+[zombie] wander → chase (seePlayer)
+requests: 0, total: 0
+getClosestNavPoint gameIn=[-2005.74, 50.53, -2235.29] navOut=[-2005.68, 46.69, -2234.25] polyRef=21660698
+getClosestNavPoint gameIn=[-2003.98, 50.53, -2235.25] navOut=[-2003.93, 47.15, -2234.34] polyRef=21660698
+getClosestNavPoint gameIn=[-2002.22, 50.53, -2235.21] navOut=[-2002.18, 47.61, -2234.43] polyRef=21660698
+getClosestNavPoint gameIn=[-2003.82, 49.72, -2235.25] navOut=[-2003.77, 47.19, -2234.35] polyRef=21660698
+getClosestNavPoint gameIn=[-2003.82, 50.52, -2235.25] navOut=[-2003.77, 47.19, -2234.35] polyRef=21660698
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+[zombie] chase → attack (reachPlayer)
+requests: 0, total: 1
+[zombie] attack → attacking (startAttacking)
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+[zombie] attacking → attack (doneAttacking)
+requests: 0, total: 1
+2026-11-01T02:33:15.207Z h1emu:mounted-nav-test RESULT {"padding":1.6907547624493422,"localProjection":true,"hits":1,"state":"attack","position":[-2007.1494140625,49.122581481933594,-2234.577880859375,0],"nav":{"x":-2007.1494140625,"y":46.01548767089844,"z":-2234.577880859375},"goal":{"x":0,"y":0,"z":0},"range":0.68176299465902,"blocked":0}
+requests: 0, total: 0
+Process will exit with code: 0 time : Sun Nov 01 2026 02:33:15 GMT+0000 (Coordinated Universal Time)
+h1z1-server version : undefined
+Process exited with code: 0 time : Sun Nov 01 2026 02:33:15 GMT+0000 (Coordinated Universal Time)
+h1z1-server version : undefined

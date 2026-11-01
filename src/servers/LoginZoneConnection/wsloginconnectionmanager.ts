@@ -45,6 +45,7 @@ export class WsLoginConnectionManager extends EventEmitter {
   // set by stop() so the socket's own close event doesn't trigger a reconnect
   private _stopping = false;
   private _pingTimeout?: NodeJS.Timeout;
+  private _registrationTimeout?: NodeJS.Timeout;
   // login pings every 5s; if none arrives within this window the link is dead
   private _deadTimeoutMs = 12000;
 
@@ -63,7 +64,14 @@ export class WsLoginConnectionManager extends EventEmitter {
   }
 
   private connect() {
+    if (this._stopping) return;
+    debug(
+      "Connecting world=%d endpoint=%s; sending authentication headers",
+      this._serverId,
+      this.url()
+    );
     const options: ClientOptions & { servername?: string } = {
+      handshakeTimeout: 12000,
       headers: {
         "x-server-id": String(this._serverId),
         authorization: this._secret
@@ -101,8 +109,19 @@ export class WsLoginConnectionManager extends EventEmitter {
     };
 
     socket.on("open", () => {
-      debug(`ws open to login ${this.url()}`);
+      debug(
+        "TCP/WebSocket established world=%d endpoint=%s; requesting registration",
+        this._serverId,
+        this.url()
+      );
       heartbeat();
+      this._registrationTimeout = setTimeout(() => {
+        debug(
+          "Registration reply timed out world=%d; reconnecting",
+          this._serverId
+        );
+        socket.terminate();
+      }, this._deadTimeoutMs);
       // reuse the existing SessionRequest packet to hand the loginserver our meta
       this.sendData(this._loginClient, "SessionRequest", this._sessionData);
     });
@@ -110,23 +129,30 @@ export class WsLoginConnectionManager extends EventEmitter {
     socket.on("message", (buf: Buffer) => this.onMessage(buf));
     socket.on("close", (code, reason) => {
       clearTimeout(this._pingTimeout);
+      clearTimeout(this._registrationTimeout);
+      debug(
+        "Connection closed world=%d code=%d reason=%s registered=%s",
+        this._serverId,
+        code,
+        reason.toString(),
+        this._connected
+      );
       this._connected = false;
       // intentional shutdown: don't reconnect or emit a disconnect
       if (this._stopping) return;
       if (code === 4001) {
-        console.error(
+        debug(
           "[ERROR] LoginConnection refused: bad server secret (LZ_SERVER_SECRET) or server not whitelisted"
         );
         this.emit("sessionfailed", null, this._loginClient);
         process.exitCode = 11;
-        return;
       }
       if (!this._hasBeenConnected) {
         // closed before we ever registered — a rejected handshake can arrive as
         // an abnormal close (1006) rather than 4001, so surface it instead of
         // reconnecting silently forever
         const detail = reason && reason.length ? `: ${reason}` : "";
-        console.error(
+        debug(
           `[ERROR] LoginConnection closed before registering (code ${code}${detail}). Retrying — check the login address and LZ_SERVER_SECRET.`
         );
       }
@@ -134,7 +160,7 @@ export class WsLoginConnectionManager extends EventEmitter {
       this.reconnect();
     });
     socket.on("error", (e: NodeJS.ErrnoException) => {
-      console.error(
+      debug(
         `[ERROR] LoginConnection socket error to ${this.url()}: ${e.code || ""} ${e.message}`
       );
     });
@@ -145,12 +171,19 @@ export class WsLoginConnectionManager extends EventEmitter {
     if (!packet || !this._loginClient) return;
     switch (packet.name) {
       case "SessionReply":
+        clearTimeout(this._registrationTimeout);
+        debug(
+          "Registration result world=%d status=%d",
+          this._serverId,
+          packet.data.status
+        );
         if (packet.data.status === 1) {
           this._connected = true;
           this._hasBeenConnected = true;
           this.emit("session", null, this._loginClient);
         } else {
           this.emit("sessionfailed", null, this._loginClient);
+          this._socket?.close(4001, "registration rejected");
         }
         break;
       default:
@@ -166,7 +199,12 @@ export class WsLoginConnectionManager extends EventEmitter {
   }
 
   reconnect() {
-    if (this._reconnectTimer) return;
+    if (this._stopping || this._reconnectTimer) return;
+    debug(
+      "Reconnecting world=%d in %dms",
+      this._serverId,
+      this._reconnectDelay
+    );
     this._reconnectTimer = setTimeout(() => {
       this._reconnectTimer = undefined;
       if (!this._connected) this.connect();
@@ -175,16 +213,10 @@ export class WsLoginConnectionManager extends EventEmitter {
 
   async start() {
     if (!this._loginServerInfo.address || !this._sessionData) {
-      debug(
-        "[ERROR] WsLoginConnectionManager started without setting login info!"
-      );
-      return;
+      throw new Error("WsLoginConnectionManager started without login info");
     }
     if (!this._secret) {
-      debug(
-        "[ERROR] WsLoginConnectionManager: LZ_SERVER_SECRET is not set"
-      );
-      return;
+      throw new Error("WsLoginConnectionManager: LZ_SERVER_SECRET is not set");
     }
     this.connect();
   }
@@ -193,6 +225,7 @@ export class WsLoginConnectionManager extends EventEmitter {
     this._stopping = true;
     if (this._reconnectTimer) clearTimeout(this._reconnectTimer);
     clearTimeout(this._pingTimeout);
+    clearTimeout(this._registrationTimeout);
     this._socket?.close();
   }
 }

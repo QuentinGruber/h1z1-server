@@ -61,7 +61,7 @@ export class NpcCorpseManager {
     if (process.env.NPC_COLLISION_DIAGNOSTICS !== "1") return;
     const trace = this.traces.get(npc.characterId);
     if (!trace) return;
-    debug(
+    console.log(
       "[NPC-CORPSE-TRACE] " +
         JSON.stringify({
           characterId: npc.characterId,
@@ -292,7 +292,7 @@ export class NpcCorpseManager {
     this.sendAnchor(npc);
     this.sendDeathTransform(npc);
     if (process.env.NPC_COLLISION_DIAGNOSTICS === "1")
-      debug(
+      console.log(
         "[NPC-CORPSE] " +
           JSON.stringify({
             characterId: npc.characterId,
@@ -454,7 +454,7 @@ export class NpcCorpseManager {
         !this.reportedDrift.has(npc.characterId)
       ) {
         this.reportedDrift.add(npc.characterId);
-        debug(
+        console.log(
           "[NPC-CORPSE-POSE] " +
             JSON.stringify({
               characterId: npc.characterId,

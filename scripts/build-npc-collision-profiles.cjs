@@ -102,7 +102,7 @@ for (const [id, species, mass, resistance] of [
     );
     result.vehicles[id] = p;
   } else result.npcs[id] = p;
-  debug(id, species, JSON.stringify(bounds));
+  console.log(id, species, JSON.stringify(bounds));
 }
 fs.writeFileSync(
   "data/2016/npcCollisionProfiles.json",

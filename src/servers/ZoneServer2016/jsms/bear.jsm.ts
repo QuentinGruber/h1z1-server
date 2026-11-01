@@ -359,7 +359,7 @@ export function createBear(npc: Npc, server: ZoneServer2016): BearInstance {
   ) as unknown as BearInstance;
 
   bear.onTransition = (from: string, to: string, eventId: string) => {
-    debug(`[bear:${bear.id}] ${from} → ${to} (${eventId})`);
+    console.log(`[bear:${bear.id}] ${from} → ${to} (${eventId})`);
   };
   bear.id = npc.characterId;
   bear.npc = npc;

@@ -21,6 +21,7 @@ import {
   init as initRecast,
   NavMesh,
   statusToReadableString,
+  statusSucceed,
   TileCache,
   Vector3
 } from "recast-navigation";
@@ -31,6 +32,11 @@ import { TerrainHeight } from "./terrainheight";
 import { NpcGroundDiagnostics } from "./npcgrounddiagnostics";
 import { RoadSurfaces } from "./roadsurfaces";
 import type { NpcGroundSample } from "./npcgroundmotion";
+import {
+  applyRoadNavPatch,
+  createRoadNavCache,
+  RoadNavPatch
+} from "./roadnavpatch";
 const debug = require("debug")("nav");
 
 const MAX_OBSTACLE = 20000;
@@ -42,6 +48,9 @@ export class NavManager {
   roads?: RoadSurfaces;
   navmesh!: NavMesh;
   tilecache!: TileCache;
+  private roadTileCache?: TileCache;
+  private roadPatchTile?: { x: number; z: number };
+  private roadObstacles = new WeakMap<BoxObstacle, BoxObstacle>();
   obstaclesRequestsPending: number = 0;
   crowd!: Crowd;
   navMeshQuery!: NavMeshQuery;
@@ -60,10 +69,10 @@ export class NavManager {
       this.roads = new RoadSurfaces(
         __dirname + "/../../data/2016/roadSurfaces.json.gz"
       );
-      debug(
+      console.log(
         `[ROAD] Loaded ${this.roads.instanceCount} asphalt-road collision instances`
       );
-      debug(
+      console.log(
         `[TERRAIN] Loaded ${this.terrain.tiles.length} terrain tile records from ${directory}`
       );
     }
@@ -76,7 +85,7 @@ export class NavManager {
         const partPath = __dirname + `/../../data/2016/navData/z1_${part}.bin`;
         if (!existsSync(partPath)) break;
         mesh_parts.push(readFileSync(partPath));
-        debug(`[NAV] loaded nav part ${part}`);
+        console.log(`[NAV] loaded nav part ${part}`);
         part++;
       }
       part = 0;
@@ -86,21 +95,50 @@ export class NavManager {
           __dirname + `/../../data/2016/navData/z1_cache_${part}.bin`;
         if (!existsSync(partPath)) break;
         tc_parts.push(readFileSync(partPath));
-        debug(`[NAV] loaded nav cache part ${part}`);
+        console.log(`[NAV] loaded nav cache part ${part}`);
         part++;
       }
     } else {
-      debug(`"[NAV]" Empty navmesh loaded`);
+      console.log(`"[NAV]" Empty navmesh loaded`);
     }
     await initRecast();
 
     const navData = new Uint8Array(Buffer.concat(mesh_parts));
     const { navMesh } = importNavMesh(navData);
-    const tcData = new Uint8Array(Buffer.concat(tc_parts));
+    let tcData: Uint8Array = new Uint8Array(Buffer.concat(tc_parts));
+    const roadPatchPath =
+      __dirname + "/../../data/2016/navData/roadWalkabilityPatch.json";
+    let roadPatch: RoadNavPatch | undefined;
+    if (!process.env.FAKE_NAVMESH && existsSync(roadPatchPath)) {
+      const parsed: RoadNavPatch = JSON.parse(readFileSync(roadPatchPath, "utf8"));
+      roadPatch = parsed;
+      tcData = applyRoadNavPatch(
+        tcData,
+        parsed,
+        readFileSync(__dirname + "/../../data/2016/roadSurfaces.json.gz")
+      );
+    }
     const tileCacheMeshProcess = createDefaultTileCacheMeshProcess();
     const { tileCache } = importTileCache(tcData, tileCacheMeshProcess);
     this.navmesh = navMesh;
     this.tilecache = tileCache;
+    if (roadPatch) {
+      const status = tileCache.buildNavMeshTilesAt(
+        roadPatch.tile.x,
+        roadPatch.tile.z,
+        navMesh
+      );
+      if (!statusSucceed(status))
+        throw new Error("Could not build repaired road navigation tile");
+      this.roadTileCache = createRoadNavCache(roadPatch, tileCacheMeshProcess);
+      this.roadPatchTile = roadPatch.tile;
+      this.rebuildRoadTile();
+      debug(
+        "Restored road walkability in tile %d,%d",
+        roadPatch.tile.x,
+        roadPatch.tile.z
+      );
+    }
     const maxAgents = 2000;
     const maxAgentRadius = 2.0;
     this.navMeshQuery = new NavMeshQuery(this.navmesh);
@@ -159,6 +197,11 @@ export class NavManager {
 
   removeObstacle(obstacle: BoxObstacle) {
     this.tilecache.removeObstacle(obstacle);
+    const roadObstacle = this.roadObstacles.get(obstacle);
+    if (roadObstacle && this.roadTileCache) {
+      this.roadTileCache.removeObstacle(roadObstacle);
+      this.roadObstacles.delete(obstacle);
+    }
     this.obstacleCount = Math.max(0, this.obstacleCount - 1);
     this.obstaclesRequestsPending++;
   }
@@ -172,11 +215,8 @@ export class NavManager {
       return null;
     }
     if (this.obstaclesRequestsPending >= MAX_PENDING_OBSTACLE) {
-      let upToDate = false;
       // Should be only used at startup, but may be bad
-      while (!upToDate) {
-        ({ upToDate } = this.tilecache.update(this.navmesh));
-      }
+      this.updateTileCaches();
       this.obstaclesRequestsPending = 0;
     }
     const { success, obstacle } = this.tilecache.addBoxObstacle(
@@ -185,6 +225,16 @@ export class NavManager {
       yRotation
     );
     if (success) {
+      if (this.roadTileCache) {
+        const road = this.roadTileCache.addBoxObstacle(
+          NavManager.gameToNav(position),
+          halfExtents,
+          yRotation
+        );
+        if (!road.success)
+          throw new Error("Could not mirror road navigation obstacle");
+        this.roadObstacles.set(obstacle, road.obstacle);
+      }
       this.obstaclesRequestsPending++;
       this.obstacleCount++;
       return obstacle;
@@ -214,13 +264,10 @@ export class NavManager {
     const started = performance.now();
     const timeSinceLastCalled = (now - this.lastTimeCall) / 1000;
     if (this.obstaclesRequestsPending) {
-      let upToDate = false;
-      while (!upToDate) {
-        ({ upToDate } = this.tilecache.update(this.navmesh));
-      }
+      this.updateTileCaches();
       this.obstaclesRequestsPending = 0;
     }
-    debug(
+    console.log(
       `requests: ${this.obstaclesRequestsPending}, total: ${this.tilecache.obstacles.size}`
     );
     this.lastTimeCall = now;
@@ -235,6 +282,28 @@ export class NavManager {
     }
   }
 
+  private rebuildRoadTile() {
+    if (!this.roadTileCache || !this.roadPatchTile) return;
+    const status = this.roadTileCache.buildNavMeshTilesAt(
+      this.roadPatchTile.x,
+      this.roadPatchTile.z,
+      this.navmesh
+    );
+    if (!statusSucceed(status))
+      throw new Error("Could not rebuild repaired road navigation");
+  }
+
+  private updateTileCaches() {
+    for (const cache of [this.tilecache, this.roadTileCache]) {
+      if (!cache) continue;
+      let upToDate = false;
+      while (!upToDate) ({ upToDate } = cache.update(this.navmesh));
+    }
+    // The coarse cache can also rebuild this layer. Finish with the precise
+    // road cache, using the exact same obstacle positions and dimensions.
+    this.rebuildRoadTile();
+  }
+
   // Returns nearest navmesh point (in nav coords) to the given game position.
   // Uses large halfExtents so Y offset doesn't prevent finding a polygon.
   getClosestNavPointVec3(gamePos: Float32Array): Vector3 {
@@ -242,7 +311,7 @@ export class NavManager {
     const n = this.navMeshQuery.findNearestPoly(navInput, {
       halfExtents: { x: 10, y: 10, z: 10 }
     });
-    debug(
+    console.log(
       `getClosestNavPoint gameIn=[${gamePos[0].toFixed(2)}, ${gamePos[1].toFixed(2)}, ${gamePos[2].toFixed(2)}] navOut=[${n.nearestPoint.x.toFixed(2)}, ${n.nearestPoint.y.toFixed(2)}, ${n.nearestPoint.z.toFixed(2)}] polyRef=${n.nearestRef}`
     );
     return n.nearestPoint;
@@ -265,7 +334,7 @@ export class NavManager {
     dimensions = { radius: 0.3, height: 2 }
   ): CrowdAgent {
     const navPosition = this.getClosestNavPointVec3(gamePos);
-    debug(
+    console.log(
       `createAgent: navPos=[${navPosition.x.toFixed(2)}, ${navPosition.y.toFixed(2)}, ${navPosition.z.toFixed(2)}]`
     );
 
@@ -276,7 +345,7 @@ export class NavManager {
     } = this.navMeshQuery.findRandomPointAroundCircle(navPosition, 0.5);
 
     if (!success) {
-      debug(
+      console.log(
         `createAgent: findRandomPointAroundCircle failed (${statusToReadableString(status)}), using navPosition directly`
       );
     }
@@ -291,7 +360,7 @@ export class NavManager {
       pathOptimizationRange: 4.0,
       separationWeight: 2.0
     });
-    debug(
+    console.log(
       `createAgent: agentIdx=${agent.agentIndex} navPos=[${spawnPoint.x.toFixed(2)}, ${spawnPoint.y.toFixed(2)}, ${spawnPoint.z.toFixed(2)}]`
     );
     return agent;

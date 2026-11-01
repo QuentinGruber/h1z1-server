@@ -27,4 +27,4 @@ const report = {
   rssMiB: process.memoryUsage().rss / 1024 / 1024
 };
 fs.writeFileSync("terrain-benchmark.json", JSON.stringify(report, null, 2));
-debug(JSON.stringify(report));
+console.log(JSON.stringify(report));

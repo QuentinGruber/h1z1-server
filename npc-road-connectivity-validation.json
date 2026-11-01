@@ -1,0 +1,50 @@
+[
+  {
+    "label": "north-bank",
+    "side": -1,
+    "complete": true,
+    "points": 6
+  },
+  {
+    "label": "north-bank",
+    "side": 1,
+    "complete": true,
+    "points": 6
+  },
+  {
+    "label": "south-bank",
+    "side": -1,
+    "complete": true,
+    "points": 2
+  },
+  {
+    "label": "south-bank",
+    "side": 1,
+    "complete": true,
+    "points": 2
+  },
+  {
+    "label": "west-road",
+    "side": -1,
+    "complete": true,
+    "points": 2
+  },
+  {
+    "label": "west-road",
+    "side": 1,
+    "complete": true,
+    "points": 2
+  },
+  {
+    "label": "east-road",
+    "side": -1,
+    "complete": true,
+    "points": 2
+  },
+  {
+    "label": "east-road",
+    "side": 1,
+    "complete": true,
+    "points": 2
+  }
+]

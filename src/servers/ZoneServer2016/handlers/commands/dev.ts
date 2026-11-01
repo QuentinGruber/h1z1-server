@@ -622,7 +622,7 @@ const dev: any = {
     }, 500);
   },
   sc: function (server: ZoneServer2016, client: Client, args: Array<string>) {
-    debug(WorldObjectManager.itemSpawnersChances);
+    console.log(WorldObjectManager.itemSpawnersChances);
   },
   c: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     const rs = server.rewardManager.rewards;
@@ -787,7 +787,7 @@ const dev: any = {
     );
 
     server._npcs[characterId] = zombie;
-    debug(
+    console.log(
       `[ZOMBIE-DEBUG] Creating nav agent at zombie state.position: [${zombie.state.position[0].toFixed(2)}, ${zombie.state.position[1].toFixed(2)}, ${zombie.state.position[2].toFixed(2)}]`
     );
     const a = server.navManager.createAgent(zombie.state.position);
@@ -796,7 +796,7 @@ const dev: any = {
     const initialGamePos = server.navManager.npcNavToGame(a.position());
     zombie.state.position = initialGamePos;
     zombie.resetGroundMotion();
-    debug(
+    console.log(
       `[ZOMBIE-DEBUG] Nav agent created, navPos=[${a.position().x.toFixed(2)}, ${a.position().y.toFixed(2)}, ${a.position().z.toFixed(2)}] gamePos=[${initialGamePos[0].toFixed(2)}, ${initialGamePos[1].toFixed(2)}, ${initialGamePos[2].toFixed(2)}]`
     );
 
@@ -1027,7 +1027,7 @@ const dev: any = {
       console.time("recast");
       const result = server.navManager.raycast(npc_pos, player_pos);
       console.timeEnd("recast");
-      debug(result);
+      console.log(result);
     }
   },
   zombiemove: function (
@@ -1364,7 +1364,7 @@ const dev: any = {
     };
     let found = false;
     for (const v in server._vehicles) {
-      debug(server._vehicles[v]);
+      console.log(server._vehicles[v]);
       if (server._vehicles[v].actorModelId === parseInt(args[1])) {
         location.position = new Float32Array(
           server._vehicles[v].state.position
@@ -1398,7 +1398,7 @@ const dev: any = {
     let found = false;
     for (const n in server._npcs) {
       if (server._npcs[n].actorModelId === parseInt(args[1])) {
-        debug(server._npcs[n]);
+        console.log(server._npcs[n]);
         location.position = new Float32Array(server._npcs[n].state.position);
         server.sendData(client, "ClientUpdate.UpdateLocation", location);
         found = true;

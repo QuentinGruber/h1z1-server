@@ -130,7 +130,7 @@ export class SOEOutputStream extends EventEmitter {
       this._order_sequence.increment();
       this.emit(SOEOutputChannels.Ordered, data, this._order_sequence.get());
     } else {
-      debug(
+      console.log(
         "ordered packets can't be too large, this packet will be upgraded as a reliable one"
       );
       this.writeReliable(data);
@@ -222,12 +222,12 @@ export class SOEOutputStream extends EventEmitter {
 
   setEncryption(value: boolean): void {
     this._useEncryption = value;
-    debug("encryption: " + this._useEncryption);
+    console.log("encryption: " + this._useEncryption);
   }
 
   toggleEncryption(): void {
     this._useEncryption = !this._useEncryption;
-    debug("Toggling encryption: " + this._useEncryption);
+    console.log("Toggling encryption: " + this._useEncryption);
   }
 
   setFragmentSize(value: number): void {

@@ -335,7 +335,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           this.loadoutId
         )
       ) {
-        debug(
+        console.log(
           `[ERROR] EquipItem: Client tried to equip item ${item.itemDefinitionId} with invalid loadoutSlotId ${loadoutSlotId}!`
         );
         return;
@@ -350,7 +350,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       }
     }
     if (!loadoutSlotId) {
-      debug(
+      console.log(
         `[ERROR] EquipItem: Tried to equip item with itemDefinitionId: ${item.itemDefinitionId} with an invalid loadoutSlotId!`
       );
       return;
@@ -921,7 +921,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           }
           server.addContainerItem(this, itemToMove, newContainer, false);
         } catch (error) {
-          debug(error);
+          console.log(error);
         }
       }
     }
@@ -1509,7 +1509,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   }
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
-    debug(
+    console.log(
       `[ERROR] Unhandled FullCharacterDataRequest from client ${client.guid}!`
     );
   }
@@ -1519,7 +1519,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     client: ZoneClient2016,
     packet: RagdollStop
   ) {
-    debug(`[ERROR] Unhandled RagdollStop from client ${client.guid}!`);
+    console.log(`[ERROR] Unhandled RagdollStop from client ${client.guid}!`);
   }
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {

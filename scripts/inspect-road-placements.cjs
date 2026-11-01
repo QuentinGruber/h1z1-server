@@ -18,5 +18,5 @@ for(let i=0;i<count;i++){
 if(offset!==b.readUInt32LE(28))throw Error(`Object section length mismatch: ${offset}`);
 const points=[[-1822.24,58.17,-2234.60],[1989.04,53.39,-2235.25]];
 const report={objects:count,roadInstances:roads.length,points:points.map(input=>({input,nearestRoadInstances:roads.map(r=>({...r,distance:Math.hypot(input[0]-r.position[0],input[2]-r.position[2])})).sort((a,b)=>a.distance-b.distance).slice(0,5)}))};
-debug(JSON.stringify(report,null,2));
+console.log(JSON.stringify(report,null,2));
 fs.writeFileSync('road-placements-inspection.json',JSON.stringify(report,null,2));

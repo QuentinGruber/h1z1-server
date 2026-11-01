@@ -212,7 +212,7 @@ export class DecayManager {
       }
     }
     if (destroyedGriefFoundations > 0) {
-      debug(`Destroyed ${destroyedGriefFoundations} grief foundations`);
+      console.log(`Destroyed ${destroyedGriefFoundations} grief foundations`);
     }
   }
 

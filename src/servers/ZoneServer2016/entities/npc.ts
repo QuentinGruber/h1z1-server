@@ -12,7 +12,7 @@
 // ======================================================================
 
 const debug = require("debug")("h1emu:src:servers:ZoneServer2016:entities:npc");
-import { DamageInfo } from "types/zoneserver";
+import { DamageInfo, Sound } from "types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
@@ -31,13 +31,23 @@ import {
   NpcIds,
   PositionUpdateType,
   ResourceIds,
-  ResourceTypes
+  ResourceTypes,
+  VehicleIds
 } from "../models/enums";
 import { CommandInteractionString } from "types/zone2016packets";
 import { BaseEntity } from "./baseentity";
 import { ChallengeType } from "../managers/challengemanager";
 import { ProjectileEntity } from "./projectileentity";
-import { npcCollisionProfile } from "../../../utils/npccollisionprofiles";
+import {
+  npcCollisionProfile,
+  vehicleCollisionProfile
+} from "../../../utils/npccollisionprofiles";
+import {
+  dot,
+  makeBox,
+  sweepBoxes,
+  Vec
+} from "../../../utils/collisiongeometry";
 import type {
   ImpactCorpse,
   VehicleDeathImpact
@@ -103,6 +113,8 @@ export abstract class Npc extends BaseFullCharacter {
   variant: string = "";
   private groundMotion?: NpcGroundMotion;
   private packetMoving = false;
+  private nextEngineSoundTime = 0;
+  private zombieApproachVehicleId?: string;
   lastMovementPacketTime = 0;
   lastMovementRecipients = 0;
   groundMotionDiagnostics?: ReturnType<NpcGroundMotion["update"]> & {
@@ -152,6 +164,12 @@ export abstract class Npc extends BaseFullCharacter {
   ): void;
 
   setAnimation(animationName: string) {
+    if (this.faction === Factions.ZOMBIE && animationName === "Idle") {
+      // Zombie movement controls already select idle at rest. A looping Idle
+      // message can outlive this FSM state (including on gassers/exploders).
+      this.currentAnimation = "";
+      return;
+    }
     this.currentAnimation = animationName;
     this.server.sendDataToAllWithSpawnedEntity(
       this.server._npcs,
@@ -241,7 +259,7 @@ export abstract class Npc extends BaseFullCharacter {
         }
       }
     } else {
-      debug(
+      console.log(
         `CharacterId ${characterId} not found when applying damage from npc`
       );
     }
@@ -582,7 +600,212 @@ export abstract class Npc extends BaseFullCharacter {
     this.navAgent.resetMoveTarget();
   }
 
-  hasPendingMovementStop() {
+  getZombieSounds(sounds: Sound[]): Sound[] {
+    if (
+      this.faction !== Factions.ZOMBIE ||
+      Date.now() < this.nextEngineSoundTime
+    )
+      return sounds;
+    // Moving vehicles already emit radius=50/agitation=3 engine sounds. An
+    // idling engine has no position packets, so refresh that same stimulus at
+    // the existing 3s engine-resource cadence, for zombie listeners only.
+    this.nextEngineSoundTime = Date.now() + 3000;
+    const nearby = Object.values(this.server._vehicles).filter(
+      (vehicle) =>
+        vehicle.engineOn &&
+        !vehicle.isDestroyed &&
+        vehicle.vehicleId !== VehicleIds.SPECTATE &&
+        Math.hypot(
+          vehicle.state.position[0] - this.state.position[0],
+          vehicle.state.position[2] - this.state.position[2]
+        ) < 50
+    );
+    if (!nearby.length) return sounds;
+    return [
+      ...sounds,
+      ...nearby.map((vehicle) => ({
+        position: vehicle.state.position.slice(),
+        radius: 50,
+        agitation: 3
+      }))
+    ];
+  }
+
+  /** Mounted prey is reached at the vehicle shell, not its blocked seat center.
+   * Reuse collision dimensions read-only; leave navigation/collision response alone. */
+  getZombieTargetPosition(characterId: string, position: Float32Array) {
+    if (this.faction !== Factions.ZOMBIE) return position;
+    const mounted =
+      this.server.getClientByCharId(characterId)?.vehicle.mountedVehicle;
+    const vehicle = mounted && this.server._vehicles[mounted];
+    if (!vehicle || vehicle.isDestroyed) return position;
+    const profile = vehicleCollisionProfile(vehicle.actorModelId);
+    if (!profile) return position;
+    const q = vehicle.state.rotation;
+    const yaw =
+      vehicle.positionUpdate.orientation ??
+      Math.atan2(
+        2 * (q[3] * q[1] + q[0] * q[2]),
+        1 - 2 * (q[1] * q[1] + q[2] * q[2])
+      );
+    const body = makeBox(
+      profile.bounds,
+      vehicle.state.position,
+      yaw,
+      vehicle.positionUpdate.frontTilt ?? 0,
+      vehicle.positionUpdate.sideTilt ?? 0
+    );
+    const delta = body.center.map((v, k) => this.state.position[k] - v) as Vec;
+    const nearest = body.center.slice() as Vec;
+    for (let axis = 0; axis < 3; axis++) {
+      const projection = Math.max(
+        -body.half[axis],
+        Math.min(body.half[axis], dot(delta, body.axes[axis]))
+      );
+      for (let k = 0; k < 3; k++) nearest[k] += projection * body.axes[axis][k];
+    }
+    return new Float32Array([...nearest, 1]);
+  }
+
+  refreshZombieVehicleApproach(targetCharacterId: string) {
+    if (this.faction !== Factions.ZOMBIE) return;
+    const mounted =
+      this.server.getClientByCharId(targetCharacterId)?.vehicle.mountedVehicle;
+    this.zombieApproachVehicleId = mounted || undefined;
+    if (mounted)
+      this.server.npcCollisionManager?.allowZombieVehicleApproach(mounted);
+  }
+
+  getZombieVehicleApproachDistance(
+    targetCharacterId: string | null,
+    meleeRange: number,
+    resume = false
+  ) {
+    if (this.faction !== Factions.ZOMBIE || !targetCharacterId)
+      return meleeRange;
+    const mounted =
+      this.server.getClientByCharId(targetCharacterId)?.vehicle.mountedVehicle;
+    const vehicle = mounted && this.server._vehicles[mounted];
+    if (!vehicle || vehicle.isDestroyed) return meleeRange;
+    const profile = npcCollisionProfile(this.actorModelId);
+    // Damage reach is not a standing position. Leave room for the existing
+    // humanoid envelope to turn, plus its crowd radius. A pitched car projects
+    // farther over a standing NPC at its ends than along its doors.
+    const turnRadius = Math.hypot(
+      Math.max(Math.abs(profile.bounds[0]), Math.abs(profile.bounds[3])),
+      Math.max(Math.abs(profile.bounds[2]), Math.abs(profile.bounds[5]))
+    );
+    const dx = this.state.position[0] - vehicle.state.position[0];
+    const dz = this.state.position[2] - vehicle.state.position[2];
+    const distance = Math.hypot(dx, dz);
+    const yaw = vehicle.positionUpdate.orientation ?? 0;
+    const forward = distance
+      ? Math.abs(dx * Math.sin(yaw) + dz * Math.cos(yaw)) / distance
+      : 0;
+    const side = distance
+      ? Math.abs(dx * Math.cos(yaw) - dz * Math.sin(yaw)) / distance
+      : 0;
+    const lean =
+      profile.height *
+      (Math.abs(Math.sin(vehicle.positionUpdate.frontTilt ?? 0)) * forward +
+        Math.abs(Math.sin(vehicle.positionUpdate.sideTilt ?? 0)) * side);
+    return Math.min(
+      meleeRange,
+      turnRadius + profile.radius + lean + (resume ? profile.radius : 0)
+    );
+  }
+
+  getZombieNavTarget(position: Float32Array) {
+    const point = { x: position[0], y: position[1], z: position[2] };
+    const query = this.server.navManager.navMeshQuery;
+    const radius = npcCollisionProfile(this.actorModelId).radius;
+    // Physical road Y and Detour corridor Y differ. The old 10m-wide 3D
+    // lookup could prefer a higher polygon several metres to the side, leaving
+    // a chasing zombie stopped at that false goal outside melee range.
+    const local = query.findNearestPoly(point, {
+      halfExtents: { x: radius, y: 10, z: radius }
+    });
+    if (local.success && local.nearestRef) return local.nearestPoint;
+    // Retain broad projection for genuinely off-mesh targets, but never submit
+    // an uninitialised nearestPoint when both queries fail.
+    const fallback = query.findNearestPoly(point, {
+      halfExtents: { x: 10, y: 10, z: 10 }
+    });
+    return fallback.success && fallback.nearestRef
+      ? fallback.nearestPoint
+      : undefined;
+  }
+
+  private getZombieFacing(position: Float32Array, orientation: number) {
+    const previous = this.state.yaw ?? orientation;
+    if (this.faction !== Factions.ZOMBIE || orientation === previous)
+      return orientation;
+    const profile = npcCollisionProfile(this.actorModelId);
+    const proposed = makeBox(profile.bounds, position, orientation);
+    // Only the pursued vehicle needs the additional facing check. Avoid a
+    // world-wide vehicle scan on every zombie movement/attack update.
+    const targets = this.zombieApproachVehicleId
+      ? [this.server._vehicles[this.zombieApproachVehicleId]]
+      : [];
+    for (const vehicle of targets) {
+      if (!vehicle) continue;
+      const vehicleProfile = vehicleCollisionProfile(vehicle.actorModelId);
+      if (
+        !vehicleProfile ||
+        vehicle.isDestroyed ||
+        Math.hypot(
+          position[0] - vehicle.state.position[0],
+          position[2] - vehicle.state.position[2]
+        ) >
+          proposed.rootRadius + vehicleProfile.radius
+      )
+        continue;
+      const q = vehicle.state.rotation;
+      const yaw =
+        vehicle.positionUpdate.orientation ??
+        Math.atan2(
+          2 * (q[3] * q[1] + q[0] * q[2]),
+          1 - 2 * (q[1] * q[1] + q[2] * q[2])
+        );
+      const body = makeBox(
+        vehicleProfile.bounds,
+        vehicle.state.position,
+        yaw,
+        vehicle.positionUpdate.frontTilt ?? 0,
+        vehicle.positionUpdate.sideTilt ?? 0
+      );
+      if (!sweepBoxes(proposed, proposed, body)) continue;
+      const oldFacing = makeBox(profile.bounds, position, previous);
+      // Translation has already been constrained using the previous facing.
+      // Do not introduce overlap afterwards through goTo/lookAt replication.
+      if (!sweepBoxes(oldFacing, oldFacing, body)) return previous;
+    }
+    return orientation;
+  }
+
+  hasPendingMovementStop(allowContinuation = true) {
+    if (
+      allowContinuation &&
+      this.packetMoving &&
+      this.faction === Factions.ZOMBIE &&
+      this.navAgent
+    ) {
+      const velocity = this.navAgent.velocity();
+      // The position publisher runs faster than the crowd. Do not publish an
+      // artificial zero-speed position between crowd steps: the client derives
+      // State_Moving/VelocityLocalZ from motion, not just the forward stance.
+      // A real stop still sends the final zero-speed packet once velocity is 0.
+      const elapsed =
+        (getCurrentServerTimeWrapper().getTruncatedU32() -
+          this.lastMovementPacketTime) >>>
+        0;
+      const crowdInterval =
+        (this.server.navManager.updateFrequency ?? 0.2) * 1000;
+      // Do not extrapolate indefinitely if a genuinely stuck agent still has
+      // residual velocity. Collision-constrained steps bypass this grace period.
+      if (Math.hypot(velocity.x, velocity.z) > 0 && elapsed < crowdInterval)
+        return false;
+    }
     return this.packetMoving;
   }
 
@@ -630,8 +853,10 @@ export abstract class Npc extends BaseFullCharacter {
     const dz = orientTarget[2] - this.state.position[2];
 
     const horizontalDist = Math.sqrt(dx * dx + dz * dz);
-    const orientation =
-      horizontalDist > 0 ? Math.atan2(dx, dz) : (this.state.yaw ?? 0);
+    const orientation = this.getZombieFacing(
+      position,
+      horizontalDist > 0 ? Math.atan2(dx, dz) : (this.state.yaw ?? 0)
+    );
     const prevOrientation = this.state.yaw ?? orientation;
     let angleChange = orientation - prevOrientation;
     // normalize to [-π, π]
@@ -660,19 +885,31 @@ export abstract class Npc extends BaseFullCharacter {
       nominalMs,
       travelled > 0
     );
-    // Match animation/prediction speed to actual authoritative displacement
-    // over the packet interval, including slowdowns and downhill travel.
+    // Prediction must describe the published displacement, including collision
+    // constraints. Crowd velocity can still be nonzero when publication is
+    // unchanged; forwarding it makes the client extrapolate and snap back.
     const measuredSpeed = motion.dt > 0 ? travelled / motion.dt : 0;
     const horizontalSpeed = metersToFeet(measuredSpeed);
+    const velocity =
+      this.faction === Factions.ZOMBIE ? this.navAgent?.velocity() : undefined;
+    // Gait selection is separate from client position prediction.
+    const gaitSpeed = velocity
+      ? Math.hypot(velocity.x, velocity.z)
+      : measuredSpeed;
     const stance =
       1 |
       1024 |
       (travelled > 0 ? 65536 : 64) |
-      (measuredSpeed >
-      (npcCollisionProfile(this.actorModelId).walkSpeedLimit ?? 3)
+      (travelled > 0 &&
+      gaitSpeed > (npcCollisionProfile(this.actorModelId).walkSpeedLimit ?? 3)
         ? 4
         : 0);
-    const verticalSpeed = metersToFeet(motion.verticalSpeed);
+    // Grounded zombie locomotion follows replicated XYZ. Sending the terrain
+    // derivative as vertical velocity suppresses the 2016 client's walk/run
+    // animation on slopes (confirmed by a vertical-speed-only live test).
+    // Keep authoritative ground Y and wildlife prediction unchanged.
+    const verticalSpeed =
+      this.faction === Factions.ZOMBIE ? 0 : metersToFeet(motion.verticalSpeed);
     this.packetMoving = horizontalSpeed !== 0 || verticalSpeed !== 0;
     this.groundMotionDiagnostics = {
       ...motion,
@@ -725,7 +962,14 @@ export abstract class Npc extends BaseFullCharacter {
       const maxStep = maxTurnRateRadPerSec * dt;
       angleChange = Math.max(-maxStep, Math.min(maxStep, angleChange));
     }
-    const orientation = prevOrientation + angleChange;
+    const orientation = this.getZombieFacing(
+      this.state.position,
+      prevOrientation + angleChange
+    );
+    angleChange = Math.atan2(
+      Math.sin(orientation - prevOrientation),
+      Math.cos(orientation - prevOrientation)
+    );
     this.state.yaw = orientation;
 
     this.server.sendDataToAllWithSpawnedEntity(

@@ -246,7 +246,7 @@ export function createRabbit(npc: Npc, server: ZoneServer2016): RabbitInstance {
   ) as unknown as RabbitInstance;
 
   rabbit.onTransition = (from: string, to: string, eventId: string) => {
-    debug(`[${rabbit.id}] ${from} → ${to} (${eventId})`);
+    console.log(`[${rabbit.id}] ${from} → ${to} (${eventId})`);
   };
   rabbit.id = npc.characterId;
   rabbit.npc = npc;

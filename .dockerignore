@@ -1,4 +1,8 @@
 node_modules/
+.npm-cache/
+# A clean image has no out/ tree. Host incremental metadata can otherwise
+# make tsc skip unchanged runtime modules (including utils/lz4/lz4.js).
+**/*.tsbuildinfo
 .zone-2016.secret
 .login-fix-backup-*/
 .terrain-fix-backup-*/

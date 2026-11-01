@@ -73,7 +73,15 @@ export class WsZoneConnectionManager extends EventEmitter {
       this._wss = new WebSocketServer({ port: this._port });
       debug(`WsZoneConnectionManager listening on ${this._port} (ws)`);
     }
-    this._wss.on("connection", (socket, req) => this.onConnection(socket, req));
+    this._wss.on("connection", (socket, req) => {
+      void this.onConnection(socket, req).catch((error) => {
+        debug(
+          "Zone authentication failed: %s",
+          error instanceof Error ? error.message : "unknown error"
+        );
+        socket.close(1011, "authentication unavailable");
+      });
+    });
     // ws heartbeat: ping every tick, terminate any socket that missed the last
     // ping's pong. terminate() fires 'close', reusing the disconnect path so a
     // half-open (no-FIN) drop marks the zone offline instead of hanging forever.
@@ -100,6 +108,10 @@ export class WsZoneConnectionManager extends EventEmitter {
     const port = req.socket.remotePort || 0;
     const clientId = `${address}:${port}`;
 
+    debug("Authentication request world=%d peer=%s", serverId, clientId);
+    socket.on("error", (error) =>
+      debug("Socket error world=%d: %s", serverId, error.message)
+    );
     // attach the message listener synchronously and buffer until auth resolves:
     // the zone sends SessionRequest on open, which would otherwise arrive during
     // the async secret check (a DB lookup) and be dropped by ws
@@ -120,6 +132,8 @@ export class WsZoneConnectionManager extends EventEmitter {
       return;
     }
 
+    // Authentication awaits MongoDB; the peer may already have closed.
+    if (socket.readyState !== WebSocket.OPEN) return;
     client = new LZConnectionClient({ address, port });
     client.serverId = serverId;
     // marks the connection as already authenticated so the loginserver
@@ -130,7 +144,13 @@ export class WsZoneConnectionManager extends EventEmitter {
 
     (socket as any).isAlive = true;
     socket.on("pong", () => ((socket as any).isAlive = true));
-    socket.on("close", () => {
+    socket.on("close", (code, reason) => {
+      debug(
+        "Zone closed world=%d code=%d reason=%s",
+        serverId,
+        code,
+        reason.toString()
+      );
       delete this._clients[clientId];
       delete this._sockets[clientId];
       this.emit("disconnect", null, client, 1);

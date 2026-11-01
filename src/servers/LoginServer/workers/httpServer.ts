@@ -58,7 +58,7 @@ http.request({
   port: SERVER_PORT
 });
 const httpServer = http.createServer().listen(SERVER_PORT);
-debug(`Http server listening on ${SERVER_PORT}`);
+console.log(`Http server listening on ${SERVER_PORT}`);
 httpServer.on("request", async function (req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*"); // Allow all origins
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS"); // Allow specified methods

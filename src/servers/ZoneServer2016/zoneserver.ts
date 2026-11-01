@@ -690,7 +690,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this._mongoAddress) {
       this._soloMode = true;
       this.fairPlayManager.useFairPlay = false;
-      debug("Server in solo mode !");
+      console.log("Server in solo mode !");
     }
 
     this.accountInventoriesManager = new AccountInventoryManager(this);
@@ -709,7 +709,7 @@ export class ZoneServer2016 extends EventEmitter {
         guid: string,
         clientProtocol: string
       ) => {
-        debug(
+        console.log(
           `Client logged in from ${soeClientId} with character id: ${characterId}`
         );
         if (!this._soloMode) {
@@ -741,8 +741,8 @@ export class ZoneServer2016 extends EventEmitter {
           generatedTransient
         );
         if (clientProtocol !== this._clientProtocol) {
-          debug(`${soeClientId} is using the wrong client protocol`);
-          debug(`Protocol ${clientProtocol}`);
+          console.log(`${soeClientId} is using the wrong client protocol`);
+          console.log(`Protocol ${clientProtocol}`);
           this.sendData<LoginFailed>(zoneClient, "LoginFailed", {});
           return;
         }
@@ -844,7 +844,7 @@ export class ZoneServer2016 extends EventEmitter {
                 const byte = data[i].toString(16).padStart(2, '0');
                 hexString += byte + ' ';
             }
-            debug(`<Buffer ${hexString.trim()}>`);
+            console.log(`<Buffer ${hexString.trim()}>`);
           }
           */
 
@@ -868,7 +868,7 @@ export class ZoneServer2016 extends EventEmitter {
             }
             this.onZoneDataEvent(this._clients[soeClientSessionId], packet);
           } else {
-            debug("zonefailed : ", data);
+            console.log("zonefailed : ", data);
           }
         } finally {
           transaction?.end();
@@ -885,10 +885,10 @@ export class ZoneServer2016 extends EventEmitter {
     );
     this.dynamicappearance = dynamicappearance;
     if (this._mongoAddress && this.rebootTime) {
-      debug("Reboot time set to " + this.rebootTime + " hours");
+      console.log("Reboot time set to " + this.rebootTime + " hours");
       this.rebootTimeTimer = setTimeout(
         () => {
-          debug("Rebooting server due to reboot time set");
+          console.log("Rebooting server due to reboot time set");
           this.shutdown(this.rebootWarnTime, "Server rebooting");
         },
         this.rebootTime * 60 * 60 * 1000
@@ -914,6 +914,9 @@ export class ZoneServer2016 extends EventEmitter {
     this.commandHandler.reloadCommands();
   }
   async registerLoginConnectionListeners(internalServerPort?: number) {
+    debug("Login registration configured world=%d solo=%s transport=%s endpoint=%s:%d",
+      this._worldId, this._soloMode, process.env.LZ_SERVER_SECRET ? "WebSocket" : "UDP",
+      this._loginServerInfo.address || "discovery", this._loginServerInfo.port);
     // a per-server secret means this zone authenticates over ws; without one
     // it falls back to the legacy UDP transport
     this._loginConnectionManager = process.env.LZ_SERVER_SECRET
@@ -924,16 +927,16 @@ export class ZoneServer2016 extends EventEmitter {
       "session",
       (err: string, client: LZConnectionClient) => {
         if (err) {
-          debug(
+          console.log(
             `An error occured for LoginConnection with ${client.sessionId}`
           );
           console.error(err);
         } else {
           this.sendZonePopulationUpdate();
-          debug(
+          console.log(
             `[LOGIN] Zone ${this._worldId} registered with ${this._loginServerInfo.address}:${this._loginServerInfo.port}`
           );
-          debug(`LoginConnection established for ${client.sessionId}`);
+          console.log(`LoginConnection established for ${client.sessionId}`);
         }
       }
     );
@@ -951,7 +954,7 @@ export class ZoneServer2016 extends EventEmitter {
       "disconnect",
       (err: string, client: LZConnectionClient, reason: number) => {
         this._loginConnectionManager.reconnect();
-        debug(
+        console.log(
           `LoginConnection dropped: ${
             reason ? "Connection Lost" : "Unknown Error"
           }`
@@ -1051,7 +1054,7 @@ export class ZoneServer2016 extends EventEmitter {
               const { guid, reason } = packet.data;
 
               if (!this.enableLoginServerKickRequests) {
-                debug(
+                console.log(
                   `LoginServer requested to kick client with guid ${guid} for reason: ${reason}! Ignored due to configuration setting.`
                 );
                 return;
@@ -1074,13 +1077,13 @@ export class ZoneServer2016 extends EventEmitter {
               const client = this.getClientByGuid(guid);
 
               if (!client) {
-                debug(
+                console.log(
                   `LoginServer requested to kick INVALID client with guid ${guid} for reason: ${reason}!`
                 );
                 return;
               }
 
-              debug(
+              console.log(
                 `LoginServer kicking ${client.character.name} for reason: ${reasonString}`
               );
 
@@ -1088,13 +1091,13 @@ export class ZoneServer2016 extends EventEmitter {
               break;
             }
             case "OverrideAllowedFileHashes":
-              debug("Received OverrideAllowedFileHashes from loginserver");
+              console.log("Received OverrideAllowedFileHashes from loginserver");
               const hashTypesList: FileHashTypeList = packet.data.types,
                 assetHashes = hashTypesList.find(
                   (entry) => entry.type == "assets"
                 );
               if (assetHashes) {
-                debug("Using defaultAssetHashes from loginserver");
+                console.log("Using defaultAssetHashes from loginserver");
                 this.fairPlayManager.defaultHashes = assetHashes.hashes;
               }
               break;
@@ -1103,7 +1106,7 @@ export class ZoneServer2016 extends EventEmitter {
                 client.address !== this._loginServerInfo.address ||
                 client.port !== this._loginServerInfo.port
               ) {
-                debug(
+                console.log(
                   `GlobalBroadcastForward rejected: unexpected sender ${client.address}:${client.port}`
                 );
                 return;
@@ -1115,7 +1118,7 @@ export class ZoneServer2016 extends EventEmitter {
                 originServerId,
                 rewardIds
               } = packet.data;
-              debug(
+              console.log(
                 `GlobalBroadcastForward type=${broadcastType} from server ${originServerId}`
               );
               this.executeGlobalBroadcast(
@@ -1127,7 +1130,7 @@ export class ZoneServer2016 extends EventEmitter {
               break;
             }
             default:
-              debug(`Unhandled h1emu packet: ${packet.name}`);
+              console.log(`Unhandled h1emu packet: ${packet.name}`);
               break;
           }
         }
@@ -1225,11 +1228,11 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async onZoneLoginEvent(client: Client) {
-    debug("zone login");
+    console.log("zone login");
     try {
       await this.sendInitData(client);
     } catch (error) {
-      debug(error);
+      console.log(error);
       this.sendData<LoginFailed>(client, "LoginFailed", {});
       if (!this._soloMode) {
         await this._db.collection(DB_COLLECTIONS.LOGIN_ERRORS).insertOne({
@@ -1240,11 +1243,11 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
     /*this.tasksManager.register(async () => {
-      debug("zone login");
+      console.log("zone login");
       try {
         await this.sendInitData(client);
       } catch (error) {
-        debug(error);
+        console.log(error);
         this.sendData<LoginFailed>(client, "LoginFailed", {});
         if (!this._soloMode) {
           await this._db.collection(DB_COLLECTIONS.LOGIN_ERRORS).insertOne({
@@ -1292,7 +1295,7 @@ export class ZoneServer2016 extends EventEmitter {
           client.heavyPacketCount ===
           ZoneServer2016.MAX_HEAVY_PACKETS_PER_CLIENT_PER_SEC + 1
         ) {
-          debug(
+          console.log(
             `[DDoS] Client ${client.character.characterId} heavy-packet rate-limited: ${client.heavyPacketCount} ${packet.name} in 1s (dropped)`
           );
         }
@@ -1307,7 +1310,7 @@ export class ZoneServer2016 extends EventEmitter {
       packet.name != "PlayerUpdateManagedPosition" &&
       packet.name != "ClientUpdate.MonitorTimeDrift"
     ) {
-      debug(`Receive Data ${[packet.name]}`);
+      console.log(`Receive Data ${[packet.name]}`);
     }
     if (packet.flag === GatewayChannels.UpdatePosition) {
       if (!packet.data.flags) return;
@@ -1463,7 +1466,7 @@ export class ZoneServer2016 extends EventEmitter {
   async onClientAllowedRequest(client: LZConnectionClient, packet: any) {
     const { characterId, loginSessionId, reqId } = packet.data;
     if (!this._ready) {
-      debug(
+      console.log(
         `Character (${characterId}) connection rejected: server is not ready.`
       );
       this.sendCharacterAllowedReply(
@@ -1475,7 +1478,7 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     if (this.isRebooting) {
-      debug(
+      console.log(
         `Character (${characterId}) connection rejected due to reboot`
       );
       this.sendCharacterAllowedReply(
@@ -1488,7 +1491,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     if (this.isLocked && !(await this.getIsAdmin(loginSessionId))) {
-      debug(
+      console.log(
         `Character (${characterId}) connection rejected due to server lock`
       );
       this.sendCharacterAllowedReply(
@@ -1502,7 +1505,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     const ban = await this.isClientBanned(loginSessionId, client.address);
     if (ban) {
-      debug(
+      console.log(
         `Character (${characterId}) connection rejected due to local ban`
       );
 
@@ -1544,7 +1547,7 @@ export class ZoneServer2016 extends EventEmitter {
               continue;
             }
           }
-          debug(
+          console.log(
             `Character (${characterId}) connection rejected due to rejection type ${rejectionFlag}`
           );
           this.sendCharacterAllowedReply(client, reqId, false, rejectionFlag);
@@ -1568,7 +1571,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
       this.sendCharacterAllowedReply(client, reqId, true);
     } catch (error) {
-      debug(error);
+      console.log(error);
       this.sendCharacterAllowedReply(
         client,
         reqId,
@@ -1795,7 +1798,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.characterId
       );
     } catch (e) {
-      debug(e);
+      console.log(e);
       this.sendData<LoginFailed>(client, "LoginFailed", {});
       return;
     }
@@ -2031,7 +2034,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private async initializeLoginServerConnection() {
-    debug("Starting H1emuZoneServer");
+    debug("Login registration starting world=%d", this._worldId);
+    console.log("Starting H1emuZoneServer");
     if (!this._loginServerInfo.address) {
       await this.fetchLoginInfo();
     }
@@ -2042,6 +2046,7 @@ export class ZoneServer2016 extends EventEmitter {
       serverRuleSets: this.serverGameRules
     });
     await this._loginConnectionManager.start();
+    debug("Login connection manager started world=%d; awaiting session result", this._worldId);
     await this._db
       ?.collection(DB_COLLECTIONS.SERVERS)
       .findOneAndUpdate(
@@ -2058,7 +2063,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnLoadCharacterData", client)))
       return;
     if (savedCharacter.characterName == undefined) {
-      debug(
+      console.log(
         `ERROR: Undefined character name found for client ${client.loginSessionId}`
       );
       savedCharacter.characterName =
@@ -2128,6 +2133,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private async setupServer() {
+    debug("Startup phase: setupServer entered world=%d solo=%s", this._worldId, this._soloMode);
     const aiEnabled = !process.env.DISABLE_AI && this.aiEnabled;
     // The navmesh is just map data - load it independently of AI so features
     // like airdrop ground-height still work when AI is disabled.
@@ -2146,10 +2152,12 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
     this.weatherManager.init();
+    debug("Startup phase: navigation initialized world=%d", this._worldId);
     this.playTimeManager.init(this);
     this.initModelsDataSource();
     this.worldDataManager = new WorldDataManager();
     await this.worldDataManager.initialize(this._worldId, this._mongoAddress);
+    debug("Startup phase: world database initialized world=%d", this._worldId);
     if (!this._soloMode) {
       [this._db, this._mongoClient] = await WorldDataManager.getDatabase(
         this._mongoAddress
@@ -2166,7 +2174,7 @@ export class ZoneServer2016 extends EventEmitter {
           this.lastItemGuid = BigInt(loadedWorld.lastItemGuid);
         }
         if (loadedWorld.worldSaveVersion !== this.worldSaveVersion) {
-          debug(
+          console.log(
             `World save version mismatch, deleting world data. Current: ${this.worldSaveVersion} Old: ${loadedWorld.worldSaveVersion}`
           );
           await this.worldDataManager.deleteWorld();
@@ -2249,11 +2257,11 @@ export class ZoneServer2016 extends EventEmitter {
     );*/
 
     this._ready = true;
-    debug("Server is ready and accepting connections.");
-    debug(
+    console.log("Server is ready and accepting connections.");
+    console.log(
       `Server saving ${this.enableWorldSaves ? "enabled" : "disabled"}.`
     );
-    debug("Server ready");
+    console.log("Server ready");
   }
 
   /** #1467 (H14): orphan backstop runs sampled — every Nth save — and only when the
@@ -2435,7 +2443,7 @@ export class ZoneServer2016 extends EventEmitter {
       }, 10000);
       this.sendChatTextToAdmins("World saved!");
       this.nextSaveTime = Date.now() + this.saveTimeInterval;
-      debug("World saved!");
+      console.log("World saved!");
     } catch (e) {
       console.error(e);
       this.worldSaveFailed = true;
@@ -2541,7 +2549,7 @@ export class ZoneServer2016 extends EventEmitter {
     payload = payload.replaceAll("/", "");
     const splitMessage = payload.split(" ");
     const commandName = splitMessage[0];
-    debug(`[RCON]Execute command "${commandName}"`);
+    console.log(`[RCON]Execute command "${commandName}"`);
     const commandHash: number = flhash(commandName.toUpperCase());
     const args: string = payload.replace(commandName, "").trim();
     // TODO: add loginSessionId from the user
@@ -2587,11 +2595,11 @@ export class ZoneServer2016 extends EventEmitter {
           const end = performance.now();
           const duration = end - start;
           if (duration >= 1) {
-            debug(
+            console.log(
               `H1emu-ai took ${duration}ms with ${this.explosiveManager.getEntitiesTotalNumber()} entities`
             );
           }
-          debug(this.explosiveManager.getEntitiesStats());
+          console.log(this.explosiveManager.getEntitiesStats());
         } else {
           this.explosiveManager.run();
         }
@@ -2602,14 +2610,14 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async start(): Promise<void> {
-    debug("Starting server");
-    debug(`Protocol used : ${this._protocol.protocolName}`);
+    console.log("Starting server");
+    console.log(`Protocol used : ${this._protocol.protocolName}`);
     if (!this.hookManager.checkHook("OnServerInit")) return;
     if (!(await this.hookManager.checkAsyncHook("OnServerInit"))) return;
 
     await this.setupServer();
     if (this.isPvE) {
-      debug("Server in PvE mode");
+      console.log("Server in PvE mode");
     }
     this.fairPlayManager.decryptFairPlayValues();
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
@@ -3297,7 +3305,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   logPlayerDeath(client: Client, damageInfo: DamageInfo) {
-    debug(client.character.name + " has died");
+    console.log(client.character.name + " has died");
     let sourceClient = this.getClientByCharId(damageInfo.entity);
     if (!sourceClient) {
       const sourceEntity = this.getEntity(damageInfo.entity);
@@ -5618,7 +5626,7 @@ export class ZoneServer2016 extends EventEmitter {
       case "Vehicle.StateData":
         break;
       default:
-        debug("send data", packetName);
+        console.log("send data", packetName);
     }
     const packSpan = apm.currentTransaction?.startSpan(`pack::${packetName}`);
     const data = this._protocol.pack(packetName, obj);
@@ -5637,7 +5645,7 @@ export class ZoneServer2016 extends EventEmitter {
         case "Vehicle.StateData":
           break;
         default:
-          debug("send data", packetName);
+          console.log("send data", packetName);
       }
       const data = this._protocol.pack(packetName, obj);
       if (data) {
@@ -6123,7 +6131,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sendGameTimeSync(client: Client) {
-    debug("GameTimeSync");
+    console.log("GameTimeSync");
     this.sendData<GameTimeSync>(client, "GameTimeSync", {
       time: Int64String(this.inGameTimeManager.time),
       cycleSpeed: this.inGameTimeManager.getCycleSpeed(),
@@ -6227,7 +6235,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   assignManagedObject(client: Client, vehicle: Vehicle) {
     // todo: vehicle seat swap managed object assignment logic
-    debug("\n\n\n\n\n\n\n\n\n\n assign managed object");
+    console.log("\n\n\n\n\n\n\n\n\n\n assign managed object");
 
     this.sendData<CharacterManagedObject>(client, "Character.ManagedObject", {
       objectCharacterId: vehicle.characterId,
@@ -6253,7 +6261,7 @@ export class ZoneServer2016 extends EventEmitter {
     const index = client.managedObjects.indexOf(vehicle.characterId);
     if (index > -1) {
       // todo: vehicle seat swap managed object drop logic
-      debug("\n\n\n\n\n\n\n\n\n\n drop managed object");
+      console.log("\n\n\n\n\n\n\n\n\n\n drop managed object");
       this.sendData(client, "ClientUpdate.ManagedObjectResponseControl", {
         control: false,
         objectCharacterId: vehicle.characterId
@@ -6268,7 +6276,7 @@ export class ZoneServer2016 extends EventEmitter {
     const index = newClient.managedObjects.indexOf(vehicle.characterId);
     if (index === -1) {
       // if object is already managed by client, do nothing
-      debug("\n\n\n\n\n\n\n\n\n\n takeover managed object");
+      console.log("\n\n\n\n\n\n\n\n\n\n takeover managed object");
       for (const characterId in this._clients) {
         const oldClient = this._clients[characterId];
         const idx = oldClient.managedObjects.indexOf(vehicle.characterId);
@@ -6391,7 +6399,7 @@ export class ZoneServer2016 extends EventEmitter {
       case "Vehicle.StateData":
         break;
       default:
-        debug("send data", packetName);
+        console.log("send data", packetName);
     }
   }
 
@@ -6653,7 +6661,7 @@ export class ZoneServer2016 extends EventEmitter {
     const vehicle = this._vehicles[client.vehicle.mountedVehicle];
     if (!vehicle) {
       // return if vehicle doesnt exist
-      debug(
+      console.log(
         `Error: ${client.character.name} exited non existing vehicle`
       );
       this.sendData<MountDismountResponse>(client, "Mount.DismountResponse", {
@@ -6666,7 +6674,7 @@ export class ZoneServer2016 extends EventEmitter {
     const seatId = vehicle.getCharacterSeat(client.character.characterId);
     client.character.vehicleExitDate = new Date().getTime();
     if (seatId == -1) {
-      debug(
+      console.log(
         `Error: ${client.character.name} exited vehicle with no seatId set`
       );
       return;
@@ -7221,7 +7229,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (this._containerDefinitions[containerDefinitionId]) {
       return this._containerDefinitions[containerDefinitionId];
     } else {
-      debug(
+      console.log(
         `Tried to get containerDefinition for invalid containerDefinitionId ${containerDefinitionId}`
       );
       return this._containerDefinitions[119];
@@ -7263,7 +7271,7 @@ export class ZoneServer2016 extends EventEmitter {
   ): BaseItem | undefined {
     const itemDefinition = this.getItemDefinition(itemDefinitionId);
     if (!itemDefinition) {
-      debug(
+      console.log(
         `[ERROR] GenerateItem: Invalid item definition: ${itemDefinitionId}`
       );
       return;
@@ -7325,7 +7333,7 @@ export class ZoneServer2016 extends EventEmitter {
   ): BaseItem | undefined {
     const itemDefinition = this.getItemDefinition(itemDefinitionId);
     if (!itemDefinition) {
-      debug(
+      console.log(
         `[ERROR] GenerateItem: Invalid item definition: ${itemDefinitionId}`
       );
       return;
@@ -10615,7 +10623,7 @@ export class ZoneServer2016 extends EventEmitter {
         const indicator = this._hudIndicators[typeName];
         if (!indicator) {
           // to help identifying the issue
-          debug(`Unknown hud indicator: ${typeName} removing it`);
+          console.log(`Unknown hud indicator: ${typeName} removing it`);
           client.character.resourceHudIndicators.splice(index, 1);
           return;
         }
@@ -10811,7 +10819,7 @@ export class ZoneServer2016 extends EventEmitter {
           this._sendDataToAll("Broadcast.World", { identity, message });
         break;
       default:
-        debug(`Unknown GlobalBroadcast type: ${broadcastType}`);
+        console.log(`Unknown GlobalBroadcast type: ${broadcastType}`);
         break;
     }
   }
@@ -10892,7 +10900,7 @@ export class ZoneServer2016 extends EventEmitter {
   timeoutClient(client: Client) {
     if (!!this._clients[client.sessionId]) {
       // if hasn't already deleted
-      debug(`Client (${client.soeClientId}) disconnected ( ping timeout )`);
+      console.log(`Client (${client.soeClientId}) disconnected ( ping timeout )`);
       this.deleteClient(client);
     }
   }
@@ -11231,7 +11239,9 @@ export class ZoneServer2016 extends EventEmitter {
           gamePos[0] != npc.state.position[0] ||
           gamePos[1] != npc.state.position[1] ||
           gamePos[2] != npc.state.position[2] ||
-          npc.hasPendingMovementStop()
+          npc.hasPendingMovementStop(
+            navPos.x === agentPos.x && navPos.z === agentPos.z
+          )
         ) {
           npc.goTo(gamePos);
           packetSubmitted = true;

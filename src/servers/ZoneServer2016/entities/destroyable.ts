@@ -109,7 +109,7 @@ function getDestroyedEffectId(actorModelId: ModelIds): Effects {
     case ModelIds.STREET_SIGNS_STREET_NAMES_SIGN_POST:
       return Effects.PFX_Damage_TrafficSigns_StreetSign_StreetName;
     default:
-      debug(`[WARN] No destroyed effect for modelId: ${actorModelId}`);
+      console.log(`[WARN] No destroyed effect for modelId: ${actorModelId}`);
       return Effects.TEST_Null;
   }
 }

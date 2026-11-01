@@ -549,7 +549,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<Security>
   ) {
-    debug(packet);
+    console.log(packet);
   }
   CommandRecipeStart(
     server: ZoneServer2016,
@@ -575,7 +575,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<object>
   ) {
-    debug(packet);
+    console.log(packet);
     client.character.characterStates.inWater = true;
     const fireState =
       client.character._characterEffects[Effects.PFX_Fire_Person_loop];
@@ -589,7 +589,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<object>
   ) {
-    debug(packet);
+    console.log(packet);
     client.character.characterStates.inWater = false;
   }
   CommandFreeInteractionNpc(
@@ -597,7 +597,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<CommandFreeInteractionNpc>
   ) {
-    debug("FreeInteractionNpc");
+    console.log("FreeInteractionNpc");
     server.sendData<CommandFreeInteractionNpc>(
       client,
       "Command.FreeInteractionNpc",
@@ -746,7 +746,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<CommandPointAndReport>
   ) {
-    debug(packet);
+    console.log(packet);
     /*const targetClient = Object.values(server._clients).find((c) => {
             if (c.character.characterId == packet.data.reportedCharacterId) {
                 return c;
@@ -944,7 +944,7 @@ export class ZonePacketHandlers {
       }
       client.clientLogs.push(obj);
     }
-    debug(packet);*/
+    console.log(packet);*/
   }
   ClientLog(
     server: ZoneServer2016,
@@ -987,21 +987,21 @@ export class ZonePacketHandlers {
       }
       client.clientLogs.push(obj);
     }
-    debug(packet);
+    console.log(packet);
   }
   WallOfDataUIEvent(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<WallOfDataUIEvent>
   ) {
-    debug("UIEvent");
+    console.log("UIEvent");
   }
   SetLocale(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<SetLocale>
   ) {
-    debug("SetLocale");
+    console.log("SetLocale");
   }
   GetContinentBattleInfo(
     server: ZoneServer2016,
@@ -1059,7 +1059,7 @@ export class ZonePacketHandlers {
   ) {
     // just in case
     if (packet.data.unknownDword1) {
-      debug("ClientInitializationDetails : ", packet.data.unknownDword1);
+      console.log("ClientInitializationDetails : ", packet.data.unknownDword1);
     }
   }
   ClientLogout(
@@ -1067,7 +1067,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<object>
   ) {
-    debug("ClientLogout");
+    console.log("ClientLogout");
     if (client.hudTimer) {
       clearTimeout(client.hudTimer); // clear the timer started at StartLogoutRequest
     }
@@ -1157,7 +1157,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<object>
   ) {
-    debug("Interaction Canceled");
+    console.log("Interaction Canceled");
   }
   CommandStartLogoutRequest(
     server: ZoneServer2016,
@@ -1281,7 +1281,7 @@ export class ZonePacketHandlers {
     // Early exit if no data or transientId is missing
     const packetData = packet.data;
     if (!packetData || packetData.transientId == undefined) {
-      debug("TransientId error detected", packet);
+      console.log("TransientId error detected", packet);
       return;
     }
 
@@ -1836,7 +1836,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<object>
   ) {
-    debug("Command.PlayerSelect");
+    console.log("Command.PlayerSelect");
   }
   LocksSetLock(
     server: ZoneServer2016,
@@ -1941,7 +1941,7 @@ export class ZonePacketHandlers {
     const { characterId, moveMode } = packet.data,
       vehicle = server._vehicles[characterId as string];
     if (!vehicle) return;
-    debug(
+    console.log(
       `vehTransient:${vehicle.transientId} , mode: ${moveMode} from ${
         client.character.name
       } time:${Date.now()}`
@@ -2029,7 +2029,7 @@ export class ZonePacketHandlers {
       packet.data.itemDefinitionId
     )?.PLACEMENT_MODEL_ID;
     if (!modelId) {
-      debug(
+      console.log(
         `[ERROR] No PLACEMENT_MODEL_ID for ${packet.data.itemDefinitionId} from characterId ${client.character.characterId}`
       );
       server.sendChatText(
@@ -2057,12 +2057,12 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<CommandItemDefinitionRequest>
   ) {
-    debug(`ItemDefinitionRequest ID: ${packet.data.ID}`);
+    console.log(`ItemDefinitionRequest ID: ${packet.data.ID}`);
 
     const itemDef = server.getItemDefinition(packet.data.ID);
 
     if (!itemDef) {
-      debug(
+      console.log(
         `ERROR: No ItemDefinition found for ItemDefinitonID: ${packet.data.ID}`
       );
       return;
@@ -2141,7 +2141,7 @@ export class ZonePacketHandlers {
       case UIElements.MAP:
         break;
       default:
-        debug(`Received unknown FirstTimeEvent: ${packet.data.displayElement}`);
+        console.log(`Received unknown FirstTimeEvent: ${packet.data.displayElement}`);
         break;
     }
   }
@@ -2161,7 +2161,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<ItemsRequestUseItem>
   ) {
-    debug(packet.data);
+    console.log(packet.data);
     const { itemGuid, itemUseOption, targetCharacterId, sourceCharacterId } =
       packet.data;
     const count =
@@ -2343,7 +2343,7 @@ export class ZonePacketHandlers {
         } else {
           const msg = `Unload weapon failed for item ${item.itemDefinitionId}. Please report this!`;
           server.sendAlert(client, msg);
-          debug(msg);
+          console.log(msg);
         }
         break;
       case ItemUseOptions.SALVAGE:
@@ -2547,7 +2547,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<ConstructionPlacementRequest>
   ) {
-    debug(packet.data);
+    console.log(packet.data);
     const modelId = server.getItemDefinition(
       packet.data.itemDefinitionId
     )?.PLACEMENT_MODEL_ID;
@@ -3276,13 +3276,13 @@ export class ZonePacketHandlers {
         break;
       }
       case "Weapon.WeaponFireHint":
-        debug("WeaponFireHint");
+        console.log("WeaponFireHint");
         break;
       case "Weapon.ProjectileContactReport":
-        debug("ProjectileContactReport");
+        console.log("ProjectileContactReport");
         break;
       case "Weapon.MeleeHitMaterial":
-        debug("MeleeHitMaterial");
+        console.log("MeleeHitMaterial");
         /* workaround melee hit logic since UpdateAbility packet isn't always sent */
         /*
         if (client.character.abilityInitTime > 0) {
@@ -3319,7 +3319,7 @@ export class ZonePacketHandlers {
         server.createProjectileNpc(client, packet.packet);
         break;
       case "Weapon.ProjectileSpawnAttachedNpc":
-        debug("Weapon.ProjectileSpawnAttachedNpc");
+        console.log("Weapon.ProjectileSpawnAttachedNpc");
         if (client.fireHints[packet.packet.sessionProjectileCount]) {
           client.fireHints[packet.packet.sessionProjectileCount].marked = {
             characterId: packet.packet.characterId,
@@ -3344,7 +3344,7 @@ export class ZonePacketHandlers {
         }
         break;
       default:
-        debug(`Unhandled weapon packet type: ${packet.packetName}`);
+        console.log(`Unhandled weapon packet type: ${packet.packetName}`);
         break;
     }
   }
@@ -3354,7 +3354,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<WeaponWeapon>
   ) {
-    debug("Weapon.Weapon");
+    console.log("Weapon.Weapon");
     if (client.character.tempGodMode) {
       // used to disable spawn godmode
       server.setTempGodMode(client, false);
@@ -3586,8 +3586,8 @@ export class ZonePacketHandlers {
   }
 
   ProjectileDebug(server: ZoneServer2016, client: Client, packet: any) {
-    debug(`ProjectileDebug from ${client.character.characterId}`);
-    debug(packet.data);
+    console.log(`ProjectileDebug from ${client.character.characterId}`);
+    console.log(packet.data);
   }
 
   VehicleItemDefinitionRequest(
@@ -3595,7 +3595,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: any
   ) {
-    debug(`VehicleItemDefinitionRequest: ${packet.data.itemDefinitionId}`);
+    console.log(`VehicleItemDefinitionRequest: ${packet.data.itemDefinitionId}`);
   }
   FairPlayInternal(server: ZoneServer2016, client: Client, packet: any) {}
   //#endregion
@@ -3839,7 +3839,7 @@ export class ZonePacketHandlers {
         );
         break;
       default:
-        debug(packet.data);
+        console.log(packet.data);
     }
   }
 
@@ -3985,7 +3985,7 @@ export class ZonePacketHandlers {
       }
       itemsRemoved = true;
     } catch (error) {
-      debug("Error during item removal, performing rollback:", error);
+      console.log("Error during item removal, performing rollback:", error);
       await server.accountInventoriesManager.rollbackItems(
         client.loginSessionId,
         removedItems
@@ -4424,7 +4424,7 @@ export class ZonePacketHandlers {
         this.grinderExchangeRequest(server, client, packet);
         break;
       case "InGamePurchase.StoreBundleContentRequest":
-        debug(JSON.stringify(packet.data));
+        console.log(JSON.stringify(packet.data));
         server.sendData<InGamePurchaseStoreBundleContentResponse>(
           client,
           "InGamePurchase.StoreBundleContentResponse",
@@ -4448,8 +4448,8 @@ export class ZonePacketHandlers {
         this.vehicleAutoMount(server, client, packet);
         break;
       default:
-        debug(packet);
-        debug("Packet not implemented in packetHandlers");
+        console.log(packet);
+        console.log("Packet not implemented in packetHandlers");
         break;
     }
   }
@@ -4482,7 +4482,7 @@ export class ZonePacketHandlers {
       case "09":
         break;
       default:
-        debug(
+        console.log(
           `Unknown custom packet opcode: ${opcode} from ${client.loginSessionId}`
         );
         break;

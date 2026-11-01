@@ -72,7 +72,7 @@ async function main() {
       Math.hypot(end.x - target.x, end.z - target.z) < 0.5,
       "Agent did not reach target around foundation"
     );
-    debug(
+    console.log(
       JSON.stringify({
         foundationAvoided: true,
         reachedTarget: true,

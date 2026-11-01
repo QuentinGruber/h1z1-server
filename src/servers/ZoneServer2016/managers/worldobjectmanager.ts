@@ -238,7 +238,7 @@ export class WorldObjectManager {
       "WorldObjectManager::Run",
       "custom"
     );
-    debug("WOM::Run");
+    console.log("WOM::Run");
     try {
       if (server.isSurvival()) {
         this.getItemRespawnTimer(server);
@@ -366,7 +366,7 @@ export class WorldObjectManager {
         if (++i % 200 === 0) await scheduler.yield();
       }
     } catch (error) {
-      debug(`[WOM] createLootThreaded fallback: ${error}`);
+      console.log(`[WOM] createLootThreaded fallback: ${error}`);
       apm.captureError(error);
       await this.createLoot(server);
     }
@@ -588,7 +588,7 @@ export class WorldObjectManager {
       server.batchDeleteEntities(explosiveIdsToDelete, server._explosives);
       explosiveDeleteSpan?.end();
     } catch (error) {
-      debug(`[WARN] despawnEntities threaded path failed: ${error}`);
+      console.log(`[WARN] despawnEntities threaded path failed: ${error}`);
       // Safe fallback to avoid leaking stale entities if worker path fails.
       for (const characterId in server._npcs) {
         const npc = server._npcs[characterId];
@@ -759,12 +759,12 @@ export class WorldObjectManager {
     itemSpawnerId: number = -1
   ): ItemObject | undefined {
     if (!item) {
-      debug(`[ERROR] Tried to createLootEntity with invalid item object`);
+      console.log(`[ERROR] Tried to createLootEntity with invalid item object`);
       return;
     }
     const itemDef = server.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) {
-      debug(
+      console.log(
         `[ERROR] Tried to createLootEntity for invalid itemDefId: ${item.itemDefinitionId}`
       );
       return;
@@ -1235,7 +1235,7 @@ export class WorldObjectManager {
       }
       bucket.push(d);
     }
-    debug("All props created");
+    console.log("All props created");
   }
 
   async replenishWaterSources(server: ZoneServer2016) {
@@ -1292,7 +1292,7 @@ export class WorldObjectManager {
         );
       });
     });
-    debug("All doors objects created");
+    console.log("All doors objects created");
   }
 
   setSpawnchance(
@@ -1445,7 +1445,7 @@ export class WorldObjectManager {
       }
     } finally {
       transaction.end();
-      debug("All vehicles created");
+      console.log("All vehicles created");
     }
   }
 
@@ -1537,7 +1537,7 @@ export class WorldObjectManager {
         }
       }
     }
-    debug("All npcs objects created");
+    console.log("All npcs objects created");
   }
 
   _Poimap: Map<string, string> = new Map([["17", "Nurse"]]);
@@ -1661,7 +1661,7 @@ export class WorldObjectManager {
         if (npcInstance.id) this.spawnedNpcs[npcInstance.id] = characterId;
       }
     }
-    debug("Prototype zombies spawned");
+    console.log("Prototype zombies spawned");
   }
 
   refillScrapInChunks(server: ZoneServer2016) {

@@ -175,7 +175,7 @@ export class LoginServer extends EventEmitter {
     // reminders
     if (!this._mongoAddress) {
       this._soloMode = true;
-      debug("Server in solo mode !");
+      console.log("Server in solo mode !");
     }
 
     this._soeServer = new SOEServer(serverPort, this._cryptoKey);
@@ -183,7 +183,7 @@ export class LoginServer extends EventEmitter {
     this._protocol2016 = new LoginProtocol2016();
 
     this._soeServer.on("disconnect", (client: Client) => {
-      debug(`Client disconnected from ${client.address}:${client.port}`);
+      console.log(`Client disconnected from ${client.address}:${client.port}`);
       this.Logout(client);
     });
 
@@ -222,10 +222,10 @@ export class LoginServer extends EventEmitter {
               break;
           }
         } else {
-          debug("Packet parsing was unsuccesful");
+          console.log("Packet parsing was unsuccesful");
         }
       } catch (error) {
-        debug(error);
+        console.log(error);
         process.exitCode = 1;
       }
     });
@@ -258,7 +258,8 @@ export class LoginServer extends EventEmitter {
                   );
                   let status = 0;
                   if ((client as any).authed) {
-                    status = 1;
+                    // Bind registration to the world authenticated by WebSocket.
+                    status = client.serverId === serverId ? 1 : 0;
                   } else {
                     const server = await this._db
                       .collection(DB_COLLECTIONS.SERVERS)
@@ -277,6 +278,8 @@ export class LoginServer extends EventEmitter {
                       }
                     }
                   }
+                  debug("Zone registration world=%d address=%s authenticated=%s status=%d",
+                    serverId, client.address, !!(client as any).authed, status);
                   if (status === 1) {
                     debug(`ZoneConnection established`);
                     client.serverId = serverId;
@@ -393,14 +396,14 @@ export class LoginServer extends EventEmitter {
                   break;
                 }
                 default:
-                  debug(
+                  console.log(
                     `Unhandled ZoneConnection packet: ${packet.name}`
                   );
                   break;
               }
             }
           } catch (e) {
-            debug(e);
+            debug("Zone packet failed peer=%s packet=%s: %s", client.clientId, packet.name, e);
           }
         }
       );
@@ -432,7 +435,7 @@ export class LoginServer extends EventEmitter {
       this._zoneConnectionManager.on(
         "disconnect",
         async (err: string, client: LZConnectionClient, reason: number) => {
-          debug(
+          console.log(
             `ZoneConnection dropped: ${
               reason ? "Connection Lost" : "Unknown Error"
             }`
@@ -478,11 +481,14 @@ export class LoginServer extends EventEmitter {
     const server = await this._db
       .collection(DB_COLLECTIONS.SERVERS)
       .findOne({ serverId, isDisabled: false });
-    return !!server?.secret && server.secret == secret;
+    const accepted = !!server?.secret && server.secret == secret;
+    debug("Zone authentication world=%d enabledRecord=%s secretConfigured=%s accepted=%s",
+      serverId, !!server, !!server?.secret, accepted);
+    return accepted;
   }
 
   rejectZoneConnection(serverId: number, client: LZConnectionClient) {
-    debug(
+    console.log(
       `rejected connection serverId : ${serverId} address: ${client.address} `
     );
     this._zoneConnectionManager.dropClient(client.clientId);
@@ -739,7 +745,7 @@ export class LoginServer extends EventEmitter {
         );
         break;
       default:
-        debug(`Unhandled tunnel packet "${packet.subPacketName}"`);
+        console.log(`Unhandled tunnel packet "${packet.subPacketName}"`);
         break;
     }
   }
@@ -808,7 +814,7 @@ export class LoginServer extends EventEmitter {
       characters: characters
     };
     this.sendData(client, "CharacterSelectInfoReply", characterSelectInfoReply);
-    debug("CharacterSelectInfoRequest");
+    console.log("CharacterSelectInfoRequest");
   }
 
   async sendFileHashes(serverId: number) {
@@ -826,6 +832,8 @@ export class LoginServer extends EventEmitter {
   }
 
   async updateServerStatus(serverId: number, status: boolean) {
+    debug("World availability world=%d allowedAccess=%s registered=%s",
+      serverId, status, !!this.getZoneConnectionClient(serverId));
     const server = await this._db
       .collection(DB_COLLECTIONS.SERVERS)
       .findOneAndUpdate(
@@ -986,7 +994,7 @@ export class LoginServer extends EventEmitter {
   }
 
   async CharacterDeleteRequest(client: Client, packet: CharacterDeleteRequest) {
-    debug("CharacterDeleteRequest");
+    console.log("CharacterDeleteRequest");
     let deletionStatus = 1;
     if (this._soloMode) {
       const SinglePlayerCharacters = await this.loadCharacterData(client);
@@ -1038,7 +1046,7 @@ export class LoginServer extends EventEmitter {
                 status: 0
               }
             });
-          debug(`Character ${packet.characterId} deleted !`);
+          console.log(`Character ${packet.characterId} deleted !`);
         }
       }
     }
@@ -1308,7 +1316,7 @@ export class LoginServer extends EventEmitter {
       .collection(DB_COLLECTIONS.USERS_SESSIONS)
       .findOne({ authKey: client.authKey })) ?? { guid: "" };
     if (!UserSession || !UserSession.guid) {
-      console.error(`Could not find session for ${client.authKey}`);
+      debug("Character login rejected world=%d reason=missing-user-session", serverId);
       return false;
     }
     const serverAddress = this.advertisedServerAddress(
@@ -1348,7 +1356,10 @@ export class LoginServer extends EventEmitter {
         characterLoginInfo.applicationData
       ).data as unknown as CharacterLoginReply["applicationData"];
     }
-    debug(characterLoginInfo);
+    // Never dump applicationData: it contains the session ticket and key.
+    debug("Character login world=%d registered=%s characterStatus=%d zoneStatus=%d rejectionFlag=%s address=%s",
+      serverId, !!this.getZoneConnectionClient(serverId), characterLoginInfo.status,
+      connectionAllowed.status, connectionAllowed.rejectionFlag ?? "none", serverAddress);
     if (characterLoginInfo.status) {
       characterLoginInfo.status = Number(connectionAllowed.status);
     } else {
@@ -1440,7 +1451,7 @@ export class LoginServer extends EventEmitter {
       this._loginTimestamps[serverId] = Date.now();
       this.updateLoginQueues();
     }
-    debug("CharacterLoginRequest");
+    console.log("CharacterLoginRequest");
     return characterLoginInfo.status !== LoginStatus.REJECTED;
   }
 
@@ -1628,7 +1639,7 @@ export class LoginServer extends EventEmitter {
   }
 
   async start(): Promise<void> {
-    debug("Starting server");
+    console.log("Starting server");
     if (this._mongoAddress) {
       this._mongoClient = new MongoClient(this._mongoAddress, {
         maxPoolSize: 100
@@ -1641,7 +1652,7 @@ export class LoginServer extends EventEmitter {
           cause: e
         });
       }
-      debug("connected to mongo !");
+      console.log("connected to mongo !");
       // if no collections exist on h1server database , fill it with samples
       const dbIsEmpty =
         (await this._mongoClient.db(DB_NAME).collections()).length < 1;
@@ -1703,7 +1714,7 @@ export class LoginServer extends EventEmitter {
     }
   }
   async stop(): Promise<void> {
-    debug("Shutting down");
+    console.log("Shutting down");
     clearInterval(this._loginQueuesTimer);
     // close zoneloginconnections
     if (this._zoneConnectionManager) {

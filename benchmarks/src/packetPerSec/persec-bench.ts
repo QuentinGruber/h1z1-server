@@ -29,7 +29,7 @@ for (let index = 0; index < CLIENTS_NUMBER; index++) {
     (packetsThisRoutine: number, acksThisRoutine: number) => {
       totalPacketsRoutine += packetsThisRoutine;
       return;
-      debug(
+      console.log(
         `Client #${index} received ${packetsThisRoutine}/${benchParameters.packetsPerSec} and got ${acksThisRoutine}/${benchParameters.packetsPerSec} acks this routine #${routineCount}`
       );
     }
@@ -39,7 +39,7 @@ for (let index = 0; index < CLIENTS_NUMBER; index++) {
 const warmupRoutines = 3;
 const testRoutineNumber = 120;
 setInterval(() => {
-  debug(
+  console.log(
     `Total packets for routine #${routineCount} : ${totalPacketsRoutine} with ${clients.length} clients`
   );
   if (routineCount > warmupRoutines) {
@@ -47,7 +47,7 @@ setInterval(() => {
     if (routines.length === testRoutineNumber) {
       let allPackets = 0;
       routines.forEach((e) => (allPackets += e));
-      debug(
+      console.log(
         `Mean packets per sec ${Math.floor(allPackets / routines.length)}`
       );
       process.exit();

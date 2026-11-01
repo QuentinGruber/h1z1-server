@@ -110,7 +110,7 @@ const inputStream = new SOEInputStream(
   Buffer.from(DEFAULT_CRYPTO_KEY, "base64")
 );
 
-debug("SOEINPUT");
+console.log("SOEINPUT");
 
 console.time("genSequenceForFragBench");
 for (let index = 0; index < loops; index++) {

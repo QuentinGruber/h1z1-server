@@ -39,7 +39,7 @@ export class LootTableManager {
       "containers",
       pluginDataRoots
     );
-    debug(
+    console.log(
       `[LootTableManager] Loaded ${Object.keys(this.groundTables).length} ground tables, ` +
         `${Object.keys(this.containerTables).length} container tables`
     );

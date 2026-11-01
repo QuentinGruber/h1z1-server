@@ -123,7 +123,7 @@ async function main() {
         maxGroundError: maxError,
         blockedMoves: manager.metrics.blockedNpcMoves
       });
-      debug(
+      console.log(
         label,
         JSON.stringify({
           end: npc.navAgent.position(),
@@ -141,7 +141,7 @@ async function main() {
       interactionDistance: 4,
       charactersRenderDistance: 100,
       aiTargetSpatialMap: new Map(),
-      getClientsInRange: () => []
+      getClientsInRange: () => [], getClientByCharId: () => undefined
     });
     const { Factions } = require("../out/servers/ZoneServer2016/jsms/factions");
     for (const [label, model, faction, create, event] of [
@@ -252,7 +252,7 @@ async function main() {
         succeeded,
         end: Array.from(npc.state.position)
       };
-      debug(JSON.stringify(result));
+      console.log(JSON.stringify(result));
       results.push(result);
       assert(succeeded, `${label} AI did not chase/flee past vehicle`);
       nav.crowd.removeAgent(npc.navAgent);
@@ -284,7 +284,7 @@ async function main() {
       "npc-vehicle-navigation-validation.json",
       JSON.stringify(results, null, 2)
     );
-    debug(JSON.stringify(results, null, 2));
+    console.log(JSON.stringify(results, null, 2));
   } finally {
     Date.now = realNow;
   }
@@ -293,3 +293,4 @@ main().catch((e) => {
   console.error(e);
   process.exitCode = 1;
 });
+

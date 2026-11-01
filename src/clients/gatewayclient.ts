@@ -56,20 +56,20 @@ export class GatewayClient extends EventEmitter {
 
     // @ts-ignore
     this._soeClient.on("connect", (err: any, result: any) => {
-      debug("Connected to login server");
+      console.log("Connected to login server");
       this._soeClient.toggleEncryption(false);
       this.emit("connect", err, result);
     });
   }
 
   connect() {
-    debug("Connecting to gateway server");
+    console.log("Connecting to gateway server");
     this._soeClient.connect();
   }
 
   sendTunnelData(tunnelData: Uint8Array, channel: number) {
     channel = channel || 0;
-    debug("Sending tunnel data to gateway server");
+    console.log("Sending tunnel data to gateway server");
     const data = this._protocol.pack_tunnel_data_packet_for_server(
       tunnelData,
       channel
@@ -83,7 +83,7 @@ export class GatewayClient extends EventEmitter {
     clientProtocol: string,
     clientBuild: string
   ) {
-    debug("Sending login request");
+    console.log("Sending login request");
     const data = this._protocol.pack_login_request_packet(
       BigInt(characterId),
       ticket,

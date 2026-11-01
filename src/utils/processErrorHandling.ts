@@ -50,11 +50,11 @@ process.on("SIGINT", () => {
 });
 
 process.on("beforeExit", (code) => {
-  debug(`Process will exit with code: ${code} time : ${new Date()}`);
+  console.log(`Process will exit with code: ${code} time : ${new Date()}`);
   logVersion();
 });
 
 process.on("exit", (code) => {
-  debug(`Process exited with code: ${code} time : ${new Date()}`);
+  console.log(`Process exited with code: ${code} time : ${new Date()}`);
   logVersion();
 });

@@ -71,7 +71,7 @@ src/servers/LoginServer/loginserver.ts:
   - Log successful zone registration and missing-zone/timeout diagnostics.
   - Map unavailable/non-object zone replies to ERROR/status 0 with a useful
     availability message instead of a false version warning.
-  - Throw a meaningful MongoDB startup error instead of throwing debug()'s return.
+  - Throw a meaningful MongoDB startup error instead of throwing console.log()'s return.
 
 src/servers/ZoneServer2016/zoneserver.ts:
   - Log successful internal registration; await connection-manager startup.

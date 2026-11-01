@@ -56,13 +56,13 @@ function shortUrl(url: string): string {
 
 function header(title: string) {
   const line = "═".repeat(70);
-  debug(`\n${line}`);
-  debug(`  ${title}`);
-  debug(line);
+  console.log(`\n${line}`);
+  console.log(`  ${title}`);
+  console.log(line);
 }
 
 function subheader(title: string) {
-  debug(`\n── ${title} ${"─".repeat(Math.max(0, 66 - title.length))}`);
+  console.log(`\n── ${title} ${"─".repeat(Math.max(0, 66 - title.length))}`);
 }
 
 // ── Part 1: Heap Sampling Profile (.heapprofile) ──────────────────────────────
@@ -123,7 +123,7 @@ function flattenProfileNode(
 
 function analyzeProfile(filePath: string) {
   header("HEAP SAMPLING PROFILE  (.heapprofile)");
-  debug(`  File: ${filePath}`);
+  console.log(`  File: ${filePath}`);
 
   const raw = fs.readFileSync(filePath, "utf8");
   const profile: HeapProfile = JSON.parse(raw);
@@ -138,34 +138,34 @@ function analyzeProfile(filePath: string) {
   const projectFrames = all.filter((x) => x.isProject);
   const projectTotal = projectFrames.reduce((s, x) => s + x.selfSize, 0);
 
-  debug(`\n  Total sampled allocation: ${fmt(totalSize)}`);
-  debug(
+  console.log(`\n  Total sampled allocation: ${fmt(totalSize)}`);
+  console.log(
     `  Project frames total:     ${fmt(projectTotal)} (${pct(projectTotal, totalSize)} of all)`
   );
 
   subheader("Top allocation sites — ALL frames");
-  debug(
+  console.log(
     `  ${"Size".padStart(10)}  ${"% total".padStart(7)}  Location`
   );
   for (const f of all.slice(0, TOP_N)) {
     const loc = f.url
       ? `${shortUrl(f.url)}:${f.line}  ${f.functionName}`
       : f.functionName;
-    debug(
+    console.log(
       `  ${fmt(f.selfSize).padStart(10)}  ${pct(f.selfSize, totalSize).padStart(7)}  ${loc}`
     );
   }
 
   subheader("Top allocation sites — PROJECT frames only");
   if (projectFrames.length === 0) {
-    debug("  (none found — make sure the profile was taken from an out/ build)");
+    console.log("  (none found — make sure the profile was taken from an out/ build)");
   } else {
-    debug(
+    console.log(
       `  ${"Size".padStart(10)}  ${"% proj".padStart(7)}  Location`
     );
     for (const f of projectFrames.slice(0, TOP_N)) {
       const loc = `${shortUrl(f.url)}:${f.line}  ${f.functionName}`;
-      debug(
+      console.log(
         `  ${fmt(f.selfSize).padStart(10)}  ${pct(f.selfSize, projectTotal).padStart(7)}  ${loc}`
       );
     }
@@ -200,8 +200,8 @@ interface TypeStats {
 // Rather than fully parsing the 337 MB file, we extract just what we need.
 async function analyzeTimeline(filePath: string): Promise<void> {
   header("HEAP SNAPSHOT  (.heaptimeline)");
-  debug(`  File: ${filePath}`);
-  debug(`  Reading (this may take a moment for large snapshots)...`);
+  console.log(`  File: ${filePath}`);
+  console.log(`  Reading (this may take a moment for large snapshots)...`);
 
   const raw = await fs.promises.readFile(filePath, "utf8");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -220,7 +220,7 @@ async function analyzeTimeline(filePath: string): Promise<void> {
   const edgeCountIdx = nodeFields.indexOf("edge_count");
 
   const nodeCount = nodes.length / nFields;
-  debug(`  Node count: ${nodeCount.toLocaleString()}`);
+  console.log(`  Node count: ${nodeCount.toLocaleString()}`);
 
   // ── Aggregate by type ────────────────────────────────────────────────────
   const byType = new Map<string, TypeStats>();
@@ -243,18 +243,18 @@ async function analyzeTimeline(filePath: string): Promise<void> {
   }
 
   subheader("Heap totals");
-  debug(`  Total shallow size: ${fmt(totalShallow)}`);
-  debug(`  Node types found:   ${byType.size}`);
+  console.log(`  Total shallow size: ${fmt(totalShallow)}`);
+  console.log(`  Node types found:   ${byType.size}`);
 
   subheader(`Object types by shallow size (top ${TOP_N})`);
   const typeRows = Array.from(byType.entries()).sort(
     ([, a], [, b]) => b.shallowSize - a.shallowSize
   );
-  debug(
+  console.log(
     `  ${"Type".padEnd(22)}  ${"Count".padStart(10)}  ${"Shallow".padStart(12)}  ${"% total".padStart(7)}`
   );
   for (const [name, stat] of typeRows.slice(0, TOP_N)) {
-    debug(
+    console.log(
       `  ${name.padEnd(22)}  ${stat.count.toLocaleString().padStart(10)}  ${fmt(stat.shallowSize).padStart(12)}  ${pct(stat.shallowSize, totalShallow).padStart(7)}`
     );
   }
@@ -263,12 +263,12 @@ async function analyzeTimeline(filePath: string): Promise<void> {
   const countRows = Array.from(byType.entries()).sort(
     ([, a], [, b]) => b.count - a.count
   );
-  debug(
+  console.log(
     `  ${"Type".padEnd(22)}  ${"Count".padStart(10)}  ${"Shallow".padStart(12)}  ${"Avg size".padStart(10)}`
   );
   for (const [name, stat] of countRows.slice(0, TOP_N)) {
     const avg = stat.count > 0 ? stat.shallowSize / stat.count : 0;
-    debug(
+    console.log(
       `  ${name.padEnd(22)}  ${stat.count.toLocaleString().padStart(10)}  ${fmt(stat.shallowSize).padStart(12)}  ${fmt(avg).padStart(10)}`
     );
   }
@@ -277,8 +277,8 @@ async function analyzeTimeline(filePath: string): Promise<void> {
   subheader("String table analysis");
   const stringCount = strings.length;
   const stringSizeBytes = strings.reduce((s, str) => s + str.length * 2, 0); // UTF-16
-  debug(`  Unique strings in table: ${stringCount.toLocaleString()}`);
-  debug(`  Est. string table size:  ${fmt(stringSizeBytes)} (UTF-16)`);
+  console.log(`  Unique strings in table: ${stringCount.toLocaleString()}`);
+  console.log(`  Est. string table size:  ${fmt(stringSizeBytes)} (UTF-16)`);
 
   // Find duplicate strings by value
   const strFreq = new Map<string, number>();
@@ -296,14 +296,14 @@ async function analyzeTimeline(filePath: string): Promise<void> {
     });
 
   if (duplicates.length > 0) {
-    debug(`\n  Top duplicated strings (wasted bytes):`);
-    debug(
+    console.log(`\n  Top duplicated strings (wasted bytes):`);
+    console.log(
       `  ${"Count".padStart(6)}  ${"Wasted".padStart(10)}  Value`
     );
     for (const [str, count] of duplicates.slice(0, 20)) {
       const wasted = (count - 1) * str.length * 2;
       const preview = str.length > 60 ? str.slice(0, 57) + "..." : str;
-      debug(
+      console.log(
         `  ${count.toString().padStart(6)}  ${fmt(wasted).padStart(10)}  ${JSON.stringify(preview)}`
       );
     }
@@ -348,14 +348,14 @@ async function analyzeTimeline(filePath: string): Promise<void> {
   );
   const totalClosureSize = closureRows.reduce((s, [, v]) => s + v.size, 0);
   const totalClosureCount = closureRows.reduce((s, [, v]) => s + v.count, 0);
-  debug(
+  console.log(
     `  Total closures: ${totalClosureCount.toLocaleString()}  |  Total size: ${fmt(totalClosureSize)}`
   );
-  debug(
+  console.log(
     `  ${"Count".padStart(8)}  ${"Size".padStart(12)}  Name`
   );
   for (const [name, stat] of closureRows.slice(0, TOP_N)) {
-    debug(
+    console.log(
       `  ${stat.count.toString().padStart(8)}  ${fmt(stat.size).padStart(12)}  ${name}`
     );
   }
@@ -477,16 +477,16 @@ function printRecommendations(
     if (group.length === 0) continue;
     subheader(`${p} priority`);
     for (const rec of group) {
-      debug(`\n  [${rec.priority}] ${rec.title}`);
-      debug(`     ${rec.detail}`);
+      console.log(`\n  [${rec.priority}] ${rec.title}`);
+      console.log(`     ${rec.detail}`);
     }
   }
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 async function main() {
-  debug("\nH1Z1-Server Heap Analysis Tool");
-  debug("================================\n");
+  console.log("\nH1Z1-Server Heap Analysis Tool");
+  console.log("================================\n");
 
   let profileData: ReturnType<typeof analyzeProfile> | null = null;
 
@@ -504,7 +504,7 @@ async function main() {
 
   printRecommendations(profileData);
 
-  debug("\n");
+  console.log("\n");
 }
 
 main().catch((err) => {

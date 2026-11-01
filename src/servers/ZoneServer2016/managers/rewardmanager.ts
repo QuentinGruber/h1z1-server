@@ -149,7 +149,7 @@ export class RewardManager {
     if (item) {
       this.server.lootAccountItem(this.server, client, item);
     } else {
-      debug("Server failed to generate reward account item");
+      console.log("Server failed to generate reward account item");
     }
   }
   dropReward(client: ZoneClient2016) {

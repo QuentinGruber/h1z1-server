@@ -69,7 +69,7 @@ export abstract class BaseLZConnection extends EventEmitter {
     if (client) {
       this.messageHandler(data, client);
     } else {
-      debug(`Connection rejected from remote ${remote.address}:${remote.port}`);
+      console.log(`Connection rejected from remote ${remote.address}:${remote.port}`);
     }
   }
 

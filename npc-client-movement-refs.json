@@ -1,0 +1,131 @@
+{
+  "strings": {
+    "0x1420bb728": "State_Moving",
+    "0x1420bbf98": "VelocityLocalZ",
+    "0x1420bc028": "AngularVelocityLocalZ",
+    "0x1420bb7d8": "State_Active",
+    "0x14252f9d0": "TaskPredictiveUnevenTerrainIKSetup",
+    "0x14252fc80": "TaskPredictiveUnevenTerrainFootLiftingTarget",
+    "0x142531ec0": "nodePredictiveUnevenTerrainQueueIKSetup",
+    "0x142531ee8": "nodePredictiveUnevenTerrainQueueFootLiftingTargets",
+    "0x142531f20": "nodePredictiveUnevenTerrainQueueTransformBuffs",
+    "0x142533488": "nodePredictiveUnevenTerrainUpdateConnections"
+  },
+  "references": [
+    {
+      "at": "0x1400a70fd",
+      "text": "AngularVelocityLocalZ",
+      "function": [
+        "0x1400a70f0",
+        "0x1400a7134"
+      ]
+    },
+    {
+      "at": "0x1400aacdd",
+      "text": "State_Active",
+      "function": [
+        "0x1400aacd0",
+        "0x1400aad14"
+      ]
+    },
+    {
+      "at": "0x1400ab36d",
+      "text": "State_Moving",
+      "function": [
+        "0x1400ab360",
+        "0x1400ab3a4"
+      ]
+    },
+    {
+      "at": "0x1400abd1d",
+      "text": "VelocityLocalZ",
+      "function": [
+        "0x1400abd10",
+        "0x1400abd54"
+      ]
+    },
+    {
+      "at": "0x1419680a9",
+      "text": "TaskPredictiveUnevenTerrainIKSetup",
+      "function": [
+        "0x141966d50",
+        "0x141968552"
+      ]
+    },
+    {
+      "at": "0x141968279",
+      "text": "TaskPredictiveUnevenTerrainFootLiftingTarget",
+      "function": [
+        "0x141966d50",
+        "0x141968552"
+      ]
+    },
+    {
+      "at": "0x14198aad7",
+      "text": "nodePredictiveUnevenTerrainQueueIKSetup",
+      "function": [
+        "0x14198a090",
+        "0x14198b993"
+      ]
+    },
+    {
+      "at": "0x14198aaed",
+      "text": "nodePredictiveUnevenTerrainQueueFootLiftingTargets",
+      "function": [
+        "0x14198a090",
+        "0x14198b993"
+      ]
+    },
+    {
+      "at": "0x14198ab03",
+      "text": "nodePredictiveUnevenTerrainQueueTransformBuffs",
+      "function": [
+        "0x14198a090",
+        "0x14198b993"
+      ]
+    },
+    {
+      "at": "0x14198b553",
+      "text": "nodePredictiveUnevenTerrainUpdateConnections",
+      "function": [
+        "0x14198a090",
+        "0x14198b993"
+      ]
+    }
+  ],
+  "callers": [],
+  "keyrefs": [
+    {
+      "at": "0x140535eac",
+      "text": "VelocityLocalZ",
+      "function": [
+        "0x140535940",
+        "0x140535fc6"
+      ]
+    },
+    {
+      "at": "0x14054019c",
+      "text": "State_Moving",
+      "function": [
+        "0x14053fde0",
+        "0x14054048e"
+      ]
+    },
+    {
+      "at": "0x1405401c5",
+      "text": "State_Moving",
+      "function": [
+        "0x14053fde0",
+        "0x14054048e"
+      ]
+    },
+    {
+      "at": "0x140540395",
+      "text": "State_Active",
+      "function": [
+        "0x14053fde0",
+        "0x14054048e"
+      ]
+    }
+  ]
+}

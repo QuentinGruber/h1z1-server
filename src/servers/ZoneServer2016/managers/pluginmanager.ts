@@ -323,7 +323,7 @@ export class PluginManager {
   private checkPluginsFolder(): void {
     if (!fs.existsSync(this.pluginsDir)) {
       fs.mkdirSync(this.pluginsDir);
-      debug(`[PluginManager] Created plugins folder: ${this.pluginsDir}`);
+      console.log(`[PluginManager] Created plugins folder: ${this.pluginsDir}`);
     }
   }
 
@@ -355,7 +355,7 @@ export class PluginManager {
     return new Promise((resolve, reject) => {
       // shoutout chatGPT
 
-      debug("[PluginManager] Installing dependencies...");
+      console.log("[PluginManager] Installing dependencies...");
 
       const installProcess = spawn("npm", ["install"], {
         cwd: path.join(this.pluginsDir, pluginPath),
@@ -371,7 +371,7 @@ export class PluginManager {
 
       installProcess.once("close", (code) => {
         if (code === 0) {
-          debug("[PluginManager] Dependencies installed successfully.");
+          console.log("[PluginManager] Dependencies installed successfully.");
           resolve();
           return;
         }
@@ -411,11 +411,11 @@ export class PluginManager {
       if (isZoneServer(server)) {
         this.registerPluginCommands(server, plugin);
       } else if (plugin.commands?.length) {
-        debug(
+        console.log(
           `[PluginManager] ${plugin.name} tried adding commands, but LoginServer does not support plugin commands.`
         );
       }
-      debug(`[PluginManager] ${plugin.name} initialized!`);
+      console.log(`[PluginManager] ${plugin.name} initialized!`);
     } catch (e: any) {
       console.error(e);
     }
@@ -436,7 +436,7 @@ export class PluginManager {
       // Install dependencies into the node_modules directory
       await this.installDependencies(pluginPath);
     } else {
-      debug(`[PluginManager] Dependencies loaded for ${pluginPath}`);
+      console.log(`[PluginManager] Dependencies loaded for ${pluginPath}`);
     }
 
     traverseAndReplace(
@@ -451,7 +451,7 @@ export class PluginManager {
     const plugin = new module.default();
     plugin.dir = path.join(this.pluginsDir, pluginPath);
     this.plugins.push(plugin);
-    debug(`[PluginManager] Loaded: ${plugin.name}`);
+    console.log(`[PluginManager] Loaded: ${plugin.name}`);
   }
 
   /**
@@ -469,7 +469,7 @@ export class PluginManager {
         await this.loadPlugin(folder);
       } catch (e: any) {
         console.error(e);
-        debug(
+        console.log(
           `[PluginManager] Plugin "${folder}" not loaded, make sure you've compiled the plugin before attempting to load it.`
         );
       }
@@ -493,7 +493,7 @@ export class PluginManager {
       configPath = path.join(this.pluginsDir, fileName);
 
     if (!fileExists(path.join(this.pluginsDir, fileName))) {
-      debug(
+      console.log(
         `[PluginManager] Generated config file for ${plugin.name} at base plugins directory: ${fileName}`
       );
       await copyFile(defaultConfigPath, configPath);
@@ -533,7 +533,7 @@ export class PluginManager {
     }
     if (!this.moduleDir) {
       console.error("[PluginManager] moduleDir is undefined!");
-      debug(`[PluginManager] No plugins loaded.`);
+      console.log(`[PluginManager] No plugins loaded.`);
       return;
     }
 
@@ -548,7 +548,7 @@ export class PluginManager {
     }
 
     if (this.plugins.length == 0) {
-      debug(`[PluginManager] No plugins loaded.`);
+      console.log(`[PluginManager] No plugins loaded.`);
     }
   }
 
@@ -573,7 +573,7 @@ export class PluginManager {
     const originalFunction = thisArg[methodName];
 
     if (!originalFunction) {
-      debug(
+      console.log(
         `\n\n\n[PluginManager] Plugin ${plugin.name} tried to hook an invalid method!\n\n\n`
       );
       return;
@@ -602,7 +602,7 @@ export class PluginManager {
   ) {
     server.commandHandler.commands[flhash(command.name.toUpperCase())] =
       command;
-    debug(
+    console.log(
       `[PluginManager] Plugin ${plugin.name} registered a command: /${command.name}`
     );
   }

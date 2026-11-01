@@ -19,6 +19,7 @@ import {
 } from "../../../utils/utils";
 import {
   Items,
+  NpcIds,
   LoadoutIds,
   ResourceIds,
   ResourceTypes,
@@ -1310,6 +1311,25 @@ export class Vehicle2016 extends BaseLootableEntity {
   }
 
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    // Vehicle condition has a 100,000-point maximum. Keep vehicle balancing
+    // separate from damage to characters and the player weapon multiplier.
+    const npc = server._npcs[damageInfo.entity];
+    if (npc) {
+      let damage = damageInfo.damage;
+      switch (npc.npcId) {
+        case NpcIds.ZOMBIE:
+          damage = 1500;
+          break;
+        case NpcIds.WOLF:
+          damage = 2000;
+          break;
+        case NpcIds.BEAR:
+          damage = 4500;
+          break;
+      }
+      this.damage(server, { ...damageInfo, damage });
+      return;
+    }
     const client = server.getClientByCharId(damageInfo.entity),
       weapon = client?.character.getEquippedWeapon();
     damageInfo.damage = damageInfo.damage * 2;

@@ -148,7 +148,7 @@ export abstract class BaseEntity {
   }
 
   destroy(server: ZoneServer2016): boolean {
-    debug(
+    console.log(
       `Attempted to call destroy() on an entity an undefined destroy method! actorModelId ${this.actorModelId}`
     );
     return false;

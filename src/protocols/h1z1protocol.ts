@@ -63,7 +63,7 @@ export class H1Z1Protocol {
     // Maybe will remove this switch later
     switch (this.protocolName) {
       default:
-        debug(`Protocol ${this.protocolName} unsupported !`);
+        console.log(`Protocol ${this.protocolName} unsupported !`);
         process.exitCode = 0;
       case "ClientProtocol_860": // normal client from 15 january 2015
         this.H1Z1Packets = require("../packets/ClientProtocol/ClientProtocol_860/h1z1packets");
@@ -392,7 +392,7 @@ export class H1Z1Protocol {
           return null;
         }
       } else {
-        debug(packet);
+        console.log(packet);
         console.error("pack()", "No schema for packet " + packet.name);
         return null;
       }
@@ -506,7 +506,7 @@ export class H1Z1Protocol {
     if (packet) {
       if (packet.schema) {
         if (packet.name != "KeepAlive") {
-          debug(packet.name);
+          console.log(packet.name);
         }
         try {
           result = DataSchema.parse(packet.schema, data, offset).result;
@@ -517,7 +517,7 @@ export class H1Z1Protocol {
       } else if (packet.fn) {
         result = packet.fn(data, offset).result;
       } else {
-        debug("No schema for packet " + packet.name);
+        console.log("No schema for packet " + packet.name);
       }
       return {
         name: packet.name,
@@ -525,7 +525,7 @@ export class H1Z1Protocol {
         data: result
       };
     } else {
-      debug("Unhandled zone packet:", data[0], data[1], data[2]);
+      console.log("Unhandled zone packet:", data[0], data[1], data[2]);
       return null;
     }
   }

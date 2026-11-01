@@ -78,7 +78,7 @@ const report = {
   triangles: indices / 3,
   collisionVerticesAndTriangleTopologyMatchLOD0: true
 };
-debug(JSON.stringify(report));
+console.log(JSON.stringify(report));
 fs.writeFileSync(
   "road-source-validation.json",
   JSON.stringify(report, null, 2)

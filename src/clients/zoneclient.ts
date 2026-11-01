@@ -61,7 +61,7 @@ export class ZoneClient extends EventEmitter {
     this._gatewayClient.on(
       "tunneldata",
       (err: string, data: Buffer, flags: any) => {
-        debug("Received tunnel data (" + data.length + " bytes)");
+        console.log("Received tunnel data (" + data.length + " bytes)");
 
         n++;
         //fs.writeFileSync("dump/tunneldata_" + n + ".dat", data);
@@ -71,7 +71,7 @@ export class ZoneClient extends EventEmitter {
           packet = this._protocol.parse(data, flags);
         } catch (e) {
           //fs.writeFileSync("tunneldata_" + n + ".dat", data);
-          debug("Failed parsing tunnel data: tunneldata_" + n + ".dat");
+          console.log("Failed parsing tunnel data: tunneldata_" + n + ".dat");
           return;
         }
 
@@ -141,7 +141,7 @@ export class ZoneClient extends EventEmitter {
     );
 
     this._gatewayClient.on("connect", (err: string, result: any) => {
-      debug("Connected to gateway server");
+      console.log("Connected to gateway server");
       me.emit("connect", err, result);
       this._gatewayClient.login(
         characterId,
@@ -152,13 +152,13 @@ export class ZoneClient extends EventEmitter {
     });
 
     this._gatewayClient.on("disconnect", (err: string, result: any) => {
-      debug("Disconnected");
+      console.log("Disconnected");
       me.emit("disconnect", err, result);
     });
   }
 
   connect() {
-    debug("Connecting to gateway server");
+    console.log("Connecting to gateway server");
     this._gatewayClient.connect();
   }
 

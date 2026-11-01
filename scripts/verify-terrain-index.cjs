@@ -39,7 +39,7 @@ for (let tile = 0; tile < before.tiles.length; tile += 13) {
     checks++;
   }
 }
-debug(
+console.log(
   `PASS: ${checks} exact height/slope comparisons, including tile and cell boundaries, versus pre-change index.`
 );
 

@@ -32,6 +32,7 @@ interface VehicleCollisionState {
   sequenceAnchor?: { receipt: number; sequence: number };
   pose: Pose;
   movedAt: number;
+  zombieApproachUntil?: number;
   obstacle?: BoxObstacle;
   markers: CrowdAgent[];
   contacts: Set<string>;
@@ -170,7 +171,11 @@ export class NpcCollisionManager {
           );
         else state.markers[i].teleport(center);
       }
-      if (!state.obstacle && now - state.movedAt >= rules.parkedDelayMs) {
+      if (
+        !state.obstacle &&
+        now >= (state.zombieApproachUntil ?? 0) &&
+        now - state.movedAt >= rules.parkedDelayMs
+      ) {
         // Vertical envelope of the pitched/rolled geometry; yaw footprint is
         // conservative on slopes. This obstacle is removed on any movement.
         const floor = nav.getClosestNavPointVec3(state.pose.position).y;
@@ -203,6 +208,16 @@ export class NpcCollisionManager {
           ) ?? undefined;
       }
     }
+  }
+  /** A pursued occupant must be reachable at the vehicle shell. Keep the
+   * existing moving-vehicle avoidance markers and physical sweeps active;
+   * the shared, largest-creature static exclusion otherwise prevents melee.
+   * Restore normal parked carving when zombie pursuit stops refreshing it. */
+  allowZombieVehicleApproach(id: string) {
+    const state = this.vehicles.get(id);
+    if (!state) return;
+    state.zombieApproachUntil = Date.now() + 1000;
+    this.clearObstacle(state);
   }
   private clearObstacle(s: VehicleCollisionState) {
     if (s.obstacle) {
@@ -542,7 +557,7 @@ export class NpcCollisionManager {
       });
       if (npc.isAlive) npc.playAnimation("Flinch");
       if (process.env.NPC_COLLISION_DIAGNOSTICS === "1")
-        debug(
+        console.log(
           "[NPC-IMPACT] " +
             JSON.stringify({
               vehicle: vehicle.characterId,

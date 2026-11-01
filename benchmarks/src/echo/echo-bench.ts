@@ -11,7 +11,7 @@ const echoServer = new EchoServer(1119, cryptoKey);
 echoServer.start();
 async function echoAwait(echoClient: EchoClient, clientId: number) {
   const finalTime = await echoClient.getFinalTime();
-  debug(`Took ${finalTime}ms #${clientId}`);
+  console.log(`Took ${finalTime}ms #${clientId}`);
 }
 
 const benchParameters: BenchParameters = {

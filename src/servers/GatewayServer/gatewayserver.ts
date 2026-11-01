@@ -36,7 +36,7 @@ export class GatewayServer extends EventEmitter {
     this._soeServer.keepAliveTimeoutTime = 20000; // On zone a client expire after 20s without activity
     this._protocol = new GatewayProtocol();
     this._soeServer.on("disconnect", (client: SOEClient) => {
-      debug("Client disconnected from " + client.address + ":" + client.port);
+      console.log("Client disconnected from " + client.address + ":" + client.port);
       this.emit("disconnect", client.sessionId);
     });
 
@@ -68,7 +68,7 @@ export class GatewayServer extends EventEmitter {
                 }
                 break;
               case "Logout":
-                debug("Logout gateway");
+                console.log("Logout gateway");
                 this.emit("disconnect", client.sessionId);
                 break;
               case "TunnelPacket":
@@ -81,13 +81,13 @@ export class GatewayServer extends EventEmitter {
                 break;
             }
           } else {
-            debug(`Unsupported gateway packet ${packet.name}`);
-            debug(packet);
+            console.log(`Unsupported gateway packet ${packet.name}`);
+            console.log(packet);
           }
         } catch (e) {
           console.error("Gateway: packet parsing failed");
-          debug(data);
-          debug(e);
+          console.log(data);
+          console.log(e);
         }
       }
     );
@@ -130,7 +130,7 @@ export class GatewayServer extends EventEmitter {
   }
 
   start() {
-    debug("Starting server");
+    console.log("Starting server");
     this._soeServer.start(this._crcLength, this._udpLength);
   }
 
@@ -139,7 +139,7 @@ export class GatewayServer extends EventEmitter {
     tunnelData: Buffer,
     channel: SOEOutputChannels
   ) {
-    debug("Sending tunnel data to client");
+    console.log("Sending tunnel data to client");
     const data = this._protocol.pack_tunnel_data_packet_for_client(
       tunnelData,
       0
@@ -153,7 +153,7 @@ export class GatewayServer extends EventEmitter {
   }
 
   async stop() {
-    debug("Stopping server");
+    console.log("Stopping server");
     await this._soeServer.stop();
   }
 }

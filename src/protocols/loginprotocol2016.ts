@@ -49,14 +49,13 @@ export class LoginProtocol2016 {
           result: result
         };
       } else if (packet.schema) {
-        debug(packet.name);
+        debug("Received %s", packet.name);
         try {
           result = DataSchema.parse(packet.schema, data, 1).result;
         } catch (error) {
           console.error(`${packet.name} : ${error}`);
         }
-        debug("[DEBUG] Packet receive :");
-        debug(result);
+        // Login payloads contain authentication/session data. Log names only.
 
         return {
           type: packet.type,
@@ -64,11 +63,11 @@ export class LoginProtocol2016 {
           result: result
         };
       } else {
-        debug("parse()", "No schema for packet ", packet.name);
+        console.log("parse()", "No schema for packet ", packet.name);
         return null;
       }
     } else {
-      debug(
+      console.log(
         "parse() " + "Unknown or unhandled login packet type: " + packetType
       );
       return null;
@@ -102,9 +101,9 @@ export class LoginProtocol2016 {
         data.writeUint8(0xa7, 13);
         data.writeUInt8(subPacketOpcode, 14);
         tunnelData.data.copy(data, basePacketLength);
-        debug("tunnelpacket send data :", object);
+        debug("Packed tunnel opcode=%d", subPacketOpcode);
       } else if (packet.schema) {
-        debug("Packing data for " + packet.name);
+        console.log("Packing data for " + packet.name);
         try {
           payload = DataSchema.pack(
             packet.schema,
@@ -121,15 +120,15 @@ export class LoginProtocol2016 {
           data.writeUInt8(packetType, 0);
           payload.data.copy(data, 1);
         } else {
-          debug("Could not pack data schema for " + packet.name);
+          console.log("Could not pack data schema for " + packet.name);
           return null;
         }
       } else {
-        debug("pack()", "No schema for packet " + packet.name);
+        console.log("pack()", "No schema for packet " + packet.name);
         return null;
       }
     } else {
-      debug("pack()", "Unknown or unhandled login packet type: " + packetType);
+      console.log("pack()", "Unknown or unhandled login packet type: " + packetType);
       return null;
     }
     return data;

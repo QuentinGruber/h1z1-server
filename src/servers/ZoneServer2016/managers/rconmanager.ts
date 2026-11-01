@@ -40,10 +40,10 @@ export class RConManager extends EventEmitter {
 
   start() {
     if (process.env.FORCE_DISABLE_WS || !this.wssPort || !this.password) {
-      debug("RConManager disabled");
+      console.log("RConManager disabled");
       return;
     }
-    debug("RConManager start");
+    console.log("RConManager start");
 
     this.wss = new WebSocketServer({ noServer: true });
     this.wss.on("connection", (ws) => {

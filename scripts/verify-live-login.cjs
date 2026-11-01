@@ -117,7 +117,12 @@ async function main() {
       "CharacterLoginReply"
     );
     assert.equal(reply.status, 1);
-    assert.equal(reply.applicationData.serverAddress, "127.0.0.1:1117");
+    const record = await db.collection("servers").findOne({ serverId: 2 });
+    const publicIp = process.env.PUBLIC_SERVER_IP?.trim();
+    const expectedAddress = publicIp && Number(process.env.PUBLIC_SERVER_WORLD_ID ?? 2) === 2
+      ? `${publicIp}:${Number(process.env.PUBLIC_SERVER_PORT ?? 1117)}`
+      : record.serverAddress;
+    assert.equal(reply.applicationData.serverAddress, expectedAddress);
     assert.equal(reply.applicationData.serverTicket, guid);
     // Remove only this probe character and verify zone validation still denies it.
     await db.collection("characters").deleteOne({ _id: id });

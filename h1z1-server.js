@@ -15,10 +15,10 @@ require("./out/utils/processErrorHandling")
 
 const PackageSetting = require("./package.json");
 process.env.H1Z1_SERVER_VERSION = PackageSetting.version;
-debug(
+console.log(
   `${PackageSetting.name} V${PackageSetting.version} by H1emu community`
 );
-debug(`Node ${process.version}`);
+console.log(`Node ${process.version}`);
 
 const ConfigFilePath = process.env.CONFIG;
 

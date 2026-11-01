@@ -550,7 +550,7 @@ export function createScreamer(
   ) as unknown as ScreamerInstance;
 
   screamer.onTransition = (from: string, to: string, eventId: string) => {
-    debug(`[screamer:${screamer.id}] ${from} → ${to} (${eventId})`);
+    console.log(`[screamer:${screamer.id}] ${from} → ${to} (${eventId})`);
   };
   screamer.id = npc.characterId;
   screamer.npc = npc;

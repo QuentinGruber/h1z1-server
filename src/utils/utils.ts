@@ -1153,7 +1153,7 @@ export const initMongo = async function (
     .db(dbName)
     .collection(DB_COLLECTIONS.ADMINS)
     .insertMany(admins);
-  debug("h1server database was missing... created one with samples.");
+  console.log("h1server database was missing... created one with samples.");
 };
 
 /**
@@ -1492,7 +1492,7 @@ export async function resolveHostAddress(
       if (!err) {
         resolve(addresses);
       } else {
-        // debug(
+        // console.log(
         //   `Failed to resolve ${hostName} as an host name, it will be used as an IP`
         // );
         resolve([hostName]); // if it can't resolve it, assume that's an IPV4 / IPV6 not an hostname
@@ -1555,7 +1555,7 @@ export function removeUntransferableFields(
         seen.add(value);
         removeUntransferableFields(value, seen);
       } else if (!allowedTypes.includes(typeof value)) {
-        debug(`Invalid value type: ${typeof value}.`);
+        console.log(`Invalid value type: ${typeof value}.`);
         delete data[key];
       }
     }
@@ -1593,7 +1593,7 @@ export async function copyFile(
     readStream.pipe(writeStream);
 
     writeStream.on("finish", () => {
-      debug("File copied successfully!");
+      console.log("File copied successfully!");
       readStream.close();
       writeStream.close();
       resolve();

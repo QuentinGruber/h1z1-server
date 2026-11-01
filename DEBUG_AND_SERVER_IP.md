@@ -2,7 +2,7 @@
 
 ## What changed
 
-- All active `console.log(...)` calls in `src/`, `docker/`, `scripts/`, `benchmarks/`, and `h1z1-server.js` now call a named `debug(...)` logger. Errors and warnings remain on `console.error` / `console.warn`.
+- All active `console.log(...)` calls in `src/`, `docker/`, `scripts/`, `benchmarks/`, and `h1z1-server.js` now call a named `console.log(...)` logger. Errors and warnings remain on `console.error` / `console.warn`.
 - Existing debug namespaces are unchanged. Added namespaces use `h1emu:<path>:<filename>`.
 - Docker Compose passes the optional `DEBUG` setting to login/zone services. Debug output is disabled unless enabled with a namespace pattern.
 - The zone-to-login hostname is already taken from `LOGINSERVER_IP: login-server` in `docker-compose.yml` and is **not** a public IP.

@@ -24,7 +24,7 @@ files.forEach((filePath: string) => {
     const offset = data.indexOf(signatureHeader[0]) - 1;
     const dataHeader: Buffer = data.slice(offset ?? 0, signatureHeader.length);
     if (Buffer.compare(dataHeader, signatureHeader) > 0) {
-      debug(filePath);
+      console.log(filePath);
       const newData = signatureHeader + data;
       fs.writeFile(filePath, newData, () => {});
     }

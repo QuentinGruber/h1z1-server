@@ -1,0 +1,24 @@
+[ROAD] Loaded 425 asphalt-road collision instances
+[TERRAIN] Loaded 1024 terrain tile records from /usr/src/app/out/utils/../../data/2016/terrainData
+[NAV] loaded nav part 0
+[NAV] loaded nav part 1
+[NAV] loaded nav part 2
+[NAV] loaded nav cache part 0
+[NAV] loaded nav cache part 1
+[NAV] Navmesh loaded: 4.305s
+2026-11-01T04:50:08.393Z h1emu:road-connectivity PROBE {"label":"north-bank","side":-1,"from":{"x":-1991.77,"y":53.425625,"z":-2218.76},"a":{"success":true,"status":1073741824,"nearestRef":9077780,"nearestPoint":{"x":-1991.77001953125,"y":53.471580505371094,"z":-2217.299560546875},"isOverPoly":false},"b":{"success":true,"status":1073741824,"nearestRef":11308294,"nearestPoint":{"x":-1991.77001953125,"y":52.458587646484375,"z":-2235.760009765625},"isOverPoly":true}}
+2026-11-01T04:50:08.394Z h1emu:road-connectivity RESULT {"label":"north-bank","side":-1,"complete":true,"points":6}
+2026-11-01T04:50:08.394Z h1emu:road-connectivity PROBE {"label":"north-bank","side":1,"from":{"x":-1991.77,"y":53.425625,"z":-2218.76},"a":{"success":true,"status":1073741824,"nearestRef":9077780,"nearestPoint":{"x":-1991.77001953125,"y":53.471580505371094,"z":-2217.299560546875},"isOverPoly":false},"b":{"success":true,"status":1073741824,"nearestRef":11308294,"nearestPoint":{"x":-1991.77001953125,"y":52.17961883544922,"z":-2231.760009765625},"isOverPoly":true}}
+2026-11-01T04:50:08.395Z h1emu:road-connectivity RESULT {"label":"north-bank","side":1,"complete":true,"points":6}
+2026-11-01T04:50:08.396Z h1emu:road-connectivity PROBE {"label":"south-bank","side":-1,"from":{"x":-1991.77,"y":52.24224999999997,"z":-2248.76},"a":{"success":true,"status":1073741824,"nearestRef":9077764,"nearestPoint":{"x":-1991.77001953125,"y":52.736358642578125,"z":-2248.760009765625},"isOverPoly":true},"b":{"success":true,"status":1073741824,"nearestRef":11308294,"nearestPoint":{"x":-1991.77001953125,"y":52.458587646484375,"z":-2235.760009765625},"isOverPoly":true}}
+2026-11-01T04:50:08.396Z h1emu:road-connectivity RESULT {"label":"south-bank","side":-1,"complete":true,"points":2}
+2026-11-01T04:50:08.396Z h1emu:road-connectivity PROBE {"label":"south-bank","side":1,"from":{"x":-1991.77,"y":52.24224999999997,"z":-2248.76},"a":{"success":true,"status":1073741824,"nearestRef":9077764,"nearestPoint":{"x":-1991.77001953125,"y":52.736358642578125,"z":-2248.760009765625},"isOverPoly":true},"b":{"success":true,"status":1073741824,"nearestRef":11308294,"nearestPoint":{"x":-1991.77001953125,"y":52.17961883544922,"z":-2231.760009765625},"isOverPoly":true}}
+2026-11-01T04:50:08.396Z h1emu:road-connectivity RESULT {"label":"south-bank","side":1,"complete":true,"points":2}
+2026-11-01T04:50:08.397Z h1emu:road-connectivity PROBE {"label":"west-road","side":-1,"from":{"x":-2018,"y":46.56994719580157,"z":-2233.76},"a":{"success":true,"status":1073741824,"nearestRef":11308294,"nearestPoint":{"x":-2018,"y":46.24114227294922,"z":-2233.760009765625},"isOverPoly":true},"b":{"success":true,"status":1073741824,"nearestRef":11308294,"nearestPoint":{"x":-1991.77001953125,"y":52.458587646484375,"z":-2235.760009765625},"isOverPoly":true}}
+2026-11-01T04:50:08.397Z h1emu:road-connectivity RESULT {"label":"west-road","side":-1,"complete":true,"points":2}
+2026-11-01T04:50:08.397Z h1emu:road-connectivity PROBE {"label":"west-road","side":1,"from":{"x":-2018,"y":46.56994719580157,"z":-2233.76},"a":{"success":true,"status":1073741824,"nearestRef":11308294,"nearestPoint":{"x":-2018,"y":46.24114227294922,"z":-2233.760009765625},"isOverPoly":true},"b":{"success":true,"status":1073741824,"nearestRef":11308294,"nearestPoint":{"x":-1991.77001953125,"y":52.17961883544922,"z":-2231.760009765625},"isOverPoly":true}}
+2026-11-01T04:50:08.397Z h1emu:road-connectivity RESULT {"label":"west-road","side":1,"complete":true,"points":2}
+2026-11-01T04:50:08.398Z h1emu:road-connectivity PROBE {"label":"east-road","side":-1,"from":{"x":-1950,"y":61.50935589075996,"z":-2233.76},"a":{"success":true,"status":1073741824,"nearestRef":11308292,"nearestPoint":{"x":-1950,"y":60.980960845947266,"z":-2233.760009765625},"isOverPoly":true},"b":{"success":true,"status":1073741824,"nearestRef":11308294,"nearestPoint":{"x":-1991.77001953125,"y":52.458587646484375,"z":-2235.760009765625},"isOverPoly":true}}
+2026-11-01T04:50:08.398Z h1emu:road-connectivity RESULT {"label":"east-road","side":-1,"complete":true,"points":2}
+2026-11-01T04:50:08.398Z h1emu:road-connectivity PROBE {"label":"east-road","side":1,"from":{"x":-1950,"y":61.50935589075996,"z":-2233.76},"a":{"success":true,"status":1073741824,"nearestRef":11308292,"nearestPoint":{"x":-1950,"y":60.980960845947266,"z":-2233.760009765625},"isOverPoly":true},"b":{"success":true,"status":1073741824,"nearestRef":11308294,"nearestPoint":{"x":-1991.77001953125,"y":52.17961883544922,"z":-2231.760009765625},"isOverPoly":true}}
+2026-11-01T04:50:08.398Z h1emu:road-connectivity RESULT {"label":"east-road","side":1,"complete":true,"points":2}

@@ -29,31 +29,31 @@ export class LoginConnectionManager extends BaseLZConnection {
   _hasBeenConnectedToLogin: boolean = false;
   _reconnectTimer: NodeJS.Timeout | undefined;
   constructor(serverId: number, serverPort?: number) {
-    debug(
+    console.log(
       `LoginConnectionManager is being phased out. Please migrate to the new implementation that uses the ws transport. If you're unsure how to proceed or need help obtaining your secret, open a ticket on Discord.`
     );
     super(serverPort);
     this.messageHandler = (data: Buffer, client: LZConnectionClient): void => {
       const packet = this._protocol.parse(data);
-      debug(packet);
+      console.log(packet);
       if (!packet) return;
       switch (packet.name) {
         case "Ping":
           this.updateClientLastPing(client.clientId);
           break;
         case "SessionReply": {
-          debug(`Received session reply from ${client.address}:${client.port}`);
+          console.log(`Received session reply from ${client.address}:${client.port}`);
           if (
             client.clientId !==
             `${this._loginServerInfo.address}:${this._loginServerInfo.port}`
           ) {
             // blocks unknown sessionreplies
-            debug(`LoginConnection refused: Unknown login address / port`);
+            console.log(`LoginConnection refused: Unknown login address / port`);
             return;
           }
           if (client.serverId) {
             // ignores sessionreplies with an already open session
-            debug(
+            console.log(
               `LoginConnection already had open session, ignoring SessionReply`
             );
             return;
@@ -64,7 +64,7 @@ export class LoginConnectionManager extends BaseLZConnection {
             this._loginConnection = client;
             this.emit("session", null, client);
           } else {
-            debug(`LoginConnection refused: Zone not whitelisted`);
+            console.log(`LoginConnection refused: Zone not whitelisted`);
             this.emit("sessionfailed", null, client);
           }
           break;
@@ -142,7 +142,7 @@ export class LoginConnectionManager extends BaseLZConnection {
 
   async start() {
     if (!this._loginServerInfo || !this._sessionData) {
-      debug(
+      console.log(
         "[ERROR] LoginConnectionManager started without setting login info!"
       );
       return;

@@ -66,7 +66,7 @@ async function main() {
   } finally {
     Date.now = originalNow;
   }
-  debug(JSON.stringify(results, null, 2));
+  console.log(JSON.stringify(results, null, 2));
 }
 main().catch((e) => {
   console.error(e);

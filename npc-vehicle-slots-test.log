@@ -1,0 +1,1621 @@
+[ROAD] Loaded 425 asphalt-road collision instances
+[TERRAIN] Loaded 1024 terrain tile records from /usr/src/app/out/utils/../../data/2016/terrainData
+[NAV] loaded nav part 0
+[NAV] loaded nav part 1
+[NAV] loaded nav part 2
+[NAV] loaded nav cache part 0
+[NAV] loaded nav cache part 1
+[NAV] Navmesh loaded: 5.850s
+getClosestNavPoint gameIn=[-2014.74, 48.41, -2233.22] navOut=[-2014.74, 44.61, -2233.22] polyRef=4883480
+getClosestNavPoint gameIn=[-2012.98, 48.41, -2233.18] navOut=[-2012.98, 44.98, -2233.18] polyRef=4883479
+getClosestNavPoint gameIn=[-2011.22, 48.41, -2233.14] navOut=[-2011.22, 45.36, -2233.14] polyRef=4883479
+getClosestNavPoint gameIn=[-2012.82, 47.60, -2233.18] navOut=[-2012.82, 45.01, -2233.18] polyRef=4883479
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2012.85, 47.78, -2229.14] navOut=[-2012.85, 46.82, -2229.14] polyRef=9077798
+createAgent: navPos=[-2012.85, 46.82, -2229.14]
+createAgent: agentIdx=3 navPos=[-2007.81, 49.87, -2221.08]
+[z0] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2013.94, 47.52, -2229.16] navOut=[-2013.94, 46.58, -2229.16] polyRef=9077796
+createAgent: navPos=[-2013.94, 46.58, -2229.16]
+createAgent: agentIdx=4 navPos=[-2019.02, 46.92, -2223.94]
+[z1] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2015.58, 47.14, -2229.21] navOut=[-2015.58, 46.29, -2229.21] polyRef=9077796
+createAgent: navPos=[-2015.58, 46.29, -2229.21]
+createAgent: agentIdx=5 navPos=[-2019.19, 46.08, -2227.60]
+[z2] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2017.35, 46.72, -2234.92] navOut=[-2017.35, 43.89, -2234.92] polyRef=9077769
+createAgent: navPos=[-2017.35, 43.89, -2234.92]
+createAgent: agentIdx=6 navPos=[-2021.99, 43.02, -2233.66]
+[z3] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2018.07, 46.55, -2232.92] navOut=[-2018.07, 43.76, -2232.92] polyRef=9077769
+createAgent: navPos=[-2018.07, 43.76, -2232.92]
+createAgent: agentIdx=7 navPos=[-2014.66, 44.39, -2233.99]
+[z4] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2018.08, 46.55, -2233.73] navOut=[-2018.08, 43.75, -2233.73] polyRef=9077769
+createAgent: navPos=[-2018.08, 43.75, -2233.73]
+createAgent: agentIdx=8 navPos=[-2019.54, 43.48, -2233.11]
+[z5] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2018.05, 46.56, -2234.52] navOut=[-2018.05, 43.76, -2234.52] polyRef=9077769
+createAgent: navPos=[-2018.05, 43.76, -2234.52]
+createAgent: agentIdx=9 navPos=[-2018.67, 43.64, -2234.51]
+[z6] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2017.62, 46.66, -2235.82] navOut=[-2017.62, 43.84, -2235.82] polyRef=9077769
+createAgent: navPos=[-2017.62, 43.84, -2235.82]
+createAgent: agentIdx=10 navPos=[-2022.42, 42.94, -2234.98]
+[z7] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2018.27, 46.51, -2235.15] navOut=[-2018.27, 43.72, -2235.15] polyRef=9077769
+createAgent: navPos=[-2018.27, 43.72, -2235.15]
+createAgent: agentIdx=11 navPos=[-2015.01, 44.33, -2234.76]
+[z8] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2018.77, 46.39, -2233.16] navOut=[-2018.77, 43.62, -2233.16] polyRef=9077769
+createAgent: navPos=[-2018.77, 43.62, -2233.16]
+createAgent: agentIdx=12 navPos=[-2013.39, 44.63, -2233.90]
+[z9] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2018.81, 46.38, -2234.53] navOut=[-2018.81, 43.62, -2234.53] polyRef=9077769
+createAgent: navPos=[-2018.81, 43.62, -2234.53]
+createAgent: agentIdx=13 navPos=[-2016.55, 44.04, -2233.60]
+[z10] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2018.53, 46.44, -2235.88] navOut=[-2018.53, 43.67, -2235.88] polyRef=9077769
+createAgent: navPos=[-2018.53, 43.67, -2235.88]
+createAgent: agentIdx=14 navPos=[-2022.14, 42.99, -2234.81]
+[z11] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2019.23, 46.28, -2234.00] navOut=[-2019.23, 43.54, -2234.00] polyRef=9077769
+createAgent: navPos=[-2019.23, 43.54, -2234.00]
+createAgent: agentIdx=15 navPos=[-2015.43, 44.25, -2234.58]
+[z12] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2019.46, 46.23, -2232.99] navOut=[-2019.46, 43.50, -2232.99] polyRef=9077769
+createAgent: navPos=[-2019.46, 43.50, -2232.99]
+createAgent: agentIdx=16 navPos=[-2014.39, 44.44, -2233.70]
+[z13] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2006.09, 49.37, -2233.64] navOut=[-2006.09, 46.45, -2233.64] polyRef=9077774
+createAgent: navPos=[-2006.09, 46.45, -2233.64]
+createAgent: agentIdx=17 navPos=[-1991.46, 49.74, -2233.37]
+[z14] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2019.63, 46.19, -2234.61] navOut=[-2019.63, 43.46, -2234.61] polyRef=9077769
+createAgent: navPos=[-2019.63, 43.46, -2234.61]
+createAgent: agentIdx=18 navPos=[-2020.39, 43.32, -2233.65]
+[z15] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2019.42, 46.24, -2235.66] navOut=[-2019.42, 43.50, -2235.66] polyRef=9077769
+createAgent: navPos=[-2019.42, 43.50, -2235.66]
+createAgent: agentIdx=19 navPos=[-2022.04, 43.01, -2233.76]
+[z16] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2005.74, 49.45, -2232.46] navOut=[-2005.74, 46.52, -2232.46] polyRef=9077774
+createAgent: navPos=[-2005.74, 46.52, -2232.46]
+createAgent: agentIdx=20 navPos=[-2001.88, 47.32, -2233.64]
+[z17] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2005.59, 49.49, -2234.06] navOut=[-2005.59, 46.56, -2234.06] polyRef=9077774
+createAgent: navPos=[-2005.59, 46.56, -2234.06]
+createAgent: agentIdx=21 navPos=[-2004.16, 46.83, -2233.55]
+[z18] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2020.30, 46.03, -2233.22] navOut=[-2020.30, 43.34, -2233.22] polyRef=9077769
+createAgent: navPos=[-2020.30, 43.34, -2233.22]
+createAgent: agentIdx=22 navPos=[-2015.86, 44.17, -2233.92]
+[z19] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2005.29, 49.56, -2233.15] navOut=[-2005.29, 46.61, -2233.15] polyRef=9077774
+createAgent: navPos=[-2005.29, 46.61, -2233.15]
+createAgent: agentIdx=23 navPos=[-2004.96, 46.67, -2233.36]
+[z20] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2020.08, 46.08, -2236.07] navOut=[-2020.08, 43.38, -2236.07] polyRef=9077769
+createAgent: navPos=[-2020.08, 43.38, -2236.07]
+createAgent: agentIdx=24 navPos=[-2014.28, 44.47, -2233.99]
+[z21] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2020.60, 45.96, -2234.57] navOut=[-2020.60, 43.28, -2234.57] polyRef=9077769
+createAgent: navPos=[-2020.60, 43.28, -2234.57]
+createAgent: agentIdx=25 navPos=[-2018.28, 43.72, -2233.17]
+[z22] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2004.36, 49.78, -2233.78] navOut=[-2004.36, 46.79, -2233.78] polyRef=9077774
+createAgent: navPos=[-2004.36, 46.79, -2233.78]
+createAgent: agentIdx=26 navPos=[-1994.66, 48.83, -2232.91]
+[z23] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2012.82, 48.40, -2233.18] navOut=[-2013.30, 44.65, -2233.18] polyRef=9077769
+requests: 0, total: 1
+requests: 0, total: 1
+[z3] chase → attack (reachPlayer)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] chase → attack (reachPlayer)
+[z5] chase → attack (reachPlayer)
+[z6] chase → attack (reachPlayer)
+[z7] chase → attack (reachPlayer)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+requests: 0, total: 1
+requests: 0, total: 1
+[z9] chase → attack (reachPlayer)
+[z11] chase → attack (reachPlayer)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] chase → attack (reachPlayer)
+[z9] attack → attacking (startAttacking)
+[z10] chase → attack (reachPlayer)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+[z12] chase → attack (reachPlayer)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+[z12] attack → chase (playerBacked)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] chase → attack (reachPlayer)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z9] attacking → attack (doneAttacking)
+[z11] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z8] attacking → attack (doneAttacking)
+[z9] attack → attacking (startAttacking)
+[z10] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z8] attack → attacking (startAttacking)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z4] attacking → attack (doneAttacking)
+[z5] attacking → attack (doneAttacking)
+[z6] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z4] attack → attacking (startAttacking)
+[z5] attack → attacking (startAttacking)
+[z6] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z12] attacking → attack (doneAttacking)
+requests: 0, total: 1
+2026-11-01T03:12:59.612Z h1emu:vehicle-crowd-test RESULT {"mode":"baseline","attackers":10,"total":24,"rows":[{"id":"z0","hits":0,"state":"chase","position":[-2012.9647216796875,47.754512786865234,-2229.17578125,0],"goal":{"x":-2013.2996826171875,"y":46.650001525878906,"z":-2229.299560546875},"travel":6.096546131368313,"range":2.9499958006841416},{"id":"z1","hits":0,"state":"chase","position":[-2014.145263671875,47.476783752441406,-2229.279296875,0],"goal":{"x":-2014.088623046875,"y":46.51851272583008,"z":-2229.299560546875},"travel":2.432202268376523,"range":2.873803765958636},{"id":"z2","hits":0,"state":"chase","position":[-2015.7203369140625,47.10624313354492,-2229.260009765625,0],"goal":{"x":-2015.4962158203125,"y":46.283912658691406,"z":-2229.299560546875},"travel":3.3880588435409793,"range":2.934111559970504},{"id":"z3","hits":49,"state":"attacking","position":[-2016.57568359375,46.90502166748047,-2234.7431640625,0],"goal":{"x":0,"y":0,"z":0},"travel":0.8336058035769796,"range":1.2430588905718405},{"id":"z4","hits":49,"state":"attacking","position":[-2016.681640625,46.880096435546875,-2232.923583984375,0],"goal":{"x":0,"y":0,"z":0},"travel":1.3841096329949232,"range":1.2367886834966395},{"id":"z5","hits":49,"state":"attacking","position":[-2016.325439453125,46.96389389038086,-2233.54833984375,0],"goal":{"x":0,"y":0,"z":0},"travel":1.7656669075354359,"range":0.8849583756966183},{"id":"z6","hits":49,"state":"attacking","position":[-2016.6602783203125,46.8851203918457,-2234.1494140625,0],"goal":{"x":0,"y":0,"z":0},"travel":1.449904994477515,"range":1.2422966337062211},{"id":"z7","hits":49,"state":"attacking","position":[-2015.7691650390625,47.094757080078125,-2235.119384765625,0],"goal":{"x":0,"y":0,"z":0},"travel":1.9762095225571208,"range":0.8893599742688701},{"id":"z8","hits":48,"state":"attacking","position":[-2017.1064453125,46.78015899658203,-2235.022705078125,0],"goal":{"x":0,"y":0,"z":0},"travel":1.2700498865999086,"range":1.8535426294130286},{"id":"z9","hits":48,"state":"attacking","position":[-2017.2811279296875,46.73906326293945,-2232.899658203125,0],"goal":{"x":0,"y":0,"z":0},"travel":1.5353597185129946,"range":1.8518748471524267},{"id":"z10","hits":48,"state":"attacking","position":[-2017.2003173828125,46.75807571411133,-2234.413818359375,0],"goal":{"x":0,"y":0,"z":0},"travel":1.6865044313274533,"range":1.8045384536082383},{"id":"z11","hits":48,"state":"attacking","position":[-2016.3505859375,46.957977294921875,-2235.432373046875,0],"goal":{"x":0,"y":0,"z":0},"travel":2.234257839136733,"range":1.4687187468597271},{"id":"z12","hits":48,"state":"attack","position":[-2017.315185546875,46.73105239868164,-2233.625732421875,0],"goal":{"x":0,"y":0,"z":0},"travel":2.0571228334371825,"range":1.9031718474766253},{"id":"z13","hits":0,"state":"chase","position":[-2017.99267578125,46.57167053222656,-2233.57666015625,0],"goal":{"x":-2015.4581298828125,"y":44.24529266357422,"z":-2233.51953125},"travel":4.358225926769003,"range":2.5978241264604787},{"id":"z14","hits":0,"state":"chase","position":[-2006.0048828125,49.3918342590332,-2233.27197265625,0],"goal":{"x":-2006.099609375,"y":46.45000076293945,"z":-2233.373046875},"travel":4.840771174139984,"range":4.31345116690621},{"id":"z15","hits":0,"state":"chase","position":[-2017.7423095703125,46.63056945800781,-2234.75146484375,0],"goal":{"x":-2015.44140625,"y":44.24842834472656,"z":-2234.293701171875},"travel":5.4116624354409995,"range":2.401344321583522},{"id":"z16","hits":0,"state":"chase","position":[-2016.9595947265625,46.81470489501953,-2235.7294921875,0],"goal":{"x":-2015.4422607421875,"y":44.248268127441406,"z":-2234.293701171875},"travel":3.590194273323927,"range":2.115225120880525},{"id":"z17","hits":0,"state":"chase","position":[-2006.0491943359375,49.38140869140625,-2231.99267578125,0],"goal":{"x":-2011.4014892578125,"y":47.37062072753906,"z":-2228.666748046875},"travel":17.846544292886737,"range":4.296678758063017},{"id":"z18","hits":0,"state":"chase","position":[-2006.0809326171875,49.37394332885742,-2234.06591796875,0],"goal":{"x":-2006.099609375,"y":46.45000076293945,"z":-2234.099609375},"travel":2.3908574016125796,"range":4.217608539372354},{"id":"z19","hits":0,"state":"chase","position":[-2018.05126953125,46.557884216308594,-2232.931396484375,0],"goal":{"x":-2015.47216796875,"y":44.24266052246094,"z":-2232.899658203125},"travel":4.110834587010668,"range":2.643494074080536},{"id":"z20","hits":0,"state":"chase","position":[-2005.4637451171875,49.51913833618164,-2231.72705078125,0],"goal":{"x":-2011.378173828125,"y":47.379478454589844,"z":-2228.658935546875},"travel":17.201612788545656,"range":4.909043586428231},{"id":"z21","hits":0,"state":"chase","position":[-2017.6512451171875,46.65199279785156,-2235.7294921875,0],"goal":{"x":-2015.4405517578125,"y":44.24858856201172,"z":-2234.293701171875},"travel":3.3585798960476696,"range":2.680712551408964},{"id":"z22","hits":0,"state":"chase","position":[-2018.3009033203125,46.4991569519043,-2235.42724609375,0],"goal":{"x":-2015.4393310546875,"y":44.248817443847656,"z":-2234.293701171875},"travel":4.807263675449217,"range":3.1426515030941258},{"id":"z23","hits":0,"state":"chase","position":[-2005.3826904296875,49.5382080078125,-2234.052734375,0],"goal":{"x":-2006.099609375,"y":46.45000076293945,"z":-2234.099609375},"travel":3.5525798214532807,"range":4.935034220457408}]}
+requests: 0, total: 0
+getClosestNavPoint gameIn=[-2014.74, 48.41, -2233.22] navOut=[-2014.74, 44.58, -2233.22] polyRef=13272092
+getClosestNavPoint gameIn=[-2012.98, 48.41, -2233.18] navOut=[-2012.98, 44.95, -2233.18] polyRef=13272092
+getClosestNavPoint gameIn=[-2011.22, 48.41, -2233.14] navOut=[-2011.22, 45.32, -2233.14] polyRef=13272092
+getClosestNavPoint gameIn=[-2012.82, 47.60, -2233.18] navOut=[-2012.82, 44.98, -2233.18] polyRef=13272092
+requests: 0, total: 1
+getClosestNavPoint gameIn=[-2012.85, 47.78, -2229.14] navOut=[-2012.85, 46.82, -2229.14] polyRef=17466406
+createAgent: navPos=[-2012.85, 46.82, -2229.14]
+createAgent: agentIdx=3 navPos=[-2005.52, 50.07, -2224.09]
+[z0] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2013.94, 47.52, -2229.16] navOut=[-2013.94, 46.58, -2229.16] polyRef=17466404
+createAgent: navPos=[-2013.94, 46.58, -2229.16]
+createAgent: agentIdx=4 navPos=[-2015.31, 46.97, -2226.56]
+[z1] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2015.58, 47.14, -2229.21] navOut=[-2015.58, 46.29, -2229.21] polyRef=17466404
+createAgent: navPos=[-2015.58, 46.29, -2229.21]
+createAgent: agentIdx=5 navPos=[-2016.03, 46.25, -2229.08]
+[z2] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2017.35, 46.72, -2234.92] navOut=[-2017.35, 43.89, -2234.92] polyRef=17466377
+createAgent: navPos=[-2017.35, 43.89, -2234.92]
+createAgent: agentIdx=6 navPos=[-2018.68, 43.64, -2233.62]
+[z3] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2018.07, 46.55, -2232.92] navOut=[-2018.07, 43.76, -2232.92] polyRef=17466377
+createAgent: navPos=[-2018.07, 43.76, -2232.92]
+createAgent: agentIdx=7 navPos=[-2015.24, 44.29, -2233.65]
+[z4] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2018.08, 46.55, -2233.73] navOut=[-2018.08, 43.75, -2233.73] polyRef=17466377
+createAgent: navPos=[-2018.08, 43.75, -2233.73]
+createAgent: agentIdx=8 navPos=[-2020.78, 43.25, -2234.79]
+[z5] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2018.05, 46.56, -2234.52] navOut=[-2018.05, 43.76, -2234.52] polyRef=17466377
+createAgent: navPos=[-2018.05, 43.76, -2234.52]
+createAgent: agentIdx=9 navPos=[-2019.47, 43.49, -2235.55]
+[z6] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2017.62, 46.66, -2235.82] navOut=[-2017.62, 43.84, -2235.82] polyRef=17466377
+createAgent: navPos=[-2017.62, 43.84, -2235.82]
+createAgent: agentIdx=10 navPos=[-2016.25, 44.10, -2233.29]
+[z7] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2018.27, 46.51, -2235.15] navOut=[-2018.27, 43.72, -2235.15] polyRef=17466377
+createAgent: navPos=[-2018.27, 43.72, -2235.15]
+createAgent: agentIdx=11 navPos=[-2022.71, 42.89, -2235.27]
+[z8] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2018.77, 46.39, -2233.16] navOut=[-2018.77, 43.62, -2233.16] polyRef=17466377
+createAgent: navPos=[-2018.77, 43.62, -2233.16]
+createAgent: agentIdx=12 navPos=[-2019.83, 43.43, -2235.58]
+[z9] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2018.81, 46.38, -2234.53] navOut=[-2018.81, 43.62, -2234.53] polyRef=17466377
+createAgent: navPos=[-2018.81, 43.62, -2234.53]
+createAgent: agentIdx=13 navPos=[-2020.31, 43.33, -2235.78]
+[z10] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2018.53, 46.44, -2235.88] navOut=[-2018.53, 43.67, -2235.88] polyRef=17466377
+createAgent: navPos=[-2018.53, 43.67, -2235.88]
+createAgent: agentIdx=14 navPos=[-2014.68, 44.39, -2232.95]
+[z11] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2019.23, 46.28, -2234.00] navOut=[-2019.23, 43.54, -2234.00] polyRef=17466377
+createAgent: navPos=[-2019.23, 43.54, -2234.00]
+createAgent: agentIdx=15 navPos=[-2022.03, 43.01, -2234.23]
+[z12] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2019.46, 46.23, -2232.99] navOut=[-2019.46, 43.50, -2232.99] polyRef=17466377
+createAgent: navPos=[-2019.46, 43.50, -2232.99]
+createAgent: agentIdx=16 navPos=[-2013.76, 44.56, -2235.34]
+[z13] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2006.09, 49.37, -2233.64] navOut=[-2006.09, 46.45, -2233.64] polyRef=17466382
+createAgent: navPos=[-2006.09, 46.45, -2233.64]
+createAgent: agentIdx=17 navPos=[-1990.80, 49.57, -2232.30]
+[z14] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2019.63, 46.19, -2234.61] navOut=[-2019.63, 43.46, -2234.61] polyRef=17466377
+createAgent: navPos=[-2019.63, 43.46, -2234.61]
+createAgent: agentIdx=18 navPos=[-2018.74, 43.63, -2234.25]
+[z15] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2019.42, 46.24, -2235.66] navOut=[-2019.42, 43.50, -2235.66] polyRef=17466377
+createAgent: navPos=[-2019.42, 43.50, -2235.66]
+createAgent: agentIdx=19 navPos=[-2022.73, 42.88, -2234.54]
+[z16] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2005.74, 49.45, -2232.46] navOut=[-2005.74, 46.52, -2232.46] polyRef=17466382
+createAgent: navPos=[-2005.74, 46.52, -2232.46]
+createAgent: agentIdx=20 navPos=[-2002.80, 47.14, -2233.76]
+[z17] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2005.59, 49.49, -2234.06] navOut=[-2005.59, 46.56, -2234.06] polyRef=17466382
+createAgent: navPos=[-2005.59, 46.56, -2234.06]
+createAgent: agentIdx=21 navPos=[-1996.56, 48.32, -2231.92]
+[z18] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2020.30, 46.03, -2233.22] navOut=[-2020.30, 43.34, -2233.22] polyRef=17466377
+createAgent: navPos=[-2020.30, 43.34, -2233.22]
+createAgent: agentIdx=22 navPos=[-2013.37, 44.64, -2233.99]
+[z19] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2005.29, 49.56, -2233.15] navOut=[-2005.29, 46.61, -2233.15] polyRef=17466382
+createAgent: navPos=[-2005.29, 46.61, -2233.15]
+createAgent: agentIdx=23 navPos=[-1990.75, 49.78, -2232.96]
+[z20] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2020.08, 46.08, -2236.07] navOut=[-2020.08, 43.38, -2236.07] polyRef=17466377
+createAgent: navPos=[-2020.08, 43.38, -2236.07]
+createAgent: agentIdx=24 navPos=[-2020.14, 43.37, -2234.31]
+[z21] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2020.60, 45.96, -2234.57] navOut=[-2020.60, 43.28, -2234.57] polyRef=17466377
+createAgent: navPos=[-2020.60, 43.28, -2234.57]
+createAgent: agentIdx=25 navPos=[-2019.61, 43.47, -2234.46]
+[z22] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2004.36, 49.78, -2233.78] navOut=[-2004.36, 46.79, -2233.78] polyRef=17466382
+createAgent: navPos=[-2004.36, 46.79, -2233.78]
+createAgent: agentIdx=26 navPos=[-1989.96, 49.62, -2231.77]
+[z23] wander → chase (seePlayer)
+getClosestNavPoint gameIn=[-2012.82, 48.40, -2233.18] navOut=[-2013.30, 44.65, -2233.18] polyRef=17466377
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+requests: 0, total: 1
+[z3] chase → attack (reachPlayer)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z8] chase → attack (reachPlayer)
+[z9] chase → attack (reachPlayer)
+requests: 0, total: 1
+[z8] attack → attacking (startAttacking)
+[z9] attack → attacking (startAttacking)
+requests: 0, total: 1
+requests: 0, total: 1
+[z10] chase → attack (reachPlayer)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z7] chase → attack (reachPlayer)
+[z10] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z8] attacking → attack (doneAttacking)
+[z9] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z8] attack → attacking (startAttacking)
+[z9] attack → attacking (startAttacking)
+[z16] chase → attack (reachPlayer)
+requests: 0, total: 1
+[z12] chase → attack (reachPlayer)
+[z16] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z10] attacking → attack (doneAttacking)
+[z12] attack → attacking (startAttacking)
+[z21] chase → attack (reachPlayer)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+[z10] attack → attacking (startAttacking)
+[z21] attack → chase (playerBacked)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z21] chase → attack (reachPlayer)
+requests: 0, total: 1
+[z8] attacking → attack (doneAttacking)
+[z9] attacking → attack (doneAttacking)
+[z21] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z8] attack → attacking (startAttacking)
+[z9] attack → attacking (startAttacking)
+[z16] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attacking → attack (doneAttacking)
+[z15] chase → attack (reachPlayer)
+[z16] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z10] attacking → attack (doneAttacking)
+[z12] attack → attacking (startAttacking)
+[z15] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+[z10] attack → attacking (startAttacking)
+[z13] chase → attack (reachPlayer)
+requests: 0, total: 1
+[z3] attack → attacking (startAttacking)
+[z7] attack → attacking (startAttacking)
+[z11] chase → attack (reachPlayer)
+[z13] attack → attacking (startAttacking)
+[z21] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z8] attacking → attack (doneAttacking)
+[z9] attacking → attack (doneAttacking)
+[z11] attack → attacking (startAttacking)
+[z21] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z8] attack → attacking (startAttacking)
+[z9] attack → attacking (startAttacking)
+[z16] attacking → attack (doneAttacking)
+requests: 0, total: 1
+[z12] attacking → attack (doneAttacking)
+[z15] attacking → attack (doneAttacking)
+[z16] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z10] attacking → attack (doneAttacking)
+[z12] attack → attacking (startAttacking)
+[z15] attack → attacking (startAttacking)
+requests: 0, total: 1
+[z3] attacking → attack (doneAttacking)
+[z7] attacking → attack (doneAttacking)
+[z10] attack → attacking (startAttacking)
+[z13] attacking → attack (doneAttacking)
+requests: 0, total: 1
+2026-11-01T03:12:59.703Z h1emu:vehicle-crowd-test FAILED AssertionError [ERR_ASSERTION]: physical vehicle penetration z6 tick 117 yaw 2.0708650700102096 pos -2016.118896484375,47.012481689453125,-2234.266357421875,0 depth 0.06941888194138235
++ actual - expected
+
++ {
++   exitTime: 1,
++   normal: [
++     -0.9377092149962137,
++     -0.12012149483357007,
++     -0.32599425545572586
++   ],
++   time: 0
++ }
+- null
+
+    at main (/usr/src/app/scripts/verify-captured-vehicle-slots.cjs:81:334)
+Process will exit with code: 1 time : Sun Nov 01 2026 03:12:59 GMT+0000 (Coordinated Universal Time)
+h1z1-server version : undefined
+h1z1-server version : undefined
+Process exited with code: 1 time : Sun Nov 01 2026 03:12:59 GMT+0000 (Coordinated Universal Time)

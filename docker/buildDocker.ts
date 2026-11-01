@@ -16,18 +16,18 @@ function buildAllImages(imageTag:string) {
     ]);
 
     buildProcess.stdout.on("data", (data) => {
-      debug(`${name}(${version}): ${data}`);
+      console.log(`${name}(${version}): ${data}`);
     });
 
     buildProcess.stderr.on("data", (data) => {
-      debug(`${name}(${version}): ${data}`);
+      console.log(`${name}(${version}): ${data}`);
     });
 
     buildProcess.on("close", (code) => {
       if (code) {
         throw new Error(`${name}(${version}) exited with code ${code}`);
       } else {
-        debug(`${name}(${version}) builded!`);
+        console.log(`${name}(${version}) builded!`);
       }
     });
   });

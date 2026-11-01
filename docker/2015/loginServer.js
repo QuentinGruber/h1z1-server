@@ -4,7 +4,7 @@ const server = new LoginServer(1115, process.env.MONGO_URL);
 server
   .start()
   .then(() => {
-    debug("[LOGIN] Ready: client UDP 1115; internal UDP/WS 1110");
+    console.log("[LOGIN] Ready: client UDP 1115; internal UDP/WS 1110");
   })
   .catch((error) => {
     console.error("[LOGIN] Startup failed", error);

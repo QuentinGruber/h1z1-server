@@ -53,8 +53,8 @@ function moveToward(
   server: ZoneServer2016
 ): void {
   if (!npc.navAgent) return;
-  const navTarget = server.navManager.getClosestNavPointVec3(target);
-  npc.navAgent.requestMoveTarget(navTarget);
+  const navTarget = npc.getZombieNavTarget(target);
+  if (navTarget) npc.navAgent.requestMoveTarget(navTarget);
 }
 
 function listenToSounds(
@@ -63,7 +63,7 @@ function listenToSounds(
 ): Sound | null {
   let nearest: Sound | null = null;
   let nearestDist = Infinity;
-  for (const sound of sounds) {
+  for (const sound of exploder.npc.getZombieSounds(sounds)) {
     const dist = getDistance2d(exploder.npc.state.position, sound.position);
     if (dist < sound.radius) {
       exploder.agitation = Math.min(100, exploder.agitation + sound.agitation);
@@ -124,8 +124,13 @@ function getChaseTarget(exploder: ZombieInstance): {
   if (!exploder.targetCharacterId) return null;
   const player = exploder.server._characters[exploder.targetCharacterId];
   if (player)
+    exploder.npc.refreshZombieVehicleApproach(exploder.targetCharacterId);
+  if (player)
     return {
-      position: player.state.position,
+      position: exploder.npc.getZombieTargetPosition(
+        exploder.targetCharacterId,
+        player.state.position
+      ),
       isAlive: player.isAlive,
       isVanished: !!player.isVanished,
       isHidden: !!player.isHidden
@@ -318,7 +323,13 @@ export function createExploder(
         );
         if (chaseDist > 50) {
           exploder.event(ZombieEvents.LostPlayer);
-        } else if (chaseDist < 2) {
+        } else if (
+          chaseDist <
+          exploder.npc.getZombieVehicleApproachDistance(
+            exploder.targetCharacterId,
+            2
+          )
+        ) {
           exploder.event(ZombieEvents.ReachPlayer);
         } else {
           if (trySmellCorpse(exploder)) return;
@@ -356,15 +367,24 @@ export function createExploder(
           return;
         }
         exploder.npc.lookAtTarget = attackTarget.position;
-        moveToward(exploder.npc, attackTarget.position, exploder.server);
         const attackDist = getDistance(
           exploder.npc.state.position,
           attackTarget.position
         );
-        if (attackDist >= 2) {
+        if (
+          attackDist >=
+          exploder.npc.getZombieVehicleApproachDistance(
+            exploder.targetCharacterId,
+            2,
+            true
+          )
+        ) {
+          moveToward(exploder.npc, attackTarget.position, exploder.server);
           exploder.event(ZombieEvents.PlayerBacked);
-        } else if (exploder.lastAttackTime > 2) {
-          exploder.event(ZombieEvents.StartAttacking);
+        } else {
+          exploder.npc.stopMovement();
+          if (exploder.lastAttackTime > 2)
+            exploder.event(ZombieEvents.StartAttacking);
         }
       },
 
@@ -557,7 +577,7 @@ export function createExploder(
   ) as unknown as ZombieInstance;
 
   exploder.onTransition = (from: string, to: string, eventId: string) => {
-    debug(`[${exploder.id}] ${from} → ${to} (${eventId})`);
+    console.log(`[${exploder.id}] ${from} → ${to} (${eventId})`);
   };
   exploder.id = npc.characterId;
   exploder.npc = npc;

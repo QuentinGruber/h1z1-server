@@ -65,15 +65,15 @@ function moveToward(
   server: ZoneServer2016
 ): void {
   if (!npc.navAgent) return;
-  const navTarget = server.navManager.getClosestNavPointVec3(target);
-  npc.navAgent.requestMoveTarget(navTarget);
+  const navTarget = npc.getZombieNavTarget(target);
+  if (navTarget) npc.navAgent.requestMoveTarget(navTarget);
 }
 
 function listenToSounds(gasser: ZombieInstance, sounds: Sound[]): Sound | null {
   let nearest: Sound | null = null;
   let nearestDist = Infinity;
   let bestPriority = Number.NEGATIVE_INFINITY;
-  for (const sound of sounds) {
+  for (const sound of gasser.npc.getZombieSounds(sounds)) {
     const dist = getDistance2d(gasser.npc.state.position, sound.position);
     if (dist < sound.radius) {
       gasser.agitation = Math.min(100, gasser.agitation + sound.agitation);
@@ -196,9 +196,13 @@ function getChaseTarget(gasser: ZombieInstance): {
 } | null {
   if (!gasser.targetCharacterId) return null;
   const player = gasser.server._characters[gasser.targetCharacterId];
+  if (player) gasser.npc.refreshZombieVehicleApproach(gasser.targetCharacterId);
   if (player)
     return {
-      position: player.state.position,
+      position: gasser.npc.getZombieTargetPosition(
+        gasser.targetCharacterId,
+        player.state.position
+      ),
       isAlive: player.isAlive,
       isVanished: !!player.isVanished,
       isHidden: !!player.isHidden
@@ -524,11 +528,23 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
         chargeGas(gasser);
 
         gasser.npc.lookAtTarget = attackTarget.position;
-        moveToward(gasser.npc, attackTarget.position, gasser.server);
         const attackDist = getDistance(
           gasser.npc.state.position,
           attackTarget.position
         );
+        const approachDistance = gasser.npc.getZombieVehicleApproachDistance(
+          gasser.targetCharacterId,
+          MELEE_SLASH_RANGE,
+          true
+        );
+        if (attackDist > approachDistance) {
+          moveToward(gasser.npc, attackTarget.position, gasser.server);
+          // Finish the vehicle approach before a melee/gas windup stops
+          // steering at the outer edge of damage reach.
+          if (attackDist <= MELEE_SLASH_RANGE) return;
+        } else {
+          gasser.npc.stopMovement();
+        }
         if (attackDist > GAS_SPIT_RANGE) {
           gasser.event(ZombieEvents.PlayerBacked);
         } else if (gasser.lastAttackTime > 2) {
@@ -727,6 +743,7 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
         from: [ZombieTransitions.Attack],
         to: ZombieTransitions.Attacking,
         EnterTransition: () => {
+          gasser.npc.stopMovement();
           gasser.npc.playAnimation(ZombieOneshotAnim.KnifeSlash);
           gasser.stateTimer = 0;
           gasser.lastAttackTime = 0;
@@ -737,6 +754,7 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
         from: [ZombieTransitions.Attack],
         to: ZombieTransitions.Attacking,
         EnterTransition: () => {
+          gasser.npc.stopMovement();
           gasser.npc.playAnimation(ZombieOneshotAnim.Spit);
           gasser.stateTimer = 0;
           gasser.lastAttackTime = 0;
@@ -825,11 +843,11 @@ export function createGasser(npc: Npc, server: ZoneServer2016): ZombieInstance {
   ) as unknown as ZombieInstance;
 
   gasser.onTransition = (from: string, to: string, eventId: string) => {
-    debug(`[${gasser.id}] ${from} → ${to} (${eventId})`);
-    debug(`  Position: ${gasser.npc.state.position.join(", ")}`);
-    debug(`  Agitation: ${gasser.agitation}`);
-    debug(`  Hunger: ${gasser.hunger}`);
-    debug(`  ChargeGas: ${gasser.ChargeGas}`);
+    console.log(`[${gasser.id}] ${from} → ${to} (${eventId})`);
+    console.log(`  Position: ${gasser.npc.state.position.join(", ")}`);
+    console.log(`  Agitation: ${gasser.agitation}`);
+    console.log(`  Hunger: ${gasser.hunger}`);
+    console.log(`  ChargeGas: ${gasser.ChargeGas}`);
   };
   gasser.id = npc.characterId;
   gasser.npc = npc;

@@ -138,7 +138,7 @@ function validate(directory, chunkDirectory) {
     heightSamples,
     allCoordinatesAndIndicesMatch: true
   };
-  debug(JSON.stringify(report));
+  console.log(JSON.stringify(report));
   return report;
 }
 if (require.main === module) {

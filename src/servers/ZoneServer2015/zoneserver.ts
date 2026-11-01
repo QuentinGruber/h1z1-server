@@ -152,7 +152,7 @@ export class ZoneServer2015 extends EventEmitter {
     this._appDataFolder = getAppDataFolderPath();
     if (!this._mongoAddress) {
       this._soloMode = true;
-      debug("Server in solo mode !");
+      console.log("Server in solo mode !");
     }
     this.on("data", this.onZoneDataEvent);
 
@@ -202,12 +202,12 @@ export class ZoneServer2015 extends EventEmitter {
         "session",
         (err: string, client: LZConnectionClient) => {
           if (err) {
-            debug(
+            console.log(
               `An error occured for LoginConnection with ${client.sessionId}`
             );
             console.error(err);
           } else {
-            debug(`LoginConnection established for ${client.sessionId}`);
+            console.log(`LoginConnection established for ${client.sessionId}`);
           }
         }
       );
@@ -224,7 +224,7 @@ export class ZoneServer2015 extends EventEmitter {
       this._h1emuZoneServer.on(
         "disconnect",
         (err: string, client: LZConnectionClient, reason: number) => {
-          debug(
+          console.log(
             `LoginConnection dropped: ${
               reason ? "Connection Lost" : "Unknown Error"
             }`
@@ -310,7 +310,7 @@ export class ZoneServer2015 extends EventEmitter {
                 break;
               }
               default:
-                debug(`Unhandled h1emu packet: ${packet.name}`);
+                console.log(`Unhandled h1emu packet: ${packet.name}`);
                 break;
             }
           }
@@ -363,7 +363,7 @@ export class ZoneServer2015 extends EventEmitter {
       packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
       packet.name != "PlayerUpdateManagedPosition"
     ) {
-      debug(`Receive Data ${[packet.name]}`);
+      console.log(`Receive Data ${[packet.name]}`);
     }
     try {
       this._packetHandlers.processPacket(this, client, packet);
@@ -374,11 +374,11 @@ export class ZoneServer2015 extends EventEmitter {
   }
 
   onZoneLoginEvent(client: Client) {
-    debug("zone login");
+    console.log("zone login");
     try {
       this.sendInitData(client);
     } catch (error) {
-      debug(error);
+      console.log(error);
       this.sendData(client, "LoginFailed", {});
     }
   }
@@ -415,11 +415,11 @@ export class ZoneServer2015 extends EventEmitter {
     clientProtocol: string
   ) {
     if (clientProtocol !== this._clientProtocol) {
-      debug(`${soeClient.address} is using the wrong client protocol`);
+      console.log(`${soeClient.address} is using the wrong client protocol`);
       this.sendData(soeClient as any, "LoginFailed", {});
       return;
     }
-    debug(
+    console.log(
       `Client logged in from ${soeClient.address}:${soeClient.port} with character id: ${characterId}`
     );
     const generatedTransient = this.generateTransientId(characterId);
@@ -467,7 +467,7 @@ export class ZoneServer2015 extends EventEmitter {
     if (packet) {
       this.emit("data", client, packet);
     } else {
-      debug("zonefailed : ", data);
+      console.log("zonefailed : ", data);
     }
   }
 
@@ -489,7 +489,7 @@ export class ZoneServer2015 extends EventEmitter {
       await this.saveWorld();
     }
     if (!this._soloMode) {
-      debug("Starting LoginConnectionManager");
+      console.log("Starting LoginConnectionManager");
       if (!this._loginServerInfo.address) {
         await this.fetchLoginInfo();
       }
@@ -500,7 +500,7 @@ export class ZoneServer2015 extends EventEmitter {
       this._h1emuZoneServer.start();
       this.sendZonePopulationUpdate();
     }
-    debug("Server ready");
+    console.log("Server ready");
   }
 
   getAllCurrentUsedTransientId() {
@@ -567,7 +567,7 @@ export class ZoneServer2015 extends EventEmitter {
     this._doors = doors;
     this._destroyables = destroyable;
     delete require.cache[require.resolve("./workers/createBaseEntities")];
-    debug("All entities created");
+    console.log("All entities created");
     this._props = {};
     const propsArray: any = await this._db
       ?.collection("props")
@@ -596,7 +596,7 @@ export class ZoneServer2015 extends EventEmitter {
       this._objects[object.characterId] = object;
     }
     this._transientIds = this.getAllCurrentUsedTransientId();
-    debug("World fetched!");
+    console.log("World fetched!");
   }
 
   async saveCollections(): Promise<void> {
@@ -623,7 +623,7 @@ export class ZoneServer2015 extends EventEmitter {
           worldId: this._worldId
         });
         await this.saveCollections();
-        debug("World saved!");
+        console.log("World saved!");
       }
     } else {
       this.createAllObjects();
@@ -638,11 +638,11 @@ export class ZoneServer2015 extends EventEmitter {
     try {
       await mongoClient.connect();
     } catch (e) {
-      throw debug(
+      throw console.log(
         "[ERROR]Unable to connect to mongo server " + this._mongoAddress
       );
     }
-    debug("connected to mongo !");
+    console.log("connected to mongo !");
     // if no collections exist on h1server database , fill it with samples
     const dbIsEmpty = (await mongoClient.db(DB_NAME).collections()).length < 1;
     if (dbIsEmpty) {
@@ -652,8 +652,8 @@ export class ZoneServer2015 extends EventEmitter {
   }
 
   async start(): Promise<void> {
-    debug("Starting server");
-    debug(`Protocol used : ${this._protocol.protocolName}`);
+    console.log("Starting server");
+    console.log(`Protocol used : ${this._protocol.protocolName}`);
     if (this._mongoAddress) {
       await this.connectMongo();
     }
@@ -707,7 +707,7 @@ export class ZoneServer2015 extends EventEmitter {
   timeoutClient(client: Client): void {
     if (!!this._clients[client.sessionId]) {
       // if hasn't already deleted
-      debug(`Client (${client.soeClientId}) disconnected ( ping timeout )`);
+      console.log(`Client (${client.soeClientId}) disconnected ( ping timeout )`);
       this.deleteClient(client);
     }
   }
@@ -840,7 +840,7 @@ export class ZoneServer2015 extends EventEmitter {
     delete require.cache[
       require.resolve("../../../data/2015/dataSources/ProfileTypes.json")
     ];
-    debug("Generated profiles");
+    console.log("Generated profiles");
     return profiles;
   }
 
@@ -932,7 +932,7 @@ export class ZoneServer2015 extends EventEmitter {
         }
       });
     });
-    debug("Generated " + items.length + " items");
+    console.log("Generated " + items.length + " items");
     return items;
   }
 
@@ -1066,7 +1066,7 @@ export class ZoneServer2015 extends EventEmitter {
   speedTreeUse(client: Client, packet: any) {
     const elo = this._speedTrees[packet.data.id];
     if (elo) {
-      debug(
+      console.log(
         "\x1b[32m",
         client.character.name + "\x1b[0m",
         "tried to use destroyed speedTree id:" + "\x1b[32m",
@@ -1142,7 +1142,7 @@ export class ZoneServer2015 extends EventEmitter {
   killCharacter(client: Client) {
     const character = client.character;
     if (character.isAlive) {
-      debug(character.name + " has died");
+      console.log(character.name + " has died");
       client.character.isRunning = false;
       client.character.characterStates.knockedOut = true;
       this.updateCharacterState(
@@ -2305,7 +2305,7 @@ export class ZoneServer2015 extends EventEmitter {
     this._props = props;
     this._destroyables = destroyable;
     delete require.cache[require.resolve("./workers/createBaseEntities")];
-    debug("All entities created");
+    console.log("All entities created");
   }
 
   data(collectionName: string): any {
@@ -2472,7 +2472,7 @@ export class ZoneServer2015 extends EventEmitter {
       const loadout = client.character.loadouts[i];
       if (loadout.loadoutId == loadoutId && loadout.loadoutTab == loadoutTab) {
         this.sendChatText(client, "Setting loadout " + loadoutId);
-        debug(JSON.stringify(loadout, null, 2));
+        console.log(JSON.stringify(loadout, null, 2));
         client.character.currentLoadout = loadout.loadoutData;
 
         client.character.currentLoadoutId = loadoutId;
@@ -2495,7 +2495,7 @@ export class ZoneServer2015 extends EventEmitter {
     obj: zone2015packets
   ): void {
     if (packetName != "KeepAlive") {
-      debug("send data", packetName);
+      console.log("send data", packetName);
     }
     const data = this._protocol.pack(packetName, obj);
     if (data) {
@@ -2562,7 +2562,7 @@ export class ZoneServer2015 extends EventEmitter {
   }
 
   stop(): void {
-    debug("Shutting down");
+    console.log("Shutting down");
     process.exitCode = 0;
   }
 
@@ -2583,7 +2583,7 @@ export class ZoneServer2015 extends EventEmitter {
   }
 
   getGameTime(): number {
-    debug("get server time");
+    console.log("get server time");
     const delta = Date.now() - this._startGameTime;
     return this._frozeCycle
       ? Number(((this._gameTime + delta) / 1000).toFixed(0))
@@ -2591,7 +2591,7 @@ export class ZoneServer2015 extends EventEmitter {
   }
 
   getServerTime(): number {
-    debug("get server time");
+    console.log("get server time");
     const delta = Date.now() - this._startTime;
     return this._serverTime + delta;
   }
@@ -2601,7 +2601,7 @@ export class ZoneServer2015 extends EventEmitter {
   }
 
   getServerTimeTest(): number {
-    debug("get server time");
+    console.log("get server time");
     const delta = Date.now() - this._startTime;
     return Number(
       (((this._serverTime + delta) * this._timeMultiplier) / 1000).toFixed(0)
@@ -2609,7 +2609,7 @@ export class ZoneServer2015 extends EventEmitter {
   }
 
   sendGameTimeSync(client: Client): void {
-    debug("GameTimeSync");
+    console.log("GameTimeSync");
     if (!this._frozeCycle) {
       this.sendData(client, "GameTimeSync", {
         time: Int64String(this.getServerTimeTest()),

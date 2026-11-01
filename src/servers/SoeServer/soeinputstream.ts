@@ -183,7 +183,7 @@ export class SOEInputStream extends EventEmitter {
 
   private acknowledgeInputData(sequence: number): boolean {
     if (sequence > this._nextSequence.get()) {
-      debug(
+      console.log(
         "Sequence out of order, expected " +
           this._nextSequence.get() +
           " but received " +
@@ -211,7 +211,7 @@ export class SOEInputStream extends EventEmitter {
   }
 
   write(data: Buffer, sequence: number, isFragment: boolean): void {
-    debug(
+    console.log(
       "Writing " + data.length + " bytes, sequence " + sequence,
       " fragment=" + isFragment + ", lastAck: " + this._lastAck.get()
     );
@@ -234,12 +234,12 @@ export class SOEInputStream extends EventEmitter {
 
   setEncryption(value: boolean): void {
     this._useEncryption = value;
-    debug("encryption: " + this._useEncryption);
+    console.log("encryption: " + this._useEncryption);
   }
 
   toggleEncryption(): void {
     this._useEncryption = !this._useEncryption;
-    debug("Toggling encryption: " + this._useEncryption);
+    console.log("Toggling encryption: " + this._useEncryption);
   }
 }
 

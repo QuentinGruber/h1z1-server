@@ -337,9 +337,9 @@ export class AirdropManager {
         );
 
         if (this.spawnZombiesOnLanding) {
-          debug("[AIRDROP] About to spawn zombies");
+          console.log("[AIRDROP] About to spawn zombies");
           this.spawnAirdropZombies(position);
-          debug("[AIRDROP] Finished spawning zombies");
+          console.log("[AIRDROP] Finished spawning zombies");
         }
       },
       Math.floor(tickAtPos + crateDropSpeed)
@@ -545,7 +545,7 @@ export class AirdropManager {
 
       this.server._npcs[characterId] = zombie;
 
-      debug(
+      console.log(
         `[AIRDROP ZOMBIE] spawned ${characterId} ` +
           `model=${modelId} ` +
           `pos=[${spawnPos[0].toFixed(2)}, ` +

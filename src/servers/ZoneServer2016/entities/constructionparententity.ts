@@ -318,7 +318,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     if (!process.env.DISABLE_AI && server.aiEnabled) {
       this.obstacleRef = setObstacle(server, actorModelId, position, rotation);
       if (this.obstacleRef) {
-        debug(
+        console.log(
           `[NavMesh] Added obstacle for construction ${this.characterId} (modelId: ${actorModelId})`
         );
       }
@@ -916,7 +916,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     slotCooldown = 30000
   ): boolean {
     if (this.obstacleRef) {
-      debug(
+      console.log(
         `[NavMesh] Removed obstacle for construction ${this.characterId}`
       );
       server.navManager.removeObstacle(this.obstacleRef);

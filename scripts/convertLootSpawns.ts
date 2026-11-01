@@ -91,6 +91,6 @@ for (const [spawnerName, spawner] of Object.entries(containerLootSpawners)) {
   containerCount++;
 }
 
-debug(
+console.log(
   `Migration complete: ${groundCount} ground tables, ${containerCount} container tables written to data/2016/lootTables/`
 );

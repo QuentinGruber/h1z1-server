@@ -1242,7 +1242,7 @@ export class Character2016 extends BaseFullCharacter {
           firemodes = firegroupDef?.FIRE_MODES || [];
         if (!firemodes) {
           console.error(`firegroupDef missing for`);
-          debug(firegroup);
+          console.log(firegroup);
         }
         return {
           firegroupId: firegroup.FIRE_GROUP_ID,
@@ -1554,7 +1554,7 @@ export class Character2016 extends BaseFullCharacter {
       abilityLineId = 2;
     for (const itemDefinitionId of emoteItemDefinitionIds) {
       if (freeIndex >= freeSlots.length) {
-        debug(
+        console.log(
           `[emotes] no free in-range ability slot left (<= ${MAX_ABILITY_SLOT_ID}); skipping emote itemDefinitionId ${itemDefinitionId}`
         );
         break;

@@ -5,11 +5,11 @@ const loginServer = spawn("node", [`${__dirname}/loginServer.js`]);
 const zoneServer = spawn("node", [`${__dirname}/zoneServer.js`]);
 
 loginServer.stdout.on("data", (data) => {
-  debug(`${data}`);
+  console.log(`${data}`);
 });
 
 loginServer.stderr.on("data", (data) => {
-  debug(`${data}`);
+  console.log(`${data}`);
 });
 
 loginServer.on("close", (code) => {
@@ -19,11 +19,11 @@ loginServer.on("close", (code) => {
 });
 
 zoneServer.stdout.on("data", (data) => {
-  debug(`${data}`);
+  console.log(`${data}`);
 });
 
 zoneServer.stderr.on("data", (data) => {
-  debug(`${data}`);
+  console.log(`${data}`);
 });
 
 zoneServer.on("close", (code) => {
