@@ -1,3 +1,5 @@
+> [!CAUTION]
+> DO NOT PUBLISH TO h1EMU DEV BRANCH - TESTS ARE INCOMPLETE.
 # h1z1-server [![npm version](http://img.shields.io/npm/v/h1z1-server.svg?style=flat)](https://npmjs.org/package/h1z1-server "View this project on npm") [![GitHub license](https://img.shields.io/github/license/quentingruber/h1z1-server.svg)](https://github.com/quentingruber/h1z1-server/blob/master/LICENSE)
 
 [![Discord](https://img.shields.io/discord/707525351357677610.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/RM6jNkj)
@@ -52,6 +54,7 @@ So we will see :)
 - Thanks to Chriis who provided the basis for this project by being the first (as far as I know) to try to emulate servers for h1z1 and who inspired me.
 
 - Thanks to <a href="https://github.com/jseidelin">Jacob Seidelin</a> without whom none of this would have been possible.
+- Thanks to <a href="http://github.com/crossfire151">Nightcóre</a> for zombie correction aka invisible zombies and NPC collision improvements.
 
 - Thanks to all those who sent messages of help and support and perpetuated the hope of playing h1z1 again.
 
